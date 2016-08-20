@@ -1,1 +1,7 @@
+DirectoryIndex index.php
 ErrorDocument 404 /index.php
+
+Order deny,allow
+<FilesMatch "config.(json|php)|load.php">
+	deny from all
+</FilesMatch>
