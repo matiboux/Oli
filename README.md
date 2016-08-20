@@ -9,7 +9,7 @@ You're a developer? You can create your own addon for Oli, [here's how](#).
 
 ### Start using it
 
-[Download the lastest release](#) and extract Oli on your web server.
+[Download the latest release](https://github.com/OliFramework/Oli/releases/latest) and extract Oli on your web server.
 Let's check **config.json** now!
 
 Once configuration is done, you can start create your pages in "**content/theme/...**" directory. Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
