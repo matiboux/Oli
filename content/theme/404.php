@@ -1,1 +1,1 @@
-ERROR 404
+Oli Framrework: 404 page (/content/theme/404.php)

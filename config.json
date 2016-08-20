@@ -1,0 +1,56 @@
+{
+	"source_path": "",
+	"addons": [],
+	
+	"Oli": {
+		"mysql": {
+			"database": "dbname",
+			"username": "username",
+			"password": "password",
+			"hostname": "localhost"
+		},
+		"settings_tables": "settings",
+		"shotcut_links_table": "shortcut_links",
+		"post_vars_cookie": {
+			"name": "OliPostVars",
+			"domain": "UrlParam:fulldomain",
+			"secure": false,
+			"http_only": false
+		},
+		"default_content_type": "HTML",
+		"default_charset": "utf-8",
+		"cdn_url": "ShortcutLink:cdn",
+		"default_user_language": "en",
+		"translations_table": "translations",
+		"time_zone": "Europe/Paris",
+		
+		"login_management": true,
+		"accounts_tables": {
+			"accounts": "accounts",
+			"infos": "accounts_infos",
+			"sessions": "accounts_sessions",
+			"requests": "accounts_requests",
+			"permissions": "accounts_permissions",
+			"rights": "accounts_rights"
+		},
+		"prohibited_usernames": [
+			"username",
+			"all"
+		],
+		"register": {
+			"verification": true,
+			"request_expire_delay": "Time:3 days"
+		},
+		"hash": {
+			"algorithm": "Const:PASSWORD_DEFAULT",
+			"salt": "",
+			"cost": "10"
+		},
+		"auth_key_cookie": {
+			"name": "Setting:auth_key_cookie_name",
+			"domain": ".|UrlParam:domain",
+			"secure": false,
+			"http_only": false
+		}
+	}
+}

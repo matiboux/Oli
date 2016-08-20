@@ -1,23 +1,38 @@
 <?php
-if(!defined('INCLUDES')) {
-	define('INCLUDES', ASBPATH . 'includes/');
+/** Define Paths */
+if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
+
+$config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', (!empty($config['source_path'])) ? $config['source_path'] : ABSPATH);
+
+if(!defined('INCLUDEPATH')) define('INCLUDEPATH', SCRIPTBASEPATH . 'includes/');
+if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
+
+if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
+if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+
+/** Include OliCore & Addons */
+require_once INCLUDEPATH . 'loader.php';
+
+/** Load OliCore & Addons */
+$_Oli = new \OliFramework\OliCore;
+if(!empty($config['addons'])) {
+	foreach($config['addons'] as $eachAddon) {
+		if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {
+			$addonNamespace = !empty($eachAddon['namespace']) ? str_replace('/', '\\', $eachAddon['namespace']) . '\\' . $eachAddon['class'] : $eachAddon['class'];
+			${$eachAddon['var']} = new $addonNamespace;
+			$_Oli->addAddon($eachAddon['name'], $eachAddon['var']);
+		}
+	}
 }
 
-require_once ABSPATH . 'includes/config.php';
-require_once ABSPATH . 'includes/mysql.php';
-require_once ABSPATH . 'includes/class.php';
-require_once ABSPATH . 'includes/functions.php';
-
-if(getUrlParam(1) == '' && file_exists(THEME . 'index.php')) {
-	include THEME . 'index.php';
+/** Load Config */
+unset($config['source_path'], $config['addons']);
+if(!empty($config)) {
+	foreach($config as $eachKey => $eachConfig) {
+		${($eachKey == 'Oli') ? '_Oli' : $_Oli->getAddonVar($eachKey)}->loadConfig($eachConfig);
+	}
 }
-else if(file_exists(THEME . getUrlParam(1) . '.php')) {
-	include THEME . getUrlParam(1) . '.php';
-}
-else if(file_exists(THEME . '404.php')) {
-	include THEME . '404.php';
-}
-else {
-	echo 'ERROR 404: FICHIER NON TROUVE';
-}
+if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
 ?>
