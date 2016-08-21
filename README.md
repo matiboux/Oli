@@ -44,8 +44,8 @@ Owner & Developer: Mathieu Guérin (or "Matiboux" - contact infos below)
 
 *Thanks credits:*
 
-- @SeeMyPing (https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name
-- @Elionatrox (https://twitter.com/Elionatrox) who lent me test servers
+- [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name
+- [@Elionatrox](https://twitter.com/Elionatrox) who lent me test servers
 
 ### About me & Contact
 
