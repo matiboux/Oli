@@ -2287,7 +2287,7 @@ class OliCore {
 				if(in_array($param, ['allbases', 'alldomains'], true)) {
 					$allBases = $allDomains = [];
 					foreach($urlSetting as $eachUrl) {
-						preg_match("/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/", $eachUrl, $matches);
+						preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
 						$allBases[] = ($matches[1] ?: (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://')) . $matches[2];
 						$allDomains[] = $matches[3];
 					}
@@ -2327,7 +2327,7 @@ class OliCore {
 					
 					if(in_array($param, [0, 'base'], true)) return $baseUrl;
 					else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
-						preg_match("/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/", $baseUrl, $matches);
+						preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/', $baseUrl, $matches);
 						if($param == 'fulldomain') return $matches[1];
 						if($param == 'subdomain') return $matches[2];
 						if($param == 'domain') return $matches[3];
@@ -2649,7 +2649,7 @@ class OliCore {
 					reset($entries);
 					while(list(, $entry) = each($entries)) {
 						$entry = trim($entry);
-						if(preg_match("/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/", $entry, $ip_list)){
+						if(preg_match('/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/', $entry, $ip_list)){
 							$private_ip = [
 								'/^0\./',
 								'/^127\.0\.0\.1/',
