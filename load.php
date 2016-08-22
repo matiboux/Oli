@@ -1,5 +1,5 @@
 <?php
-/** Define Paths */
+/** Define Global Paths */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
 
 $config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
@@ -33,7 +33,10 @@ if(!empty($config)) {
 if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
 
 /** Define Content Paths */
+$mediaPathAddon = $this->getSetting('media_path');
+$themePathAddon = $this->getSetting('theme_path');
+
 if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
-if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+if(!defined('MEDIAPATH')) define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
+if(!defined('THEMEPATH')) define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
 ?>
