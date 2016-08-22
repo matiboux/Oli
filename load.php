@@ -8,10 +8,6 @@ if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', (!empty($config['source_
 if(!defined('INCLUDEPATH')) define('INCLUDEPATH', SCRIPTBASEPATH . 'includes/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
 
-if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
-if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
-
 /** Include OliCore & Addons */
 require_once INCLUDEPATH . 'loader.php';
 
@@ -35,4 +31,9 @@ if(!empty($config)) {
 	}
 }
 if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
+
+/** Define Content Paths */
+if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
+if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 ?>
