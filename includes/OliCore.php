@@ -440,6 +440,20 @@ class OliCore {
 						if(!$hasUsedHttpHostBase) break;
 					}
 				}
+				
+				$mediaPathAddon = $this->getSetting('media_path');
+				$themePathAddon = $this->getSetting('theme_path');
+				
+				if(!defined('CONTENTPATH')) {
+					$i = 1;
+					while($i <= strlen($mediaPathAddon) AND $i <= strlen($themePathAddon) AND substr($mediaPathAddon, 0, $i) == substr($themePathAddon, 0, $i)) {
+						$contentPath = substr($mediaPathAddon, 0, $i);
+						$i++;
+					}
+					define('CONTENTPATH', ABSPATH . $contentPath ?: 'content/');
+				}
+				if(!defined('MEDIAPATH')) define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
+				if(!defined('THEMEPATH')) define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
 			}
 			
 			/**

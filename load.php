@@ -31,12 +31,4 @@ if(!empty($config)) {
 	}
 }
 if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
-
-/** Define Content Paths */
-$mediaPathAddon = $this->getSetting('media_path');
-$themePathAddon = $this->getSetting('theme_path');
-
-if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
-if(!defined('MEDIAPATH')) define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
-if(!defined('THEMEPATH')) define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
 ?>
