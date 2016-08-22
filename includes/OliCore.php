@@ -2907,6 +2907,7 @@ class OliCore {
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				
 				return $this->updateInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where);
 			}
 			
@@ -3479,7 +3480,13 @@ class OliCore {
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
 				if($this->verifyLogin($username, $password)) {
 					$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
-					if($this->getUserRightLevel($username, false) >= $this->translateUserRight('USER')) {
+					
+					if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
+					if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
+					if(password_needs_rehash($this->getAccountInfos('ACCOUNTS', 'password', $username), $this->hashAlgorithm, $hashOptions))
+						$this->updateAccountInfos('ACCOUNTS', array('password' => password_hash($password, $this->hashAlgorithm, $hashOptions)), $username);
+					
+					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
 						$newAuthKey = $this->keygen(100);
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = 24*3600;
 						
@@ -3564,11 +3571,9 @@ class OliCore {
 		 * @return string Returns the password hash
 		 */
 		public function hashPassword($password) {
-			$options = [];
-			if(!empty($this->hashSalt)) $options['salt'] = $this->hashSalt;
-			if(!empty($this->hashCost)) $options['cost'] = $this->hashCost;
-			
-			return password_hash($password, $this->hashAlgorithm, $options);
+			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
+			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
+			return password_hash($password, $this->hashAlgorithm, $hashOptions);
 		}
 
 }
