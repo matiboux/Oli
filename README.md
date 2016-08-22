@@ -1,4 +1,4 @@
-# Oli Framework BETA 1.7.0
+# Oli Framework BETA 1.7.1
 
 **Oli** is an *open source PHP framework* made to help web developers creating their website.
 
@@ -13,6 +13,11 @@ You're a developer? You can create your own addon for Oli, [here's how](#).
 Let's check **config.json** now! Need help to configure it? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
 
 Once configuration is done, you can start create your pages in "**content/theme/...**" directory. Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
+Need help? [Here's some examples](#).
+
+Using a MySQL database with your website? You can get the [default Oli SQL file here](#).
+
+Are you using the account management feature? Get the [Oli login page](#) now!
 
 ### License
 
@@ -50,7 +55,7 @@ Owner & Developer: Mathieu Guérin (or "Matiboux" - contact infos below)
 ### About me & Contact
 
 My name is Mathieu Guérin, also known as "Matiboux" on the Internet.
-I'm a young developer who created this project and works on it.
+I'm a young developer who created this project and now works on it.
 
 Want to **disvover my other projects**?
 Check out [my projects portal](http://projects.matiboux.com/).
