@@ -2,7 +2,7 @@
 /*\
 |*|  ---------------------------
 |*|  --- [  Oli Framework  ] ---
-|*|  --- [   BETA: 1.7.0   ] ---
+|*|  --- [   BETA: 1.7.1   ] ---
 |*|  ---------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help web developers creating their website
@@ -21,13 +21,15 @@
 |*|    You should have received a copy of the GNU Affero General Public License
 |*|    along with this program. If not, see <http://www.gnu.org/licenses/>.
 |*|  
-|*|  Please see the README file for more infos!
+|*|  Please see the README.md file for more infos!
 |*|  
+|*|  --- --- ---
+|*|  ~ MALIOTT ~
 |*|  --- --- ---
 |*|  
 |*|  Releases date:
 |*|    PRE-DEV: 16 November 2014
-|*|    ALPHA: 6 February 2015
+|*|    ALPHA: 6 February 2015 (released on Github)
 |*|    BETA: July 2015
 |*|    * Nothing about previous releases
 |*|    * [version 1.5]:
@@ -42,8 +44,9 @@
 |*|              (1.6.3): 10 January 2016
 |*|              (1.6.4): 10 February 2016
 |*|              (1.6.6): 2 June 2016
-|*|    * [version 1.7]:
+|*|    * [version 1.7]: Github releases starts!
 |*|              (1.7.0): 11 August 2016
+|*|              (1.7.1): Currently in development
 \*/
 
 /**
@@ -212,8 +215,12 @@ class OliCore {
 	 * @return string|array Decoded value(s)
 	 */
 	public function decodeConfigValues($values) {
-		foreach(((!is_array($values)) ? [$values] : $values) as $eachKey => $eachValue) {
-			if(is_array($eachValue)) $result = $this->decodeConfigValues($eachValue);
+		foreach((!is_array($values) ? [$values] : $values) as $eachKey => $eachValue) {
+			$isArray = false;
+			if(is_array($eachValue)) {
+				$result = $this->decodeConfigValues($eachValue);
+				$isArray = true;
+			}
 			else {
 				$result = [];
 				foreach(explode('|', $eachValue) as $eachPart) {
@@ -253,7 +260,7 @@ class OliCore {
 					$result[] = $partResult;
 				}
 			}
-			$output[$eachKey] = count($result) > 1 ? implode($result) : $result[0];
+			$output[$eachKey] = $isArray ? (!is_array($result) ? [$result] : $result) : (count($result) > 1 ? implode($result) : $result[0]);
 		}
 		return (!is_array($value) AND count($output) == 1) ? $output[0] : $output;
 	}
@@ -423,7 +430,16 @@ class OliCore {
 			 * @return void
 			 */
 			public function setSettingsTables($tables) {
-				$this->settingsTables = (!is_array($tables)) ? [$tables] : $tables;
+				$this->settingsTables = $tables = (!is_array($tables)) ? [$tables] : $tables;
+				foreach($tables as $eachTableGroup) {
+					if(is_array($eachTableGroup) or $hasArray) {
+						$hasArray = true;
+						$this->settingsTables = $eachTableGroup;
+						$this->getUrlParam('base', $hasUsedHttpHostBase);
+						
+						if(!$hasUsedHttpHostBase) break;
+					}
+				}
 			}
 			
 			/**
@@ -2258,12 +2274,13 @@ class OliCore {
 		 * # => Other parameters (e.g. 2 => 'param')
 		 * 
 		 * @param integer|string|null|void $param Parameter to get
+		 * @param boolean $hasUsedHttpHostBase Indicate to the user if the HTTP HOST has been used or not
 		 * 
 		 * @uses OliCore::getSetting() to get url setting
 		 * @uses OliCore::$fileNameParam to get the file name parameter
 		 * @return string|array|boolean Parameter wanted
 		 */
-		public function getUrlParam($param = null) {
+		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			if(!isset($param) OR $param < 0) return (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			else {
 				$urlSetting = !empty($this->getSetting('url')) ? (!is_array($this->getSetting('url')) ? [$this->getSetting('url')] : $this->getSetting('url')) : null;
@@ -2281,6 +2298,7 @@ class OliCore {
 				else {
 					$frationnedUrl = explode('/', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 					$baseUrl = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
+					$hasUsedHttpHostBase = false;
 					$shortBaseUrl = '';
 					
 					if(isset($urlSetting)) {
@@ -2302,7 +2320,10 @@ class OliCore {
 							}
 						}
 					}
-					if(!isset($urlSetting) OR !$baseUrlMatch) $baseUrl = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+					if(!isset($urlSetting) OR !$baseUrlMatch) {
+						$baseUrl = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+						$hasUsedHttpHostBase = true;
+					}
 					
 					if(in_array($param, [0, 'base'], true)) return $baseUrl;
 					else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
@@ -2367,7 +2388,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getDataUrl() {
-			return $this->getUrlParam(0) . 'content/theme/data/';
+			return $this->getUrlParam(0) . ($this->getSetting('theme_path') ?: 'content/theme/') . 'data/';
 		}
 		
 		/**
@@ -2377,7 +2398,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getMediaUrl() {
-			return $this->getUrlParam(0) . 'content/media/';
+			return $this->getUrlParam(0) . ($this->getSetting('media_path') ?: 'content/media/');
 		}
 		
 		/**
