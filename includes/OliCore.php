@@ -99,6 +99,7 @@ class OliCore {
 	
 	/** Encryption */
 	private $encryptionKey = '';
+	private $encryptionKeyLength = 1024;
 	
 	/** Content Type */
 	private $currentContentType = '';
@@ -285,6 +286,11 @@ class OliCore {
 			else if($eachConfig == 'shotcut_links_table') $this->setShortcutLinksTable($eachValue);
 			else if($eachConfig == 'default_content_type') $this->setDefaultContentType($eachValue);
 			else if($eachConfig == 'default_charset') $this->setDefaultCharset($eachValue);
+			else if($eachConfig == 'encryption_key') {
+				foreach($eachValue as $eachKey => $eachParam) {
+					if($eachKey == 'length') $this->setEncryptionKeyLength($eachParam);
+				}
+			}
 			else if($eachConfig == 'cdn_url') $this->setCdnUrl($eachValue);
 			else if($eachConfig == 'default_user_language') $this->setDefaultLanguage($eachValue);
 			else if($eachConfig == 'translations_table') $this->setTranslationsTable($eachValue);
@@ -337,7 +343,7 @@ class OliCore {
 		
 		if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
 		else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
-			fwrite($encryptFile, $this->encryptionKey = $this->keygen(1024, true, true, true, true));
+			fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->encryptionKeyLength ?: 1024, true, true, true, true));
 			fclose($encryptFile);
 		}
 	}
@@ -515,6 +521,22 @@ class OliCore {
 			 */
 			public function setDefaultCharset($defaultCharset) {
 				$this->defaultCharset = $defaultCharset;
+			}
+			
+			/** ------------ */
+			/**  Encryption  */
+			/** ------------ */
+			
+			/**
+			 * Set encryption key length
+			 * 
+			 * @param string $encryptionKeyLength Encryption key length
+			 * 
+			 * @uses OliCore::$encryptionKeyLength to set the encryption key length
+			 * @return void
+			 */
+			public function setEncryptionKeyLength($encryptionKeyLength) {
+				$this->encryptionKeyLength = $encryptionKeyLength;
 			}
 			
 			/** -------------------- */
