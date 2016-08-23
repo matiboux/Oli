@@ -6,7 +6,7 @@
 |*|  ---------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help web developers creating their website
-|*|  Copyright (C) 2015 Mathieu Guérin ("Matiboux")
+|*|  Copyright (C) 2015 Mathieu Guérin (aka "Matiboux")
 |*|  
 |*|    This program is free software: you can redistribute it and/or modify
 |*|    it under the terms of the GNU Affero General Public License as published
@@ -96,6 +96,9 @@ class OliCore {
 	
 	/** Url Params Used for Content load */
 	private $fileNameParam = '';
+	
+	/** Encryption */
+	private $encryptionKey = '';
 	
 	/** Content Type */
 	private $currentContentType = '';
@@ -197,7 +200,7 @@ class OliCore {
 	 * @return string Show infos about this framework
 	 */
 	public function __toString() {
-		return 'Powered by Oli, a PHP Framework';
+		return 'Powered by Oli';
 	}
 	
 	/** --------------- */
@@ -330,6 +333,12 @@ class OliCore {
 					else if($eachKey == 'http_only') $this->setAuthKeyCookieHttpOnly($eachParam);
 				}
 			}
+		}
+		
+		if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
+		else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
+			fwrite($encryptFile, $this->encryptionKey = $this->keygen(1024, true, true, true, true));
+			fclose($encryptFile);
 		}
 	}
 	
@@ -1869,9 +1878,10 @@ class OliCore {
 					header('Content-Type: ' . $newContentType . ';charset=' . $charset);
 					$this->currentContentType = $newContentType;
 					$this->currentCharset = $charset;
+					
+					return $newContentType;
 				}
-				else
-					return false;
+				else return false;
 			}
 			
 			/**
