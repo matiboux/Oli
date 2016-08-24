@@ -5,22 +5,22 @@
 **Community is everything!**
 Support me, suggest me anything!
 
-You're a developer? You can create your own addon for Oli, [here's how](#).
-
 ### Start using it
 
-[Download the latest release](https://github.com/OliFramework/Oli/releases/latest) and extract Oli on your web server.
-Let's check **config.json** now! Need help to configure it? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
+[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and configure your website!  
+Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
 
 Once configuration is done, you can start create your pages in "**content/theme/...**" directory. Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
 
 ### More things
 
-Want to find addons, pages of the community or their own projects? [Here's what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community).
+Want to find addons, pages of the community or their own projects? [Here's what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community).  
+You're a developer? You can create your own addon for Oli, [here's how](#).  
+Don't forget to **share your creations with us**!
 
-Using a MySQL database with your website? You can get the [default Oli SQL file here](#).
-
-Are you using the account management feature? Get the official [Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
+*Official Oli thing that could helps you*:  
+Using a MySQL database with your website? You can get the [default Oli SQL file here](#).  
+Using the account management feature? Get the [official Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
 
 ### License
 
@@ -42,33 +42,31 @@ This license applies to:
 - *files* in "**/content/...**" (and *not* sub-directories)
 - (*except .htaccess*)
 
-*all files* in "**/content/theme/...**" and "**/content/media/...**" (and sub-directories) belongs to the website owner
+*all files* in "**/content/theme/...**" and "**/content/media/...**" (and sub-directories)  
+These files belongs their respective owners or the website owner
 
-*all files* in "**/addons/...**" (and sub-directories) belongs to their respective owners and can be licensed under another license (chosen by their owner).
+*all files* in "**/addons/...**" (and sub-directories)  
+These files belongs their respective owners and may be licensed under another license
 
 ### Team
 
 Owner & Developer: Mathieu Guérin (or "Matiboux" - contact infos below)
 
 *Thanks credits:*
-
 - [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name
-- [@Elionatrox](https://twitter.com/Elionatrox) who lent me test servers
+- [@Elionatrox](https://twitter.com/Elionatrox) who lent me test servers and supported me
 
-### About me & Contact
+### About me & Contact infos
 
-My name is Mathieu Guérin, also known as "Matiboux" on the Internet.
-I'm a young developer who created this project and now works on it.
-
-Want to **disvover my other projects**?
-Check out [my projects portal](http://projects.matiboux.com/).
+My name is Mathieu Guérin, also known as "Matiboux" on the Internet.  
+I'm a young developer who created this project and now works on it.  
+Want to **disvover my other projects**? Check out [my projects portal](http://projects.matiboux.com/).
 
 Want to talk with me? You can **contact me there**:
-
  - **Email**: [matiboux@gmail.com](mailto:matiboux@gmail.com)
  - **Twitter**: http://twitter.com/Matiboux
  - **Telegram**: [@Matiboux](http://telegram.me/Matiboux)
  - (and that's it)
 
-You can also use these to suggest me new features!
-Help is always appreciated! <3
+*You can also use these to suggest me new features!*  
+**Help is always appreciated! <3**
