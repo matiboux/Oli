@@ -10,7 +10,8 @@ Support me, suggest me anything!
 [Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and configure your website!  
 Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
 
-Once configuration is done, you can start create your pages in "**content/theme/...**" directory. Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
+Once configuration is done, you can start create your pages in "**content/theme/...**" directory.  
+Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
 
 ### More things
 
