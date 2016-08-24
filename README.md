@@ -13,11 +13,14 @@ You're a developer? You can create your own addon for Oli, [here's how](#).
 Let's check **config.json** now! Need help to configure it? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
 
 Once configuration is done, you can start create your pages in "**content/theme/...**" directory. Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
-Need help? [Here's some examples](#).
+
+### More things
+
+Want to find addons, pages of the community or their own projects? [Here's what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community).
 
 Using a MySQL database with your website? You can get the [default Oli SQL file here](#).
 
-Are you using the account management feature? Get the [Oli login page](#) now!
+Are you using the account management feature? Get the official [Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
 
 ### License
 
