@@ -3496,7 +3496,7 @@ class OliCore {
 			 * @uses OliCore::getSetting() to get setting
 			 * @return string Returns true if the account is created, false otherwise
 			 */
-			public function registerAccount($username, $password, $email) {
+			public function registerAccount($username, $password, $email, $message = null, $message = null, $message = null) {
 				if(!$this->accountsManagement) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
@@ -3521,27 +3521,47 @@ class OliCore {
 						$infosMatches['username'] = $username;
 						$this->insertAccountLine('INFOS', $infosMatches);
 					
+						if(empty($headers)) {
+							$headers = 'From: noreply@' . $this->getSetting('domain') . "\r\n";
+							$headers .= 'MIME-Version: 1.0' . "\r\n";
+							$headers .= 'Content-type: text/html; charset=iso-8859-1';
+						}
+						
 						if($this->registerVerification) {
 							$activateKey = $this->createRequest($username, 'activate');
 							
-							$subject = 'Activation de votre compte';
-							$message = 'Bonjour ' . $username . ', <br />';
-							$message .= 'Un compte a été créé à votre email. <br />';
-							$message .= 'Si vous n\'avez pas créé de compte, veuillez ignorer ce message, <br />';
-							$message .= 'Sinon, veuillez vous rendre sur ce lien pour activer votre compte : <br />';
-							$message .= '<a href="' . $this->getUrlParam(0) . 'login.php/activate/' . $activateKey . '">' . $this->getUrlParam(0) . 'login.php/activate/' . $activateKey . '</a> <br />';
-							$message .= 'Vous avez jusqu\'au ' . date('d/m/Y', strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) + $this->requestsExpireDelay) . ' pour activer votre compte, <br />';
-							$message .= 'Une fois cette date passée, le code d\'activation ne sera plus valide';
-							$headers = 'From: contact@' . $this->getSetting('domain') . "\r\n";
-							$headers .= 'MIME-Version: 1.0' . "\r\n";
-							$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-							
-							if(!mail($email, $subject, utf8_decode($message), $headers)) {
-								$this->deleteFullAccount($username);
-								return false;
+							if(empty($message)) {
+								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
+								$message .= '<b>One more step!</b> <br />';
+								$message .= 'You just need to activate your account! Visit <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">this page to activate it</a> (' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . ') <br />';
+								$message .= 'You have ' . ($this->requestsExpireDelay /3600 /24) . ' ' . ($this->requestsExpireDelay > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
+								$message .= 'If you don\'t activate your account, it will be suspended after this delay (then deleted if someone register with the same username) <br /> <br />';
+								$message .= 'You got this mail from <a href="' . $this->getUrlParam(0) . '">' . $this->getSetting('name') . '</a> <br />';
+								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
 							}
+							
+							$mailResult = mail($email, $subject ?: 'Activate your account', utf8_decode($message), $headers);
 						}
-						return true;
+						else {
+							if(empty($message)) {
+								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
+								$message .= '<b>Yay! Your account have been successfully created</b> <br />';
+								$message .= 'You can <a href="' . $this->getUrlParam(0) . 'login/' . $activateKey . '">connect to it on this page</a> (' . $this->getUrlParam(0) . 'login/' . $activateKey . ') <br />';
+								$message .= 'You have ' . ($this->requestsExpireDelay /3600 /24) . ' ' . ($this->requestsExpireDelay > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
+								$message .= 'If you don\'t activate your account, it will be suspended after this delay (then deleted if someone register with the same username) <br /> <br />';
+								$message .= 'You got this mail from <a href="' . $this->getUrlParam(0) . '">' . $this->getSetting('name') . '</a> <br />';
+								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
+							}
+							
+							$mailResult = mail($email, $subject ?: 'Your account have been created', utf8_decode($message), $headers);
+						}
+						
+						if($mailResult) return true;
+						else {
+							$this->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
+							$this->deleteFullAccount($username);
+							return false;
+						}
 					}
 					else return false; 
 				}
