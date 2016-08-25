@@ -3496,7 +3496,7 @@ class OliCore {
 			 * @uses OliCore::getSetting() to get setting
 			 * @return string Returns true if the account is created, false otherwise
 			 */
-			public function registerAccount($username, $password, $email, $message = null, $message = null, $message = null) {
+			public function registerAccount($username, $password, $email, $subject = null, $message = null, $headers = null) {
 				if(!$this->accountsManagement) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
@@ -3522,7 +3522,7 @@ class OliCore {
 						$this->insertAccountLine('INFOS', $infosMatches);
 					
 						if(empty($headers)) {
-							$headers = 'From: noreply@' . $this->getSetting('domain') . "\r\n";
+							$headers = 'From: noreply@' . $this->getUrlParam('domain') . "\r\n";
 							$headers .= 'MIME-Version: 1.0' . "\r\n";
 							$headers .= 'Content-type: text/html; charset=iso-8859-1';
 						}
@@ -3530,6 +3530,7 @@ class OliCore {
 						if($this->registerVerification) {
 							$activateKey = $this->createRequest($username, 'activate');
 							
+							if(empty($subject)) $subject = 'Activate your account';
 							if(empty($message)) {
 								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
 								$message .= '<b>One more step!</b> <br />';
@@ -3543,6 +3544,7 @@ class OliCore {
 							$mailResult = mail($email, $subject ?: 'Activate your account', utf8_decode($message), $headers);
 						}
 						else {
+							if(empty($subject)) $subject = 'Your account have been created';
 							if(empty($message)) {
 								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
 								$message .= '<b>Yay! Your account have been successfully created</b> <br />';
@@ -3553,7 +3555,7 @@ class OliCore {
 								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
 							}
 							
-							$mailResult = mail($email, $subject ?: 'Your account have been created', utf8_decode($message), $headers);
+							$mailResult = mail($email, $subject, utf8_decode($message), $headers);
 						}
 						
 						if($mailResult) return true;
