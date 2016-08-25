@@ -44,40 +44,39 @@
 |*|              (1.6.3): 10 January 2016
 |*|              (1.6.4): 10 February 2016
 |*|              (1.6.6): 2 June 2016
-|*|    * [version 1.7]: Github releases starts!
+|*|    * [version 1.7]: -- [ Github releases starts! ] --
 |*|              (1.7.0): 11 August 2016
 |*|              (1.7.1): Currently in development
 \*/
 
 /**
- * Oli Core file
+ * Oli Framework namespace
+ * 
+ * Oli is an open source PHP framework made to help web developers creating their website
  * 
  * @author Matiboux <matiboux@gmail.com>
  * @license http://www.gnu.org/licenses/agpl.html GNU Affero General Public License, version 3
  * @copyright 2015 Matiboux
- */
-
-/**
- * Oli private namespace
  * 
- * @package \OliFramework
+ * @package OliFramework
  */
 namespace OliFramework {
 
 /**
- * Oli Core Class
+ * Oli Core
  * 
- * @package \OliFramework\OliCore
+ * @author Matiboux <matiboux@gmail.com>
+ * 
+ * @package OliFramework\OliCore
  */
 class OliCore {
-	
-	/** ------------------ */
-	/**  Oli Version Info  */
-	/** ------------------ */
 	
 	/** --------------- */
 	/**  Oli Variables  */
 	/** --------------- */
+	
+	/** Oli Informations */
+	private $oliInfos = [];
 	
 	/** Addons List */
 	private $addonsList = [];
@@ -177,6 +176,8 @@ class OliCore {
 		$this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
 		$this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
 		
+		$this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
+		
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
 	}
@@ -201,7 +202,7 @@ class OliCore {
 	 * @return string Show infos about this framework
 	 */
 	public function __toString() {
-		return 'Powered by Oli';
+		return 'Powered by <a href="' . $this->getOliInfos('website_url') . '">Oli</a> (v. ' . $this->getOliInfos('version') . ')';
 	}
 	
 	/** --------------- */
@@ -465,7 +466,7 @@ class OliCore {
 						$contentPath = substr($mediaPathAddon, 0, $i);
 						$i++;
 					}
-					define('CONTENTPATH', ABSPATH . $contentPath ?: 'content/');
+					define('CONTENTPATH', ABSPATH . ($contentPath ?: 'content/'));
 				}
 				if(!defined('MEDIAPATH')) define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
 				if(!defined('THEMEPATH')) define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
@@ -1599,6 +1600,22 @@ class OliCore {
 	/**  Oli Functions  */
 	/** --------------- */
 	
+		/** ------------------ */
+		/**  Oli Informations  */
+		/** ------------------ */
+		
+		public function getOliInfos($info = null) {
+			if(empty($info)) return $this->oliInfos;
+			else if($info == 'name') return $this->oliInfos['name'];
+			else if($info == 'description') return $this->oliInfos['description'];
+			else if($info == 'version') return $this->oliInfos['version'];
+			else if($info == 'website_name') return $this->oliInfos['website']['name'];
+			else if($info == 'website_url') return $this->oliInfos['website']['url'];
+			else if($info == 'github_url') return $this->oliInfos['github']['url'];
+			else if($info == 'github_api') return $this->oliInfos['github']['api'];
+			else return false;
+		}
+		
 		/** ------------------- */
 		/**  Load Page Content  */
 		/** ------------------- */
@@ -2862,7 +2879,7 @@ class OliCore {
 			 * @return array|boolean Returns lines from specified table
 			 */
 			public function getAccountLines($tableCode, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(!is_array($where)) $where = array('username' => $where);
 				return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2882,7 +2899,7 @@ class OliCore {
 			 * @return mixed Returns infos from specified table
 			 */
 			public function getAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(!is_array($where)) $where = array('username' => $where);
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2901,7 +2918,7 @@ class OliCore {
 			 * @return mixed Returns summed infos from specified table
 			 */
 			public function getSummedAccountInfos($tableCode, $whatVar, $where = [], $caseSensitive = true) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(!is_array($where)) $where = array('username' => $where);
 				return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2919,7 +2936,7 @@ class OliCore {
 			 * @return boolean Returns true if infos are empty, false otherwise
 			 */
 			public function isEmptyAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(!is_array($where)) $where = array('username' => $where);
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 			}
 			
@@ -2935,7 +2952,7 @@ class OliCore {
 			 * @return boolean Returns true if infos exists, false otherwise
 			 */
 			public function isExistAccountInfos($tableCode, $where = [], $caseSensitive = true) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(!is_array($where)) $where = array('username' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
 		
@@ -3004,7 +3021,7 @@ class OliCore {
 			 * @return boolean Returns true if the request succeeded, false otherwise
 			 */
 			public function deleteAccountLines($tableCode, $where) {
-				if(is_string($where) AND $where != 'all') $where = array('username' => $where);
+				if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where);
 			}
 			
@@ -3339,6 +3356,26 @@ class OliCore {
 			}
 			
 			/**
+			 * Is exist auth key
+			 * 
+			 * @uses OliCore::isExistCookie()
+			 * @return boolean Returns true if the cookie exists, false otherwise
+			 */
+			public function isExistAuthKey() {
+				return $this->isExistCookie($this->authKeyCookieName);
+			}
+			
+			/**
+			 * Is empty auth key
+			 * 
+			 * @uses OliCore::isEmptyCookie()
+			 * @return boolean Returns true if the cookie is empty, false otherwise
+			 */
+			public function isEmptyAuthKey() {
+				return $this->isEmptyCookie($this->authKeyCookieName);
+			}
+			
+			/**
 			 * Verify auth key validity
 			 * 
 			 * @param string|void $authKey Auth key to check
@@ -3408,13 +3445,13 @@ class OliCore {
 			 * @uses OliCore::insertAccountLine() to insert line in account table
 			 * @return string Returns the activation key if the request succeed, false otherwise
 			 */
-			public function createRequest($username, $action) {
+			public function createRequest($username, $action, &$requestTime = null) {
 				$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
 				$requestsMatches['username'] = $username;
 				$requestsMatches['activate_key'] = $this->keygen(6, false, true, true);
 				$requestsMatches['action'] = $action;
-				$requestsMatches['request_date'] = date('Y-m-d H:i:s');
-				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', time() + $this->requestsExpireDelay);
+				$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
+				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->requestsExpireDelay);
 				$this->insertAccountLine('REQUESTS', $requestsMatches);
 				
 				return $requestsMatches['activate_key'];
@@ -3585,14 +3622,17 @@ class OliCore {
 			 * 
 			 * This also delete auth key cookie
 			 * 
+			 * @uses OliCore::isExistAuthKey()
 			 * @uses OliCore::deleteLinesMySQL() to delete lines from account table
 			 * @uses OliCore::deleteAuthKeyCookie() to delete the auth key cookie
-			 * @return boolean Returns true if logout succeed, false otherwise
+			 * @return boolean
 			 */
 			public function logoutAccount() {
-				if($this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => $this->getAuthKey()))) {
-					$this->deleteAuthKeyCookie();
-					return true;
+				if($this->isExistAuthKey()) {
+					if($deleteResult = $this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => $this->getAuthKey())))
+						$deleteResult = $this->deleteAuthKeyCookie();
+					
+					return $deleteResult ? true : false;
 				}
 				else return false;
 			}
