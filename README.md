@@ -43,11 +43,10 @@ This license applies to:
 - *files* in "**/content/...**" (and *not* sub-directories)
 - (*except .htaccess*)
 
-*all files* in "**/content/theme/...**" and "**/content/media/...**" (and sub-directories)  
-These files belongs their respective owners or the website owner
+These belongs to their respective owners and may be licensed under another license:
 
-*all files* in "**/addons/...**" (and sub-directories)  
-These files belongs their respective owners and may be licensed under another license
+- *all files* in "**/content/theme/...**" and "**/content/media/...**" (and sub-directories)
+- *all files* in "**/addons/...**" (and sub-directories)
 
 ### Team
 
