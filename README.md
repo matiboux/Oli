@@ -3,25 +3,25 @@
 **Oli** is an *open source PHP framework* made to help web developers creating their website.
 
 **Community is everything!**
-Support me, suggest me anything!
+Support me and suggest me anything!
 
 ### Start using it
 
 [Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and configure your website!  
 Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
 
-Once configuration is done, you can start create your pages in "**content/theme/...**" directory.  
+Once configuration is done, start creating your pages in the "**content/theme/...**" directory.  
 Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
 
 ### More things
 
-Want to find addons, pages of the community or their own projects? [Here's what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community).  
-You're a developer? You can create your own addon for Oli, [here's how](#).  
+Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community).  
+Are you a developer? You can create your own addon for Oli, [here's how](#).  
 Don't forget to **share your creations with us**!
 
-*Official Oli thing that could helps you*:  
-Using a MySQL database with your website? You can get the [default Oli SQL file here](#).  
-Using the account management feature? Get the [official Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
+**Hey, you might want to check the *official Oli stuff that could helps you*:**  
+Wanna use a database with Oli? Get the [default Oli SQL file here](#).  
+Wanna the account management feature? Get the [official Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
 
 ### License
 
@@ -32,7 +32,7 @@ Copyright (C) 2015-2016 Mathieu Guérin
 > 
 > You should have received a copy of the GNU Affero General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-*You'll find a copy of the GNU AGPL v3 in the LICENSE file.*
+*You'll find a copy of the GNU AGPL v3 license in the **LICENSE** file.*
 
 This license applies to:
 
@@ -48,25 +48,26 @@ These belongs to their respective owners and may be licensed under another licen
 - *all files* in "**/content/theme/...**" and "**/content/media/...**" (and sub-directories)
 - *all files* in "**/addons/...**" (and sub-directories)
 
-### Team
+### Oli Team
 
-Owner & Developer: Mathieu Guérin (or "Matiboux" - contact infos below)
+Owner & Developer: Mathieu Guérin (aka "Matiboux", detailed profile & contact infos below)
 
-*Thanks credits:*
+*Also some thanks credits:*
 - [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name
-- [@Elionatrox](https://twitter.com/Elionatrox) who lent me test servers and supported me
+- [@Elionatrox](https://twitter.com/Elionatrox) who supported me and helped me when I needed him to
 
-### About me & Contact infos
+### About me and my contact infos
 
 My name is Mathieu Guérin, also known as "Matiboux" on the Internet.  
 I'm a young developer who created this project and now works on it.  
-Want to **disvover my other projects**? Check out [my projects portal](http://projects.matiboux.com/).
+I also made some other personnal projects like [ImgShot](https://github.com/matiboux/ImgShot) or [KeyGen](https://github.com/matiboux/KeyGen).  
+Want to **disvover them**? Go check [my projects portal](http://projects.matiboux.com/)!
 
 Want to talk with me? You can **contact me there**:
  - **Email**: [matiboux@gmail.com](mailto:matiboux@gmail.com)
  - **Twitter**: http://twitter.com/Matiboux
  - **Telegram**: [@Matiboux](http://telegram.me/Matiboux)
- - (and that's it)
+ - *(maybe soon Matiboux Social or Matiboux Messenger)*
 
 *You can also use these to suggest me new features!*  
 **Help is always appreciated! <3**
