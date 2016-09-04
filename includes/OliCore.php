@@ -3102,7 +3102,8 @@ class OliCore {
 			 * @return integer Returns user right permissions
 			 */
 			public function getRightPermissions($userRight, $caseSensitive = true) {
-				return $this->getAccountInfos('RIGHTS', 'permissions', array('user_right' => $userRight), $caseSensitive);
+				if($returnValue = $this->getAccountInfos('RIGHTS', 'permissions', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
+				else if($returnValue = $this->getAccountInfos('RIGHTS', 'permissions', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
 			}
 			
 			/**
