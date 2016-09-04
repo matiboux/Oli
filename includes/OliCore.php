@@ -1142,7 +1142,9 @@ class OliCore {
 		 * @return mixed Returns infos from specified table
 		 */
 		public function getInfosMySQL($table, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-			$whatVar = (!is_array($whatVar)) ? [$whatVar] : $whatVar;
+			if(!is_array($whatVar)) $whatVar = [$whatVar];
+			else $whatVarArray = true;
+			
 			if(is_bool($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
 				$forceArray = $caseSensitive;
@@ -1238,7 +1240,7 @@ class OliCore {
 								$lineResult[$eachVar] = $eachLine[$eachVar];
 							}
 						}
-						$valueArray[] = (!isset($lineResult) OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
+						$valueArray[] = (!isset($lineResult) OR $whatVarArray OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
 					}
 				}
 			}
