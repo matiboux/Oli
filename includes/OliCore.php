@@ -3392,9 +3392,11 @@ class OliCore {
 			 * @return boolean Returns true if auth key is valid, false otherwise
 			 */
 			public function verifyAuthKey($authKey = null) {
-				$authKey = (!empty($authKey)) ? $authKey : $this->getAuthKey();
-				if(!empty($authKey) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $authKey)) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $authKey))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => implode('/', $this->getUrlParam('params'))), array('auth_key' => $authKey));
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				$sha1AuthKey = sha1($authKey);
+				
+				if(!empty($sha1AuthKey) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $sha1AuthKey)) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $sha1AuthKey))) >= time()) {
+					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => implode('/', $this->getUrlParam('all'))), array('auth_key' => $sha1AuthKey));
 					return true;
 				}
 				else return false;
@@ -3411,11 +3413,10 @@ class OliCore {
 			 * @return string Returns the auth key owner
 			 */
 			public function getAuthKeyOwner($authKey = null) {
-				$authKey = (!empty($authKey)) ? $authKey : $this->getAuthKey();
-				if($this->verifyAuthKey($authKey))
-					return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => $authKey));
-				else
-					return false;
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				
+				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => $authKey));
+				else return false;
 			}
 		
 		/** ---------------- */
@@ -3610,10 +3611,8 @@ class OliCore {
 				if($this->verifyLogin($username, $password)) {
 					$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
 					
-					if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
-					if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
-					if(password_needs_rehash($this->getAccountInfos('ACCOUNTS', 'password', $username), $this->hashAlgorithm, $hashOptions))
-						$this->updateAccountInfos('ACCOUNTS', array('password' => password_hash($password, $this->hashAlgorithm, $hashOptions)), $username);
+					if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $username)))
+						$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
 					
 					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
 						$newAuthKey = $this->keygen(100);
@@ -3621,7 +3620,7 @@ class OliCore {
 						
 						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;
 						$matches['username'] = $username;
-						$matches['auth_key'] = $newAuthKey;
+						$matches['auth_key'] = sha1($newAuthKey);
 						$matches['user_ip'] = $this->getUserIP();
 						$matches['login_date'] = date('Y-m-d H:i:s');
 						$matches['expire_date'] = date('Y-m-d H:i:s', time() + $expireDelay);
@@ -3706,6 +3705,12 @@ class OliCore {
 			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
 			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
 			return password_hash($password, $this->hashAlgorithm, $hashOptions);
+		}
+		
+		public function needsRehashPassword($password) {
+			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
+			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
+			return password_needs_rehash($password, $this->hashAlgorithm, $hashOptions);
 		}
 
 }
