@@ -3393,10 +3393,9 @@ class OliCore {
 			 */
 			public function verifyAuthKey($authKey = null) {
 				if(empty($authKey)) $authKey = $this->getAuthKey();
-				$sha1AuthKey = sha1($authKey);
 				
-				if(!empty($sha1AuthKey) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $sha1AuthKey)) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $sha1AuthKey))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => implode('/', $this->getUrlParam('all'))), array('auth_key' => $sha1AuthKey));
+				if(!empty(sha1($authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => sha1($authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => sha1($authKey)))) >= time()) {
+					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => implode('/', $this->getUrlParam('all'))), array('auth_key' => sha1($authKey)));
 					return true;
 				}
 				else return false;
@@ -3415,7 +3414,7 @@ class OliCore {
 			public function getAuthKeyOwner($authKey = null) {
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => $authKey));
+				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => sha1($authKey)));
 				else return false;
 			}
 		
@@ -3615,7 +3614,7 @@ class OliCore {
 						$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
 					
 					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
-						$newAuthKey = $this->keygen(100);
+						$newAuthKey = $this->keygen(28);
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = 24*3600;
 						
 						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;
