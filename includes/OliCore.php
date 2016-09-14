@@ -108,6 +108,7 @@ class OliCore {
 	private $defaultCharset = 'utf-8';
 	
 	/** Html Files Buffer List */
+	private $commonFilesPath = '';
 	private $htmlLoaderList = [];
 	
 	/** CDN Url */
@@ -292,6 +293,7 @@ class OliCore {
 					if($eachKey == 'length') $this->setEncryptionKeyLength($eachParam);
 				}
 			}
+			else if($eachConfig == 'common_files_path') $this->setCommonFilesPath($eachValue);
 			else if($eachConfig == 'cdn_url') $this->setCdnUrl($eachValue);
 			else if($eachConfig == 'default_user_language') $this->setDefaultLanguage($eachValue);
 			else if($eachConfig == 'translations_table') $this->setTranslationsTable($eachValue);
@@ -543,6 +545,13 @@ class OliCore {
 			/** -------------------- */
 			/**  CDN (common files)  */
 			/** -------------------- */
+			
+			/** Set Common Files Path */
+			public function setCommonFilesPath($path) {
+				$this->commonFilesPath = $path;
+				
+				if(!defined('COMMONPATH')) define('COMMONPATH', $path ? ABSPATH . $path : CONTENTPATH . 'theme/');
+			}
 			
 			/**
 			 * Set CDN url (common files)
@@ -2205,6 +2214,11 @@ class OliCore {
 			$this->loadStyle($this->getDataUrl() . $url, $loadNow, $minimize);
 		}
 		
+		/** Load common CSS stylesheet */
+		public function loadCommonStyle($url, $loadNow = true, $minimize = false) {
+			$this->loadStyle($this->getCommonFilesUrl() . $url, $loadNow, $minimize);
+		}
+		
 		/**
 		 * Load cdn CSS stylesheet
 		 * 
@@ -2252,6 +2266,11 @@ class OliCore {
 		 */
 		public function loadLocalScript($url, $loadNow = true, $minimize = false) {
 			$this->loadScript($this->getDataUrl() . $url, $loadNow, $minimize);
+		}
+		
+		/** Load common JS script */
+		public function loadCommonScript($url, $loadNow = true, $minimize = false) {
+			$this->loadScript($this->getCommonFilesUrl() . $url, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2443,6 +2462,11 @@ class OliCore {
 		 */
 		public function getFullUrl() {
 			return $this->getUrlParam();
+		}
+		
+		/** Get Common Files Url */
+		public function getCommonFilesUrl() {
+			return $this->getUrlParam(0) . $this->commonFilesPath . 'data/';
 		}
 		
 		/**
