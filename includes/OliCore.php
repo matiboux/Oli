@@ -2191,9 +2191,17 @@ class OliCore {
 		 * @uses OliCore::$htmlLoaderList to store file into the loader list
 		 * @return void
 		 */
-		public function loadStyle($url, $loadNow = true, $minimize = false) {
-			if($minimize) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
-			else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '">';
+		public function loadStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			if(is_bool($tags)) {
+				$minimize = $loadNow;
+				$loadNow = $tags;
+				$tags = null;
+			}
+			if(!isset($loadNow)) $loadNow = true;
+			if(!isset($minimize)) $minimize = false;
+			
+			if($minimize AND empty($tags)) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
+			else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '" ' . ($tags ?: '') . '>';
 			
 			if($loadNow) echo $codeLine . PHP_EOL;
 			else $this->htmlLoaderList[] = $codeLine;
@@ -2210,13 +2218,13 @@ class OliCore {
 		 * @uses OliCore::getDataUrl() to get data url
 		 * @return void
 		 */
-		public function loadLocalStyle($url, $loadNow = true, $minimize = false) {
-			$this->loadStyle($this->getDataUrl() . $url, $loadNow, $minimize);
+		public function loadLocalStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadStyle($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/** Load common CSS stylesheet */
-		public function loadCommonStyle($url, $loadNow = true, $minimize = false) {
-			$this->loadStyle($this->getCommonFilesUrl() . $url, $loadNow, $minimize);
+		public function loadCommonStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadStyle($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2230,8 +2238,8 @@ class OliCore {
 		 * @uses OliCore::getCdnUrl() to get cdn url
 		 * @return void
 		 */
-		public function loadCdnStyle($url, $loadNow = true, $minimize = false) {
-			$this->loadStyle($this->getCdnUrl() . $url, $loadNow, $minimize);
+		public function loadCdnStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadStyle($this->getCdnUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2245,9 +2253,17 @@ class OliCore {
 		 * @uses OliCore::$htmlLoaderList to store file into the loader list
 		 * @return void
 		 */
-		public function loadScript($url, $loadNow = true, $minimize = false) {
-			if($minimize) $codeLine = '<script type="text/javascript">' . $this->minimizeScript(file_get_contents($url)) . '</script>';
-			else $codeLine = '<script type="text/javascript" src="' . $url . '"></script>';
+		public function loadScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			if(is_bool($tags)) {
+				$minimize = $loadNow;
+				$loadNow = $tags;
+				$tags = null;
+			}
+			if(!isset($loadNow)) $loadNow = true;
+			if(!isset($minimize)) $minimize = false;
+			
+			if($minimize AND empty($tags)) $codeLine = '<script type="text/javascript">' . $this->minimizeScript(file_get_contents($url)) . '</script>';
+			else $codeLine = '<script type="text/javascript" src="' . $url . '" ' . ($tags ?: '') . '></script>';
 			
 			if($loadNow) echo $codeLine . PHP_EOL;
 			else $this->htmlLoaderList[] = $codeLine;
@@ -2264,13 +2280,13 @@ class OliCore {
 		 * @uses OliCore::getDataUrl() to get data url
 		 * @return void
 		 */
-		public function loadLocalScript($url, $loadNow = true, $minimize = false) {
-			$this->loadScript($this->getDataUrl() . $url, $loadNow, $minimize);
+		public function loadLocalScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadScript($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/** Load common JS script */
-		public function loadCommonScript($url, $loadNow = true, $minimize = false) {
-			$this->loadScript($this->getCommonFilesUrl() . $url, $loadNow, $minimize);
+		public function loadCommonScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadScript($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2284,8 +2300,8 @@ class OliCore {
 		 * @uses OliCore::getCdnUrl() to get cdn url
 		 * @return void
 		 */
-		public function loadCdnScript($url, $loadNow = true, $minimize = false) {
-			$this->loadScript($this->getCdnUrl() . $url, $loadNow, $minimize);
+		public function loadCdnScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadScript($this->getCdnUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
