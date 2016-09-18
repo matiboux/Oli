@@ -45,7 +45,7 @@ This license applies to:
 
 These belongs to their respective owners and may be licensed under another license:
 
-- *all files* in "**/content/theme/...**" and "**/content/media/...**" (and sub-directories)
+- *all files* in "**/content/...**" **directories** (and sub-directories)
 - *all files* in "**/addons/...**" (and sub-directories)
 
 ### Oli Team
