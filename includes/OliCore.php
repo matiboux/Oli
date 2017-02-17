@@ -3435,7 +3435,7 @@ class OliCore {
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
 				if(!empty(sha1($authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => sha1($authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => sha1($authKey)))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => implode('/', $this->getUrlParam('all'))), array('auth_key' => sha1($authKey)));
+					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => sha1($authKey)));
 					return true;
 				}
 				else return false;
@@ -3692,9 +3692,7 @@ class OliCore {
 			 */
 			public function logoutAccount() {
 				if($this->isExistAuthKey()) {
-					if($deleteResult = $this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => $this->getAuthKey())))
-						$deleteResult = $this->deleteAuthKeyCookie();
-					
+					if($deleteResult = $this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => sha1($this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
 					return $deleteResult ? true : false;
 				}
 				else return false;
