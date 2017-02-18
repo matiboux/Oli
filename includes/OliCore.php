@@ -2921,7 +2921,7 @@ class OliCore {
 			 * @return array|boolean Returns lines from specified table
 			 */
 			public function getAccountLines($tableCode, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(!is_array($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2941,7 +2941,7 @@ class OliCore {
 			 * @return mixed Returns infos from specified table
 			 */
 			public function getAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(!is_array($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2960,7 +2960,7 @@ class OliCore {
 			 * @return mixed Returns summed infos from specified table
 			 */
 			public function getSummedAccountInfos($tableCode, $whatVar, $where = [], $caseSensitive = true) {
-				if(!is_array($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2978,7 +2978,7 @@ class OliCore {
 			 * @return boolean Returns true if infos are empty, false otherwise
 			 */
 			public function isEmptyAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null) {
-				if(!is_array($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 			}
 			
@@ -2994,7 +2994,7 @@ class OliCore {
 			 * @return boolean Returns true if infos exists, false otherwise
 			 */
 			public function isExistAccountInfos($tableCode, $where = [], $caseSensitive = true) {
-				if(!is_array($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
 		
