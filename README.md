@@ -1,9 +1,9 @@
-# Oli BETA 1.7.1
+# Oli BETA 1.8.0 (development branch)
 
-**Oli** is an *open source PHP framework* made to help web developers creating their website.
+**Oli** is an *open source PHP framework* made to help web developers creating their website.  
+Infos on the project creator and team in the « Oli Team » section!
 
-**Community is everything!**
-Support me and suggest me anything!
+**Community and feedbacks are everything!** Suggest me anything you got on your mind!
 
 ### Start using it
 
@@ -25,7 +25,7 @@ Wanna the account management feature? Get the [official Oli login page](https://
 
 ### License
 
-Copyright (C) 2015-2017 Mathieu Guérin
+Copyright (C) 2015-2017 Mathieu Guérin (aka Matiboux)
 > This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 > 
 > This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
@@ -35,39 +35,33 @@ Copyright (C) 2015-2017 Mathieu Guérin
 *You'll find a copy of the GNU AGPL v3 license in the **LICENSE** file.*
 
 This license applies to:
-
 - "**/index.php**"
 - "**/form.php**"
 - "**/load.php**"
-- *all files* in "**/includes/...**" (and sub-directories)
-- *files* in "**/content/...**" (and *not* sub-directories)
-- (*except .htaccess*)
+- *all files* in "**/includes/...**" (and its sub-directories)
+- *files* in "**/content/...**" (but *not* its sub-directories)
+- (*except .htaccess files*)
 
-These belongs to their respective owners and may be licensed under another license:
-
-- *all files* in "**/content/...**" **directories** (and sub-directories)
-- *all files* in "**/addons/...**" (and sub-directories)
+The files in these directories belongs to their respective owners and may be licensed under another license:
+- *all files* in "**/content/...**" **directories** (and its sub-directories)
+- *all files* in "**/addons/...**" (and its sub-directories)
 
 ### Oli Team
 
-Owner & Developer: Mathieu Guérin (aka "Matiboux", detailed profile & contact infos below)
+Creator & Developer: Mathieu Guérin (aka "Matiboux", detailed profile & contact infos below)
 
 *Also some thanks credits:*
-- [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name
-- [@Elionatrox](https://twitter.com/Elionatrox) who supported me and helped me when I needed him to
+- [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name.
+- [@Elionatrox](https://twitter.com/Elionatrox) who supported me or helped me when I needed him to.  
+Even though now he has left me and has gone away from me.
 
 ### About me and my contact infos
 
-My name is Mathieu Guérin, also known as "Matiboux" on the Internet.  
-I'm a young developer who created this project and now works on it.  
-I also made some other personnal projects like [ImgShot](https://github.com/matiboux/ImgShot) or [KeyGen](https://github.com/matiboux/KeyGen).  
-Want to **disvover them**? Go check [my projects portal](http://projects.matiboux.com/)!
+My name is Mathieu Guérin – aka Matiboux – and I'm a 16-years-old high school student and developer. I created the Oli project in November 2014, and I work on it and on my other projects since then. Mostly all of my personnal projects work along with Oli, such as [ImgShot](https://github.com/matiboux/ImgShot) or [KeyGen](https://github.com/matiboux/KeyGen) which are projects that I created even before the framework. If you want to **discover my others projects**, go take a look at [my projects portal](http://projects.matiboux.com/)!
 
-Want to talk with me? You can **contact me there**:
+Want to **get in touch with me**? Here's some ways to:
  - **Email**: [matiboux@gmail.com](mailto:matiboux@gmail.com)
- - **Twitter**: http://twitter.com/Matiboux
+ - **Twitter**: [@Matiboux](http://twitter.com/Matiboux)
  - **Telegram**: [@Matiboux](http://telegram.me/Matiboux)
- - *(maybe soon Matiboux Social or Matiboux Messenger)*
 
-*You can also use these to suggest me new features!*  
-**Help is always appreciated! <3**
+*Remember, you can also use these to suggest me projects or new features!* **Help is always appreciated! <3**
