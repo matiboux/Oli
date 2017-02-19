@@ -9,5 +9,5 @@ require_once ABSPATH . 'load.php';
 #  Get Form Infos Script
 
 $_Oli->setPostVarsCookie(array_merge($_GET, $_POST));
-header('Location: ' . ($_GET['callback'] ?: $_SERVER['HTTP_REFERER']));
+header('Location: ' . ($_GET['callback'] ? urldecode($_GET['callback']) : $_SERVER['HTTP_REFERER']));
 ?>

@@ -1,5 +1,5 @@
 <?php
-/** Define Paths */
+/** Define Global Paths */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
 
 $config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
@@ -7,10 +7,6 @@ if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', (!empty($config['source_
 
 if(!defined('INCLUDEPATH')) define('INCLUDEPATH', SCRIPTBASEPATH . 'includes/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
-
-if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
-if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 
 /** Include OliCore & Addons */
 require_once INCLUDEPATH . 'loader.php';

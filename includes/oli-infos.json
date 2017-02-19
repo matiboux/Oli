@@ -1,0 +1,14 @@
+{
+	"name": "Oli",
+	"description": "Oli is an open source PHP framework made to help web developers creating their website",
+	"version": "beta-1.7.1",
+	
+	"website": {
+		"name": "Oli PHP Framework", 
+		"url": "https://oliframework.github.io/Oli/"
+	},
+	"github": {
+		"url": "https://github.com/OliFramework/Oli", 
+		"api": "https://api.github.com/repos/OliFramework/Oli"
+	}
+}

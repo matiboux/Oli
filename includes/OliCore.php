@@ -2,11 +2,11 @@
 /*\
 |*|  ---------------------------
 |*|  --- [  Oli Framework  ] ---
-|*|  --- [   BETA: 1.7.0   ] ---
+|*|  --- [   BETA: 1.7.1   ] ---
 |*|  ---------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help web developers creating their website
-|*|  Copyright (C) 2015 Mathieu Guérin ("Matiboux")
+|*|  Copyright (C) 2015 Mathieu Guérin (aka "Matiboux")
 |*|  
 |*|    This program is free software: you can redistribute it and/or modify
 |*|    it under the terms of the GNU Affero General Public License as published
@@ -21,13 +21,15 @@
 |*|    You should have received a copy of the GNU Affero General Public License
 |*|    along with this program. If not, see <http://www.gnu.org/licenses/>.
 |*|  
-|*|  Please see the README file for more infos!
+|*|  Please see the README.md file for more infos!
 |*|  
+|*|  --- --- ---
+|*|  ~ MALIOTT ~
 |*|  --- --- ---
 |*|  
 |*|  Releases date:
 |*|    PRE-DEV: 16 November 2014
-|*|    ALPHA: 6 February 2015
+|*|    ALPHA: 6 February 2015 (released on Github)
 |*|    BETA: July 2015
 |*|    * Nothing about previous releases
 |*|    * [version 1.5]:
@@ -42,39 +44,39 @@
 |*|              (1.6.3): 10 January 2016
 |*|              (1.6.4): 10 February 2016
 |*|              (1.6.6): 2 June 2016
-|*|    * [version 1.7]:
+|*|    * [version 1.7]: -- [ Github releases starts! ] --
 |*|              (1.7.0): 11 August 2016
+|*|              (1.7.1): Currently in development
 \*/
 
 /**
- * Oli Core file
+ * Oli Framework namespace
+ * 
+ * Oli is an open source PHP framework made to help web developers creating their website
  * 
  * @author Matiboux <matiboux@gmail.com>
  * @license http://www.gnu.org/licenses/agpl.html GNU Affero General Public License, version 3
  * @copyright 2015 Matiboux
- */
-
-/**
- * Oli private namespace
  * 
- * @package \OliFramework
+ * @package OliFramework
  */
 namespace OliFramework {
 
 /**
- * Oli Core Class
+ * Oli Core
  * 
- * @package \OliFramework\OliCore
+ * @author Matiboux <matiboux@gmail.com>
+ * 
+ * @package OliFramework\OliCore
  */
 class OliCore {
-	
-	/** ------------------ */
-	/**  Oli Version Info  */
-	/** ------------------ */
 	
 	/** --------------- */
 	/**  Oli Variables  */
 	/** --------------- */
+	
+	/** Oli Informations */
+	private $oliInfos = [];
 	
 	/** Addons List */
 	private $addonsList = [];
@@ -94,6 +96,10 @@ class OliCore {
 	/** Url Params Used for Content load */
 	private $fileNameParam = '';
 	
+	/** Encryption */
+	private $encryptionKey = '';
+	private $encryptionKeyLength = 1024;
+	
 	/** Content Type */
 	private $currentContentType = '';
 	private $defaultContentType = 'HTML';
@@ -102,6 +108,7 @@ class OliCore {
 	private $defaultCharset = 'utf-8';
 	
 	/** Html Files Buffer List */
+	private $commonFilesPath = '';
 	private $htmlLoaderList = [];
 	
 	/** CDN Url */
@@ -170,6 +177,8 @@ class OliCore {
 		$this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
 		$this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
 		
+		$this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
+		
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
 	}
@@ -194,7 +203,7 @@ class OliCore {
 	 * @return string Show infos about this framework
 	 */
 	public function __toString() {
-		return 'Powered by Oli, a PHP Framework';
+		return 'Powered by <a href="' . $this->getOliInfos('website_url') . '">Oli</a> (v. ' . $this->getOliInfos('version') . ')';
 	}
 	
 	/** --------------- */
@@ -212,8 +221,12 @@ class OliCore {
 	 * @return string|array Decoded value(s)
 	 */
 	public function decodeConfigValues($values) {
-		foreach(((!is_array($values)) ? [$values] : $values) as $eachKey => $eachValue) {
-			if(is_array($eachValue)) $result = $this->decodeConfigValues($eachValue);
+		foreach((!is_array($values) ? [$values] : $values) as $eachKey => $eachValue) {
+			$isArray = false;
+			if(is_array($eachValue)) {
+				$result = $this->decodeConfigValues($eachValue);
+				$isArray = true;
+			}
 			else {
 				$result = [];
 				foreach(explode('|', $eachValue) as $eachPart) {
@@ -253,7 +266,7 @@ class OliCore {
 					$result[] = $partResult;
 				}
 			}
-			$output[$eachKey] = count($result) > 1 ? implode($result) : $result[0];
+			$output[$eachKey] = $isArray ? (!is_array($result) ? [$result] : $result) : (count($result) > 1 ? implode($result) : $result[0]);
 		}
 		return (!is_array($value) AND count($output) == 1) ? $output[0] : $output;
 	}
@@ -275,6 +288,12 @@ class OliCore {
 			else if($eachConfig == 'shotcut_links_table') $this->setShortcutLinksTable($eachValue);
 			else if($eachConfig == 'default_content_type') $this->setDefaultContentType($eachValue);
 			else if($eachConfig == 'default_charset') $this->setDefaultCharset($eachValue);
+			else if($eachConfig == 'encryption_key') {
+				foreach($eachValue as $eachKey => $eachParam) {
+					if($eachKey == 'length') $this->setEncryptionKeyLength($eachParam);
+				}
+			}
+			else if($eachConfig == 'common_files_path') $this->setCommonFilesPath($eachValue);
 			else if($eachConfig == 'cdn_url') $this->setCdnUrl($eachValue);
 			else if($eachConfig == 'default_user_language') $this->setDefaultLanguage($eachValue);
 			else if($eachConfig == 'translations_table') $this->setTranslationsTable($eachValue);
@@ -323,6 +342,12 @@ class OliCore {
 					else if($eachKey == 'http_only') $this->setAuthKeyCookieHttpOnly($eachParam);
 				}
 			}
+		}
+		
+		if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
+		else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
+			fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->encryptionKeyLength ?: 1024, true, true, true, true));
+			fclose($encryptFile);
 		}
 	}
 	
@@ -423,7 +448,30 @@ class OliCore {
 			 * @return void
 			 */
 			public function setSettingsTables($tables) {
-				$this->settingsTables = (!is_array($tables)) ? [$tables] : $tables;
+				$this->settingsTables = $tables = (!is_array($tables)) ? [$tables] : $tables;
+				foreach($tables as $eachTableGroup) {
+					if(is_array($eachTableGroup) or $hasArray) {
+						$hasArray = true;
+						$this->settingsTables = $eachTableGroup;
+						$this->getUrlParam('base', $hasUsedHttpHostBase);
+						
+						if(!$hasUsedHttpHostBase) break;
+					}
+				}
+				
+				$mediaPathAddon = $this->getSetting('media_path');
+				$themePathAddon = $this->getSetting('theme_path');
+				
+				if(!defined('CONTENTPATH')) {
+					$i = 1;
+					while($i <= strlen($mediaPathAddon) AND $i <= strlen($themePathAddon) AND substr($mediaPathAddon, 0, $i) == substr($themePathAddon, 0, $i)) {
+						$contentPath = substr($mediaPathAddon, 0, $i);
+						$i++;
+					}
+					define('CONTENTPATH', ABSPATH . ($contentPath ?: 'content/'));
+				}
+				if(!defined('MEDIAPATH')) define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
+				if(!defined('THEMEPATH')) define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
 			}
 			
 			/**
@@ -478,9 +526,32 @@ class OliCore {
 				$this->defaultCharset = $defaultCharset;
 			}
 			
+			/** ------------ */
+			/**  Encryption  */
+			/** ------------ */
+			
+			/**
+			 * Set encryption key length
+			 * 
+			 * @param string $encryptionKeyLength Encryption key length
+			 * 
+			 * @uses OliCore::$encryptionKeyLength to set the encryption key length
+			 * @return void
+			 */
+			public function setEncryptionKeyLength($encryptionKeyLength) {
+				$this->encryptionKeyLength = $encryptionKeyLength;
+			}
+			
 			/** -------------------- */
 			/**  CDN (common files)  */
 			/** -------------------- */
+			
+			/** Set Common Files Path */
+			public function setCommonFilesPath($path) {
+				$this->commonFilesPath = $path;
+				
+				if(!defined('COMMONPATH')) define('COMMONPATH', $path ? ABSPATH . $path : CONTENTPATH . 'theme/');
+			}
 			
 			/**
 			 * Set CDN url (common files)
@@ -1080,7 +1151,9 @@ class OliCore {
 		 * @return mixed Returns infos from specified table
 		 */
 		public function getInfosMySQL($table, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-			$whatVar = (!is_array($whatVar)) ? [$whatVar] : $whatVar;
+			if(!is_array($whatVar)) $whatVar = [$whatVar];
+			else $whatVarArray = true;
+			
 			if(is_bool($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
 				$forceArray = $caseSensitive;
@@ -1176,7 +1249,7 @@ class OliCore {
 								$lineResult[$eachVar] = $eachLine[$eachVar];
 							}
 						}
-						$valueArray[] = (!isset($lineResult) OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
+						$valueArray[] = (!isset($lineResult) OR $whatVarArray OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
 					}
 				}
 			}
@@ -1538,6 +1611,22 @@ class OliCore {
 	/**  Oli Functions  */
 	/** --------------- */
 	
+		/** ------------------ */
+		/**  Oli Informations  */
+		/** ------------------ */
+		
+		public function getOliInfos($info = null) {
+			if(empty($info)) return $this->oliInfos;
+			else if($info == 'name') return $this->oliInfos['name'];
+			else if($info == 'description') return $this->oliInfos['description'];
+			else if($info == 'version') return $this->oliInfos['version'];
+			else if($info == 'website_name') return $this->oliInfos['website']['name'];
+			else if($info == 'website_url') return $this->oliInfos['website']['url'];
+			else if($info == 'github_url') return $this->oliInfos['github']['url'];
+			else if($info == 'github_api') return $this->oliInfos['github']['api'];
+			else return false;
+		}
+		
 		/** ------------------- */
 		/**  Load Page Content  */
 		/** ------------------- */
@@ -1839,9 +1928,10 @@ class OliCore {
 					header('Content-Type: ' . $newContentType . ';charset=' . $charset);
 					$this->currentContentType = $newContentType;
 					$this->currentCharset = $charset;
+					
+					return $newContentType;
 				}
-				else
-					return false;
+				else return false;
 			}
 			
 			/**
@@ -2101,9 +2191,17 @@ class OliCore {
 		 * @uses OliCore::$htmlLoaderList to store file into the loader list
 		 * @return void
 		 */
-		public function loadStyle($url, $loadNow = true, $minimize = false) {
-			if($minimize) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
-			else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '">';
+		public function loadStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			if(is_bool($tags)) {
+				$minimize = $loadNow;
+				$loadNow = $tags;
+				$tags = null;
+			}
+			if(!isset($loadNow)) $loadNow = true;
+			if(!isset($minimize)) $minimize = false;
+			
+			if($minimize AND empty($tags)) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
+			else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '" ' . ($tags ?: '') . '>';
 			
 			if($loadNow) echo $codeLine . PHP_EOL;
 			else $this->htmlLoaderList[] = $codeLine;
@@ -2120,8 +2218,13 @@ class OliCore {
 		 * @uses OliCore::getDataUrl() to get data url
 		 * @return void
 		 */
-		public function loadLocalStyle($url, $loadNow = true, $minimize = false) {
-			$this->loadStyle($this->getDataUrl() . $url, $loadNow, $minimize);
+		public function loadLocalStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadStyle($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
+		}
+		
+		/** Load common CSS stylesheet */
+		public function loadCommonStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadStyle($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2135,8 +2238,8 @@ class OliCore {
 		 * @uses OliCore::getCdnUrl() to get cdn url
 		 * @return void
 		 */
-		public function loadCdnStyle($url, $loadNow = true, $minimize = false) {
-			$this->loadStyle($this->getCdnUrl() . $url, $loadNow, $minimize);
+		public function loadCdnStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadStyle($this->getCdnUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2150,9 +2253,17 @@ class OliCore {
 		 * @uses OliCore::$htmlLoaderList to store file into the loader list
 		 * @return void
 		 */
-		public function loadScript($url, $loadNow = true, $minimize = false) {
-			if($minimize) $codeLine = '<script type="text/javascript">' . $this->minimizeScript(file_get_contents($url)) . '</script>';
-			else $codeLine = '<script type="text/javascript" src="' . $url . '"></script>';
+		public function loadScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			if(is_bool($tags)) {
+				$minimize = $loadNow;
+				$loadNow = $tags;
+				$tags = null;
+			}
+			if(!isset($loadNow)) $loadNow = true;
+			if(!isset($minimize)) $minimize = false;
+			
+			if($minimize AND empty($tags)) $codeLine = '<script type="text/javascript">' . $this->minimizeScript(file_get_contents($url)) . '</script>';
+			else $codeLine = '<script type="text/javascript" src="' . $url . '" ' . ($tags ?: '') . '></script>';
 			
 			if($loadNow) echo $codeLine . PHP_EOL;
 			else $this->htmlLoaderList[] = $codeLine;
@@ -2169,8 +2280,13 @@ class OliCore {
 		 * @uses OliCore::getDataUrl() to get data url
 		 * @return void
 		 */
-		public function loadLocalScript($url, $loadNow = true, $minimize = false) {
-			$this->loadScript($this->getDataUrl() . $url, $loadNow, $minimize);
+		public function loadLocalScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadScript($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
+		}
+		
+		/** Load common JS script */
+		public function loadCommonScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadScript($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2184,8 +2300,8 @@ class OliCore {
 		 * @uses OliCore::getCdnUrl() to get cdn url
 		 * @return void
 		 */
-		public function loadCdnScript($url, $loadNow = true, $minimize = false) {
-			$this->loadScript($this->getCdnUrl() . $url, $loadNow, $minimize);
+		public function loadCdnScript($url, $tags = null, $loadNow = null, $minimize = null) {
+			$this->loadScript($this->getCdnUrl() . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2258,19 +2374,20 @@ class OliCore {
 		 * # => Other parameters (e.g. 2 => 'param')
 		 * 
 		 * @param integer|string|null|void $param Parameter to get
+		 * @param boolean $hasUsedHttpHostBase Indicate to the user if the HTTP HOST has been used or not
 		 * 
 		 * @uses OliCore::getSetting() to get url setting
 		 * @uses OliCore::$fileNameParam to get the file name parameter
 		 * @return string|array|boolean Parameter wanted
 		 */
-		public function getUrlParam($param = null) {
+		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			if(!isset($param) OR $param < 0) return (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			else {
 				$urlSetting = !empty($this->getSetting('url')) ? (!is_array($this->getSetting('url')) ? [$this->getSetting('url')] : $this->getSetting('url')) : null;
 				if(in_array($param, ['allbases', 'alldomains'], true)) {
 					$allBases = $allDomains = [];
 					foreach($urlSetting as $eachUrl) {
-						preg_match("/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/", $eachUrl, $matches);
+						preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
 						$allBases[] = ($matches[1] ?: (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://')) . $matches[2];
 						$allDomains[] = $matches[3];
 					}
@@ -2281,6 +2398,7 @@ class OliCore {
 				else {
 					$frationnedUrl = explode('/', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 					$baseUrl = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
+					$hasUsedHttpHostBase = false;
 					$shortBaseUrl = '';
 					
 					if(isset($urlSetting)) {
@@ -2302,11 +2420,14 @@ class OliCore {
 							}
 						}
 					}
-					if(!isset($urlSetting) OR !$baseUrlMatch) $baseUrl = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+					if(!isset($urlSetting) OR !$baseUrlMatch) {
+						$baseUrl = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+						$hasUsedHttpHostBase = true;
+					}
 					
 					if(in_array($param, [0, 'base'], true)) return $baseUrl;
 					else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
-						preg_match("/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/", $baseUrl, $matches);
+						preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/', $baseUrl, $matches);
 						if($param == 'fulldomain') return $matches[1];
 						if($param == 'subdomain') return $matches[2];
 						if($param == 'domain') return $matches[3];
@@ -2359,6 +2480,11 @@ class OliCore {
 			return $this->getUrlParam();
 		}
 		
+		/** Get Common Files Url */
+		public function getCommonFilesUrl() {
+			return $this->getUrlParam(0) . $this->commonFilesPath . 'data/';
+		}
+		
 		/**
 		 * Get url to data files
 		 * 
@@ -2367,7 +2493,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getDataUrl() {
-			return $this->getUrlParam(0) . 'content/theme/data/';
+			return $this->getUrlParam(0) . ($this->getSetting('theme_path') ?: 'content/theme/') . 'data/';
 		}
 		
 		/**
@@ -2377,7 +2503,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getMediaUrl() {
-			return $this->getUrlParam(0) . 'content/media/';
+			return $this->getUrlParam(0) . ($this->getSetting('media_path') ?: 'content/media/');
 		}
 		
 		/**
@@ -2628,7 +2754,7 @@ class OliCore {
 					reset($entries);
 					while(list(, $entry) = each($entries)) {
 						$entry = trim($entry);
-						if(preg_match("/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/", $entry, $ip_list)){
+						if(preg_match('/^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/', $entry, $ip_list)){
 							$private_ip = [
 								'/^0\./',
 								'/^127\.0\.0\.1/',
@@ -2795,7 +2921,7 @@ class OliCore {
 			 * @return array|boolean Returns lines from specified table
 			 */
 			public function getAccountLines($tableCode, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2815,7 +2941,7 @@ class OliCore {
 			 * @return mixed Returns infos from specified table
 			 */
 			public function getAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2834,7 +2960,7 @@ class OliCore {
 			 * @return mixed Returns summed infos from specified table
 			 */
 			public function getSummedAccountInfos($tableCode, $whatVar, $where = [], $caseSensitive = true) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2852,7 +2978,7 @@ class OliCore {
 			 * @return boolean Returns true if infos are empty, false otherwise
 			 */
 			public function isEmptyAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 			}
 			
@@ -2868,7 +2994,7 @@ class OliCore {
 			 * @return boolean Returns true if infos exists, false otherwise
 			 */
 			public function isExistAccountInfos($tableCode, $where = [], $caseSensitive = true) {
-				if(is_string($where)) $where = array('username' => $where);
+				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
 		
@@ -2907,6 +3033,7 @@ class OliCore {
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				
 				return $this->updateInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where);
 			}
 			
@@ -2936,7 +3063,7 @@ class OliCore {
 			 * @return boolean Returns true if the request succeeded, false otherwise
 			 */
 			public function deleteAccountLines($tableCode, $where) {
-				if(is_string($where) AND $where != 'all') $where = array('username' => $where);
+				if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where);
 			}
 			
@@ -3015,7 +3142,8 @@ class OliCore {
 			 * @return integer Returns user right permissions
 			 */
 			public function getRightPermissions($userRight, $caseSensitive = true) {
-				return $this->getAccountInfos('RIGHTS', 'permissions', array('user_right' => $userRight), $caseSensitive);
+				if($returnValue = $this->getAccountInfos('RIGHTS', 'permissions', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
+				else if($returnValue = $this->getAccountInfos('RIGHTS', 'permissions', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
 			}
 			
 			/**
@@ -3271,6 +3399,26 @@ class OliCore {
 			}
 			
 			/**
+			 * Is exist auth key
+			 * 
+			 * @uses OliCore::isExistCookie()
+			 * @return boolean Returns true if the cookie exists, false otherwise
+			 */
+			public function isExistAuthKey() {
+				return $this->isExistCookie($this->authKeyCookieName);
+			}
+			
+			/**
+			 * Is empty auth key
+			 * 
+			 * @uses OliCore::isEmptyCookie()
+			 * @return boolean Returns true if the cookie is empty, false otherwise
+			 */
+			public function isEmptyAuthKey() {
+				return $this->isEmptyCookie($this->authKeyCookieName);
+			}
+			
+			/**
 			 * Verify auth key validity
 			 * 
 			 * @param string|void $authKey Auth key to check
@@ -3284,9 +3432,10 @@ class OliCore {
 			 * @return boolean Returns true if auth key is valid, false otherwise
 			 */
 			public function verifyAuthKey($authKey = null) {
-				$authKey = (!empty($authKey)) ? $authKey : $this->getAuthKey();
-				if(!empty($authKey) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $authKey)) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $authKey))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => implode('/', $this->getUrlParam('params'))), array('auth_key' => $authKey));
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				
+				if(!empty(sha1($authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => sha1($authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => sha1($authKey)))) >= time()) {
+					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => sha1($authKey)));
 					return true;
 				}
 				else return false;
@@ -3303,11 +3452,10 @@ class OliCore {
 			 * @return string Returns the auth key owner
 			 */
 			public function getAuthKeyOwner($authKey = null) {
-				$authKey = (!empty($authKey)) ? $authKey : $this->getAuthKey();
-				if($this->verifyAuthKey($authKey))
-					return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => $authKey));
-				else
-					return false;
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				
+				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => sha1($authKey)));
+				else return false;
 			}
 		
 		/** ---------------- */
@@ -3340,13 +3488,13 @@ class OliCore {
 			 * @uses OliCore::insertAccountLine() to insert line in account table
 			 * @return string Returns the activation key if the request succeed, false otherwise
 			 */
-			public function createRequest($username, $action) {
+			public function createRequest($username, $action, &$requestTime = null) {
 				$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
 				$requestsMatches['username'] = $username;
 				$requestsMatches['activate_key'] = $this->keygen(6, false, true, true);
 				$requestsMatches['action'] = $action;
-				$requestsMatches['request_date'] = date('Y-m-d H:i:s');
-				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', time() + $this->requestsExpireDelay);
+				$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
+				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->requestsExpireDelay);
 				$this->insertAccountLine('REQUESTS', $requestsMatches);
 				
 				return $requestsMatches['activate_key'];
@@ -3391,7 +3539,7 @@ class OliCore {
 			 * @uses OliCore::getSetting() to get setting
 			 * @return string Returns true if the account is created, false otherwise
 			 */
-			public function registerAccount($username, $password, $email) {
+			public function registerAccount($username, $password, $email, $subject = null, $message = null, $headers = null) {
 				if(!$this->accountsManagement) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
@@ -3416,27 +3564,49 @@ class OliCore {
 						$infosMatches['username'] = $username;
 						$this->insertAccountLine('INFOS', $infosMatches);
 					
+						if(empty($headers)) {
+							$headers = 'From: noreply@' . $this->getUrlParam('domain') . "\r\n";
+							$headers .= 'MIME-Version: 1.0' . "\r\n";
+							$headers .= 'Content-type: text/html; charset=iso-8859-1';
+						}
+						
 						if($this->registerVerification) {
 							$activateKey = $this->createRequest($username, 'activate');
 							
-							$subject = 'Activation de votre compte';
-							$message = 'Bonjour ' . $username . ', <br />';
-							$message .= 'Un compte a été créé à votre email. <br />';
-							$message .= 'Si vous n\'avez pas créé de compte, veuillez ignorer ce message, <br />';
-							$message .= 'Sinon, veuillez vous rendre sur ce lien pour activer votre compte : <br />';
-							$message .= '<a href="' . $this->getUrlParam(0) . 'login.php/activate/' . $activateKey . '">' . $this->getUrlParam(0) . 'login.php/activate/' . $activateKey . '</a> <br />';
-							$message .= 'Vous avez jusqu\'au ' . date('d/m/Y', strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) + $this->requestsExpireDelay) . ' pour activer votre compte, <br />';
-							$message .= 'Une fois cette date passée, le code d\'activation ne sera plus valide';
-							$headers = 'From: contact@' . $this->getSetting('domain') . "\r\n";
-							$headers .= 'MIME-Version: 1.0' . "\r\n";
-							$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-							
-							if(!mail($email, $subject, utf8_decode($message), $headers)) {
-								$this->deleteFullAccount($username);
-								return false;
+							if(empty($subject)) $subject = 'Activate your account';
+							if(empty($message)) {
+								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
+								$message .= '<b>One more step!</b> <br />';
+								$message .= 'You just need to activate your account! Visit <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">this page to activate it</a> (' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . ') <br />';
+								$message .= 'You have ' . ($this->requestsExpireDelay /3600 /24) . ' ' . ($this->requestsExpireDelay > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
+								$message .= 'If you don\'t activate your account, it will be suspended after this delay (then deleted if someone register with the same username) <br /> <br />';
+								$message .= 'You got this mail from <a href="' . $this->getUrlParam(0) . '">' . $this->getSetting('name') . '</a> <br />';
+								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
 							}
+							
+							$mailResult = mail($email, $subject ?: 'Activate your account', utf8_decode($message), $headers);
 						}
-						return true;
+						else {
+							if(empty($subject)) $subject = 'Your account have been created';
+							if(empty($message)) {
+								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
+								$message .= '<b>Yay! Your account have been successfully created</b> <br />';
+								$message .= 'You can <a href="' . $this->getUrlParam(0) . 'login/' . $activateKey . '">connect to it on this page</a> (' . $this->getUrlParam(0) . 'login/' . $activateKey . ') <br />';
+								$message .= 'You have ' . ($this->requestsExpireDelay /3600 /24) . ' ' . ($this->requestsExpireDelay > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
+								$message .= 'If you don\'t activate your account, it will be suspended after this delay (then deleted if someone register with the same username) <br /> <br />';
+								$message .= 'You got this mail from <a href="' . $this->getUrlParam(0) . '">' . $this->getSetting('name') . '</a> <br />';
+								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
+							}
+							
+							$mailResult = mail($email, $subject, utf8_decode($message), $headers);
+						}
+						
+						if($mailResult) return true;
+						else {
+							$this->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
+							$this->deleteFullAccount($username);
+							return false;
+						}
 					}
 					else return false; 
 				}
@@ -3479,13 +3649,17 @@ class OliCore {
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
 				if($this->verifyLogin($username, $password)) {
 					$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
-					if($this->getUserRightLevel($username, false) >= $this->translateUserRight('USER')) {
-						$newAuthKey = $this->keygen(100);
+					
+					if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $username)))
+						$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
+					
+					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
+						$newAuthKey = $this->keygen(28);
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = 24*3600;
 						
 						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;
 						$matches['username'] = $username;
-						$matches['auth_key'] = $newAuthKey;
+						$matches['auth_key'] = sha1($newAuthKey);
 						$matches['user_ip'] = $this->getUserIP();
 						$matches['login_date'] = date('Y-m-d H:i:s');
 						$matches['expire_date'] = date('Y-m-d H:i:s', time() + $expireDelay);
@@ -3511,14 +3685,15 @@ class OliCore {
 			 * 
 			 * This also delete auth key cookie
 			 * 
+			 * @uses OliCore::isExistAuthKey()
 			 * @uses OliCore::deleteLinesMySQL() to delete lines from account table
 			 * @uses OliCore::deleteAuthKeyCookie() to delete the auth key cookie
-			 * @return boolean Returns true if logout succeed, false otherwise
+			 * @return boolean
 			 */
 			public function logoutAccount() {
-				if($this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => $this->getAuthKey()))) {
-					$this->deleteAuthKeyCookie();
-					return true;
+				if($this->isExistAuthKey()) {
+					if($deleteResult = $this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => sha1($this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
+					return $deleteResult ? true : false;
 				}
 				else return false;
 			}
@@ -3564,11 +3739,15 @@ class OliCore {
 		 * @return string Returns the password hash
 		 */
 		public function hashPassword($password) {
-			$options = [];
-			if(!empty($this->hashSalt)) $options['salt'] = $this->hashSalt;
-			if(!empty($this->hashCost)) $options['cost'] = $this->hashCost;
-			
-			return password_hash($password, $this->hashAlgorithm, $options);
+			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
+			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
+			return password_hash($password, $this->hashAlgorithm, $hashOptions);
+		}
+		
+		public function needsRehashPassword($password) {
+			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
+			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
+			return password_needs_rehash($password, $this->hashAlgorithm, $hashOptions);
 		}
 
 }
