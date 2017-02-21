@@ -2,10 +2,23 @@
 /*\
 |*|  ---------------------------
 |*|  --- [  Oli Framework  ] ---
-|*|  --- [   BETA: 1.7.1   ] ---
+|*|  --- [   BETA: 1.8.0   ] ---
 |*|  ---------------------------
 |*|  
-|*|  Oli is an open source PHP framework made to help web developers creating their website
+|*|  Oli is an open source PHP framework made to help web developers creating their website.
+|*|  Created and developed by Mathieu Guérin – aka Matiboux.
+|*|  
+|*|  Oli Github repository: https://github.com/OliFramework/Oli/
+|*|  Ways to contact the developer:
+|*|  - Email: matiboux@gmail.com
+|*|  - Twitter: @Matiboux (https://twitter.com/Matiboux)
+|*|  - Telegram: @Matiboux (https://t.me/Matiboux)
+|*|  
+|*|  For more info, please see the README.md file provided with the framework files.
+|*|  If not, you can find it on the Oli repository (Github link above).
+|*|  
+|*|  --- --- ---
+|*|  
 |*|  Copyright (C) 2015 Mathieu Guérin (aka "Matiboux")
 |*|  
 |*|    This program is free software: you can redistribute it and/or modify
@@ -21,17 +34,15 @@
 |*|    You should have received a copy of the GNU Affero General Public License
 |*|    along with this program. If not, see <http://www.gnu.org/licenses/>.
 |*|  
-|*|  Please see the README.md file for more infos!
-|*|  
 |*|  --- --- ---
 |*|  ~ MALIOTT ~
 |*|  --- --- ---
 |*|  
 |*|  Releases date:
-|*|    PRE-DEV: 16 November 2014
-|*|    ALPHA: 6 February 2015 (released on Github)
-|*|    BETA: July 2015
-|*|    * Nothing about previous releases
+|*|  - PRE-DEV: 16 November 2014
+|*|  - ALPHA: 6 February 2015 (released on Github)
+|*|  - BETA: July 2015
+|*|    * No info on previous releases
 |*|    * [version 1.5]:
 |*|              (1.5.0): 17 August 2015
 |*|              (1.5.1): 21 August 2015
@@ -44,9 +55,11 @@
 |*|              (1.6.3): 10 January 2016
 |*|              (1.6.4): 10 February 2016
 |*|              (1.6.6): 2 June 2016
-|*|    * [version 1.7]: -- [ Github releases starts! ] --
+|*|    * [version 1.7]: -- [ Github repository created! ] --
 |*|              (1.7.0): 11 August 2016
-|*|              (1.7.1): Currently in development
+|*|              (1.7.1): 19 February 2017
+|*|    * [version 1.8]:
+|*|              (1.8.0): Currently in development
 \*/
 
 /**
