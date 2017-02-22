@@ -3521,7 +3521,7 @@ class OliCore {
 			 * @param string $password Password to set to
 			 * @param string $email Request action to set to
 			 * 
-			 * @uses OliCore::$accountsManagement to get the requests expire delay
+			 * @uses OliCore::$accountsManagementStatus to get the requests expire delay
 			 * @uses OliCore::isExistAccountInfos() to get if infos exists info from account table
 			 * @uses OliCore::getUserRightLevel() to get user right level
 			 * @uses OliCore::translateUserRight() to translate user right
@@ -3540,7 +3540,7 @@ class OliCore {
 			 * @return string Returns true if the account is created, false otherwise
 			 */
 			public function registerAccount($username, $password, $email, $subject = null, $message = null, $headers = null) {
-				if(!$this->accountsManagement) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
+				if(!$this->accountsManagementStatus) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
 						$this->deleteFullAccount(array('username' => $username));
