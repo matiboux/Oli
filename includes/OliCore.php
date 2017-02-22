@@ -39,7 +39,7 @@
 |*|  --- --- ---
 |*|  
 |*|  Releases date:
-|*|  - PRE-DEV: 16 November 2014
+|*|  - PRE-DEV: 15 November 2014
 |*|  - ALPHA: 6 February 2015 (released on Github)
 |*|  - BETA: July 2015
 |*|    * No info on previous releases
@@ -248,31 +248,40 @@ class OliCore {
 							$partResult = '';
 							if(is_string($eachPart)) {
 								if(preg_match('/^["\'](.*)["\']$/i', $eachPart, $matches)) $partResult = $eachPart;
-								else if(preg_match('/^Setting:(.*)$/i', $eachPart, $matches)) $partResult = $this->getSetting($matches[1]);
-								else if(preg_match('/^UrlParam:(.*)$/i', $eachPart, $matches)) $partResult = $this->getUrlParam($matches[1]);
-								else if(preg_match('/^ShortcutLink:(.*)$/i', $eachPart, $matches)) $partResult = $this->getShortcutLink($matches[1]);
-								else if(preg_match('/^Const:(.*)$/i', $eachPart, $matches)) $partResult = constant($matches[1]);
-								else if(preg_match('/^Time:(.*)$/i', $eachPart, $matches) AND preg_match('/^(\d*)\s?(\S*)$/i', $matches[1], $data)) {
-									if($data[2] == 'years' OR $data[2] == 'year') $partResult = $data[1] * 365.25 * 24 * 3600;
-									else if($data[2] == 'months' OR $data[2] == 'month') $partResult = $data[1] * 30.4375 * 24 * 3600;
-									else if($data[2] == 'weeks' OR $data[2] == 'week') $partResult = $data[1] * 7 * 24 * 3600;
-									else if($data[2] == 'days' OR $data[2] == 'day') $partResult = $data[1] * 24 * 3600;
-									else if($data[2] == 'hours' OR $data[2] == 'hour') $partResult = $data[1] * 3600;
-									else if($data[2] == 'minutes' OR $data[2] == 'minute') $partResult = $data[1] * 60;
-									else $partResult = $data[1];
+								else if(preg_match('/^Setting:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getSetting($matches[1]);
+								else if(preg_match('/^UrlParam:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getUrlParam($matches[1]);
+								else if(preg_match('/^ShortcutLink:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getShortcutLink($matches[1]);
+								else if(preg_match('/^Const:\s?(.*)$/i', $eachPart, $matches)) $partResult = constant($matches[1]);
+								else if(preg_match('/^Time:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
+									if($matches[2] == 'years' OR $matches[2] == 'year') $partResult = $matches[1] * 365.25 * 24 * 3600;
+									else if($matches[2] == 'months' OR $matches[2] == 'month') $partResult = $matches[1] * 30.4375 * 24 * 3600;
+									else if($matches[2] == 'weeks' OR $matches[2] == 'week') $partResult = $matches[1] * 7 * 24 * 3600;
+									else if($matches[2] == 'days' OR $matches[2] == 'day') $partResult = $matches[1] * 24 * 3600;
+									else if($matches[2] == 'hours' OR $matches[2] == 'hour') $partResult = $matches[1] * 3600;
+									else if($matches[2] == 'minutes' OR $matches[2] == 'minute') $partResult = $matches[1] * 60;
+									else $partResult = $matches[1];
 								}
-								else if(preg_match('/^Size:(.*)$/i', $eachPart, $matches) AND preg_match('/^(\d*)\s?(\S*)$/i', $matches[1], $data)) {
-									if($data[2] == 'TB' OR $data[2] == 'To') $partResult = $data[1] * (1000 ** 4);
-									else if($data[2] == 'GB' OR $data[2] == 'Go') $partResult = $data[1] * (1000 ** 3);
-									else if($data[2] == 'MB' OR $data[2] == 'Mo') $partResult = $data[1] * (1000 ** 2);
-									else if($data[2] == 'KB' OR $data[2] == 'Ko') $partResult = $data[1] * 1000;
+								else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
+									if($matches[2] == 'TiB' OR $matches[2] == 'Tio') $partResult = $matches[1] * (1024 ** 4);
+									else if($matches[2] == 'TB' OR $matches[2] == 'To') $partResult = $matches[1] * (1000 ** 4);
+									else if($matches[2] == 'GiB' OR $matches[2] == 'Gio') $partResult = $matches[1] * (1024 ** 3);
+									else if($matches[2] == 'GB' OR $matches[2] == 'Go') $partResult = $matches[1] * (1000 ** 3);
+									else if($matches[2] == 'MiB' OR $matches[2] == 'Mio') $partResult = $matches[1] * (1024 ** 2);
+									else if($matches[2] == 'MB' OR $matches[2] == 'Mo') $partResult = $matches[1] * (1000 ** 2);
+									else if($matches[2] == 'KiB' OR $matches[2] == 'Kio') $partResult = $matches[1] * 1024;
+									else if($matches[2] == 'KB' OR $matches[2] == 'Ko') $partResult = $matches[1] * 1000;
 									
-									else if($data[2] == 'TiB' OR $data[2] == 'Tio') $partResult = $data[1] * (1024 ** 4);
-									else if($data[2] == 'GiB' OR $data[2] == 'Gio') $partResult = $data[1] * (1024 ** 3);
-									else if($data[2] == 'MiB' OR $data[2] == 'Mio') $partResult = $data[1] * (1024 ** 2);
-									else if($data[2] == 'KiB' OR $data[2] == 'Kio') $partResult = $data[1] * 1024;
+									else if($matches[2] == 'Tib') $partResult = $matches[1] * 8 * (1024 ** 4);
+									else if($matches[2] == 'Tb') $partResult = $matches[1] * 8 * (1000 ** 4);
+									else if($matches[2] == 'Gib') $partResult = $matches[1] * 8 * (1024 ** 3);
+									else if($matches[2] == 'Gb') $partResult = $matches[1] * 8 * (1000 ** 3);
+									else if($matches[2] == 'Mib') $partResult = $matches[1] * 8 * (1024 ** 2);
+									else if($matches[2] == 'Mb') $partResult = $matches[1] * 8 * (1000 ** 2);
+									else if($matches[2] == 'Kib') $partResult = $matches[1] * 8 * 1024;
+									else if($matches[2] == 'Kb') $partResult = $matches[1] * 8 * 1000;
+									else if($matches[2] == 'b') $partResult = $matches[1] * 8;
 									
-									else $partResult = $data[1];
+									else $partResult = $matches[1];
 								}
 								else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
 								else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getDataUrl();
