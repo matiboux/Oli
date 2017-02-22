@@ -62,6 +62,26 @@
 |*|              (1.8.0): Currently in development
 \*/
 
+/*\
+|*|  Summary:
+|*|  
+|*|  I. Variables
+|*|  II. Magic Methods
+|*|  III. Configuration
+|*|    III. 1. Config Loader
+|*|    III. 2. MySQL Config
+|*|    III. 3. General Config 
+|*|    III. 4. Addons List [Work to do]
+|*|  IV. MySQL
+|*|    IV. 1. Status Functions
+|*|    IV. 2. Read Functions
+|*|    IV. 3. Write Functions
+|*|    IV. 4. Database Functions
+|*|  
+|*|  Todo:
+|*|  - 
+\*/
+
 /**
  * Oli Framework namespace
  * 
@@ -83,100 +103,48 @@ namespace OliFramework {
  * @package OliFramework\OliCore
  */
 class OliCore {
+
+	/** -------------- */
+	/**  I. Variables  */
+	/** -------------- */
 	
-	/** --------------- */
-	/**  Oli Variables  */
-	/** --------------- */
+	/** Framework components */
+	public $oliInfos = []; // Oli Infos
+	public $addonsList = []; // Addons List & Infos
 	
-	/** Oli Informations */
-	private $oliInfos = [];
-	
-	/** Addons List */
-	private $addonsList = [];
-	
-	/** Setup Class Timestamp */
-	private $setupClassTimestamp = null;
+	/** Oli Config */
+	private $mysqlConfig = null;
+	public $config = null;
 	
 	/** Externals Class */
 	public $db = null; // Database PDO Object
 	public $ErrorHandler = null; // Oli Error Handler
 	public $ExceptionHandler = null; // Oli Error Handler
 	
-	/** Tables Configuration */
-	private $settingsTables = [];
-	private $shortcutLinksTable = null;
 	
-	/** Url Params Used for Content load */
-	private $fileNameParam = '';
+	/** Url Params */
+	private $fileNameParam = null;
 	
-	/** Encryption */
-	private $encryptionKey = '';
-	private $encryptionKeyLength = 1024;
-	
-	/** Content Type */
-	private $currentContentType = '';
-	private $defaultContentType = 'HTML';
-	private $contentTypeHasBeenForced = false;
-	private $currentCharset = '';
-	private $defaultCharset = 'utf-8';
-	
-	/** Html Files Buffer List */
-	private $commonFilesPath = '';
+	/** Webpage Settings */
+	private $contentType = null;
+	private $contentTypeBeenForced = false;
+	private $currentCharset = null;
 	private $htmlLoaderList = [];
 	
-	/** CDN Url */
-	private $cdnUrl = '';
-	
-	/** Translations & User Language */
-	private $defaultLanguage = 'en';
+	/** User Language */
 	private $currentLanguage = '';
-	private $translationsTable = null;
+	
+	/** Framework Encryption */
+	private $encryptionKey = null;
 	
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
-	private $postVarsCookieName = '';
-	private $postVarsCookieExpireDelay = 1;
-	private $postVarsCookieDomain = '';
-	private $postVarsCookieSecure = false;
-	private $postVarsCookieHttpOnly = false;
-	
-	/** -------------------- */
-	/**  Accounts Variables  */
-	/** -------------------- */
-	
-	/** Enable / Disable Accounts Management */
-	private $accountsManagementStatus = false;
-	
-	/** Tables Configuration */
-	public $accountsTable = null;
-	private $accountsInfosTable = null;
-	private $accountsSessionsTable = null;
-	private $accountsRequestsTable = null;
-	private $accountsPermissionsTable = null;
-	private $accountsRightsTable = null;
-	
-	/** Hash Preferences */
-	private $hashAlgorithm = PASSWORD_DEFAULT;
-	private $hashSalt = '';
-	private $hashCost = 0;
-	
-	/** Auth Key Cookie */
-	private $authKeyCookieName = null;
-	private $authKeyCookieDomain = null;
-	private $authKeyCookieSecure = null;
-	private $authKeyCookieHttpOnly = null;
-	
-	/** Register Verification Mode */
-	private $registerVerification = false;
-	private $requestsExpireDelay = 172800;
-	private $defaultUserRight = 'USER';
-	private $prohibitedUsernames = [];
 	
 	/** *** *** *** */
 	
-	/** --------------- */
-	/**  Magic Methods  */
-	/** --------------- */
+	/** ------------------- */
+	/**  II. Magic Methods  */
+	/** ------------------- */
 	
 	/**
 	 * Class Construct function
@@ -186,11 +154,13 @@ class OliCore {
 	 * @return self
 	 */
 	public function __construct() {
-		$this->setupClassTimestamp = microtime(true);
 		$this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
 		$this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
 		
+		/** Load Oli Infos & Default Config */
 		$this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
+		$this->loadConfig(json_decode(file_get_contents(INCLUDEPATH . 'config.default.json'), true));
+		$this->config['init_timestamp'] = microtime(true);
 		
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
@@ -219,209 +189,108 @@ class OliCore {
 		return 'Powered by <a href="' . $this->getOliInfos('website_url') . '">Oli</a> (v. ' . $this->getOliInfos('version') . ')';
 	}
 	
-	/** --------------- */
-	/**  Config Loader  */
-	/** --------------- */
-	
-	/**
-	 * Decode config text codes
-	 * 
-	 * May be used in other cases
-	 * 
-	 * @param string|array $values Values to decode
-	 * 
-	 * @see OliCore::loadConfig() to see how it's used
-	 * @return string|array Decoded value(s)
-	 */
-	public function decodeConfigValues($values) {
-		foreach((!is_array($values) ? [$values] : $values) as $eachKey => $eachValue) {
-			$isArray = false;
-			if(is_array($eachValue)) {
-				$result = $this->decodeConfigValues($eachValue);
-				$isArray = true;
-			}
-			else {
-				$result = [];
-				foreach(explode('|', $eachValue) as $eachPart) {
-					$partResult = '';
-					if(is_string($eachPart)) {
-						if(preg_match('/^"(.*)"$/i', $eachPart, $matches)) $partResult = $eachPart;
-						else if(preg_match('/^Setting:(.*)$/i', $eachPart, $matches)) $partResult = $this->getSetting($matches[1]);
-						else if(preg_match('/^UrlParam:(.*)$/i', $eachPart, $matches)) $partResult = $this->getUrlParam($matches[1]);
-						else if(preg_match('/^ShortcutLink:(.*)$/i', $eachPart, $matches)) $partResult = $this->getShortcutLink($matches[1]);
-						else if(preg_match('/^Const:(.*)$/i', $eachPart, $matches)) $partResult = constant($matches[1]);
-						else if(preg_match('/^Time:(.*)$/i', $eachPart, $matches) AND preg_match('/^(\d*)\s?(\S*)$/i', $matches[1], $data)) {
-							if($data[2] == 'years' OR $data[2] == 'year') $partResult = $data[1] * 365.25 * 24 * 3600;
-							else if($data[2] == 'months' OR $data[2] == 'month') $partResult = $data[1] * 30.4375 * 24 * 3600;
-							else if($data[2] == 'weeks' OR $data[2] == 'week') $partResult = $data[1] * 7 * 24 * 3600;
-							else if($data[2] == 'days' OR $data[2] == 'day') $partResult = $data[1] * 24 * 3600;
-							else if($data[2] == 'hours' OR $data[2] == 'hour') $partResult = $data[1] * 3600;
-							else if($data[2] == 'minutes' OR $data[2] == 'minute') $partResult = $data[1] * 60;
-							else $partResult = $data[1];
-						}
-						else if(preg_match('/^Size:(.*)$/i', $eachPart, $matches) AND preg_match('/^(\d*)\s?(\S*)$/i', $matches[1], $data)) {
-							if($data[2] == 'TB' OR $data[2] == 'To') $partResult = $data[1] * (1000 ** 4);
-							else if($data[2] == 'GB' OR $data[2] == 'Go') $partResult = $data[1] * (1000 ** 3);
-							else if($data[2] == 'MB' OR $data[2] == 'Mo') $partResult = $data[1] * (1000 ** 2);
-							else if($data[2] == 'KB' OR $data[2] == 'Ko') $partResult = $data[1] * 1000;
-							
-							else if($data[2] == 'TiB' OR $data[2] == 'Tio') $partResult = $data[1] * (1024 ** 4);
-							else if($data[2] == 'GiB' OR $data[2] == 'Gio') $partResult = $data[1] * (1024 ** 3);
-							else if($data[2] == 'MiB' OR $data[2] == 'Mio') $partResult = $data[1] * (1024 ** 2);
-							else if($data[2] == 'KiB' OR $data[2] == 'Kio') $partResult = $data[1] * 1024;
-							
-							else $partResult = $data[1];
-						}
-						else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
-						else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getDataUrl();
-						else $partResult = $eachPart;
-					}
-					$result[] = $partResult;
-				}
-			}
-			$output[$eachKey] = $isArray ? (!is_array($result) ? [$result] : $result) : (count($result) > 1 ? implode($result) : $result[0]);
-		}
-		return (!is_array($value) AND count($output) == 1) ? $output[0] : $output;
-	}
-	
-	/**
-	 * Load config from an array
-	 * 
-	 * @param array $config Config to load
-	 * 
-	 * @uses OliCore::decodeConfigValues() to decode values
-	 * @return void
-	 */
-	public function loadConfig($config) {
-		foreach($config as $eachConfig => $eachValue) {
-			$eachValue = $this->decodeConfigValues($eachValue);
-			
-			if($eachConfig == 'mysql') $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname']);
-			else if($eachConfig == 'settings_tables') $this->setSettingsTables($eachValue);
-			else if($eachConfig == 'shotcut_links_table') $this->setShortcutLinksTable($eachValue);
-			else if($eachConfig == 'default_content_type') $this->setDefaultContentType($eachValue);
-			else if($eachConfig == 'default_charset') $this->setDefaultCharset($eachValue);
-			else if($eachConfig == 'encryption_key') {
-				foreach($eachValue as $eachKey => $eachParam) {
-					if($eachKey == 'length') $this->setEncryptionKeyLength($eachParam);
-				}
-			}
-			else if($eachConfig == 'common_files_path') $this->setCommonFilesPath($eachValue);
-			else if($eachConfig == 'cdn_url') $this->setCdnUrl($eachValue);
-			else if($eachConfig == 'default_user_language') $this->setDefaultLanguage($eachValue);
-			else if($eachConfig == 'translations_table') $this->setTranslationsTable($eachValue);
-			else if($eachConfig == 'time_zone') $this->setTimeZone($eachValue);
-			else if($eachConfig == 'post_vars_cookie') {
-				foreach($eachValue as $eachKey => $eachParam) {
-					if($eachKey == 'name') $this->setPostVarsCookieName($eachParam);
-					else if($eachKey == 'domain') $this->setPostVarsCookieDomain($eachParam);
-					else if($eachKey == 'secure') $this->setPostVarsCookieSecure($eachParam);
-					else if($eachKey == 'http_only') $this->setPostVarsCookieHttpOnly($eachParam);
-				}
-			}
-			else if($eachConfig == 'login_management' AND $eachValue) $this->enableAccountsManagement();
-			else if($eachConfig == 'accounts_tables') {
-				foreach($eachValue as $eachKey => $eachTable) {
-					if($eachKey == 'accounts') $this->setAccountsTable($eachTable);
-					else if($eachKey == 'infos') $this->setAccountsInfosTable($eachTable);
-					else if($eachKey == 'sessions') $this->setAccountsSessionsTable($eachTable);
-					else if($eachKey == 'requests') $this->setAccountsRequestsTable($eachTable);
-					else if($eachKey == 'permissions') $this->setAccountsPermissionsTable($eachTable);
-					else if($eachKey == 'rights') $this->setAccountsRightsTable($eachTable);
-				}
-			}
-			else if($eachConfig == 'prohibited_usernames') $this->setProhibitedUsernames($eachValue);
-			else if($eachConfig == 'register') {
-				foreach($eachValue as $eachKey => $eachParam) {
-					if($eachKey == 'verification') {
-						if($eachParam) $this->enableRegisterVerification();
-						else $this->disableRegisterVerification();
-					}
-					else if($eachKey == 'request_expire_delay') $this->setRequestsExpireDelay($eachParam);
-				}
-			}
-			else if($eachConfig == 'hash') {
-				foreach($eachValue as $eachKey => $eachParam) {
-					if($eachKey == 'algorithm') $this->setHashAlgorithm($eachParam);
-					else if($eachKey == 'salt') $this->setHashSalt($eachParam);
-					else if($eachKey == 'cost') $this->setHashCost($eachParam);
-				}
-			}
-			else if($eachConfig == 'auth_key_cookie') {
-				foreach($eachValue as $eachKey => $eachParam) {
-					if($eachKey == 'name') $this->setAuthKeyCookieName($eachParam);
-					else if($eachKey == 'domain') $this->setAuthKeyCookieDomain($eachParam);
-					else if($eachKey == 'secure') $this->setAuthKeyCookieSecure($eachParam);
-					else if($eachKey == 'http_only') $this->setAuthKeyCookieHttpOnly($eachParam);
-				}
-			}
-		}
-		
-		if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
-		else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
-			fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->encryptionKeyLength ?: 1024, true, true, true, true));
-			fclose($encryptFile);
-		}
-	}
-	
 	/** *** *** *** */
+	
+	/** -------------------- */
+	/**  III. Configuration  */
+	/** -------------------- */
+	
+		/** ----------------------- */
+		/**  III. 1. Config Loader  */
+		/** ----------------------- */
 		
-	/** ------------------- */
-	/**  Addons Management  */
-	/** ------------------- */
-	
-	/**
-	 * Add addon
-	 * 
-	 * @param string $name Addon name
-	 * @param string $var Addon variable
-	 * 
-	 * @return void
-	 */
-	public function addAddon($name, $var) {
-		$this->addonsList[$name] = $var;
-	}
-	
-	/**
-	 * Get addon name
-	 * 
-	 * @param string $var Addon variable
-	 * 
-	 * @return string Addon name
-	 */
-	public function getAddonName($var) {
-		return array_search($var, $this->addonsList);
-	}
-	
-	/**
-	 * Get addon var
-	 * 
-	 * @param string $name Addon name
-	 * 
-	 * @return string Addon variable
-	 */
-	public function getAddonVar($name) {
-		return $this->addonsList[$name];
-	}
-	
-	/**
-	 * Is exist addon
-	 * 
-	 * @param string $info Addon name or variable
-	 * 
-	 * @return boolean
-	 */
-	public function isExistAddon($info) {
-		return (array_key_exists($info, $this->addonsList) OR array_search($info, $this->addonsList)) ? true : false;
-	}
-	
-	/** --------------- */
-	/**  Configuration  */
-	/** --------------- */
-	
-		/** ------------------ */
-		/**  MySQL PDO Object  */
-		/** ------------------ */
+		/**
+		 * Load config from an array
+		 * 
+		 * @param array $config Config to load
+		 * 
+		 * @uses OliCore::decodeConfigValues() to decode values
+		 * @return void
+		 */
+		public function loadConfig($config) {
+			foreach($config as $eachConfig => $eachValue) {
+				$eachValue = $this->decodeConfigValues($eachValue);
+				
+				if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+				else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
+				else if($eachConfig == 'common_files_path') $this->setCommonFilesPath($eachValue);
+				else $this->config[$eachConfig] = $eachValue;
+			}
+			
+			if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
+			else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
+				fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->config['encryption_key_length'] ?: 1024, true, true, true, true));
+				fclose($encryptFile);
+			}
+		}
+		
+		/**
+		 * Decode config text codes
+		 * 
+		 * May be used in other cases
+		 * 
+		 * @param string|array $values Values to decode
+		 * 
+		 * @see OliCore::loadConfig() to see how it's used
+		 * @return string|array Decoded value(s)
+		 */
+		public function decodeConfigValues($values) {
+			if(!empty($values)) {
+				foreach((!is_array($values) ? [$values] : $values) as $eachKey => $eachValue) {
+					$isArray = false;
+					if(is_array($eachValue)) {
+						$result = $this->decodeConfigValues($eachValue);
+						$isArray = true;
+					}
+					else {
+						$result = [];
+						foreach(explode('|', $eachValue) as $eachPart) {
+							$partResult = '';
+							if(is_string($eachPart)) {
+								if(preg_match('/^["\'](.*)["\']$/i', $eachPart, $matches)) $partResult = $eachPart;
+								else if(preg_match('/^Setting:(.*)$/i', $eachPart, $matches)) $partResult = $this->getSetting($matches[1]);
+								else if(preg_match('/^UrlParam:(.*)$/i', $eachPart, $matches)) $partResult = $this->getUrlParam($matches[1]);
+								else if(preg_match('/^ShortcutLink:(.*)$/i', $eachPart, $matches)) $partResult = $this->getShortcutLink($matches[1]);
+								else if(preg_match('/^Const:(.*)$/i', $eachPart, $matches)) $partResult = constant($matches[1]);
+								else if(preg_match('/^Time:(.*)$/i', $eachPart, $matches) AND preg_match('/^(\d*)\s?(\S*)$/i', $matches[1], $data)) {
+									if($data[2] == 'years' OR $data[2] == 'year') $partResult = $data[1] * 365.25 * 24 * 3600;
+									else if($data[2] == 'months' OR $data[2] == 'month') $partResult = $data[1] * 30.4375 * 24 * 3600;
+									else if($data[2] == 'weeks' OR $data[2] == 'week') $partResult = $data[1] * 7 * 24 * 3600;
+									else if($data[2] == 'days' OR $data[2] == 'day') $partResult = $data[1] * 24 * 3600;
+									else if($data[2] == 'hours' OR $data[2] == 'hour') $partResult = $data[1] * 3600;
+									else if($data[2] == 'minutes' OR $data[2] == 'minute') $partResult = $data[1] * 60;
+									else $partResult = $data[1];
+								}
+								else if(preg_match('/^Size:(.*)$/i', $eachPart, $matches) AND preg_match('/^(\d*)\s?(\S*)$/i', $matches[1], $data)) {
+									if($data[2] == 'TB' OR $data[2] == 'To') $partResult = $data[1] * (1000 ** 4);
+									else if($data[2] == 'GB' OR $data[2] == 'Go') $partResult = $data[1] * (1000 ** 3);
+									else if($data[2] == 'MB' OR $data[2] == 'Mo') $partResult = $data[1] * (1000 ** 2);
+									else if($data[2] == 'KB' OR $data[2] == 'Ko') $partResult = $data[1] * 1000;
+									
+									else if($data[2] == 'TiB' OR $data[2] == 'Tio') $partResult = $data[1] * (1024 ** 4);
+									else if($data[2] == 'GiB' OR $data[2] == 'Gio') $partResult = $data[1] * (1024 ** 3);
+									else if($data[2] == 'MiB' OR $data[2] == 'Mio') $partResult = $data[1] * (1024 ** 2);
+									else if($data[2] == 'KiB' OR $data[2] == 'Kio') $partResult = $data[1] * 1024;
+									
+									else $partResult = $data[1];
+								}
+								else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
+								else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getDataUrl();
+								else $partResult = $eachPart;
+							}
+							$result[] = $partResult;
+						}
+					}
+					$output[$eachKey] = $isArray ? (!is_array($result) ? [$result] : $result) : (count($result) > 1 ? implode($result) : $result[0]);
+				}
+				return (!is_array($values) AND count($output) == 1) ? $output[0] : $output;
+			}
+			else return $values;
+		}
+		
+		/** ---------------------- */
+		/**  III. 2. MySQL Config  */
+		/** ---------------------- */
 		
 		/**
 		 * Setup MySQL & Config
@@ -435,479 +304,122 @@ class OliCore {
 		 * @throws PDOException if an error occurred (while linking the MySQL database)
 		 * @return void
 		 */
-		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost') {
-			try {
-				$this->db = new \PDO('mysql:host=' . $hostname . ';dbname=' . $database . ';charset=utf8', $username, $password);
+		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
+			if(!empty($database)) {
+				try {
+					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
+					$this->db = new \PDO('mysql:host=' . $hostname . ';dbname=' . $database . ';charset=' . $charset, $username, $password);
+				}
+				catch(PDOException $e) {
+					trigger_error($e->getMessage(), E_USER_ERROR);
+				}
 			}
-			catch(PDOException $e) {
-				trigger_error($e->getMessage(), E_USER_ERROR);
-			}
+			else return false;
 		}
 		
-		/** ------------------- */
-		/**  Oli Configuration  */
-		/** ------------------- */
-		
-			/** -------------- */
-			/**  MySQL Tables  */
-			/** -------------- */
-			
-			/**
-			 * Set Oli settings tables
-			 * 
-			 * @param string|array $tables Oli settings tables
-			 * 
-			 * @uses OliCore::$settingsTables to set the settings tables
-			 * @return void
-			 */
-			public function setSettingsTables($tables) {
-				$this->settingsTables = $tables = (!is_array($tables)) ? [$tables] : $tables;
-				foreach($tables as $eachTableGroup) {
-					if(is_array($eachTableGroup) or $hasArray) {
-						$hasArray = true;
-						$this->settingsTables = $eachTableGroup;
-						$this->getUrlParam('base', $hasUsedHttpHostBase);
-						
-						if(!$hasUsedHttpHostBase) break;
-					}
-				}
-				
-				$mediaPathAddon = $this->getSetting('media_path');
-				$themePathAddon = $this->getSetting('theme_path');
-				
-				if(!defined('CONTENTPATH')) {
-					$i = 1;
-					while($i <= strlen($mediaPathAddon) AND $i <= strlen($themePathAddon) AND substr($mediaPathAddon, 0, $i) == substr($themePathAddon, 0, $i)) {
-						$contentPath = substr($mediaPathAddon, 0, $i);
-						$i++;
-					}
-					define('CONTENTPATH', ABSPATH . ($contentPath ?: 'content/'));
-				}
-				if(!defined('MEDIAPATH')) define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
-				if(!defined('THEMEPATH')) define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
-			}
-			
-			/**
-			 * Set shortcut links table
-			 * 
-			 * @param string $table Shortcut links table
-			 * 
-			 * @uses OliCore::$shortcutLinksTable to set the shortcut links table
-			 * @return void
-			 */
-			public function setShortcutLinksTable($table) {
-				$this->shortcutLinksTable = $table;
-			}
-			
-			/**
-			 * Set translations table
-			 * 
-			 * @param string $table Translations table
-			 * 
-			 * @uses OliCore::$translationsTable to set the translations table
-			 * @return void
-			 */
-			public function setTranslationsTable($table) {
-				$this->translationsTable = $table;
-			}
-			
-			/** -------------- */
-			/**  Content Type  */
-			/** -------------- */
-			
-			/**
-			 * Set default content type
-			 * 
-			 * @param string $defaultContentType Default content type
-			 * 
-			 * @uses OliCore::$defaultContentType to set the default content type
-			 * @return void
-			 */
-			public function setDefaultContentType($defaultContentType) {
-				$this->defaultContentType = $defaultContentType;
-			}
-			
-			/**
-			 * Set default charset
-			 * 
-			 * @param string $defaultCharset Default charset
-			 * 
-			 * @uses OliCore::$defaultCharset to set the default charset
-			 * @return void
-			 */
-			public function setDefaultCharset($defaultCharset) {
-				$this->defaultCharset = $defaultCharset;
-			}
-			
-			/** ------------ */
-			/**  Encryption  */
-			/** ------------ */
-			
-			/**
-			 * Set encryption key length
-			 * 
-			 * @param string $encryptionKeyLength Encryption key length
-			 * 
-			 * @uses OliCore::$encryptionKeyLength to set the encryption key length
-			 * @return void
-			 */
-			public function setEncryptionKeyLength($encryptionKeyLength) {
-				$this->encryptionKeyLength = $encryptionKeyLength;
-			}
-			
-			/** -------------------- */
-			/**  CDN (common files)  */
-			/** -------------------- */
-			
-			/** Set Common Files Path */
-			public function setCommonFilesPath($path) {
-				$this->commonFilesPath = $path;
-				
-				if(!defined('COMMONPATH')) define('COMMONPATH', $path ? ABSPATH . $path : CONTENTPATH . 'theme/');
-			}
-			
-			/**
-			 * Set CDN url (common files)
-			 * 
-			 * @param string $url CDN url
-			 * 
-			 * @uses OliCore::$cdnUrl to set the CDN url
-			 * @return void
-			 */
-			public function setCdnUrl($url) {
-				$this->cdnUrl = $url;
-			}
-			
-			/** ------------------------- */
-			/**  Translations & Language  */
-			/** ------------------------- */
-			
-			/**
-			 * Set default user language
-			 * 
-			 * @param string $language Default language
-			 * 
-			 * @uses OliCore::$defaultLanguageto to set the default language
-			 * @return void
-			 */
-			public function setDefaultLanguage($language = 'en') {
-				$this->defaultLanguage = $language;
-			}
-			
-			/** ------------------ */
-			/**  Post Vars Cookie  */
-			/** ------------------ */
-			
-			/**
-			 * Set post vars cookie name
-			 * 
-			 * @param string $name Cookie name
-			 * 
-			 * @uses OliCore::$postVarsCookieName to set the cookie name
-			 * @return void
-			 */
-			public function setPostVarsCookieName($name) {
-				$this->postVarsCookieName = $name;
-			}
-			
-			/**
-			 * Set post vars cookie expire delay
-			 * 
-			 * @param integer $delay Cookie expire delay
-			 * 
-			 * @uses OliCore::$postVarsCookieExpireDelay to set the cookie expire delay
-			 * @deprecated Default delay is 1 second and should not be anything else
-			 * @return void
-			 */
-			public function setPostVarsCookieExpireDelay($delay) { 
-				$this->postVarsCookieExpireDelay = $delay;
-			}
-			
-			/**
-			 * Set post vars cookie domain
-			 * 
-			 * @param string $domain Cookie domain
-			 * 
-			 * @uses OliCore::$postVarsCookieDomain to set the cookie domain
-			 * @return void
-			 */
-			public function setPostVarsCookieDomain($domain) {
-				$this->postVarsCookieDomain = $domain;
-			}
-			
-			/**
-			 * Set post vars cookie secure parameter
-			 * 
-			 * @param boolean $secure Cookie secure parameter
-			 * 
-			 * @uses OliCore::$postVarsCookieSecure to set the cookie secure parameter
-			 * @return void
-			 */
-			public function setPostVarsCookieSecure($secure) {
-				$this->postVarsCookieSecure = $secure;
-			}
-			
-			/**
-			 * Set post vars cookie http only parameter
-			 * 
-			 * @param boolean $httponly Cookie http only parameter
-			 * 
-			 * @uses OliCore::$postVarsCookieHttpOnly to set the cookie http only parameter
-			 * @return void
-			 */
-			public function setPostVarsCookieHttpOnly($httponly) {
-				$this->postVarsCookieHttpOnly = $httponly;
-			}
-			
-			/** ------------------ */
-			/**  Time Zone & Date  */
-			/** ------------------ */
-			
-			/**
-			 * Set time zone
-			 * 
-			 * @param string $timezone Time Zone Code
-			 * 
-			 * @uses date_default_timezone_set() to set time zone
-			 * @return boolean
-			 */
-			public function setTimeZone($timezone) {
-				return date_default_timezone_set($timezone);
-			}
-		
 		/** ------------------------ */
-		/**  Accounts Configuration  */
+		/**  III. 3. General Config  */
 		/** ------------------------ */
 		
-			/** -------------- */
-			/**  MySQL Tables  */
-			/** -------------- */
-			
-			/**
-			 * Set main accounts table
-			 * 
-			 * @param string $table Main accounts table
-			 * 
-			 * @uses OliCore::$accountsTable to set the main accounts table
-			 * @return void
-			 */
-			public function setAccountsTable($table) {
-				$this->accountsTable = $table;
+		/**
+		 * Set Oli settings tables
+		 * 
+		 * @param string|array $tables Oli settings tables
+		 * 
+		 * @uses OliCore::$config to set the settings tables
+		 * @return void
+		 */
+		public function setSettingsTables($tables) {
+			$this->config['settings_tables'] = $tables = !is_array($tables) ? [$tables] : $tables;
+			$hasArray = false;
+			foreach($tables as $eachTableGroup) {
+				if(is_array($eachTableGroup) OR $hasArray) {
+					$hasArray = true;
+					$this->config['settings_tables'] = $eachTableGroup;
+					$this->getUrlParam('base', $hasUsedHttpHostBase);
+					
+					if(!$hasUsedHttpHostBase) break;
+				}
 			}
 			
-			/**
-			 * Set accounts infos table
-			 * 
-			 * @param string $table Accounts infos table
-			 * 
-			 * @uses OliCore::$accountsInfosTable to set the accounts infos table
-			 * @return void
-			 */
-			public function setAccountsInfosTable($table) {
-				$this->accountsInfosTable = $table;
+			$mediaPathAddon = $this->getSetting('media_path');
+			$themePathAddon = $this->getSetting('theme_path');
+			
+			$i = 1;
+			while($i <= strlen($mediaPathAddon) AND $i <= strlen($themePathAddon) AND substr($mediaPathAddon, 0, $i) == substr($themePathAddon, 0, $i)) {
+				$contentPath = substr($mediaPathAddon, 0, $i);
+				$i++;
 			}
+			define('CONTENTPATH', ABSPATH . ($contentPath ?: 'content/'));
+			define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
+			define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
+		}
+		
+		/** Set Common Files Path */
+		public function setCommonFilesPath($path) {
+			$this->config['common_files_path'] = $path;
 			
-			/**
-			 * Set accounts sessions table
-			 * 
-			 * @param string $table Accounts sessions table
-			 * 
-			 * @uses OliCore::$accountsSessionsTable to set the accounts sessions table
-			 * @return void
-			 */
-			public function setAccountsSessionsTable($table) {
-				$this->accountsSessionsTable = $table;
-			}
-			
-			/**
-			 * Set accounts requests table
-			 * 
-			 * @param string $table Accounts requests table
-			 * 
-			 * @uses OliCore::$accountsRequestsTable to set the accounts requests table
-			 * @return void
-			 */
-			public function setAccountsRequestsTable($table) {
-				$this->accountsRequestsTable = $table;
-			}
-			
-			/**
-			 * Set accounts permissions table
-			 * 
-			 * @param string $table Accounts permissions table
-			 * 
-			 * @uses OliCore::$accountsPermissionsTable to set the accounts permissions table
-			 * @return void
-			 */
-			public function setAccountsPermissionsTable($table) {
-				$this->accountsPermissionsTable = $table;
-			}
-			
-			/**
-			 * Set accounts rights table
-			 * 
-			 * @param string $table Accounts rights table
-			 * 
-			 * @uses OliCore::$accountsRightsTable to set the accounts rights table
-			 * @return void
-			 */
-			public function setAccountsRightsTable($table) {
-				$this->accountsRightsTable = $table;
-			}
-			
-			/** -------------------- */
-			/**  Hash Configuration  */
-			/** -------------------- */
-			
-			/**
-			 * Set hash algorithm
-			 * 
-			 * @param string $algorithm Hash algorithm
-			 * 
-			 * @uses OliCore::$hashAlgorithm to set the hash algorithm
-			 * @return void
-			 */
-			public function setHashAlgorithm($algorithm) {
-				$this->hashAlgorithm = $algorithm;
-			}
-			
-			/**
-			 * Set hash salt
-			 * 
-			 * @param string $salt Hash salt
-			 * 
-			 * @uses OliCore::$hashSalt to set the hash salt
-			 * @return void
-			 */
-			public function setHashSalt($salt) {
-				$this->hashSalt = $salt;
-			}
-			
-			/**
-			 * Set hash cost
-			 * 
-			 * @param integer $cost Hash cost
-			 * 
-			 * @uses OliCore::$hashCost to set the hash cost
-			 * @return void
-			 */
-			public function setHashCost($cost) {
-				$this->hashCost = $cost;
-			}
-			
-			/** ------------------------------- */
-			/**  Auth Key Cookie Configuration  */
-			/** ------------------------------- */
-			
-			/**
-			 * Set auth key cookie name
-			 * 
-			 * @param string $name Cookie name
-			 * 
-			 * @uses OliCore::$authKeyCookieName to set the cookie name
-			 * @return void
-			 */
-			public function setAuthKeyCookieName($name) {
-				$this->authKeyCookieName = $name;
-			}
-			
-			/**
-			 * Set auth key cookie domain
-			 * 
-			 * @param string $domain Cookie domain
-			 * 
-			 * @uses OliCore::$authKeyCookieDomain to set the cookie domain
-			 * @return void
-			 */
-			public function setAuthKeyCookieDomain($domain) {
-				$this->authKeyCookieDomain = $domain;
-			}
-			
-			/**
-			 * Set auth key cookie secure parameter
-			 * 
-			 * @param boolean $secure Cookie secure parameter
-			 * 
-			 * @uses OliCore::$authKeyCookieSecure to set the cookie secure parameter
-			 * @return void
-			 */
-			public function setAuthKeyCookieSecure($secure) {
-				$this->authKeyCookieSecure = $secure;
-			}
-			
-			/**
-			 * Set auth key cookie http only parameter
-			 * 
-			 * @param boolean $httponly Cookie http only parameter
-			 * 
-			 * @uses OliCore::$authKeyCookieHttpOnly to set the cookie http only parameter
-			 * @return void
-			 */
-			public function setAuthKeyCookieHttpOnly($httponly) {
-				$this->authKeyCookieHttpOnly = $httponly;
-			}
-			
-			/** ----------------------- */
-			/**  Register Verification  */
-			/** ----------------------- */
-			
-			/**
-			 * Enable mail register verification
-			 * 
-			 * @uses OliCore::$registerVerification to enable the register verification
-			 * @uses OliCore::$defaultUserRight to set the default user right
-			 * @return void
-			 */
-			public function enableRegisterVerification() {
-				$this->registerVerification = true;
-				$this->defaultUserRight = 'NEW-USER';
-			}
-			
-			/**
-			 * Disable mail register verification
-			 * 
-			 * @uses OliCore::$registerVerification to disable the register verification
-			 * @uses OliCore::$defaultUserRight to set the default user right
-			 * @return void
-			 */
-			public function disableRegisterVerification() {
-				$this->registerVerification = false;
-				$this->defaultUserRight = 'USER';
-			}
-			
-			/**
-			 * Set requests expire delay
-			 * 
-			 * @param integer $delay Requests expire delay
-			 * 
-			 * @uses OliCore::$requestsExpireDelay to set the requests expire delay
-			 * @return void
-			 */
-			public function setRequestsExpireDelay($delay) {
-				$this->requestsExpireDelay = $delay;
-			}
-			
-			/**
-			 * Set prohibited usernames
-			 * 
-			 * @param string|array $usernames Prohibited usernames
-			 * 
-			 * @uses OliCore::$prohibitedUsernames to set the prohibited usernames
-			 * @return void
-			 */
-			public function setProhibitedUsernames($usernames) {
-				$this->prohibitedUsernames = (!is_array($usernames)) ? [$usernames] : $usernames;
-			}
+			if(!defined('COMMONPATH')) define('COMMONPATH', $path ? ABSPATH . $path : CONTENTPATH . 'theme/');
+		}
+		
+		/** --------------------- */
+		/**  III. 4. Addons List  */
+		/** --------------------- */
+		
+		/**
+		 * Add addon
+		 * 
+		 * @param string $name Addon name
+		 * @param string $var Addon variable
+		 * 
+		 * @return void
+		 */
+		public function addAddon($name, $var) {
+			$this->addonsList[$name] = $var;
+		}
+		
+		/**
+		 * Get addon name
+		 * 
+		 * @param string $var Addon variable
+		 * 
+		 * @return string Addon name
+		 */
+		public function getAddonName($var) {
+			return array_search($var, $this->addonsList);
+		}
+		
+		/**
+		 * Get addon var
+		 * 
+		 * @param string $name Addon name
+		 * 
+		 * @return string Addon variable
+		 */
+		public function getAddonVar($name) {
+			return $this->addonsList[$name];
+		}
+		
+		/**
+		 * Is exist addon
+		 * 
+		 * @param string $info Addon name or variable
+		 * 
+		 * @return boolean
+		 */
+		public function isExistAddon($info) {
+			return (array_key_exists($info, $this->addonsList) OR array_search($info, $this->addonsList)) ? true : false;
+		}
 	
 	/** *** *** *** */
 	
-	/** ----------------- */
-	/**  MySQL Functions  */
-	/** ----------------- */
+	/** ----------- */
+	/**  IV. MySQL  */
+	/** ----------- */
 	
-		/** ----------------- */
-		/**  Check Functions  */
-		/** ----------------- */
+		/** ------------------------ */
+		/**  IV. 1. Status Function  */
+		/** ------------------------ */
 		
 		/**
 		 * Is setup MySQL connection
@@ -933,9 +445,9 @@ class OliCore {
 			return $this->db;
 		}
 	
-		/** ---------------- */
-		/**  Read Functions  */
-		/** ---------------- */
+		/** ----------------------- */
+		/**  IV. 2. Read Functions  */
+		/** ----------------------- */
 		
 		/**
 		 * Get all data from table
@@ -1044,7 +556,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return array|boolean Returns lines from specified table
 		 */
-		public function getLinesMySQL($table, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+		public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 			if(is_bool($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
 				$forceArray = $caseSensitive;
@@ -1163,7 +675,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return mixed Returns infos from specified table
 		 */
-		public function getInfosMySQL($table, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+		public function getInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 			if(!is_array($whatVar)) $whatVar = [$whatVar];
 			else $whatVarArray = true;
 			
@@ -1286,7 +798,7 @@ class OliCore {
 		 * @uses OliCore::getInfosMySQL() to get infos from table
 		 * @return mixed Returns summed infos from specified table
 		 */
-		public function getSummedInfosMySQL($table, $whatVar, $where = [], $settings = null, $caseSensitive = null, $rawResult = null) {
+		public function getSummedInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $rawResult = null) {
 			if(is_bool($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $caseSensitive;
 				$caseSensitive = isset($rawResult) ? $caseSensitive : $settings;
@@ -1315,7 +827,7 @@ class OliCore {
 		 * @uses OliCore::getInfosMySQL() to get infos from table
 		 * @return boolean Returns true if infos are empty, false otherwise
 		 */
-		public function isEmptyInfosMySQL($table, $whatVar, $where = [], $settings = null, $caseSensitive = null) {
+		public function isEmptyInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
 			return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
 		}
 		
@@ -1329,7 +841,7 @@ class OliCore {
 		 * @uses OliCore::getInfosMySQL() to get infos from table
 		 * @return boolean Returns true if infos exists, false otherwise
 		 */
-		public function isExistInfosMySQL($table, $where = [], $caseSensitive = true) {
+		public function isExistInfosMySQL($table, $where = null, $caseSensitive = true) {
 			$dataMySQL = $this->getDataMySQL($table);
 			$valueArray = [];
 			$status = [];
@@ -1407,10 +919,10 @@ class OliCore {
 			else
 				return false;
 		}
-		
-		/** ----------------- */
-		/**  Write Functions  */
-		/** ----------------- */
+	
+		/** ------------------------ */
+		/**  IV. 3. Write Functions  */
+		/** ------------------------ */
 		
 		/**
 		 * Insert line in table
@@ -1491,10 +1003,10 @@ class OliCore {
 			$query = $this->db->prepare('DELETE FROM ' . $table . (($where != 'all') ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
 			return $query->execute($matches);
 		}
-		
-		/** -------------------- */
-		/**  Database Functions  */
-		/** -------------------- */
+	
+		/** --------------------------- */
+		/**  IV. 4. Database Functions  */
+		/** --------------------------- */
 		
 		/**
 		 * Create new table
@@ -1689,7 +1201,7 @@ class OliCore {
 		 * @return string|array Settings tables
 		 */
 		public function getSettingsTables() {
-			return $this->settingsTables;
+			return $this->config['settings_tables'];
 		}
 		
 		/**
@@ -1702,16 +1214,19 @@ class OliCore {
 		 * @return mixed|void Setting value
 		 */
 		public function getSetting($setting /*= null*/) {
-			foreach($this->settingsTables as $eachTable) {
-				// if(isset($setting)) {
-					$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
-					if(!empty($optionResult)) {
-						if($optionResult == 'null') return '';
-						else return $optionResult;
-					}
-				// }
-				// else false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
+			if(!empty($this->config['settings_tables'])) {
+				foreach($this->config['settings_tables'] as $eachTable) {
+					// if(isset($setting)) {
+						$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
+						if(!empty($optionResult)) {
+							if($optionResult == 'null') return '';
+							else return $optionResult;
+						}
+					// }
+					// else false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
+				}
 			}
+			else return false;
 		}
 		
 		/**
@@ -1738,7 +1253,7 @@ class OliCore {
 		 * @return mixed Shortcut link
 		 */
 		public function getShortcutLink($shortcut) {
-			if(isset($this->shortcutLinksTable)) return $this->getInfosMySQL($this->shortcutLinksTable, 'url', array('name' => $shortcut));
+			if(isset($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut));
 			else return false;
 		}
 		
@@ -1747,12 +1262,12 @@ class OliCore {
 		 * 
 		 * @param boolean|void $fromRequest Get delay from request time or not
 		 * 
-		 * @uses OliCore::$setupClassTimestamp to get Oli setup timestamp
+		 * @uses OliCore::$config to get Oli setup timestamp
 		 * @return integer Execution delay
 		 */
 		public function getExecutionDelay($fromRequest = false) {
 			if($fromRequest) return microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-			else return microtime(true) - $this->setupClassTimestamp;
+			else return microtime(true) - $this->config['init_timestamp'];
 		}
 		
 		/**
@@ -1791,7 +1306,7 @@ class OliCore {
 			 * @return array|boolean Translations lines
 			 */
 			public function getTranslationLines($where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				return $this->getLinesMySQL($this->translationsTable, $where, $settings, $caseSensitive, $forceArray, $rawResult);
+				return $this->getLinesMySQL($this->config['translations_table'], $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
 			/**
@@ -1809,7 +1324,7 @@ class OliCore {
 			 * @return array|boolean Translation
 			 */
 			public function getTranslation($whatLanguage, $where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				return $this->getInfosMySQL($this->translationsTable, $whatLanguage, $where, $settings, $caseSensitive, $forceArray, $rawResult);
+				return $this->getInfosMySQL($this->config['translations_table'], $whatLanguage, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
 			/**
@@ -1823,7 +1338,7 @@ class OliCore {
 			 * @return array|boolean Translation
 			 */
 			public function isExistTranslation($where, $caseSensitive = true) {
-				return $this->isExistInfosMySQL($this->translationsTable, $where, $caseSensitive);
+				return $this->isExistInfosMySQL($this->config['translations_table'], $where, $caseSensitive);
 			}
 			
 			/** ----------------- */
@@ -1840,7 +1355,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function addTranslations($translations) {
-				return $this->insertLineMySQL($this->translationsTable, $translations);
+				return $this->insertLineMySQL($this->config['translations_table'], $translations);
 			}
 			
 			/**
@@ -1854,7 +1369,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function updateTranslations($what, $where) {
-				return $this->updateInfosMySQL($this->translationsTable, $what, $where);
+				return $this->updateInfosMySQL($this->config['translations_table'], $what, $where);
 			}
 			
 			/**
@@ -1867,7 +1382,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function deleteTranslations($where) {
-				return $this->deleteLinesMySQL($this->translationsTable, $where);
+				return $this->deleteLinesMySQL($this->config['translations_table'], $where);
 			}
 			
 			/** ------------------- */
@@ -1890,10 +1405,10 @@ class OliCore {
 			 */
 			public function __($text, $text_plural = '', $count = 0) {
 				$text = ($count > 1) ? $text_plural : $text;
-				if($this->currentLanguage != $this->defaultLanguage AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->defaultLanguage => $text)))
+				if($this->currentLanguage != $this->config['default_user_language'] AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->config['default_user_language'] => $text)))
 					echo $translatedText;
 				else {
-					if(!$this->isExistTranslation(array($this->defaultLanguage => $text))) $this->addTranslations(array($this->defaultLanguage => $text));
+					if(!$this->isExistTranslation(array($this->config['default_user_language'] => $text))) $this->addTranslations(array($this->config['default_user_language'] => $text));
 					echo $text;
 				}
 			}
@@ -1913,19 +1428,19 @@ class OliCore {
 			 * @param string|void $charset Charset to use
 			 * @param boolean|void $force Force the new content type
 			 * 
-			 * @uses OliCore::$contentTypeHasBeenForced to lock the new content type, if forced
+			 * @uses OliCore::$contentTypeBeenForced to lock the new content type, if forced
 			 * @uses OliCore::$defaultContentType to get the default content type
-			 * @uses OliCore::$currentContentType to get the current content type
+			 * @uses OliCore::$contentType to get the current content type
 			 * @uses OliCore::$defaultCharset to get the default charset
 			 * @uses OliCore::$currentCharset to get the current charset
 			 * @return boolean|void
 			 */
 			public function setContentType($contentType = null, $charset = null, $force = false) {
-				if(!$this->contentTypeHasBeenForced OR $force) {
-					if($force) $this->contentTypeHasBeenForced = true;
+				if(!$this->contentTypeBeenForced OR $force) {
+					if($force) $this->contentTypeBeenForced = true;
 					
-					if(!isset($contentType) OR $contentType == 'DEFAULT') $contentType = $this->defaultContentType;
-					if(!isset($charset) OR $charset == 'DEFAULT') $charset = $this->defaultCharset;
+					if(!isset($contentType) OR $contentType == 'DEFAULT') $contentType = $this->config['default_content_type'];
+					if(!isset($charset) OR $charset == 'DEFAULT') $charset = $this->config['default_charset'];
 					error_reporting($contentType == 'DEBUG_MODE' ? E_ALL : E_ALL & ~E_NOTICE);
 					
 					if($contentType == 'HTML') $newContentType = 'text/html';
@@ -1950,7 +1465,7 @@ class OliCore {
 			/**
 			 * Get current content type
 			 * 
-			 * @uses OliCore::$currentContentType to get the current content type
+			 * @uses OliCore::$contentType to get the current content type
 			 * @return string
 			 */
 			public function getContentType() {
@@ -1960,7 +1475,7 @@ class OliCore {
 			/**
 			 * Get current charset
 			 * 
-			 * @uses OliCore::$currentContentType to get the current content type
+			 * @uses OliCore::$contentType to get the current content type
 			 * @return string
 			 */
 			public function getCharset() {
@@ -2084,7 +1599,7 @@ class OliCore {
 				 */
 				public function setPostVarsCookie($postVars) {
 					$this->postVarsProtection = true;
-					return $this->setCookie($this->postVarsCookieName, $postVars, $this->postVarsCookieExpireDelay, '/', $this->postVarsCookieDomain, $this->postVarsCookieSecure, $this->postVarsCookieHttpOnly);
+					return $this->setCookie($this->config['post_vars_cookie']['name'], $postVars, 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 				} 
 				
 				/**
@@ -2101,7 +1616,7 @@ class OliCore {
 				 * @return boolean Returns true if the cookie have been deleted, false otherwise
 				 */
 				public function deletePostVarsCookie() {
-					if(!$this->postVarsProtection) return $this->deleteCookie($this->postVarsCookieName, '/', $this->postVarsCookieDomain, $this->postVarsCookieSecure, $this->postVarsCookieHttpOnly);
+					if(!$this->postVarsProtection) return $this->deleteCookie($this->config['post_vars_cookie']['name'], '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 					else return false;
 				} 
 				
@@ -2119,7 +1634,7 @@ class OliCore {
 				 */
 				public function protectPostVarsCookie() {
 					$this->postVarsProtection = true;
-					return $this->setCookie($this->postVarsCookieName, $this->getRawPostVars(), $this->postVarsCookieExpireDelay, '/', $this->postVarsCookieDomain, $this->postVarsCookieSecure, $this->postVarsCookieHttpOnly);
+					return $this->setCookie($this->config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 				}
 				
 				/** ----------- */
@@ -2133,7 +1648,7 @@ class OliCore {
 				 * @return string Returns the post vars cookie name
 				 */
 				public function getPostVarsCookieName() {
-					return $this->postVarsCookieName;
+					return $this->config['post_vars_cookie']['name'];
 				}
 				
 				/**
@@ -2147,7 +1662,7 @@ class OliCore {
 				 * @return string Returns the post vars cookie content
 				 */
 				public function getPostVars($whatVar = null, $rawResult = false) {
-					$postVars = $this->getCookieContent($this->postVarsCookieName, $rawResult);
+					$postVars = $this->getCookieContent($this->config['post_vars_cookie']['name'], $rawResult);
 					return isset($whatVar) ? $postVars[$whatVar] : $postVars;
 				}
 				
@@ -2162,7 +1677,7 @@ class OliCore {
 				 * @return boolean Returns true if the post vars is empty, false otherwise
 				 */
 				public function isEmptyPostVars($whatVar = null) {
-					return isset($whatVar) ? empty($this->getPostVars($whatVar)) : $this->isEmptyCookie($this->postVarsCookieName);
+					return isset($whatVar) ? empty($this->getPostVars($whatVar)) : $this->isEmptyCookie($this->config['post_vars_cookie']['name']);
 				}
 				
 				/**
@@ -2176,7 +1691,7 @@ class OliCore {
 				 * @return boolean Returns true if the post vars is set, false otherwise
 				 */
 				public function issetPostVars($whatVar = null) {
-					return isset($whatVar) ? $this->getPostVars($whatVar) !== null : $this->isExistCookie($this->postVarsCookieName);
+					return isset($whatVar) ? $this->getPostVars($whatVar) !== null : $this->isExistCookie($this->config['post_vars_cookie']['name']);
 				}
 				
 				/**
@@ -2252,7 +1767,7 @@ class OliCore {
 		 * @return void
 		 */
 		public function loadCdnStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadStyle($this->getCdnUrl() . $url, $tags, $loadNow, $minimize);
+			$this->loadStyle($this->config['cdn_url'] . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2314,7 +1829,7 @@ class OliCore {
 		 * @return void
 		 */
 		public function loadCdnScript($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadScript($this->getCdnUrl() . $url, $tags, $loadNow, $minimize);
+			$this->loadScript($this->config['cdn_url'] . $url, $tags, $loadNow, $minimize);
 		}
 		
 		/**
@@ -2495,7 +2010,7 @@ class OliCore {
 		
 		/** Get Common Files Url */
 		public function getCommonFilesUrl() {
-			return $this->getUrlParam(0) . $this->commonFilesPath . 'data/';
+			return $this->getUrlParam(0) . $this->config['common_files_path'] . 'data/';
 		}
 		
 		/**
@@ -2526,7 +2041,7 @@ class OliCore {
 		 * @return string Returns Full url
 		 */
 		public function getCdnUrl() {
-			return $this->cdnUrl;
+			return $this->config['cdn_url'];
 		}
 		
 		/** -------------------------- */
@@ -2540,7 +2055,7 @@ class OliCore {
 		 * @return string Returns default language
 		 */
 		public function getDefaultLanguage() {
-			return $this->defaultLanguage;
+			return $this->config['default_user_language'];
 		}
 		
 		/**
@@ -2553,7 +2068,7 @@ class OliCore {
 		 * @return void
 		 */
 		public function setCurrentLanguage($language = null) {
-			$this->currentLanguage = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->defaultLanguage;
+			$this->currentLanguage = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
 		}
 		
 		/**
@@ -2577,7 +2092,7 @@ class OliCore {
 		 * @return boo
 		 */
 		public function setUserLanguage($language = null, $where = null) {
-			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->defaultLanguage;
+			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
 			
 			if(!isset($where)) {
 				if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
@@ -2805,9 +2320,9 @@ class OliCore {
 		 * @uses OliCore::$accountsManagementStatus to set accounts management status
 		 * @return void
 		 */
-		public function enableAccountsManagement() {
-			$this->accountsManagementStatus = true;
-		}
+		// public function enableAccountsManagement() {
+			// $this->accountsManagementStatus = true;
+		// }
 		
 		/**
 		 * Is accounts management enabled
@@ -2816,7 +2331,7 @@ class OliCore {
 		 * @return boolean Accounts management status
 		 */
 		public function getAccountsManagementStatus() {
-			return $this->accountsManagementStatus;
+			return $this->config['user_management'];
 		}
 		
 		/** ----------------- */
@@ -2848,12 +2363,13 @@ class OliCore {
 			 * @return boolean Returns translated table name
 			 */
 			public function translateAccountsTableCode($tableCode) {
-				if($tableCode == 'ACCOUNTS') return $this->accountsTable;
-				else if($tableCode == 'INFOS') return $this->accountsInfosTable;
-				else if($tableCode == 'SESSIONS') return $this->accountsSessionsTable;
-				else if($tableCode == 'REQUESTS') return $this->accountsRequestsTable;
-				else if($tableCode == 'PERMISSIONS') return $this->accountsPermissionsTable;
-				else if($tableCode == 'RIGHTS') return $this->accountsRightsTable;
+				if($tableCode == 'ACCOUNTS') return $this->config['accounts_tables']['accounts'];
+				else if($tableCode == 'INFOS') return $this->config['accounts_tables']['infos'];
+				else if($tableCode == 'SESSIONS') return $this->config['accounts_tables']['sessions'];
+				else if($tableCode == 'LOGIN_LIMITS') return $this->config['accounts_tables']['login_limits'];
+				else if($tableCode == 'REQUESTS') return $this->config['accounts_tables']['requests'];
+				else if($tableCode == 'PERMISSIONS') return $this->config['accounts_tables']['permissions'];
+				else if($tableCode == 'RIGHTS') return $this->config['accounts_tables']['rights'];
 				else return false;
 			}
 		
@@ -2933,8 +2449,12 @@ class OliCore {
 			 * @uses OliCore::translateAccountsTableCode() to translate account table codes
 			 * @return array|boolean Returns lines from specified table
 			 */
-			public function getAccountLines($tableCode, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
+			public function getAccountLines($tableCode, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+				if(!isset($where)) {
+					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					else return false;
+				}
+				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2953,8 +2473,12 @@ class OliCore {
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
 			 * @return mixed Returns infos from specified table
 			 */
-			public function getAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
+			public function getAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+				if(!isset($where)) {
+					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					else return false;
+				}
+				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2972,8 +2496,12 @@ class OliCore {
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
 			 * @return mixed Returns summed infos from specified table
 			 */
-			public function getSummedAccountInfos($tableCode, $whatVar, $where = [], $caseSensitive = true) {
-				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
+			public function getSummedAccountInfos($tableCode, $whatVar, $where = null, $caseSensitive = true) {
+				if(!isset($where)) {
+					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					else return false;
+				}
+				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -2990,8 +2518,12 @@ class OliCore {
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
 			 * @return boolean Returns true if infos are empty, false otherwise
 			 */
-			public function isEmptyAccountInfos($tableCode, $whatVar, $where = [], $settings = null, $caseSensitive = null) {
-				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
+			public function isEmptyAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
+				if(!isset($where)) {
+					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					else return false;
+				}
+				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 			}
 			
@@ -3006,8 +2538,12 @@ class OliCore {
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
 			 * @return boolean Returns true if infos exists, false otherwise
 			 */
-			public function isExistAccountInfos($tableCode, $where = [], $caseSensitive = true) {
-				if(isset($where) AND !is_array($where)) $where = array('username' => $where);
+			public function isExistAccountInfos($tableCode, $where = null, $caseSensitive = true) {
+				if(!isset($where)) {
+					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					else return false;
+				}
+				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
 		
@@ -3367,7 +2903,7 @@ class OliCore {
 			 * @return boolean Returns true if the cookies have been created, false otherwise
 			 */
 			public function setAuthKeyCookie($authKey, $expireDelay) {
-				return $this->setCookie($this->authKeyCookieName, $authKey, $expireDelay, '/', $this->authKeyCookieDomain, $this->authKeyCookieSecure, $this->authKeyCookieHttpOnly);
+				return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
 			/**
@@ -3381,7 +2917,7 @@ class OliCore {
 			 * @return boolean Returns true if the cookies have been deleted, false otherwise
 			 */
 			public function deleteAuthKeyCookie() {
-				return $this->deleteCookie($this->authKeyCookieName, '/', $this->authKeyCookieDomain, $this->authKeyCookieSecure, $this->authKeyCookieHttpOnly);
+				return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
 			/** -------------------- */
@@ -3395,7 +2931,7 @@ class OliCore {
 			 * @return string Returns the auth key cookie name
 			 */
 			public function getAuthKeyCookieName() {
-				return $this->authKeyCookieName;
+				return $this->config['auth_key_cookie']['name'];
 			}
 			
 			/**
@@ -3408,7 +2944,7 @@ class OliCore {
 			 * @return string Returns the auth key
 			 */
 			public function getAuthKey() {
-				return $this->getCookieContent($this->authKeyCookieName);
+				return $this->getCookieContent($this->config['auth_key_cookie']['name']);
 			}
 			
 			/**
@@ -3418,7 +2954,7 @@ class OliCore {
 			 * @return boolean Returns true if the cookie exists, false otherwise
 			 */
 			public function isExistAuthKey() {
-				return $this->isExistCookie($this->authKeyCookieName);
+				return $this->isExistCookie($this->config['auth_key_cookie']['name']);
 			}
 			
 			/**
@@ -3428,7 +2964,7 @@ class OliCore {
 			 * @return boolean Returns true if the cookie is empty, false otherwise
 			 */
 			public function isEmptyAuthKey() {
-				return $this->isEmptyCookie($this->authKeyCookieName);
+				return $this->isEmptyCookie($this->config['auth_key_cookie']['name']);
 			}
 			
 			/**
@@ -3486,7 +3022,7 @@ class OliCore {
 			 * @return string Returns the the requests expire delay
 			 */
 			public function getRequestsExpireDelay() {
-				return $this->requestsExpireDelay;
+				return $this->config['request_expire_delay'];
 			}
 			
 			/**
@@ -3507,7 +3043,7 @@ class OliCore {
 				$requestsMatches['activate_key'] = $this->keygen(6, false, true, true);
 				$requestsMatches['action'] = $action;
 				$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
-				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->requestsExpireDelay);
+				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->config['request_expire_delay']);
 				$this->insertAccountLine('REQUESTS', $requestsMatches);
 				
 				return $requestsMatches['activate_key'];
@@ -3524,7 +3060,7 @@ class OliCore {
 			 * @return string Returns true if the register verification is enabled, false otherwise
 			 */
 			public function getRegisterVerificationStatus() {
-				return $this->registerVerification;
+				return $this->config['register_verification'];
 			}
 			
 			/**
@@ -3553,7 +3089,7 @@ class OliCore {
 			 * @return string Returns true if the account is created, false otherwise
 			 */
 			public function registerAccount($username, $password, $email, $subject = null, $message = null, $headers = null) {
-				if(!$this->accountsManagementStatus) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
+				if(!$this->config['user_management']) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
 						$this->deleteFullAccount(array('username' => $username));
@@ -3570,7 +3106,7 @@ class OliCore {
 						$accountsMatches['password'] = $this->hashPassword($password);
 						$accountsMatches['email'] = $email;
 						$accountsMatches['register_date'] = date('Y-m-d H:i:s');
-						$accountsMatches['user_right'] = $this->defaultUserRight;
+						$accountsMatches['user_right'] = $this->config['default_user_right'];
 						$this->insertAccountLine('ACCOUNTS', $accountsMatches);
 						
 						$infosMatches['id'] = $this->getLastAccountInfo('INFOS', 'id') + 1;
@@ -3583,7 +3119,7 @@ class OliCore {
 							$headers .= 'Content-type: text/html; charset=iso-8859-1';
 						}
 						
-						if($this->registerVerification) {
+						if($this->config['register_verification']) {
 							$activateKey = $this->createRequest($username, 'activate');
 							
 							if(empty($subject)) $subject = 'Activate your account';
@@ -3591,7 +3127,7 @@ class OliCore {
 								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
 								$message .= '<b>One more step!</b> <br />';
 								$message .= 'You just need to activate your account! Visit <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">this page to activate it</a> (' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . ') <br />';
-								$message .= 'You have ' . ($this->requestsExpireDelay /3600 /24) . ' ' . ($this->requestsExpireDelay > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
+								$message .= 'You have ' . ($this->config['request_expire_delay'] /3600 /24) . ' ' . ($this->config['request_expire_delay'] > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
 								$message .= 'If you don\'t activate your account, it will be suspended after this delay (then deleted if someone register with the same username) <br /> <br />';
 								$message .= 'You got this mail from <a href="' . $this->getUrlParam(0) . '">' . $this->getSetting('name') . '</a> <br />';
 								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
@@ -3605,7 +3141,7 @@ class OliCore {
 								$message = '<b>Hey ' . $username . '</b>, <br /> <br />';
 								$message .= '<b>Yay! Your account have been successfully created</b> <br />';
 								$message .= 'You can <a href="' . $this->getUrlParam(0) . 'login/' . $activateKey . '">connect to it on this page</a> (' . $this->getUrlParam(0) . 'login/' . $activateKey . ') <br />';
-								$message .= 'You have ' . ($this->requestsExpireDelay /3600 /24) . ' ' . ($this->requestsExpireDelay > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
+								$message .= 'You have ' . ($this->config['request_expire_delay'] /3600 /24) . ' ' . ($this->config['request_expire_delay'] > 1 ? 'days' : 'day') . ' to confirm the request <br /> <br />';
 								$message .= 'If you don\'t activate your account, it will be suspended after this delay (then deleted if someone register with the same username) <br /> <br />';
 								$message .= 'You got this mail from <a href="' . $this->getUrlParam(0) . '">' . $this->getSetting('name') . '</a> <br />';
 								$message .= '<a href="' . $this->getOliInfos('website_url') . '">Powered by Oli</a>';
@@ -3705,7 +3241,7 @@ class OliCore {
 			 */
 			public function logoutAccount() {
 				if($this->isExistAuthKey()) {
-					if($deleteResult = $this->deleteLinesMySQL($this->accountsSessionsTable, array('auth_key' => sha1($this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
+					if($deleteResult = $this->deleteLinesMySQL($this->config['accounts_tables']['sessions'], array('auth_key' => sha1($this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
 					return $deleteResult ? true : false;
 				}
 				else return false;
@@ -3722,7 +3258,7 @@ class OliCore {
 			 * @return array Returns prohibited usernames
 			 */
 			public function getProhibitedUsernames() {
-				return $this->prohibitedUsernames;
+				return $this->config['prohibited_usernames'];
 			}
 			
 			/**
@@ -3734,7 +3270,7 @@ class OliCore {
 			 * @return boolean Returns true if the username is prohibited, false otherwise
 			 */
 			public function isProhibitedUsername($username) {
-				return in_array($username, $this->prohibitedUsernames);
+				return in_array($username, $this->config['prohibited_usernames']);
 			}
 		
 		/** --------------- */
@@ -3752,15 +3288,15 @@ class OliCore {
 		 * @return string Returns the password hash
 		 */
 		public function hashPassword($password) {
-			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
-			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
-			return password_hash($password, $this->hashAlgorithm, $hashOptions);
+			if(!empty($this->config['hash']['salt'])) $hashOptions['salt'] = $this->config['hash']['salt'];
+			if(!empty($this->config['hash']['cost'])) $hashOptions['cost'] = $this->config['hash']['cost'];
+			return password_hash($password, $this->config['hash']['algorithm'], $hashOptions);
 		}
 		
 		public function needsRehashPassword($password) {
-			if(!empty($this->hashSalt)) $hashOptions['salt'] = $this->hashSalt;
-			if(!empty($this->hashCost)) $hashOptions['cost'] = $this->hashCost;
-			return password_needs_rehash($password, $this->hashAlgorithm, $hashOptions);
+			if(!empty($this->config['hash']['salt'])) $hashOptions['salt'] = $this->config['hash']['salt'];
+			if(!empty($this->config['hash']['cost'])) $hashOptions['cost'] = $this->config['hash']['cost'];
+			return password_needs_rehash($password, $this->config['hash']['algorithm'], $hashOptions);
 		}
 
 }

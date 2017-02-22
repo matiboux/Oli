@@ -3,57 +3,53 @@
 	"addons": [],
 	
 	"Oli": {
-		"mysql": {
-			"database": "dbname",
-			"username": "username",
-			"password": "password",
-			"hostname": "localhost"
-		},
-		"settings_tables": "settings",
-		"shotcut_links_table": "shortcut_links",
+		"mysql": null,
+		"settings_tables": null,
+		"shortcut_links_table": null,
+		"translations_table": null,
+		
+		"default_user_language": "en",
+		"default_content_type": "HTML",
+		"default_charset": "utf-8",
+		"common_files_path": null,
+		"cdn_url": null,
+		"time_zone": "Europe/Paris",
+		
 		"post_vars_cookie": {
 			"name": "OliPostVars",
 			"domain": "UrlParam:fulldomain",
 			"secure": false,
 			"http_only": false
 		},
-		"default_content_type": "HTML",
-		"default_charset": "utf-8",
-		"cdn_url": "ShortcutLink:cdn",
-		"default_user_language": "en",
-		"translations_table": "translations",
-		"time_zone": "Europe/Paris",
-		"encryption_key": {
-			"length": 1024
-		},
 		
-		"login_management": true,
+		
+		"user_management": false,
 		"accounts_tables": {
 			"accounts": "accounts",
 			"infos": "accounts_infos",
 			"sessions": "accounts_sessions",
+			"login_limits": "accounts_login_limits",
 			"requests": "accounts_requests",
 			"permissions": "accounts_permissions",
 			"rights": "accounts_rights"
 		},
-		"prohibited_usernames": [
-			"username",
-			"all"
-		],
-		"register": {
-			"verification": true,
-			"request_expire_delay": "Time:3 days"
-		},
-		"hash": {
-			"algorithm": "Const:PASSWORD_DEFAULT",
-			"salt": "",
-			"cost": "10"
-		},
+		
+		"prohibited_usernames": [],
+		"request_expire_delay": "Time:2 days",
+		"default_session_duration": "Time:1 day",
+		"extended_session_duration": "Time:7 days",
+		
 		"auth_key_cookie": {
-			"name": "Setting:auth_key_cookie_name",
-			"domain": ".|UrlParam:domain",
+			"name": "OliAuthKey",
+			"domain": "UrlParam:fulldomain",
 			"secure": false,
 			"http_only": false
-		}
+		},
+		
+		"allow_register": true,
+		"default_user_right": "USER",
+		"register_verification": false,
+		"register_verification_method": "email",
+		"allow_change_password": true
 	}
 }
