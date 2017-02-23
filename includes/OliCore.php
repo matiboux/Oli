@@ -2924,6 +2924,7 @@ class OliCore {
 			 * @return boolean Returns true if the cookies have been created, false otherwise
 			 */
 			public function setAuthKeyCookie($authKey, $expireDelay) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
@@ -2938,6 +2939,7 @@ class OliCore {
 			 * @return boolean Returns true if the cookies have been deleted, false otherwise
 			 */
 			public function deleteAuthKeyCookie() {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
@@ -3002,8 +3004,8 @@ class OliCore {
 			 * @return boolean Returns true if auth key is valid, false otherwise
 			 */
 			public function verifyAuthKey($authKey = null) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				if(empty($authKey)) $authKey = $this->getAuthKey();
-				
 				if(!empty(sha1($authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => sha1($authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => sha1($authKey)))) >= time()) {
 					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => sha1($authKey)));
 					return true;
@@ -3022,8 +3024,8 @@ class OliCore {
 			 * @return string Returns the auth key owner
 			 */
 			public function getAuthKeyOwner($authKey = null) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				if(empty($authKey)) $authKey = $this->getAuthKey();
-				
 				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => sha1($authKey)));
 				else return false;
 			}
@@ -3059,6 +3061,7 @@ class OliCore {
 			 * @return string Returns the activation key if the request succeed, false otherwise
 			 */
 			public function createRequest($username, $action, &$requestTime = null) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
 				$requestsMatches['username'] = $username;
 				$requestsMatches['activate_key'] = $this->keygen(6, false, true, true);
@@ -3110,7 +3113,8 @@ class OliCore {
 			 * @return string Returns true if the account is created, false otherwise
 			 */
 			public function registerAccount($username, $password, $email, $subject = null, $message = null, $headers = null) {
-				if(!$this->config['user_management']) trigger_error('La gestion de compte n\'est pas activée', E_USER_ERROR);
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				else if(!$this->config['allow_register']) trigger_error('Sorry, the registering has been disabled.', E_USER_ERROR);
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
 						$this->deleteFullAccount(array('username' => $username));
@@ -3198,6 +3202,7 @@ class OliCore {
 			 * @return boolean Returns true if login informations are valid, false otherwise
 			 */
 			public function verifyLogin($username, $password) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false))
 					return password_verify($password, $userPassword);
 				else return false;
@@ -3217,7 +3222,9 @@ class OliCore {
 			 * @return boolean Returns true if login succeed, false otherwise
 			 */
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
-				if($this->verifyLogin($username, $password)) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				else if(!$this->config['allow_login']) trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
+				else if($this->verifyLogin($username, $password)) {
 					$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
 					
 					if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $username)))
@@ -3261,7 +3268,8 @@ class OliCore {
 			 * @return boolean
 			 */
 			public function logoutAccount() {
-				if($this->isExistAuthKey()) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				else if($this->isExistAuthKey()) {
 					if($deleteResult = $this->deleteLinesMySQL($this->config['accounts_tables']['sessions'], array('auth_key' => sha1($this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
 					return $deleteResult ? true : false;
 				}

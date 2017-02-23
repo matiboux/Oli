@@ -51,6 +51,7 @@
 		"http_only": false
 	},
 	
+	"allow_login": true,
 	"allow_register": true,
 	"default_user_right": "USER",
 	"register_verification": false,
