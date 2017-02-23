@@ -195,7 +195,7 @@ class OliCore {
 	 * @return string Show infos about this framework
 	 */
 	public function __toString() {
-		return 'Powered by <a href="' . $this->getOliInfos('website_url') . '">Oli</a> (v. ' . $this->getOliInfos('version') . ')';
+		return 'Powered by <a href="' . $this->oliInfos['website'] . '">' . $this->oliInfos['name'] . '</a> (v. ' . $this->getOliInfos('version') . ')';
 	}
 	
 	/** *** *** *** */
