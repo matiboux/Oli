@@ -39,25 +39,25 @@
 |*|  --- --- ---
 |*|  
 |*|  Releases date:
-|*|  - PRE-DEV: 15 November 2014
-|*|  - ALPHA: 6 February 2015 (released on Github)
+|*|  - PRE-DEV: November 15, 2014
+|*|  - ALPHA: February 6, 2015 (released on Github)
 |*|  - BETA: July 2015
 |*|    * No info on previous releases
 |*|    * [version 1.5]:
-|*|              (1.5.0): 17 August 2015
-|*|              (1.5.1): 21 August 2015
-|*|              (1.5.2): 25 August 2015
-|*|              (1.5.3): 26 August 2015
-|*|              (1.5.5): 20 November 2015
+|*|              (1.5.0): August 17, 2015
+|*|              (1.5.1): August 21, 2015
+|*|              (1.5.2): August 25, 2015
+|*|              (1.5.3): August 26, 2015
+|*|              (1.5.5): November 20, 2015
 |*|    * [version 1.6]:
-|*|              (1.6.0): 6 December 2015
-|*|              (1.6.2): 9 December 2015
-|*|              (1.6.3): 10 January 2016
-|*|              (1.6.4): 10 February 2016
-|*|              (1.6.6): 2 June 2016
+|*|              (1.6.0): December 6, 2015
+|*|              (1.6.2): December 9, 2015
+|*|              (1.6.3): January 10, 2016
+|*|              (1.6.4): February 10, 2016
+|*|              (1.6.6): June 2, 2016
 |*|    * [version 1.7]: -- [ Github repository created! ] --
-|*|              (1.7.0): 11 August 2016
-|*|              (1.7.1): 19 February 2017
+|*|              (1.7.0): August 11, 2016
+|*|              (1.7.1): February 19, 2017
 |*|    * [version 1.8]:
 |*|              (1.8.0): Currently in development
 \*/
