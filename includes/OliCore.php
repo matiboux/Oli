@@ -112,12 +112,15 @@ class OliCore {
 	public $oliInfos = []; // Oli Infos
 	public $addonsList = []; // Addons List & Infos
 	
-	/** Oli Config */
-	private $mysqlConfig = null;
+	/** General Config */
 	public $config = null;
 	
+	/** MySQL PDO */
+	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
+	private $mysqlConfig = null;
+	public $isSetupMySQL = false;
+	
 	/** Externals Class */
-	public $db = null; // Database PDO Object
 	public $ErrorHandler = null; // Oli Error Handler
 	public $ExceptionHandler = null; // Oli Error Handler
 	
@@ -178,6 +181,12 @@ class OliCore {
 		$this->loadEndHtmlFiles();
 		$this->verifyAuthKey();
 	}
+	
+	/** Read-only variables */
+	function __get($whatVar) {
+        if($whatVar == 'db') return $this->$whatVar;
+		else return null;
+    }
 	
 	/**
 	 * To string function
@@ -316,14 +325,20 @@ class OliCore {
 		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
 			if(!empty($database)) {
 				try {
-					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
 					$this->db = new \PDO('mysql:host=' . $hostname . ';dbname=' . $database . ';charset=' . $charset, $username, $password);
+					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
+					$this->isSetupMySQL = true;
 				}
 				catch(PDOException $e) {
 					trigger_error($e->getMessage(), E_USER_ERROR);
 				}
 			}
 			else return false;
+		}
+		public function resetMySQL() {
+			$this->db = null;
+			$this->mysqlConfig = null;
+			$this->isSetupMySQL = false;
 		}
 		
 		/** ------------------------ */
@@ -449,10 +464,10 @@ class OliCore {
 		 * @deprecated OliCore::$db can be directly accessed
 		 * @return object Returns current MySQL PDO object
 		 */
-		public function getRawMySQL() {
-			$this->isSetupMySQL();
-			return $this->db;
-		}
+		// public function getRawMySQL() {
+			// $this->isSetupMySQL();
+			// return $this->db;
+		// }
 	
 		/** ----------------------- */
 		/**  IV. 2. Read Functions  */
