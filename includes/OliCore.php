@@ -72,11 +72,13 @@
 |*|    III. 2. MySQL Config
 |*|    III. 3. General Config 
 |*|    III. 4. Addons List [Work to do]
-|*|  IV. MySQL
+|*|  IV. MySQL Functions
 |*|    IV. 1. Status Functions
 |*|    IV. 2. Read Functions
 |*|    IV. 3. Write Functions
 |*|    IV. 4. Database Functions
+|*|  V. Oli Functions
+|*|    V. 1. Oli Informations
 |*|  
 |*|  Todo:
 |*|  - 
@@ -188,15 +190,8 @@ class OliCore {
 		else return null;
     }
 	
-	/**
-	 * To string function
-	 * 
-	 * @todo Shows oli versionn, copyright, license and other stuff
-	 * @return string Show infos about this framework
-	 */
-	public function __toString() {
-		return 'Powered by <a href="' . $this->oliInfos['website'] . '">' . $this->oliInfos['name'] . '</a> (v. ' . $this->getOliInfos('version') . ')';
-	}
+	/** __toString() function:
+		Go to the section V. 1. */
 	
 	/** *** *** *** */
 	
@@ -435,9 +430,9 @@ class OliCore {
 	
 	/** *** *** *** */
 	
-	/** ----------- */
-	/**  IV. MySQL  */
-	/** ----------- */
+	/** --------------------- */
+	/**  IV. MySQL Functions  */
+	/** --------------------- */
 	
 		/** ------------------------ */
 		/**  IV. 1. Status Function  */
@@ -1153,24 +1148,40 @@ class OliCore {
 	
 	/** *** *** *** */
 	
-	/** --------------- */
-	/**  Oli Functions  */
-	/** --------------- */
+	/** ------------------ */
+	/**  V. Oli Functions  */
+	/** ------------------ */
 	
-		/** ------------------ */
-		/**  Oli Informations  */
-		/** ------------------ */
+		/** ------------------------ */
+		/**  V. 1. Oli Informations  */
+		/** ------------------------ */
 		
-		public function getOliInfos($info = null) {
-			if(empty($info)) return $this->oliInfos;
-			else if($info == 'name') return $this->oliInfos['name'];
-			else if($info == 'description') return $this->oliInfos['description'];
-			else if($info == 'version') return $this->oliInfos['version'];
-			else if($info == 'website_name') return $this->oliInfos['website']['name'];
-			else if($info == 'website_url') return $this->oliInfos['website']['url'];
-			else if($info == 'github_url') return $this->oliInfos['github']['url'];
-			else if($info == 'github_api') return $this->oliInfos['github']['api'];
-			else return false;
+		/**
+		 * To string function
+		 * 
+		 * @todo Shows oli versionn, copyright, license and other stuff
+		 * @return string Show infos about this framework
+		 */
+		public function __toString() {
+			return 'Powered by <a href="' . $this->oliInfos['website'] . '">' . $this->oliInfos['name'] . '</a> (v. ' . $this->getOliInfos('version') . ')';
+		}
+		
+		public function getOliInfos($whatInfo = null) {
+			if(!empty($whatInfo)) return $this->oliInfos[$whatInfo];
+			else return $this->oliInfos;
+		}
+		
+		public function getTeamInfos($who = null, $whatInfo = null) {
+			if(!empty($who)) {
+				foreach($this->oliInfos['team'] as $eachMember) {
+					if($eachMember['name'] == $who OR in_array($who, !is_array($eachMember['nicknames']) ? [$eachMember['nicknames']] : $eachMember['nicknames'])) {
+						if(!empty($whatInfo)) return $eachMember[$whatInfo];
+						else return $eachMember;
+					}
+				}
+				
+			}
+			else return $this->oliInfos['team'];
 		}
 		
 		/** ------------------- */
