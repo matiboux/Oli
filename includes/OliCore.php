@@ -157,8 +157,8 @@ class OliCore {
 	 * @return self
 	 */
 	public function __construct() {
-		$this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
-		$this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
+		// $this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
+		// $this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
 		
 		/** Load Oli Infos & Default Config */
 		$this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
