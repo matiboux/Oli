@@ -58,6 +58,7 @@
 |*|    * [version 1.7]: -- [ Github repository created! ] --
 |*|              (1.7.0): August 11, 2016
 |*|              (1.7.1): February 19, 2017
+|*|              (1.7.2): February 22, 2017
 |*|    * [version 1.8]:
 |*|              (1.8.0): Currently in development
 \*/
@@ -79,9 +80,6 @@
 |*|    IV. 4. Database Functions
 |*|  V. Oli Functions
 |*|    V. 1. Oli Informations
-|*|  
-|*|  Todo:
-|*|  - 
 \*/
 
 /**
