@@ -1941,16 +1941,19 @@ class OliCore {
 		 */
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			$protocol = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
+			$urlPrefix = $protocol . '://';
 			
-			if(!isset($param) OR $param < 0) return $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			if(!isset($param) OR $param < 0) return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			else if($param == 'protocol') return $protocol;
 			else {
-				$urlSetting = !empty($this->getSetting('url')) ? (!is_array($this->getSetting('url')) ? [$this->getSetting('url')] : $this->getSetting('url')) : null;
+				$urlSetting = $this->getSetting('url');
+				$urlSetting = !empty($urlSetting) ? (!is_array($urlSetting) ? [$urlSetting] : $urlSetting) : null;
+				
 				if(in_array($param, ['allbases', 'alldomains'], true)) {
 					$allBases = $allDomains = [];
 					foreach($urlSetting as $eachUrl) {
-						preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
-						$allBases[] = ($matches[1] ?: (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://')) . $matches[2];
+ 						preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
+						$allBases[] = ($matches[1] ?: $urlPrefix) . $matches[2];
 						$allDomains[] = $matches[3];
 					}
 					
@@ -1959,16 +1962,13 @@ class OliCore {
 				}
 				else {
 					$frationnedUrl = explode('/', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-					$baseUrl = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
 					$hasUsedHttpHostBase = false;
+					$baseUrlMatch = false;
+					$baseUrl = $urlPrefix;
 					$shortBaseUrl = '';
+					$countLoop = 0;
 					
 					if(isset($urlSetting)) {
-						$baseUrlMatch = false;
-						$baseUrl = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
-						$shortBaseUrl = '';
-						$countLoop = 0;
-						
 						foreach($frationnedUrl as $eachPart) {
 							if(in_array($baseUrl, $urlSetting) OR in_array($shortBaseUrl, $urlSetting)) {
 								$baseUrlMatch = true;
@@ -1982,8 +1982,9 @@ class OliCore {
 							}
 						}
 					}
+					
 					if(!isset($urlSetting) OR !$baseUrlMatch) {
-						$baseUrl = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+						$baseUrl = $urlPrefix . $_SERVER['HTTP_HOST'] . '/';
 						$hasUsedHttpHostBase = true;
 					}
 					
