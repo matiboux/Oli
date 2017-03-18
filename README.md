@@ -21,7 +21,7 @@ Don't forget to **share your creations with us**!
 
 **Hey, you might want to check the *official Oli stuff that could helps you*:**  
 Wanna use a database with Oli? Get the [default Oli SQL file here](https://gist.github.com/matiboux/9a3019c7c67773e2fc6a61e4c71020a3).  
-Wanna the account management feature? Get the [official Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
+Wanna the account management feature? Get the [Oli login page](https://github.com/OliFramework/Oli-Login-Page) now!
 
 ### License
 
