@@ -19,7 +19,7 @@
 |*|  
 |*|  --- --- ---
 |*|  
-|*|  Copyright (C) 2015 Mathieu Guérin (aka "Matiboux")
+|*|  Copyright (C) 2015 Matiboux (Mathieu Guérin)
 |*|  
 |*|    This program is free software: you can redistribute it and/or modify
 |*|    it under the terms of the GNU Affero General Public License as published
