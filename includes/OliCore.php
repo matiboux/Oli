@@ -1919,6 +1919,7 @@ class OliCore {
 		 * 
 		 * $param variable values:
 		 * null => Full Url (e.g. 'http://hello.example.com/page/param')
+		 * 'protocol' => Get url protocol (e.g. 'https')
 		 * 'base' => Get base url (e.g. 'http://hello.example.com/')
 		 * 'allbases' => Get all bases urls (e.g. ['http://hello.example.com/', 'http://example.com/'])
 		 * 'alldomains' => Get all domains (e.g. ['hello.example.com', 'example.com'])
@@ -1939,7 +1940,10 @@ class OliCore {
 		 * @return string|array|boolean Parameter wanted
 		 */
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
-			if(!isset($param) OR $param < 0) return (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$protocol = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
+			
+			if(!isset($param) OR $param < 0) return $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			else if($param == 'protocol') return $protocol;
 			else {
 				$urlSetting = !empty($this->getSetting('url')) ? (!is_array($this->getSetting('url')) ? [$this->getSetting('url')] : $this->getSetting('url')) : null;
 				if(in_array($param, ['allbases', 'alldomains'], true)) {
