@@ -64,22 +64,47 @@
 \*/
 
 /*\
-|*|  Summary:
+|*|  Table of Content:
 |*|  
 |*|  I. Variables
 |*|  II. Magic Methods
 |*|  III. Configuration
-|*|    III. 1. Config Loader
-|*|    III. 2. MySQL Config
-|*|    III. 3. General Config 
-|*|    III. 4. Addons List [Work to do]
+|*|    1. Config Loader
+|*|    2. MySQL Config
+|*|    3. General Config 
+|*|    4. Addons List [Work to do]
 |*|  IV. MySQL Functions
-|*|    IV. 1. Status Functions
-|*|    IV. 2. Read Functions
-|*|    IV. 3. Write Functions
-|*|    IV. 4. Database Functions
+|*|    1. Status Functions
+|*|    2. Read Functions
+|*|    3. Write Functions
+|*|    4. Database Functions
 |*|  V. Oli Functions
-|*|    V. 1. Oli Informations
+|*|    1. Oli Informations
+|*|    2. Website Content
+|*|    3. Website Settings
+|*|    4. Website Tools
+|*|    5. Translations & Text
+|*|      A. Read Functions
+|*|      B. Write Functions
+|*|      C. Print Functions
+|*|    6. HTTP Tools
+|*|      A. Content Type
+|*|      B. Cookie Management
+|*|        a. Read Functions
+|*|        b. Write Functions
+|*|      C. _POST vars
+|*|        a. Read Functions
+|*|        b. Write Functions
+|*|    6. HTML Tools
+|*|      A. File Loaders
+|*|      B. File Minimizers
+|*|    7. Url Functions
+|*|    8. User Language
+|*|    9. Utility Tools
+|*|      A. Generators
+|*|      B. Date & Time
+|*|      C. Client Infos
+|*|  [...]
 \*/
 
 /**
@@ -1177,14 +1202,13 @@ class OliCore {
 						else return $eachMember;
 					}
 				}
-				
 			}
 			else return $this->oliInfos['team'];
 		}
 		
-		/** ------------------- */
-		/**  Load Page Content  */
-		/** ------------------- */
+		/** ----------------------- */
+		/**  V. 2. Website Content  */
+		/** ----------------------- */
 		
 		/**
 		 * Load page content
@@ -1219,20 +1243,16 @@ class OliCore {
 			else if(file_exists(THEMEPATH . '404.php')) return THEMEPATH . '404.php';
 			else die('Erreur 404');
 		}
-	
-		/** --------- */
-		/**  General  */
-		/** --------- */
+		
+		/** ------------------------ */
+		/**  V. 3. Website Settings  */
+		/** ------------------------ */
 		
 		/**
 		 * Get settings tables
-		 * 
-		 * @uses OliCore::$settingsTables to get the settings tables
 		 * @return string|array Settings tables
 		 */
-		public function getSettingsTables() {
-			return $this->config['settings_tables'];
-		}
+		public function getSettingsTables() { return $this->config['settings_tables']; }
 		
 		/**
 		 * Get setting
@@ -1287,6 +1307,10 @@ class OliCore {
 			else return false;
 		}
 		
+		/** --------------------- */
+		/**  V. 4. Website Tools  */
+		/** --------------------- */
+		
 		/**
 		 * Get execution delay
 		 * 
@@ -1314,13 +1338,13 @@ class OliCore {
 			return $this->getExecutionDelay($fromRequest);
 		}
 		
-		/** --------------------- */
-		/**  Translations & Text  */
-		/** --------------------- */
+		/** --------------------------- */
+		/**  V. 5. Translations & Text  */
+		/** --------------------------- */
 		
-			/** ---------------- */
-			/**  Read Functions  */
-			/** ---------------- */
+			/** ------------------------- */
+			/**  V. 5. A. Read Functions  */
+			/** ------------------------- */
 			
 			/**
 			 * Get translations lines
@@ -1371,9 +1395,9 @@ class OliCore {
 				return $this->isExistInfosMySQL($this->config['translations_table'], $where, $caseSensitive);
 			}
 			
-			/** ----------------- */
-			/**  Write Functions  */
-			/** ----------------- */
+			/** -------------------------- */
+			/**  V. 5. B. Write Functions  */
+			/** -------------------------- */
 			
 			/**
 			 * Add translations
@@ -1415,9 +1439,9 @@ class OliCore {
 				return $this->deleteLinesMySQL($this->config['translations_table'], $where);
 			}
 			
-			/** ------------------- */
-			/**  Translation Tools  */
-			/** ------------------- */
+			/** -------------------------- */
+			/**  V. 5. C. Print Functions  */
+			/** -------------------------- */
 			
 			/**
 			 * Echo translated text
@@ -1443,13 +1467,13 @@ class OliCore {
 				}
 			}
 		
-		/** ---------------- */
-		/**  HTTP Functions  */
-		/** ---------------- */
+		/** ------------------ */
+		/**  V. 6. HTTP Tools  */
+		/** ------------------ */
 		
-			/** -------------- */
-			/**  Content Type  */
-			/** -------------- */
+			/** ----------------------- */
+			/**  V. 6. A. Content Type  */
+			/** ----------------------- */
 			
 			/**
 			 * Set content type
@@ -1512,13 +1536,51 @@ class OliCore {
 				return $this->currentCharset;
 			}
 			
-			/** ------------------- */
-			/**  Cookie Management  */
-			/** ------------------- */
+			/** ---------------------------- */
+			/**  V. 6. B. Cookie Management  */
+			/** ---------------------------- */
 			
-				/** -------------------------- */
-				/**  Create and Delete Cookie  */
-				/** -------------------------- */
+				/** ---------------------------- */
+				/**  V. 6. B. a. Read Functions  */
+				/** ---------------------------- */
+				
+				/**
+				 * Get cookie content
+				 * 
+				 * @param string $name Cookie name
+				 * @param boolean|void $rawResult Return raw result or not
+				 * 
+				 * @return mixed Returns cookie content
+				 */
+				public function getCookieContent($name, $rawResult = false) {
+					return (!is_array($_COOKIE[$name]) AND is_array(json_decode($_COOKIE[$name], true)) AND !$rawResult) ? json_decode($_COOKIE[$name], true) : $_COOKIE[$name];
+				}
+				
+				/**
+				 * Is exist cookie
+				 * 
+				 * @param string $name Cookie name
+				 * 
+				 * @return boolean Returns true if the cookie exists, false otherwise
+				 */
+				public function isExistCookie($name) {
+					return isset($_COOKIE[$name]);
+				}
+				
+				/**
+				 * Is empty cookie
+				 * 
+				 * @param string $name Cookie name
+				 * 
+				 * @return boolean Returns true if the cookie is empty, false otherwise
+				 */
+				public function isEmptyCookie($name) {
+					return empty($_COOKIE[$name]);
+				}
+				
+				/** ----------------------------- */
+				/**  V. 6. B. b. Write Functions  */
+				/** ----------------------------- */
 				
 				/**
 				 * Set cookie
@@ -1568,108 +1630,13 @@ class OliCore {
 					return !$cookieError ? true : false;
 				}
 			
-				/** ----------- */
-				/**  Get Infos  */
-				/** ----------- */
-				
-				/**
-				 * Get cookie content
-				 * 
-				 * @param string $name Cookie name
-				 * @param boolean|void $rawResult Return raw result or not
-				 * 
-				 * @return mixed Returns cookie content
-				 */
-				public function getCookieContent($name, $rawResult = false) {
-					return (!is_array($_COOKIE[$name]) AND is_array(json_decode($_COOKIE[$name], true)) AND !$rawResult) ? json_decode($_COOKIE[$name], true) : $_COOKIE[$name];
-				}
-				
-				/**
-				 * Is exist cookie
-				 * 
-				 * @param string $name Cookie name
-				 * 
-				 * @return boolean Returns true if the cookie exists, false otherwise
-				 */
-				public function isExistCookie($name) {
-					return isset($_COOKIE[$name]);
-				}
-				
-				/**
-				 * Is empty cookie
-				 * 
-				 * @param string $name Cookie name
-				 * 
-				 * @return boolean Returns true if the cookie is empty, false otherwise
-				 */
-				public function isEmptyCookie($name) {
-					return empty($_COOKIE[$name]);
-				}
+			/** --------------------- */
+			/**  V. 6. C. _POST vars  */
+			/** --------------------- */
 			
-			/** ------------ */
-			/**  _POST vars  */
-			/** ------------ */
-		
-				/** -------------------------- */
-				/**  Create and Delete Cookie  */
-				/** -------------------------- */
-				
-				/**
-				 * Set post vars cookie
-				 * 
-				 * @param string $postVars Post vars values
-				 * 
-				 * @uses OliCore::setCookie() to set the post vars cookie
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
-				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
-				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
-				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
-				 * @return boolean Returns true if the cookie have been created, false otherwise
-				 */
-				public function setPostVarsCookie($postVars) {
-					$this->postVarsProtection = true;
-					return $this->setCookie($this->config['post_vars_cookie']['name'], $postVars, 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
-				} 
-				
-				/**
-				 * Delete post vars cookie
-				 * 
-				 * @uses OliCore::$postVarsProtection to get post vars protection status
-				 * @uses OliCore::deleteCookie() to delete the post vars cookie
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
-				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
-				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
-				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
-				 * @deprecated Post vars cookie shouldn't be deleted by the user
-				 * @return boolean Returns true if the cookie have been deleted, false otherwise
-				 */
-				public function deletePostVarsCookie() {
-					if(!$this->postVarsProtection) return $this->deleteCookie($this->config['post_vars_cookie']['name'], '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
-					else return false;
-				} 
-				
-				/**
-				 * Protect post vars cookie
-				 * 
-				 * @uses OliCore::$postVarsProtection to set post vars protection
-				 * @uses OliCore::setCookie() to reset the post vars cookie
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
-				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
-				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
-				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
-				 * @return boolean Returns true if the cookie have been created, false otherwise
-				 */
-				public function protectPostVarsCookie() {
-					$this->postVarsProtection = true;
-					return $this->setCookie($this->config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
-				}
-				
-				/** ----------- */
-				/**  Get Infos  */
-				/** ----------- */
+				/** ---------------------------- */
+				/**  V. 6. C. a. Read Functions  */
+				/** ---------------------------- */
 				
 				/**
 				 * Get post vars cookie name
@@ -1733,186 +1700,251 @@ class OliCore {
 				public function isProtectedPostVarsCookie() {
 					return $this->postVarsProtection;
 				}
+				
+				/** ----------------------------- */
+				/**  V. 6. C. b. Write Functions  */
+				/** ----------------------------- */
+				
+				/**
+				 * Set post vars cookie
+				 * 
+				 * @param string $postVars Post vars values
+				 * 
+				 * @uses OliCore::setCookie() to set the post vars cookie
+				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
+				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
+				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
+				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
+				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
+				 * @return boolean Returns true if the cookie have been created, false otherwise
+				 */
+				public function setPostVarsCookie($postVars) {
+					$this->postVarsProtection = true;
+					return $this->setCookie($this->config['post_vars_cookie']['name'], $postVars, 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
+				} 
+				
+				/**
+				 * Delete post vars cookie
+				 * 
+				 * @uses OliCore::$postVarsProtection to get post vars protection status
+				 * @uses OliCore::deleteCookie() to delete the post vars cookie
+				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
+				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
+				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
+				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
+				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
+				 * @deprecated Post vars cookie shouldn't be deleted by the user
+				 * @return boolean Returns true if the cookie have been deleted, false otherwise
+				 */
+				public function deletePostVarsCookie() {
+					if(!$this->postVarsProtection) return $this->deleteCookie($this->config['post_vars_cookie']['name'], '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
+					else return false;
+				} 
+				
+				/**
+				 * Protect post vars cookie
+				 * 
+				 * @uses OliCore::$postVarsProtection to set post vars protection
+				 * @uses OliCore::setCookie() to reset the post vars cookie
+				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
+				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
+				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
+				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
+				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
+				 * @return boolean Returns true if the cookie have been created, false otherwise
+				 */
+				public function protectPostVarsCookie() {
+					$this->postVarsProtection = true;
+					return $this->setCookie($this->config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
+				}
 		
-		/** ---------------- */
-		/**  HTML Functions  */
-		/** ---------------- */
+		/** ------------------ */
+		/**  V. 7. HTML Tools  */
+		/** ------------------ */
 		
-		/**
-		 * Load CSS stylesheet
-		 * 
-		 * @param string $url Custom full url to the stylesheet
-		 * @param boolean|void $loadNow Post vars to check
-		 * @param boolean|void $minimize Post vars to check
-		 * 
-		 * @uses OliCore::minimizeStyle() to minimize stylesheet file
-		 * @uses OliCore::$htmlLoaderList to store file into the loader list
-		 * @return void
-		 */
-		public function loadStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-			if(is_bool($tags)) {
-				$minimize = $loadNow;
-				$loadNow = $tags;
-				$tags = null;
+			/** ----------------------- */
+			/**  V. 7. A. File Loaders  */
+			/** ----------------------- */
+			
+			/**
+			 * Load CSS stylesheet
+			 * 
+			 * @param string $url Custom full url to the stylesheet
+			 * @param boolean|void $loadNow Post vars to check
+			 * @param boolean|void $minimize Post vars to check
+			 * 
+			 * @uses OliCore::minimizeStyle() to minimize stylesheet file
+			 * @uses OliCore::$htmlLoaderList to store file into the loader list
+			 * @return void
+			 */
+			public function loadStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+				if(is_bool($tags)) {
+					$minimize = $loadNow;
+					$loadNow = $tags;
+					$tags = null;
+				}
+				if(!isset($loadNow)) $loadNow = true;
+				if(!isset($minimize)) $minimize = false;
+				
+				if($minimize AND empty($tags)) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
+				else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '" ' . ($tags ?: '') . '>';
+				
+				if($loadNow) echo $codeLine . PHP_EOL;
+				else $this->htmlLoaderList[] = $codeLine;
 			}
-			if(!isset($loadNow)) $loadNow = true;
-			if(!isset($minimize)) $minimize = false;
 			
-			if($minimize AND empty($tags)) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
-			else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '" ' . ($tags ?: '') . '>';
-			
-			if($loadNow) echo $codeLine . PHP_EOL;
-			else $this->htmlLoaderList[] = $codeLine;
-		}
-		
-		/**
-		 * Load local CSS stylesheet
-		 * 
-		 * @param string $url Data url to the stylesheet
-		 * @param boolean|void $loadNow Post vars to check
-		 * @param boolean|void $minimize Post vars to check
-		 * 
-		 * @uses OliCore::loadStyle() to load stylesheet file
-		 * @uses OliCore::getDataUrl() to get data url
-		 * @return void
-		 */
-		public function loadLocalStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadStyle($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
-		}
-		
-		/** Load common CSS stylesheet */
-		public function loadCommonStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadStyle($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
-		}
-		
-		/**
-		 * Load cdn CSS stylesheet
-		 * 
-		 * @param string $url Cdn url to the stylesheet
-		 * @param boolean|void $loadNow Post vars to check
-		 * @param boolean|void $minimize Post vars to check
-		 * 
-		 * @uses OliCore::loadStyle() to load stylesheet file
-		 * @uses OliCore::getCdnUrl() to get cdn url
-		 * @return void
-		 */
-		public function loadCdnStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadStyle($this->config['cdn_url'] . $url, $tags, $loadNow, $minimize);
-		}
-		
-		/**
-		 * Load JS script
-		 * 
-		 * @param string $url Custom full url to the script
-		 * @param boolean|void $loadNow Post vars to check
-		 * @param boolean|void $minimize Post vars to check
-		 * 
-		 * @uses OliCore::minimizeScript() to minimize script file
-		 * @uses OliCore::$htmlLoaderList to store file into the loader list
-		 * @return void
-		 */
-		public function loadScript($url, $tags = null, $loadNow = null, $minimize = null) {
-			if(is_bool($tags)) {
-				$minimize = $loadNow;
-				$loadNow = $tags;
-				$tags = null;
+			/**
+			 * Load local CSS stylesheet
+			 * 
+			 * @param string $url Data url to the stylesheet
+			 * @param boolean|void $loadNow Post vars to check
+			 * @param boolean|void $minimize Post vars to check
+			 * 
+			 * @uses OliCore::loadStyle() to load stylesheet file
+			 * @uses OliCore::getDataUrl() to get data url
+			 * @return void
+			 */
+			public function loadLocalStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+				$this->loadStyle($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
 			}
-			if(!isset($loadNow)) $loadNow = true;
-			if(!isset($minimize)) $minimize = false;
 			
-			if($minimize AND empty($tags)) $codeLine = '<script type="text/javascript">' . $this->minimizeScript(file_get_contents($url)) . '</script>';
-			else $codeLine = '<script type="text/javascript" src="' . $url . '" ' . ($tags ?: '') . '></script>';
-			
-			if($loadNow) echo $codeLine . PHP_EOL;
-			else $this->htmlLoaderList[] = $codeLine;
-		}
-		
-		/**
-		 * Load local JS script
-		 * 
-		 * @param string $url Data url to the script
-		 * @param boolean|void $loadNow Post vars to check
-		 * @param boolean|void $minimize Post vars to check
-		 * 
-		 * @uses OliCore::loadScript() to load script file
-		 * @uses OliCore::getDataUrl() to get data url
-		 * @return void
-		 */
-		public function loadLocalScript($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadScript($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
-		}
-		
-		/** Load common JS script */
-		public function loadCommonScript($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadScript($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
-		}
-		
-		/**
-		 * Load cdn JS script
-		 * 
-		 * @param string $url Cdn url to the script
-		 * @param boolean|void $loadNow Post vars to check
-		 * @param boolean|void $minimize Post vars to check
-		 * 
-		 * @uses OliCore::loadScript() to load script file
-		 * @uses OliCore::getCdnUrl() to get cdn url
-		 * @return void
-		 */
-		public function loadCdnScript($url, $tags = null, $loadNow = null, $minimize = null) {
-			$this->loadScript($this->config['cdn_url'] . $url, $tags, $loadNow, $minimize);
-		}
-		
-		/**
-		 * Load end html files
-		 * 
-		 * Force the loader list files to load
-		 * 
-		 * @uses OliCore::$htmlLoaderList to get files from the loader list
-		 * @return void
-		 */
-		public function loadEndHtmlFiles() {
-			echo PHP_EOL;
-			foreach($this->htmlLoaderList as $eachCodeLine) {
-				echo array_shift($this->htmlLoaderList) . PHP_EOL;
+			/** Load common CSS stylesheet */
+			public function loadCommonStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+				$this->loadStyle($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
 			}
-		}
+			
+			/**
+			 * Load cdn CSS stylesheet
+			 * 
+			 * @param string $url Cdn url to the stylesheet
+			 * @param boolean|void $loadNow Post vars to check
+			 * @param boolean|void $minimize Post vars to check
+			 * 
+			 * @uses OliCore::loadStyle() to load stylesheet file
+			 * @uses OliCore::getCdnUrl() to get cdn url
+			 * @return void
+			 */
+			public function loadCdnStyle($url, $tags = null, $loadNow = null, $minimize = null) {
+				$this->loadStyle($this->config['cdn_url'] . $url, $tags, $loadNow, $minimize);
+			}
+			
+			/**
+			 * Load JS script
+			 * 
+			 * @param string $url Custom full url to the script
+			 * @param boolean|void $loadNow Post vars to check
+			 * @param boolean|void $minimize Post vars to check
+			 * 
+			 * @uses OliCore::minimizeScript() to minimize script file
+			 * @uses OliCore::$htmlLoaderList to store file into the loader list
+			 * @return void
+			 */
+			public function loadScript($url, $tags = null, $loadNow = null, $minimize = null) {
+				if(is_bool($tags)) {
+					$minimize = $loadNow;
+					$loadNow = $tags;
+					$tags = null;
+				}
+				if(!isset($loadNow)) $loadNow = true;
+				if(!isset($minimize)) $minimize = false;
+				
+				if($minimize AND empty($tags)) $codeLine = '<script type="text/javascript">' . $this->minimizeScript(file_get_contents($url)) . '</script>';
+				else $codeLine = '<script type="text/javascript" src="' . $url . '" ' . ($tags ?: '') . '></script>';
+				
+				if($loadNow) echo $codeLine . PHP_EOL;
+				else $this->htmlLoaderList[] = $codeLine;
+			}
+			
+			/**
+			 * Load local JS script
+			 * 
+			 * @param string $url Data url to the script
+			 * @param boolean|void $loadNow Post vars to check
+			 * @param boolean|void $minimize Post vars to check
+			 * 
+			 * @uses OliCore::loadScript() to load script file
+			 * @uses OliCore::getDataUrl() to get data url
+			 * @return void
+			 */
+			public function loadLocalScript($url, $tags = null, $loadNow = null, $minimize = null) {
+				$this->loadScript($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
+			}
+			
+			/** Load common JS script */
+			public function loadCommonScript($url, $tags = null, $loadNow = null, $minimize = null) {
+				$this->loadScript($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
+			}
+			
+			/**
+			 * Load cdn JS script
+			 * 
+			 * @param string $url Cdn url to the script
+			 * @param boolean|void $loadNow Post vars to check
+			 * @param boolean|void $minimize Post vars to check
+			 * 
+			 * @uses OliCore::loadScript() to load script file
+			 * @uses OliCore::getCdnUrl() to get cdn url
+			 * @return void
+			 */
+			public function loadCdnScript($url, $tags = null, $loadNow = null, $minimize = null) {
+				$this->loadScript($this->config['cdn_url'] . $url, $tags, $loadNow, $minimize);
+			}
+			
+			/**
+			 * Load end html files
+			 * 
+			 * Force the loader list files to load
+			 * 
+			 * @uses OliCore::$htmlLoaderList to get files from the loader list
+			 * @return void
+			 */
+			public function loadEndHtmlFiles() {
+				echo PHP_EOL;
+				foreach($this->htmlLoaderList as $eachCodeLine) {
+					echo array_shift($this->htmlLoaderList) . PHP_EOL;
+				}
+			}
 		
-		/**
-		 * Minimize stylesheet
-		 * 
-		 * @param string $styleCode Stylesheet code to minimize
-		 * 
-		 * @return string Stylesheet code minimized
-		 */
-		public function minimizeStyle($styleCode) {
-			$styleCode = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $styleCode);
-			$styleCode = preg_replace('!\s+!', ' ', $styleCode);
-			$styleCode = str_replace(': ', ':', $styleCode);
-			$styleCode = str_replace(["\r\n", "\r", "\n", "\t"], '', $styleCode);
-			$styleCode = str_replace(';}', '}', $styleCode);
-			return $styleCode;
-		}
+			/** -------------------------- */
+			/**  V. 7. B. File Minimizers  */
+			/** -------------------------- */
+			
+			/**
+			 * Minimize stylesheet
+			 * 
+			 * @param string $styleCode Stylesheet code to minimize
+			 * 
+			 * @return string Stylesheet code minimized
+			 */
+			public function minimizeStyle($styleCode) {
+				$styleCode = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $styleCode);
+				$styleCode = preg_replace('!\s+!', ' ', $styleCode);
+				$styleCode = str_replace(': ', ':', $styleCode);
+				$styleCode = str_replace(["\r\n", "\r", "\n", "\t"], '', $styleCode);
+				$styleCode = str_replace(';}', '}', $styleCode);
+				return $styleCode;
+			}
+			
+			/**
+			 * Minimize script
+			 * 
+			 * @param string $scriptCode Script code to minimize
+			 * 
+			 * @return string Script code minimized
+			 */
+			public function minimizeScript($scriptCode) {
+				$scriptCode = preg_replace('!^[ \t]*/\*.*?\*/[ \t]*[\r\n]!s', '', $scriptCode);
+				$scriptCode = preg_replace('![ \t]*[^:]//.*[ \t]*[\r\n]?!', '', $scriptCode);
+				$scriptCode = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $scriptCode);
+				$scriptCode = preg_replace('!\s+!', ' ', $scriptCode);
+				$scriptCode = str_replace([' {', ' }', '{ ', '; '], ['{', '}', '{', ';'], $scriptCode);
+				$scriptCode = str_replace(["\r\n", "\r", "\n", "\t"], '', $scriptCode);
+				return $scriptCode;
+			}
 		
-		/**
-		 * Minimize script
-		 * 
-		 * @param string $scriptCode Script code to minimize
-		 * 
-		 * @return string Script code minimized
-		 */
-		public function minimizeScript($scriptCode) {
-			$scriptCode = preg_replace('!^[ \t]*/\*.*?\*/[ \t]*[\r\n]!s', '', $scriptCode);
-			$scriptCode = preg_replace('![ \t]*[^:]//.*[ \t]*[\r\n]?!', '', $scriptCode);
-			$scriptCode = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $scriptCode);
-			$scriptCode = preg_replace('!\s+!', ' ', $scriptCode);
-			$scriptCode = str_replace([' {', ' }', '{ ', '; '], ['{', '}', '{', ';'], $scriptCode);
-			$scriptCode = str_replace(["\r\n", "\r", "\n", "\t"], '', $scriptCode);
-			return $scriptCode;
-		}
-		
-		/** -------------------- */
-		/**  URL Read Functions  */
-		/** -------------------- */
+		/** --------------------- */
+		/**  V. 7. Url Functions  */
+		/** --------------------- */
 		
 		/**
 		 * Get url parameter
@@ -2079,9 +2111,9 @@ class OliCore {
 			return $this->config['cdn_url'];
 		}
 		
-		/** -------------------------- */
-		/**  User Language Management  */
-		/** -------------------------- */
+		/** --------------------- */
+		/**  V. 8. User Language  */
+		/** --------------------- */
 		
 		/**
 		 * Get default language
@@ -2161,13 +2193,13 @@ class OliCore {
 			return $this->getAccountInfos('ACCOUNTS', 'language', $where, $caseSensitive);
 		}
 		
-		/** ------- */
-		/**  Tools  */
-		/** ------- */
+		/** --------------------- */
+		/**  V. 9. Utility Tools  */
+		/** --------------------- */
 		
-			/** ---------------------- */
-			/**  Generators Functions  */
-			/** ---------------------- */
+			/** --------------------- */
+			/**  V. 9. A. Generators  */
+			/** --------------------- */
 			
 			/**
 			 * Generate random number
@@ -2214,10 +2246,10 @@ class OliCore {
 					return $keygen;
 				}
 			}
-		
-			/** ----------------------- */
-			/**  Date & Time Functions  */
-			/** ----------------------- */
+			
+			/** ---------------------- */
+			/**  V. 9. B. Date & Time  */
+			/** ---------------------- */
 			
 			/**
 			 * Get difference between two dates
@@ -2298,7 +2330,7 @@ class OliCore {
 			}
 			
 			/** ----------------------- */
-			/**  Client Infos Functions */
+			/**  V. 9. C. Client Infos  */
 			/** ----------------------- */
 			
 			/**
