@@ -1950,7 +1950,7 @@ class OliCore {
 		 * Get url parameter
 		 * 
 		 * $param variable values:
-		 * null => Full Url (e.g. 'http://hello.example.com/page/param')
+		 * null, 'full' => Full Url (e.g. 'http://hello.example.com/page/param')
 		 * 'protocol' => Get url protocol (e.g. 'https')
 		 * 'base' => Get base url (e.g. 'http://hello.example.com/')
 		 * 'allbases' => Get all bases urls (e.g. ['http://hello.example.com/', 'http://example.com/'])
@@ -1975,7 +1975,7 @@ class OliCore {
 			$protocol = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
 			
-			if(!isset($param) OR $param < 0) return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			else if($param === 'protocol') return $protocol;
 			else {
 				$urlSetting = $this->getSetting('url');
@@ -2071,9 +2071,7 @@ class OliCore {
 		 * @deprecated OliCore::getUrlParam() can be directly used instead
 		 * @return string Full url
 		 */
-		public function getFullUrl() {
-			return $this->getUrlParam();
-		}
+		public function getFullUrl() { return $this->getUrlParam('full'); }
 		
 		/** Get Common Files Url */
 		public function getCommonFilesUrl() {
