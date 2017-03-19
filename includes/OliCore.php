@@ -1976,7 +1976,7 @@ class OliCore {
 			$urlPrefix = $protocol . '://';
 			
 			if(!isset($param) OR $param < 0) return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-			else if($param == 'protocol') return $protocol;
+			else if($param === 'protocol') return $protocol;
 			else {
 				$urlSetting = $this->getSetting('url');
 				$urlSetting = !empty($urlSetting) ? (!is_array($urlSetting) ? [$urlSetting] : $urlSetting) : null;
