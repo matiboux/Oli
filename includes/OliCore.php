@@ -1223,25 +1223,51 @@ class OliCore {
 			if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
+			$found = '';
+			
 			if(!empty($params)) {
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
-					if(count($fileName) > 1 AND $fileName[0] == 'data') break;
-					else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php')) {
+					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
 						$this->fileNameParam = implode('/', $fileName);
 					}
-					else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php')) {
-						$found = THEMEPATH . implode('/', $fileName) . '/index.php';
-						$this->fileNameParam = implode('/', $fileName);
+					else if($fileName[0] == 'data') break;
+					else {
+						if(!empty($this->config['index_files'])) $indexFiles = !is_array($this->config['index_files']) ? [$this->config['index_files']] : $this->config['index_files'];
+						
+						if(!empty($indexFiles)) {
+							foreach(array_slice($indexFiles, 1) as $eachValue) {
+								$eachValue = explode('/', $eachValue);
+								$indexFilePath = implode('/', array_slice($eachValue, 0, -1));
+								$indexFileName = implode('/', array_slice($eachValue, -1));
+								
+								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php')) {
+									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php';
+									$this->fileNameParam = $indexFilePath;
+								}
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php')) {
+									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php';
+									$this->fileNameParam = implode('/', $fileName);
+								}
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php')) {
+									$found = THEMEPATH . implode('/', $fileName) . '/index.php';
+									$this->fileNameParam = implode('/', $fileName);
+								}
+							}
+						}
+						
+						if(empty($found) AND $fileName[0] == 'home') {
+							if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0] . '.php')) $found = THEMEPATH . $indexFiles[0] . '.php';
+							else if(file_exists(THEMEPATH . 'index.php')) $found = THEMEPATH . 'index.php';
+						}
 					}
-					else if(empty($found) AND $fileName[0] == 'home' AND file_exists(THEMEPATH . 'index.php')) $found = THEMEPATH . 'index.php';
 				}
 			}
 			
 			if(!empty($found)) return $found;
 			else if(file_exists(THEMEPATH . '404.php')) return THEMEPATH . '404.php';
-			else die('Erreur 404');
+			else die('Error 404: File not found');
 		}
 		
 		/** ------------------------ */
