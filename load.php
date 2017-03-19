@@ -16,7 +16,8 @@ if(!defined('INCLUDEPATH')) define('INCLUDEPATH', SCRIPTBASEPATH . 'includes/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
 
 /** Include OliCore & Addons */
-require_once INCLUDEPATH . 'loader.php';
+if(file_exists(INCLUDEPATH . 'loader.php')) require_once INCLUDEPATH . 'loader.php';
+else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (used path: "' . INCLUDEPATH . 'loader.php")', E_USER_ERROR);
 
 /** Load OliCore & Addons */
 $_Oli = new \OliFramework\OliCore($initTimestamp);
