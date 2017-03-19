@@ -1,4 +1,7 @@
 <?php
+/* Initial Timestamp */
+$initTimestamp = microtime(true);
+
 /** Define Global Paths */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
 if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
@@ -16,7 +19,7 @@ if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
 require_once INCLUDEPATH . 'loader.php';
 
 /** Load OliCore & Addons */
-$_Oli = new \OliFramework\OliCore;
+$_Oli = new \OliFramework\OliCore($initTimestamp);
 if(!empty($config['addons'])) {
 	foreach($config['addons'] as $eachAddon) {
 		if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {

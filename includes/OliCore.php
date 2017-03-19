@@ -181,14 +181,14 @@ class OliCore {
 	 * @uses \OliFramework\ErrorManager\ErrorHandler to handle errors
 	 * @return self
 	 */
-	public function __construct() {
+	public function __construct($initTimestamp = null) {
 		// $this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
 		// $this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
 		
 		/** Load Oli Infos & Default Config */
 		$this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
 		$this->loadConfig(json_decode(file_get_contents(INCLUDEPATH . 'config.default.json'), true));
-		$this->config['init_timestamp'] = microtime(true);
+		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
 		
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
