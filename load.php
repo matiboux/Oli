@@ -8,7 +8,7 @@ if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 
-$config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+$config = file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(ABSPATH . 'config.json'), true) : [];
 if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', $config['source_path'] ?: ABSPATH);
 unset($config['source_path']);
 
@@ -34,7 +34,11 @@ unset($config['addons']);
 /** Load Configs */
 if(!empty($config)) {
 	foreach($config as $eachKey => $eachConfig) {
-		${($eachKey == 'Oli') ? '_Oli' : $_Oli->getAddonVar($eachKey)}->loadConfig($eachConfig);
+		if($eachKey == 'Oli') {
+			if(file_exists(ABSPATH . 'mysql.json')) $_Oli->loadConfig(array('mysql' => json_decode(file_get_contents(ABSPATH . 'mysql.json'), true)));
+			$_Oli->loadConfig($eachConfig);
+		}
+		else ${$_Oli->getAddonVar($eachKey)}->loadConfig($eachConfig);
 	}
 }
 if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
