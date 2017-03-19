@@ -2991,9 +2991,7 @@ class OliCore {
 			 * @uses OliCore::$authKeyCookieName to get the auth key cookie name
 			 * @return string Returns the auth key cookie name
 			 */
-			public function getAuthKeyCookieName() {
-				return $this->config['auth_key_cookie']['name'];
-			}
+			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
 			
 			/**
 			 * Get auth key
@@ -3084,9 +3082,7 @@ class OliCore {
 			 * @uses OliCore::$requestsExpireDelay to get the the requests expire delay
 			 * @return string Returns the the requests expire delay
 			 */
-			public function getRequestsExpireDelay() {
-				return $this->config['request_expire_delay'];
-			}
+			public function getRequestsExpireDelay() { return $this->config['request_expire_delay']; }
 			
 			/**
 			 * Create a new request
@@ -3123,9 +3119,7 @@ class OliCore {
 			 * @uses OliCore::$registerVerification to get the register verification status
 			 * @return string Returns true if the register verification is enabled, false otherwise
 			 */
-			public function getRegisterVerificationStatus() {
-				return $this->config['register_verification'];
-			}
+			public function getRegisterVerificationStatus() { return $this->config['register_verification']; }
 			
 			/**
 			 * Register a new account
@@ -3134,7 +3128,7 @@ class OliCore {
 			 * @param string $password Password to set to
 			 * @param string $email Request action to set to
 			 * 
-			 * @uses OliCore::$accountsManagement to get the requests expire delay
+			 * @uses OliCore::$accountsManagementStatus to get the requests expire delay
 			 * @uses OliCore::isExistAccountInfos() to get if infos exists info from account table
 			 * @uses OliCore::getUserRightLevel() to get user right level
 			 * @uses OliCore::translateUserRight() to translate user right
