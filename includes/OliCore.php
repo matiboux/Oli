@@ -1,9 +1,9 @@
 <?php
 /*\
-|*|  ---------------------------
-|*|  --- [  Oli Framework  ] ---
-|*|  --- [   BETA: 1.8.0   ] ---
-|*|  ---------------------------
+|*|  ---------------------------------
+|*|  --- [  Oli - PHP Framework  ] ---
+|*|  --- [  Version BETA: 1.8.0  ] ---
+|*|  ---------------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help web developers creating their website.
 |*|  Created and developed by Mathieu Guérin – aka Matiboux.
@@ -2105,9 +2105,7 @@ class OliCore {
 		 * @uses OliCore::$cdnUrl to get cdn url
 		 * @return string Returns Full url
 		 */
-		public function getCdnUrl() {
-			return $this->config['cdn_url'];
-		}
+		public function getCdnUrl() { return $this->config['cdn_url']; }
 		
 		/** --------------------- */
 		/**  V. 8. User Language  */
@@ -2119,9 +2117,7 @@ class OliCore {
 		 * @uses OliCore::$defaultLanguage to get default language
 		 * @return string Returns default language
 		 */
-		public function getDefaultLanguage() {
-			return $this->config['default_user_language'];
-		}
+		public function getDefaultLanguage() { return $this->config['default_user_language']; }
 		
 		/**
 		 * Set current language
@@ -2142,9 +2138,7 @@ class OliCore {
 		 * @uses OliCore::$currentLanguage to get current language
 		 * @return string Returns current language
 		 */
-		public function getCurrentLanguage() {
-			return $this->currentLanguage;
-		}
+		public function getCurrentLanguage() { return $this->currentLanguage; }
 		
 		/**
 		 * Set user language
