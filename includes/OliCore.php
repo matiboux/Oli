@@ -177,8 +177,6 @@ class OliCore {
 	/**
 	 * Class Construct function
 	 * 
-	 * @uses \OliFramework\ErrorManager\ExceptionHandler to handle exceptions
-	 * @uses \OliFramework\ErrorManager\ErrorHandler to handle errors
 	 * @return self
 	 */
 	public function __construct($initTimestamp = null) {
@@ -186,8 +184,8 @@ class OliCore {
 		// $this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
 		
 		/** Load Oli Infos & Default Config */
-		$this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
-		$this->loadConfig(json_decode(file_get_contents(INCLUDEPATH . 'config.default.json'), true));
+		if(file_exists(INCLUDEPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
+		if(file_exists(INCLUDEPATH . 'config.default.json')) $this->loadConfig(json_decode(file_get_contents(INCLUDEPATH . 'config.default.json'), true));
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
 		
 		$this->setContentType('DEFAULT', 'utf-8');
