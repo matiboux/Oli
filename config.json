@@ -9,6 +9,10 @@
 		"translations_table": null,
 		
 		"index_files": null,
+		"error_files": {
+			"404": "404.php",
+			"403": "403.php"
+		},
 		
 		"default_user_language": "en",
 		"default_content_type": "HTML",

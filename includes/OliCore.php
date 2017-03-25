@@ -9,7 +9,7 @@
 |*|  Created and developed by Mathieu Guérin – aka Matiboux.
 |*|  
 |*|  Oli Github repository: https://github.com/OliFramework/Oli/
-|*|  Ways to contact the developer:
+|*|  Few ways to contact the creator:
 |*|  - Email: matiboux@gmail.com
 |*|  - Twitter: @Matiboux (https://twitter.com/Matiboux)
 |*|  - Telegram: @Matiboux (https://t.me/Matiboux)
@@ -326,22 +326,11 @@ class OliCore {
 		/**  III. 2. MySQL Config  */
 		/** ---------------------- */
 		
-		/**
-		 * Setup MySQL & Config
-		 * 
-		 * @param string $database MySQL database name
-		 * @param string|void $username MySQL username
-		 * @param string|void $password MySQL password
-		 * @param string|void $hostname MySQL hostname
-		 * 
-		 * @uses \PDO to create link to the MySQL database
-		 * @throws PDOException if an error occurred (while linking the MySQL database)
-		 * @return void
-		 */
+		/** MySQL Setup & Config */
 		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
 			if(!empty($database)) {
 				try {
-					$this->db = new \PDO('mysql:host=' . $hostname . ';dbname=' . $database . ';charset=' . $charset, $username, $password);
+					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . $hostname . ';charset=' . $charset, $username, $password);
 					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
 				}
 				catch(PDOException $e) {
@@ -1264,6 +1253,7 @@ class OliCore {
 			}
 			
 			if(!empty($found)) return $found;
+			else if(file_exists(THEMEPATH . $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
 			else if(file_exists(THEMEPATH . '404.php')) return THEMEPATH . '404.php';
 			else die('Error 404: File not found');
 		}
