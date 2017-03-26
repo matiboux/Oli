@@ -249,16 +249,7 @@ class OliCore {
 			}
 		}
 		
-		/**
-		 * Decode config text codes
-		 * 
-		 * May be used in other cases
-		 * 
-		 * @param string|array $values Values to decode
-		 * 
-		 * @see OliCore::loadConfig() to see how it's used
-		 * @return string|array Decoded value(s)
-		 */
+		/** Decode config text codes */
 		public function decodeConfigValues($values) {
 			if(!empty($values)) {
 				foreach((!is_array($values) ? [$values] : $values) as $eachKey => $eachValue) {
@@ -1256,6 +1247,35 @@ class OliCore {
 			else if(file_exists(THEMEPATH . $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
 			else if(file_exists(THEMEPATH . '404.php')) return THEMEPATH . '404.php';
 			else die('Error 404: File not found');
+		}
+		
+		/** Decode content rules */
+		public function decodeContentRules($rules) {
+			if(!empty($rules)) {
+				$results = [];
+				$rules = explode("\n", $rules);
+				foreach((!is_array($rules) ? [$rules] : $rules) as $eachRule) {
+					if(!empty($eachRule)) {
+						list($ruleType, $ruleValue) = explode(': ', $eachRule);
+						$ruleType = strtolower($ruleType);
+						
+						if($ruleType == 'index' AND preg_match('/^["\'](.*)["\']$/', $ruleValue, $matches)) $results['index'] = $matches[1];
+						else if($ruleType == 'error' AND preg_match('/^(\d{3})\s["\'](.*)["\']$/', $ruleValue, $matches)) $results['error'][$matches[1]] = $matches[2];
+						else if($ruleType == 'access' AND preg_match('/^(?:((?:\[.+\])|(?:\*))\s)?([a-zA-Z]{4,5})\s(.*)$/', $ruleValue, $matches)) {
+							$files = $matches[1] == '*' ? '*' : json_decode($matches[1], true);
+							foreach((!is_array($files) ? [$files] : $files) as $eachFile) {
+								if(is_string($eachFile)) {
+									if(preg_match('/^(?:from\s([a-zA-Z]+))?\s?(?:to\s([a-zA-Z]+))?$/', $matches[3], $rights)) {
+										$results['access'][$eachFile][$matches[2]]['from'] = $rights[1];
+										$results['access'][$eachFile][$matches[2]]['to'] = $rights[2];
+									}
+								}
+							}
+						} else $results[$ruleType] = $ruleValue;
+					}
+				}
+				return $results;
+			} else return false;
 		}
 		
 		/** ------------------------ */
