@@ -1201,14 +1201,20 @@ class OliCore {
 			if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
-			$mainContentRules = [];
+			$mainContentRules = $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'));
+			$contentRules = $mainContentRules;
 			$found = '';
 			
 			if(!empty($params)) {
+				$mainContentRules = $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'));
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
+					$accessAllowed = false;
 					
-					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php')) {
+					$pathTo = implode('/', array_slice($fileName, 0, -1));
+					if(!empty($pathTo)) $contentRules = array_merge($mainContentRules, $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'), $pathTo));
+					
+					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
 						$this->fileNameParam = implode('/', $fileName);
 					}
@@ -1222,15 +1228,15 @@ class OliCore {
 								$indexFilePath = implode('/', array_slice($eachValue, 0, -1));
 								$indexFileName = implode('/', array_slice($eachValue, -1));
 								
-								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php')) {
+								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php')  AND $accessAllowed = $this->fileAccessAllowed($contentRules, $indexFilePath . '/' . $indexFileName . '.php')) {
 									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php';
 									$this->fileNameParam = $indexFilePath;
 								}
-								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php')) {
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '/' . $indexFiles[0] . '.php')) {
 									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php';
 									$this->fileNameParam = implode('/', $fileName);
 								}
-								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php')) {
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '/index.php')) {
 									$found = THEMEPATH . implode('/', $fileName) . '/index.php';
 									$this->fileNameParam = implode('/', $fileName);
 								}
@@ -1246,13 +1252,20 @@ class OliCore {
 			}
 			
 			if(!empty($found)) return $found;
+			// else if(isset($accessAllowed) AND !$accessAllowed) {
+				// else if(file_exists(THEMEPATH . $contentRules['error']['403'])) return THEMEPATH . $contentRules['error']['403'];
+				// if(file_exists(THEMEPATH . $this->config['error_files']['403'])) return THEMEPATH . $this->config['error_files']['403'];
+				// else if(file_exists(THEMEPATH . '403.php')) return THEMEPATH . '403.php';
+				// else die('Error 403: Access forbidden');
+			// }
+			else if(file_exists(THEMEPATH . $contentRules['error']['404'])) return THEMEPATH . $contentRules['error']['404'];
 			else if(file_exists(THEMEPATH . $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
 			else if(file_exists(THEMEPATH . '404.php')) return THEMEPATH . '404.php';
 			else die('Error 404: File not found');
 		}
 		
 		/** Decode content rules */
-		public function decodeContentRules($rules) {
+		public function decodeContentRules($rules, $pathTo = null) {
 			if(!empty($rules)) {
 				$results = [];
 				$rules = explode("\n", $rules);
@@ -1268,10 +1281,10 @@ class OliCore {
 							foreach((!is_array($files) ? [$files] : $files) as $eachFile) {
 								if(is_string($eachFile)) {
 									if(preg_match('/^(?:\*|all|(?:from\s([a-zA-Z]+))?\s?(?:to\s([a-zA-Z]+))?)$/', $matches[3], $rights)) {
-										if($rights[0] == 'all' OR $rights[0] == '*') $results['access'][$eachFile][$matches[2]] = '*';
+										if($rights[0] == 'all' OR $rights[0] == '*') $results['access'][$pathTo . $eachFile][$matches[2]] = '*';
 										else {
-											$results['access'][$eachFile][$matches[2]]['from'] = $rights[1];
-											$results['access'][$eachFile][$matches[2]]['to'] = $rights[2];
+											$results['access'][$pathTo . $eachFile][$matches[2]]['from'] = $this->translateUserRight($rights[1]);
+											$results['access'][$pathTo . $eachFile][$matches[2]]['to'] = $this->translateUserRight($rights[2]);
 										}
 									}
 								}
@@ -1281,6 +1294,32 @@ class OliCore {
 				}
 				return $results;
 			} else return false;
+		}
+		
+		/** File Access Allowed */
+		public function fileAccessAllowed($contentRules, $fileName) {
+			$result = null;
+			$defaultResult = false;
+			
+			if(!empty($fileName) AND !empty($contentRules['access'][$fileName])) {
+				if($contentRules['access'][$fileName]['DENY'] == '*') $result = false;
+				else if($contentRules['access'][$fileName]['ALLOW'] == '*') $result = true;
+				else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
+					if(!empty($contentRules['access'][$fileName]['DENY']) AND ((empty($contentRules['access'][$fileName]['DENY']['from']) OR (!empty($contentRules['access'][$fileName]['DENY']['from']) AND $contentRules['access'][$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['DENY']['to']) OR (!empty($contentRules['access'][$fileName]['DENY']['to']) AND $contentRules['access'][$fileName]['DENY']['to'] >= $userRight)))) $result = false;
+					else if(!empty($contentRules['access'][$fileName]['ALLOW']) AND ((empty($contentRules['access'][$fileName]['ALLOW']['from']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['from']) AND $contentRules['access'][$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) AND $contentRules['access'][$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
+				}
+			}
+			
+			if(!isset($result) AND !empty($contentRules['access']['*'])) {
+				if($contentRules['access']['*']['DENY'] == '*') $result = false;
+				else if($contentRules['access']['*']['ALLOW'] == '*') $result = true;
+				else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
+					if(!empty($contentRules['access']['*']['DENY']) AND ((empty($contentRules['access']['*']['DENY']['from']) OR (!empty($contentRules['access']['*']['DENY']['from']) AND $contentRules['access']['*']['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['DENY']['to']) OR (!empty($contentRules['access']['*']['DENY']['to']) AND $contentRules['access']['*']['DENY']['to'] >= $userRight)))) $result = false;
+					else if(!empty($contentRules['access']['*']['ALLOW']) AND ((empty($contentRules['access']['*']['ALLOW']['from']) OR (!empty($contentRules['access']['*']['ALLOW']['from']) AND $contentRules['access']['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['ALLOW']['to']) OR (!empty($contentRules['access']['*']['ALLOW']['to']) AND $contentRules['access']['*']['ALLOW']['to'] >= $userRight)))) $result = true;
+					else $result = $defaultResult;
+				} else $result = $defaultResult;
+			}
+			return $result;
 		}
 		
 		/** ------------------------ */
@@ -2766,15 +2805,7 @@ class OliCore {
 				else return false;
 			}
 			
-			/**
-			 * Get right level
-			 * 
-			 * @param string $userRight User right to get level of
-			 * @param boolean|void $caseSensitive Translate is case sensitive or not
-			 * 
-			 * @uses OliCore::translateUserRight() to translate user right
-			 * @return integer Returns user right level
-			 */
+			/** DEPRECATED Get Right Level */
 			public function getRightLevel($userRight, $caseSensitive = true) {
 				return $this->translateUserRight($userRight, $caseSensitive);
 			}
@@ -2857,12 +2888,11 @@ class OliCore {
 			 * @param string|array|void $where Where to get data from
 			 * @param boolean|void $caseSensitive Translate is case sensitive or not
 			 * 
-			 * @uses OliCore::getRightLevel() to get right level
 			 * @uses OliCore::getUserRight() to get user right
 			 * @return integer Returns user right level
 			 */
 			public function getUserRightLevel($where = null, $caseSensitive = true) {
-				return $this->getRightLevel($this->getUserRight($where, $caseSensitive));
+				return $this->translateUserRight($this->getUserRight($where, $caseSensitive));
 			}
 			
 			/**
