@@ -1201,7 +1201,7 @@ class OliCore {
 			if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
-			$contentRules = [];
+			$mainContentRules = [];
 			$found = '';
 			
 			if(!empty($params)) {
@@ -1242,8 +1242,6 @@ class OliCore {
 							else if(file_exists(THEMEPATH . 'index.php')) $found = THEMEPATH . 'index.php';
 						}
 					}
-					
-					if(!empty($found)) break;
 				}
 			}
 			
