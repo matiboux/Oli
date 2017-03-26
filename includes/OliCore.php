@@ -1201,11 +1201,13 @@ class OliCore {
 			if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
+			$contentRules = [];
 			$found = '';
 			
 			if(!empty($params)) {
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
+					
 					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
 						$this->fileNameParam = implode('/', $fileName);
@@ -1240,6 +1242,8 @@ class OliCore {
 							else if(file_exists(THEMEPATH . 'index.php')) $found = THEMEPATH . 'index.php';
 						}
 					}
+					
+					if(!empty($found)) break;
 				}
 			}
 			
@@ -1265,9 +1269,12 @@ class OliCore {
 							$files = $matches[1] == '*' ? '*' : json_decode($matches[1], true);
 							foreach((!is_array($files) ? [$files] : $files) as $eachFile) {
 								if(is_string($eachFile)) {
-									if(preg_match('/^(?:from\s([a-zA-Z]+))?\s?(?:to\s([a-zA-Z]+))?$/', $matches[3], $rights)) {
-										$results['access'][$eachFile][$matches[2]]['from'] = $rights[1];
-										$results['access'][$eachFile][$matches[2]]['to'] = $rights[2];
+									if(preg_match('/^(?:\*|all|(?:from\s([a-zA-Z]+))?\s?(?:to\s([a-zA-Z]+))?)$/', $matches[3], $rights)) {
+										if($rights[0] == 'all' OR $rights[0] == '*') $results['access'][$eachFile][$matches[2]] = '*';
+										else {
+											$results['access'][$eachFile][$matches[2]]['from'] = $rights[1];
+											$results['access'][$eachFile][$matches[2]]['to'] = $rights[2];
+										}
 									}
 								}
 							}
