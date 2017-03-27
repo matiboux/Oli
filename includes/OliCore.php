@@ -1244,8 +1244,8 @@ class OliCore {
 						}
 						
 						if(empty($found) AND $fileName[0] == 'home') {
-							if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0] . '.php')) $found = THEMEPATH . $indexFiles[0] . '.php';
-							else if(file_exists(THEMEPATH . 'index.php')) $found = THEMEPATH . 'index.php';
+							if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, $indexFiles[0] . '.php')) $found = THEMEPATH . $indexFiles[0] . '.php';
+							else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, 'index.php')) $found = THEMEPATH . 'index.php';
 						}
 					}
 				}
