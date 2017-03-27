@@ -1,4 +1,4 @@
 Index: "index.php"
 Error: 404 "404.php"
 Error: 403 "403.php"
-Access: ALLOW *
+Access: * ALLOW *
