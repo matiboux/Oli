@@ -174,11 +174,7 @@ class OliCore {
 	/**  II. Magic Methods  */
 	/** ------------------- */
 	
-	/**
-	 * Class Construct function
-	 * 
-	 * @return self
-	 */
+	/** Class Construct function */
 	public function __construct($initTimestamp = null) {
 		// $this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
 		// $this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
@@ -192,14 +188,7 @@ class OliCore {
 		$this->setCurrentLanguage('DEFAULT');
 	}
 	
-	/**
-	 * Class Destruct function
-	 * 
-	 * Load Html files (CSS styles & JS scripts)
-	 * Update user session
-	 * 
-	 * @return void
-	 */
+	/** Class Destruct function */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
 		if($this->config['user_management']) $this->verifyAuthKey();
@@ -1198,7 +1187,7 @@ class OliCore {
 		 * @return string|void Path to the page
 		 */
 		public function loadContent() {
-			if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
+			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
 			$mainContentRules = $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'));
