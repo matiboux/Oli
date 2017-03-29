@@ -202,7 +202,7 @@ class OliCore {
 	 */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
-		$this->verifyAuthKey();
+		if($this->config['user_management']) $this->verifyAuthKey();
 	}
 	
 	/** Read-only variables */
@@ -212,7 +212,7 @@ class OliCore {
     }
 	
 	/** __toString() function:
-		Go to the section V. 1. */
+		See the section V. 1. */
 	
 	/** *** *** *** */
 	
@@ -1979,9 +1979,11 @@ class OliCore {
 			 * @return void
 			 */
 			public function loadEndHtmlFiles() {
-				echo PHP_EOL;
-				foreach($this->htmlLoaderList as $eachCodeLine) {
-					echo array_shift($this->htmlLoaderList) . PHP_EOL;
+				if(!empty($this->htmlLoaderList)) {
+					echo PHP_EOL;
+					foreach($this->htmlLoaderList as $eachCodeLine) {
+						echo array_shift($this->htmlLoaderList) . PHP_EOL;
+					}
 				}
 			}
 		
