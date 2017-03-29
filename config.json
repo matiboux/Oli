@@ -25,7 +25,7 @@
 			"name": "OliPostVars",
 			"domain": "UrlParam:fulldomain",
 			"secure": false,
-			"http_only": false
+			"http_only": true
 		},
 		
 		
@@ -49,7 +49,7 @@
 			"name": "OliAuthKey",
 			"domain": "UrlParam:fulldomain",
 			"secure": false,
-			"http_only": false
+			"http_only": true
 		},
 		
 		"allow_login": true,
