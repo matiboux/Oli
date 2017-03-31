@@ -36,8 +36,8 @@ This license applies to:
 - "**/index.php**"
 - "**/form.php**"
 - "**/load.php**"
-- *all files* in "**/includes/...**" (and its sub-directories)
-- *files* in "**/content/...**" (but *not* its sub-directories)
+- *all files* in "**/includes/...**" (and in its sub-directories)
+- *files* in "**/content/...**" (but *not* in its sub-directories)
 - (*except .htaccess files*)
 
 The files in these directories belongs to their respective owners and may be licensed under another license:

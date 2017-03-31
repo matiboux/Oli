@@ -1,4 +1,10 @@
-# Oli Framework
+# Oli: Framework Files
 
 mysql.json
 .oliEncryptionKey
+
+# Oli: Project files
+
+#form.php
+#index.php
+#load.php
