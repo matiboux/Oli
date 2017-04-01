@@ -15,6 +15,8 @@
 	"default_user_language": "en",
 	"default_content_type": "HTML",
 	"default_charset": "utf-8",
+	"theme_path": "content/theme/",
+	"media_path": "content/media/",
 	"common_files_path": null,
 	"cdn_url": null,
 	"time_zone": "Europe/Paris",
@@ -25,7 +27,7 @@
 		"name": "OliPostVars",
 		"domain": "UrlParam:fulldomain",
 		"secure": false,
-		"http_only": true
+		"http_only": false
 	},
 	
 	
@@ -54,7 +56,7 @@
 		"name": "OliAuthKey",
 		"domain": "UrlParam:fulldomain",
 		"secure": false,
-		"http_only": true
+		"http_only": false
 	},
 	
 	"allow_login": true,

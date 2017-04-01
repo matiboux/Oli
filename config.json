@@ -17,15 +17,19 @@
 		"default_user_language": "en",
 		"default_content_type": "HTML",
 		"default_charset": "utf-8",
+		"theme_path": "content/theme/",
+		"media_path": "content/media/",
 		"common_files_path": null,
 		"cdn_url": null,
 		"time_zone": "Europe/Paris",
+		
+		"encryption_key_length": 1024,
 		
 		"post_vars_cookie": {
 			"name": "OliPostVars",
 			"domain": "UrlParam:fulldomain",
 			"secure": false,
-			"http_only": true
+			"http_only": false
 		},
 		
 		
@@ -45,11 +49,16 @@
 		"default_session_duration": "Time:1 day",
 		"extended_session_duration": "Time:7 days",
 		
+		"hash": {
+			"algorithm": "Const:PASSWORD_DEFAULT",
+			"salt": null,
+			"cost": 10
+		},
 		"auth_key_cookie": {
 			"name": "OliAuthKey",
 			"domain": "UrlParam:fulldomain",
 			"secure": false,
-			"http_only": true
+			"http_only": false
 		},
 		
 		"allow_login": true,

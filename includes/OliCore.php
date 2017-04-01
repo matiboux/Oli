@@ -349,17 +349,14 @@ class OliCore {
 				}
 			}
 			
-			$mediaPathAddon = $this->getSetting('media_path');
-			$themePathAddon = $this->getSetting('theme_path');
-			
 			$i = 1;
-			while($i <= strlen($mediaPathAddon) AND $i <= strlen($themePathAddon) AND substr($mediaPathAddon, 0, $i) == substr($themePathAddon, 0, $i)) {
-				$contentPath = substr($mediaPathAddon, 0, $i);
+			while($i <= strlen($this->config['media_path']) AND $i <= strlen($this->config['theme_path']) AND substr($this->config['media_path'], 0, $i) == substr($this->config['theme_path'], 0, $i)) {
+				$contentPath = substr($this->config['media_path'], 0, $i);
 				$i++;
 			}
 			define('CONTENTPATH', ABSPATH . ($contentPath ?: 'content/'));
-			define('MEDIAPATH', $mediaPathAddon ? ABSPATH . $mediaPathAddon : CONTENTPATH . 'media/');
-			define('THEMEPATH', $themePathAddon ? ABSPATH . $themePathAddon : CONTENTPATH . 'theme/');
+			define('MEDIAPATH', $this->config['media_path'] ? ABSPATH . $this->config['media_path'] : CONTENTPATH . 'media/');
+			define('THEMEPATH', $this->config['theme_path'] ? ABSPATH . $this->config['theme_path'] : CONTENTPATH . 'theme/');
 		}
 		
 		/** Set Common Files Path */
@@ -2157,7 +2154,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getDataUrl() {
-			return $this->getUrlParam(0) . ($this->getSetting('theme_path') ?: 'content/theme/') . 'data/';
+			return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . 'data/';
 		}
 		
 		/**
@@ -2167,7 +2164,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getMediaUrl() {
-			return $this->getUrlParam(0) . ($this->getSetting('media_path') ?: 'content/media/');
+			return $this->getUrlParam(0) . ($this->config['media_path'] ?: 'content/media/');
 		}
 		
 		/**
