@@ -6,7 +6,7 @@
 	"shortcut_links_table": null,
 	"translations_table": null,
 	
-	"index_files": "index.php",
+	"index_files": null,
 	"error_files": {
 		"404": "404.php",
 		"403": "403.php"

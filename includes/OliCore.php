@@ -240,16 +240,14 @@ class OliCore {
 		
 		/** Decode config arrays */
 		public function decodeConfigArray($array, $currentConfig) {
-			if(!empty($array)) {
-				foreach((!is_array($array) ? [$array] : $array) as $eachKey => $eachValue) {
-					if(is_assoc($eachValue)) $result = $this->decodeConfigArray($eachValue, $currentConfig[$eachKey]);
-					else if(!empty($currentConfig) AND $eachValue === null) $result = $currentConfig[$eachKey];
-					else $result = $eachValue;
-					
-					$output[$eachKey] = $result;
-				}
-				return count($output) == 1 ? $output[0] : $output;
-			} else return $array;
+			$output = [];
+			foreach((!is_array($array) ? [$array] : $array) as $eachKey => $eachValue) {
+				if(is_assoc($eachValue)) $output[$eachKey] = $this->decodeConfigArray($eachValue, $currentConfig[$eachKey]);
+				else if(!empty($currentConfig) AND $eachValue === null) $output[$eachKey] = is_array($currentConfig) ? $currentConfig[$eachKey] : $currentConfig;
+				else if($eachValue == 'NULL') $output[$eachKey] = null;
+				else $output[$eachKey] = $eachValue;
+			}
+			return count($output) == 1 ? $output[0] : $output;
 		}
 		
 		/** Decode config text codes */
