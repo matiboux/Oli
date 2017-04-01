@@ -20,6 +20,7 @@
 		"theme_path": "content/theme/",
 		"media_path": "content/media/",
 		"common_files_path": null,
+		"assets_folder": "assets/",
 		"cdn_url": null,
 		"time_zone": "Europe/Paris",
 		

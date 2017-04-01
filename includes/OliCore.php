@@ -2132,18 +2132,12 @@ class OliCore {
 			}
 		}
 		
-		/**
-		 * Get full url
-		 * 
-		 * @uses OliCore::getUrlParam() to get full url
-		 * @deprecated OliCore::getUrlParam() can be directly used instead
-		 * @return string Full url
-		 */
+		/** Get full url */
 		public function getFullUrl() { return $this->getUrlParam('full'); }
 		
 		/** Get Common Files Url */
 		public function getCommonFilesUrl() {
-			return $this->getUrlParam(0) . $this->config['common_files_path'] . 'data/';
+			return $this->getUrlParam(0) . $this->config['common_files_path'] . $this->config['assets_folder'];
 		}
 		
 		/**
@@ -2154,7 +2148,7 @@ class OliCore {
 		 * @return string Full url
 		 */
 		public function getDataUrl() {
-			return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . 'data/';
+			return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder'];
 		}
 		
 		/**
