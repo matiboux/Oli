@@ -10,63 +10,63 @@
 		
 		"index_files": null,
 		"error_files": {
-			"404": "404.php",
-			"403": "403.php"
+			"404": null,
+			"403": null
 		},
 		
-		"default_user_language": "en",
-		"default_content_type": "HTML",
-		"default_charset": "utf-8",
-		"theme_path": "content/theme/",
-		"media_path": "content/media/",
+		"default_user_language": null,
+		"default_content_type": null,
+		"default_charset": null,
+		"theme_path": null,
+		"media_path": null,
 		"common_files_path": null,
-		"assets_folder": "assets/",
+		"assets_folder": null,
 		"cdn_url": null,
-		"time_zone": "Europe/Paris",
+		"time_zone": null,
 		
-		"encryption_key_length": 1024,
+		"encryption_key_length": null,
 		
 		"post_vars_cookie": {
-			"name": "OliPostVars",
-			"domain": "UrlParam:fulldomain",
-			"secure": false,
-			"http_only": false
+			"name": null,
+			"domain": null,
+			"secure": null,
+			"http_only": null
 		},
 		
 		
-		"user_management": false,
+		"user_management": null,
 		"accounts_tables": {
-			"accounts": "accounts",
-			"infos": "accounts_infos",
-			"sessions": "accounts_sessions",
-			"login_limits": "accounts_login_limits",
-			"requests": "accounts_requests",
-			"permissions": "accounts_permissions",
-			"rights": "accounts_rights"
+			"accounts": null,
+			"infos": null,
+			"sessions": null,
+			"login_limits": null,
+			"requests": null,
+			"permissions": null,
+			"rights": null
 		},
 		
-		"prohibited_usernames": [],
-		"request_expire_delay": "Time:2 days",
-		"default_session_duration": "Time:1 day",
-		"extended_session_duration": "Time:7 days",
+		"prohibited_usernames": null,
+		"request_expire_delay": null,
+		"default_session_duration": null,
+		"extended_session_duration": null,
 		
 		"hash": {
-			"algorithm": "Const:PASSWORD_DEFAULT",
+			"algorithm": null,
 			"salt": null,
-			"cost": 10
+			"cost": null
 		},
 		"auth_key_cookie": {
-			"name": "OliAuthKey",
-			"domain": "UrlParam:fulldomain",
-			"secure": false,
-			"http_only": false
+			"name": null,
+			"domain": null,
+			"secure": null,
+			"http_only": null
 		},
 		
-		"allow_login": true,
-		"allow_register": true,
-		"default_user_right": "USER",
-		"register_verification": false,
-		"register_verification_method": "email",
-		"allow_change_password": true
+		"allow_login": null,
+		"allow_register": null,
+		"default_user_right": null,
+		"register_verification": null,
+		"register_verification_method": null,
+		"allow_change_password": null
 	}
 }

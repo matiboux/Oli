@@ -228,14 +228,28 @@ class OliCore {
 				if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 				else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
 				else if($eachConfig == 'common_files_path') $this->setCommonFilesPath($eachValue);
-				else $this->config[$eachConfig] = $eachValue;
+				else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 			}
 			
-			if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
-			else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
-				fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->config['encryption_key_length'] ?: 1024, true, true, true, true));
-				fclose($encryptFile);
-			}
+			// if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
+			// else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
+				// fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->config['encryption_key_length'] ?: 1024, true, true, true, true));
+				// fclose($encryptFile);
+			// }
+		}
+		
+		/** Decode config arrays */
+		public function decodeConfigArray($array, $currentConfig) {
+			if(!empty($array)) {
+				foreach((!is_array($array) ? [$array] : $array) as $eachKey => $eachValue) {
+					if(is_assoc($eachValue)) $result = $this->decodeConfigArray($eachValue, $currentConfig[$eachKey]);
+					else if(!empty($currentConfig) AND $eachValue === null) $result = $currentConfig[$eachKey];
+					else $result = $eachValue;
+					
+					$output[$eachKey] = $result;
+				}
+				return count($output) == 1 ? $output[0] : $output;
+			} else return $array;
 		}
 		
 		/** Decode config text codes */
@@ -246,60 +260,60 @@ class OliCore {
 					if(is_array($eachValue)) {
 						$result = $this->decodeConfigValues($eachValue);
 						$isArray = true;
-					}
-					else {
+					} else {
 						$result = [];
-						foreach(explode('|', $eachValue) as $eachPart) {
-							$partResult = '';
-							if(is_string($eachPart)) {
-								if(preg_match('/^["\'](.*)["\']$/i', $eachPart, $matches)) $partResult = $eachPart;
-								else if(preg_match('/^Setting:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getSetting($matches[1]);
-								else if(preg_match('/^UrlParam:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getUrlParam($matches[1]);
-								else if(preg_match('/^ShortcutLink:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getShortcutLink($matches[1]);
-								else if(preg_match('/^Const:\s?(.*)$/i', $eachPart, $matches)) $partResult = constant($matches[1]);
-								else if(preg_match('/^Time:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
-									if($matches[2] == 'years' OR $matches[2] == 'year') $partResult = $matches[1] * 365.25 * 24 * 3600;
-									else if($matches[2] == 'months' OR $matches[2] == 'month') $partResult = $matches[1] * 30.4375 * 24 * 3600;
-									else if($matches[2] == 'weeks' OR $matches[2] == 'week') $partResult = $matches[1] * 7 * 24 * 3600;
-									else if($matches[2] == 'days' OR $matches[2] == 'day') $partResult = $matches[1] * 24 * 3600;
-									else if($matches[2] == 'hours' OR $matches[2] == 'hour') $partResult = $matches[1] * 3600;
-									else if($matches[2] == 'minutes' OR $matches[2] == 'minute') $partResult = $matches[1] * 60;
-									else $partResult = $matches[1];
+						if($eachValue === null) $result = null;
+						else {
+							foreach(explode('|', $eachValue) as $eachPart) {
+								$partResult = '';
+								if(is_string($eachPart)) {
+									if(preg_match('/^["\'](.*)["\']$/i', $eachPart, $matches)) $partResult = $eachPart;
+									else if(preg_match('/^Setting:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getSetting($matches[1]);
+									else if(preg_match('/^UrlParam:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getUrlParam($matches[1]);
+									else if(preg_match('/^ShortcutLink:\s?(.*)$/i', $eachPart, $matches)) $partResult = $this->getShortcutLink($matches[1]);
+									else if(preg_match('/^Const:\s?(.*)$/i', $eachPart, $matches)) $partResult = constant($matches[1]);
+									else if(preg_match('/^Time:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
+										if($matches[2] == 'years' OR $matches[2] == 'year') $partResult = $matches[1] * 365.25 * 24 * 3600;
+										else if($matches[2] == 'months' OR $matches[2] == 'month') $partResult = $matches[1] * 30.4375 * 24 * 3600;
+										else if($matches[2] == 'weeks' OR $matches[2] == 'week') $partResult = $matches[1] * 7 * 24 * 3600;
+										else if($matches[2] == 'days' OR $matches[2] == 'day') $partResult = $matches[1] * 24 * 3600;
+										else if($matches[2] == 'hours' OR $matches[2] == 'hour') $partResult = $matches[1] * 3600;
+										else if($matches[2] == 'minutes' OR $matches[2] == 'minute') $partResult = $matches[1] * 60;
+										else $partResult = $matches[1];
+									} else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
+										if($matches[2] == 'TiB' OR $matches[2] == 'Tio') $partResult = $matches[1] * (1024 ** 4);
+										else if($matches[2] == 'TB' OR $matches[2] == 'To') $partResult = $matches[1] * (1000 ** 4);
+										else if($matches[2] == 'GiB' OR $matches[2] == 'Gio') $partResult = $matches[1] * (1024 ** 3);
+										else if($matches[2] == 'GB' OR $matches[2] == 'Go') $partResult = $matches[1] * (1000 ** 3);
+										else if($matches[2] == 'MiB' OR $matches[2] == 'Mio') $partResult = $matches[1] * (1024 ** 2);
+										else if($matches[2] == 'MB' OR $matches[2] == 'Mo') $partResult = $matches[1] * (1000 ** 2);
+										else if($matches[2] == 'KiB' OR $matches[2] == 'Kio') $partResult = $matches[1] * 1024;
+										else if($matches[2] == 'KB' OR $matches[2] == 'Ko') $partResult = $matches[1] * 1000;
+										
+										else if($matches[2] == 'Tib') $partResult = $matches[1] * 8 * (1024 ** 4);
+										else if($matches[2] == 'Tb') $partResult = $matches[1] * 8 * (1000 ** 4);
+										else if($matches[2] == 'Gib') $partResult = $matches[1] * 8 * (1024 ** 3);
+										else if($matches[2] == 'Gb') $partResult = $matches[1] * 8 * (1000 ** 3);
+										else if($matches[2] == 'Mib') $partResult = $matches[1] * 8 * (1024 ** 2);
+										else if($matches[2] == 'Mb') $partResult = $matches[1] * 8 * (1000 ** 2);
+										else if($matches[2] == 'Kib') $partResult = $matches[1] * 8 * 1024;
+										else if($matches[2] == 'Kb') $partResult = $matches[1] * 8 * 1000;
+										else if($matches[2] == 'b') $partResult = $matches[1] * 8;
+										
+										else $partResult = $matches[1];
+									}
+									else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
+									else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getDataUrl();
+									else $partResult = $eachPart;
 								}
-								else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
-									if($matches[2] == 'TiB' OR $matches[2] == 'Tio') $partResult = $matches[1] * (1024 ** 4);
-									else if($matches[2] == 'TB' OR $matches[2] == 'To') $partResult = $matches[1] * (1000 ** 4);
-									else if($matches[2] == 'GiB' OR $matches[2] == 'Gio') $partResult = $matches[1] * (1024 ** 3);
-									else if($matches[2] == 'GB' OR $matches[2] == 'Go') $partResult = $matches[1] * (1000 ** 3);
-									else if($matches[2] == 'MiB' OR $matches[2] == 'Mio') $partResult = $matches[1] * (1024 ** 2);
-									else if($matches[2] == 'MB' OR $matches[2] == 'Mo') $partResult = $matches[1] * (1000 ** 2);
-									else if($matches[2] == 'KiB' OR $matches[2] == 'Kio') $partResult = $matches[1] * 1024;
-									else if($matches[2] == 'KB' OR $matches[2] == 'Ko') $partResult = $matches[1] * 1000;
-									
-									else if($matches[2] == 'Tib') $partResult = $matches[1] * 8 * (1024 ** 4);
-									else if($matches[2] == 'Tb') $partResult = $matches[1] * 8 * (1000 ** 4);
-									else if($matches[2] == 'Gib') $partResult = $matches[1] * 8 * (1024 ** 3);
-									else if($matches[2] == 'Gb') $partResult = $matches[1] * 8 * (1000 ** 3);
-									else if($matches[2] == 'Mib') $partResult = $matches[1] * 8 * (1024 ** 2);
-									else if($matches[2] == 'Mb') $partResult = $matches[1] * 8 * (1000 ** 2);
-									else if($matches[2] == 'Kib') $partResult = $matches[1] * 8 * 1024;
-									else if($matches[2] == 'Kb') $partResult = $matches[1] * 8 * 1000;
-									else if($matches[2] == 'b') $partResult = $matches[1] * 8;
-									
-									else $partResult = $matches[1];
-								}
-								else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
-								else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getDataUrl();
-								else $partResult = $eachPart;
+								$result[] = $partResult;
 							}
-							$result[] = $partResult;
 						}
 					}
 					$output[$eachKey] = $isArray ? (!is_array($result) ? [$result] : $result) : (count($result) > 1 ? implode($result) : $result[0]);
 				}
 				return (!is_array($values) AND count($output) == 1) ? $output[0] : $output;
-			}
-			else return $values;
+			} else return $values;
 		}
 		
 		/** ---------------------- */
