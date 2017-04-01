@@ -239,7 +239,7 @@ class OliCore {
 		}
 		
 		/** Decode config arrays */
-		public function decodeConfigArray($array, $currentConfig) {
+		public function decodeConfigArray($array, $currentConfig = []) {
 			$output = [];
 			foreach((!is_array($array) ? [$array] : $array) as $eachKey => $eachValue) {
 				if(is_assoc($eachValue)) $output[$eachKey] = $this->decodeConfigArray($eachValue, $currentConfig[$eachKey]);
@@ -247,7 +247,7 @@ class OliCore {
 				else if($eachValue == 'NULL') $output[$eachKey] = null;
 				else $output[$eachKey] = $eachValue;
 			}
-			return count($output) == 1 ? $output[0] : $output;
+			return (!is_array($array) AND count($output) == 1) ? $output[0] : $output;
 		}
 		
 		/** Decode config text codes */
@@ -324,12 +324,10 @@ class OliCore {
 				try {
 					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . $hostname . ';charset=' . $charset, $username, $password);
 					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
-				}
-				catch(PDOException $e) {
+				} catch(PDOException $e) {
 					trigger_error($e->getMessage(), E_USER_ERROR);
 				}
-			}
-			else return false;
+			} else return false;
 		}
 		public function resetMySQL() {
 			$this->db = null;
