@@ -21,7 +21,7 @@ namespace {
   * @return bool
   */
 function is_assoc($array) {
-	return !empty($array) AND array_keys($array) !== range(0, count($array) - 1);
+	return is_array($array) ? !empty($array) AND array_keys($array) !== range(0, count($array) - 1) : false;
 }
 
 }
