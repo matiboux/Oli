@@ -8,6 +8,7 @@
 		"shortcut_links_table": null,
 		"translations_table": null,
 		
+		"force_https": false,
 		"index_files": null,
 		"error_files": {
 			"404": null,
