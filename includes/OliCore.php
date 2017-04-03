@@ -1197,18 +1197,17 @@ class OliCore {
 			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
-			$mainContentRules = $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'));
+			$mainContentRules =  file_exists(THEMEPATH . '.olicontent') ? $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent')) : [];
 			$contentRules = $mainContentRules;
 			$found = '';
 			
 			if(!empty($params)) {
-				$mainContentRules = $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'));
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
 					$accessAllowed = null;
 					
 					$pathTo = implode('/', array_slice($fileName, 0, -1));
-					if(!empty($pathTo)) $contentRules = array_merge($mainContentRules, $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'), $pathTo));
+					if(!empty($pathTo) AND file_exists(THEMEPATH . '.olicontent')) $contentRules = array_merge($mainContentRules, $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'), $pathTo));
 					
 					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
@@ -2050,7 +2049,7 @@ class OliCore {
 		 * @return string|array|boolean Parameter wanted
 		 */
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
-			$protocol = ($_SERVER['HTTPS'] OR $this->config['force_https']) ? 'https' : 'http';
+			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
 			
 			if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
