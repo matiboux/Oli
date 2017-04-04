@@ -9,17 +9,16 @@
 |*|  Created and developed by Mathieu Guérin – aka Matiboux.
 |*|  
 |*|  Oli Github repository: https://github.com/OliFramework/Oli/
-|*|  Few ways to contact the creator:
-|*|  - Email: matiboux@gmail.com
-|*|  - Twitter: @Matiboux (https://twitter.com/Matiboux)
-|*|  - Telegram: @Matiboux (https://t.me/Matiboux)
 |*|  
-|*|  For more info, please see the README.md file provided with the framework files.
-|*|  If not, you can find it on the Oli repository (Github link above).
+|*|  Creator & Developer: Matiboux (Mathieu Guérin)
+|*|    → Email: matiboux@gmail.com
+|*|  
+|*|  For more info, please read the README.md file.
+|*|  You can find it on the Oli repository (Github link above).
 |*|  
 |*|  --- --- ---
 |*|  
-|*|  Copyright (C) 2015 Matiboux (Mathieu Guérin)
+|*|  Copyright (C) 2015-2017 Matiboux (Mathieu Guérin)
 |*|  
 |*|    This program is free software: you can redistribute it and/or modify
 |*|    it under the terms of the GNU Affero General Public License as published
@@ -33,6 +32,8 @@
 |*|    
 |*|    You should have received a copy of the GNU Affero General Public License
 |*|    along with this program. If not, see <http://www.gnu.org/licenses/>.
+|*|  
+|*|  You'll find a copy of the GNU AGPL v3 license in the LICENSE file.
 |*|  
 |*|  --- --- ---
 |*|  ~ MALIOTT ~
@@ -107,26 +108,8 @@
 |*|  [...]
 \*/
 
-/**
- * Oli Framework namespace
- * 
- * Oli is an open source PHP framework made to help web developers creating their website
- * 
- * @author Matiboux <matiboux@gmail.com>
- * @license http://www.gnu.org/licenses/agpl.html GNU Affero General Public License, version 3
- * @copyright 2015 Matiboux
- * 
- * @package OliFramework
- */
 namespace OliFramework {
 
-/**
- * Oli Core
- * 
- * @author Matiboux <matiboux@gmail.com>
- * 
- * @package OliFramework\OliCore
- */
 class OliCore {
 
 	/** -------------- */
