@@ -1180,8 +1180,8 @@ class OliCore {
 			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
-			$mainContentRules =  file_exists(THEMEPATH . '.olicontent') ? $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent')) : [];
-			$contentRules = $mainContentRules;
+			$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
+			$mainContentRules = !empty($contentRulesFile) ? $this->decodeContentRules($contentRulesFile) : [];
 			$found = '';
 			
 			if(!empty($params)) {
@@ -1190,7 +1190,7 @@ class OliCore {
 					$accessAllowed = null;
 					
 					$pathTo = implode('/', array_slice($fileName, 0, -1));
-					if(!empty($pathTo) AND file_exists(THEMEPATH . '.olicontent')) $contentRules = array_merge($mainContentRules, $this->decodeContentRules(file_get_contents(THEMEPATH . '.olicontent'), $pathTo));
+					$contentRules = (!empty($pathTo) AND !empty($contentRulesFile)) ? array_merge($mainContentRules, $this->decodeContentRules($contentRulesFile, $pathTo)) : $mainContentRules;
 					
 					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
@@ -1281,25 +1281,28 @@ class OliCore {
 			$result = null;
 			$defaultResult = false;
 			
-			if(!empty($fileName) AND !empty($contentRules['access'][$fileName])) {
-				if($contentRules['access'][$fileName]['DENY'] == '*') $result = false;
-				else if($contentRules['access'][$fileName]['ALLOW'] == '*') $result = true;
-				else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
-					if(!empty($contentRules['access'][$fileName]['DENY']) AND ((empty($contentRules['access'][$fileName]['DENY']['from']) OR (!empty($contentRules['access'][$fileName]['DENY']['from']) AND $contentRules['access'][$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['DENY']['to']) OR (!empty($contentRules['access'][$fileName]['DENY']['to']) AND $contentRules['access'][$fileName]['DENY']['to'] >= $userRight)))) $result = false;
-					else if(!empty($contentRules['access'][$fileName]['ALLOW']) AND ((empty($contentRules['access'][$fileName]['ALLOW']['from']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['from']) AND $contentRules['access'][$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) AND $contentRules['access'][$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
+			// if(empty($contentRules)) return true;
+			// else {
+				if(!empty($fileName) AND !empty($contentRules['access'][$fileName])) {
+					if($contentRules['access'][$fileName]['DENY'] == '*') $result = false;
+					else if($contentRules['access'][$fileName]['ALLOW'] == '*') $result = true;
+					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
+						if(!empty($contentRules['access'][$fileName]['DENY']) AND ((empty($contentRules['access'][$fileName]['DENY']['from']) OR (!empty($contentRules['access'][$fileName]['DENY']['from']) AND $contentRules['access'][$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['DENY']['to']) OR (!empty($contentRules['access'][$fileName]['DENY']['to']) AND $contentRules['access'][$fileName]['DENY']['to'] >= $userRight)))) $result = false;
+						else if(!empty($contentRules['access'][$fileName]['ALLOW']) AND ((empty($contentRules['access'][$fileName]['ALLOW']['from']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['from']) AND $contentRules['access'][$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) AND $contentRules['access'][$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
+					}
 				}
-			}
-			
-			if(!isset($result) AND !empty($contentRules['access']['*'])) {
-				if($contentRules['access']['*']['DENY'] == '*') $result = false;
-				else if($contentRules['access']['*']['ALLOW'] == '*') $result = true;
-				else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
-					if(!empty($contentRules['access']['*']['DENY']) AND ((empty($contentRules['access']['*']['DENY']['from']) OR (!empty($contentRules['access']['*']['DENY']['from']) AND $contentRules['access']['*']['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['DENY']['to']) OR (!empty($contentRules['access']['*']['DENY']['to']) AND $contentRules['access']['*']['DENY']['to'] >= $userRight)))) $result = false;
-					else if(!empty($contentRules['access']['*']['ALLOW']) AND ((empty($contentRules['access']['*']['ALLOW']['from']) OR (!empty($contentRules['access']['*']['ALLOW']['from']) AND $contentRules['access']['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['ALLOW']['to']) OR (!empty($contentRules['access']['*']['ALLOW']['to']) AND $contentRules['access']['*']['ALLOW']['to'] >= $userRight)))) $result = true;
-					else $result = $defaultResult;
-				} else $result = $defaultResult;
-			}
-			return $result;
+				
+				if(!isset($result) AND !empty($contentRules['access']['*'])) {
+					if($contentRules['access']['*']['DENY'] == '*') $result = false;
+					else if($contentRules['access']['*']['ALLOW'] == '*') $result = true;
+					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
+						if(!empty($contentRules['access']['*']['DENY']) AND ((empty($contentRules['access']['*']['DENY']['from']) OR (!empty($contentRules['access']['*']['DENY']['from']) AND $contentRules['access']['*']['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['DENY']['to']) OR (!empty($contentRules['access']['*']['DENY']['to']) AND $contentRules['access']['*']['DENY']['to'] >= $userRight)))) $result = false;
+						else if(!empty($contentRules['access']['*']['ALLOW']) AND ((empty($contentRules['access']['*']['ALLOW']['from']) OR (!empty($contentRules['access']['*']['ALLOW']['from']) AND $contentRules['access']['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['ALLOW']['to']) OR (!empty($contentRules['access']['*']['ALLOW']['to']) AND $contentRules['access']['*']['ALLOW']['to'] >= $userRight)))) $result = true;
+						else $result = $defaultResult;
+					} else $result = $defaultResult;
+				}
+				return $result;
+			// }
 		}
 		
 		/** ------------------------ */
