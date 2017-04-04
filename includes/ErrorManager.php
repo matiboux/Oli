@@ -5,9 +5,12 @@
 |*|  --- [    from Oli     ] ---
 |*|  ---------------------------
 |*|
-|*|  Error Management for PHP
+|*|  disabled Error Management for PHP
 |*|  Please check OliCore.php file for more info on this framework.
-|*|
+|*|  
+|*|  
+|*|  fzegkzengimzengIBZEFIJEZFEZBFK
+|*|  I REALLY DON'T KNOW WHY DOES THIS FILE STILL EXISTS
 \*/
 
 namespace OliFramework\ErrorManager {

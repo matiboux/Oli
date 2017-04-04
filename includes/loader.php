@@ -3,13 +3,13 @@
 /**  Oli loader  */
 /** ------------ */
 
-/** Define PHP_VERSION_ID if not defined */
+/** Define PHP_VERSION_ID if not defined (PHP < 5.2.7) */
 if(!defined('PHP_VERSION_ID')) {
 	$phpVersion = explode('.', PHP_VERSION);
 	define('PHP_VERSION_ID', $phpVersion[0] * 10000 + $phpVersion[1] * 100 + $phpVersion[2]);
 }
 
-/** Include Oli files */
+/** Load Oli files */
 require_once INCLUDEPATH . 'OliCore.php'; // Oli core file
 foreach(array_merge(glob(INCLUDEPATH . '*.php'), glob(INCLUDEPATH . '*/*.php')) as $filename) {
 	if($filename != INCLUDEPATH . 'OliCore.php') require_once $filename;
