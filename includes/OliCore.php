@@ -1230,8 +1230,11 @@ class OliCore {
 				}
 			}
 			
-			if(!empty($found)) return $found;
-			else if(isset($accessAllowed) AND !$accessAllowed) {
+			if(!empty($found)) {
+				http_response_code(201);
+				return $found;
+			} else if(isset($accessAllowed) AND !$accessAllowed) {
+				http_response_code(403);
 				if(file_exists(THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php'))) return THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php');
 				else die('Error 403: Access forbidden');
 				
@@ -1239,8 +1242,8 @@ class OliCore {
 				// else if(file_exists(THEMEPATH . $this->config['error_files']['403'])) return THEMEPATH . $this->config['error_files']['403'];
 				// else if(file_exists(THEMEPATH . '403.php')) return THEMEPATH . '403.php';
 				// else die('Error 403: Access forbidden');
-			}
-			else {
+			} else {
+				http_response_code(404);
 				if(file_exists(THEMEPATH .  ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) return THEMEPATH . ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php');
 				else die('Error 404: File not found');
 				
