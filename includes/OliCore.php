@@ -1180,17 +1180,18 @@ class OliCore {
 			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
-			$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
-			$mainContentRules = !empty($contentRulesFile) ? $this->decodeContentRules($contentRulesFile) : [];
 			$found = '';
+			
+			$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
+			$contentRules = array_merge(array('access' => array('*' => array('ALLOW' => '*'))), $this->decodeContentRules($contentRulesFile) ?: []);
 			
 			if(!empty($params)) {
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
+					$pathTo = implode('/', array_slice($fileName, 0, -1));
 					$accessAllowed = null;
 					
-					$pathTo = implode('/', array_slice($fileName, 0, -1));
-					$contentRules = (!empty($pathTo) AND !empty($contentRulesFile)) ? array_merge($mainContentRules, $this->decodeContentRules($contentRulesFile, $pathTo)) : $mainContentRules;
+					if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 					
 					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
@@ -1231,16 +1232,22 @@ class OliCore {
 			
 			if(!empty($found)) return $found;
 			else if(isset($accessAllowed) AND !$accessAllowed) {
-				if(file_exists(THEMEPATH . $contentRules['error']['403'])) return THEMEPATH . $contentRules['error']['403'];
-				else if(file_exists(THEMEPATH . $this->config['error_files']['403'])) return THEMEPATH . $this->config['error_files']['403'];
-				else if(file_exists(THEMEPATH . '403.php')) return THEMEPATH . '403.php';
+				if(file_exists(THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php'))) return THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php');
 				else die('Error 403: Access forbidden');
+				
+				// if(file_exists(THEMEPATH . $contentRules['error']['403'])) return THEMEPATH . $contentRules['error']['403'];
+				// else if(file_exists(THEMEPATH . $this->config['error_files']['403'])) return THEMEPATH . $this->config['error_files']['403'];
+				// else if(file_exists(THEMEPATH . '403.php')) return THEMEPATH . '403.php';
+				// else die('Error 403: Access forbidden');
 			}
 			else {
-				if(file_exists(THEMEPATH . $contentRules['error']['404']) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'])) return THEMEPATH . $contentRules['error']['404'];
-				else if(file_exists(THEMEPATH . $this->config['error_files']['404']) AND $this->fileAccessAllowed($contentRules['access'], $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
-				else if(file_exists(THEMEPATH . '404.php') AND $this->fileAccessAllowed($contentRules['access'], '404.php')) return THEMEPATH . '404.php';
+				if(file_exists(THEMEPATH .  ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) return THEMEPATH . ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php');
 				else die('Error 404: File not found');
+				
+				// if(file_exists(THEMEPATH . $contentRules['error']['404']) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'])) return THEMEPATH . $contentRules['error']['404'];
+				// else if(file_exists(THEMEPATH . $this->config['error_files']['404']) AND $this->fileAccessAllowed($contentRules['access'], $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
+				// else if(file_exists(THEMEPATH . '404.php') AND $this->fileAccessAllowed($contentRules['access'], '404.php')) return THEMEPATH . '404.php';
+				// else die('Error 404: File not found');
 			}
 		}
 		
@@ -1280,6 +1287,8 @@ class OliCore {
 		public function fileAccessAllowed($accessRules, $fileName) {
 			$result = null;
 			$defaultResult = false;
+			
+			print_r($accessRules);
 			
 			// if(empty($accessRules)) return true;
 			// else {
