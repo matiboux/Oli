@@ -1288,10 +1288,8 @@ class OliCore {
 			$result = null;
 			$defaultResult = false;
 			
-			print_r($accessRules);
-			
-			// if(empty($accessRules)) return true;
-			// else {
+			if(empty($accessRules)) return $defaultResult;
+			else {
 				if(!empty($fileName) AND !empty($accessRules[$fileName])) {
 					if($accessRules[$fileName]['DENY'] == '*') $result = false;
 					else if($accessRules[$fileName]['ALLOW'] == '*') $result = true;
@@ -1311,7 +1309,7 @@ class OliCore {
 					} else $result = $defaultResult;
 				}
 				return $result;
-			// }
+			}
 		}
 		
 		/** ------------------------ */
