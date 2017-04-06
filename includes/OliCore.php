@@ -36,7 +36,7 @@
 |*|  You'll find a copy of the GNU AGPL v3 license in the LICENSE file.
 |*|  
 |*|  --- --- ---
-|*|  ~ MALIOTT ~
+|*|  Project dedicated to Maliott..
 |*|  --- --- ---
 |*|  
 |*|  Releases date:
@@ -1192,7 +1192,7 @@ class OliCore {
 					$pathTo = implode('/', array_slice($fileName, 0, -1));
 					$contentRules = (!empty($pathTo) AND !empty($contentRulesFile)) ? array_merge($mainContentRules, $this->decodeContentRules($contentRulesFile, $pathTo)) : $mainContentRules;
 					
-					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '.php')) {
+					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
 						$this->fileNameParam = implode('/', $fileName);
 					}
@@ -1206,15 +1206,15 @@ class OliCore {
 								$indexFilePath = implode('/', array_slice($eachValue, 0, -1));
 								$indexFileName = implode('/', array_slice($eachValue, -1));
 								
-								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php')  AND $accessAllowed = $this->fileAccessAllowed($contentRules, $indexFilePath . '/' . $indexFileName . '.php')) {
+								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php')  AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName . '.php')) {
 									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php';
 									$this->fileNameParam = $indexFilePath;
 								}
-								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '/' . $indexFiles[0] . '.php')) {
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0] . '.php')) {
 									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php';
 									$this->fileNameParam = implode('/', $fileName);
 								}
-								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, implode('/', $fileName) . '/index.php')) {
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
 									$found = THEMEPATH . implode('/', $fileName) . '/index.php';
 									$this->fileNameParam = implode('/', $fileName);
 								}
@@ -1222,8 +1222,8 @@ class OliCore {
 						}
 						
 						if(empty($found) AND $fileName[0] == 'home') {
-							if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, $indexFiles[0] . '.php')) $found = THEMEPATH . $indexFiles[0] . '.php';
-							else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules, 'index.php')) $found = THEMEPATH . 'index.php';
+							if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFiles[0] . '.php')) $found = THEMEPATH . $indexFiles[0] . '.php';
+							else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], 'index.php')) $found = THEMEPATH . 'index.php';
 						}
 					}
 				}
@@ -1237,9 +1237,9 @@ class OliCore {
 				else die('Error 403: Access forbidden');
 			}
 			else {
-				if(file_exists(THEMEPATH . $contentRules['error']['404']) AND $this->fileAccessAllowed($contentRules, $contentRules['error']['404'])) return THEMEPATH . $contentRules['error']['404'];
-				else if(file_exists(THEMEPATH . $this->config['error_files']['404']) AND $this->fileAccessAllowed($contentRules, $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
-				else if(file_exists(THEMEPATH . '404.php') AND $this->fileAccessAllowed($contentRules, '404.php')) return THEMEPATH . '404.php';
+				if(file_exists(THEMEPATH . $contentRules['error']['404']) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'])) return THEMEPATH . $contentRules['error']['404'];
+				else if(file_exists(THEMEPATH . $this->config['error_files']['404']) AND $this->fileAccessAllowed($contentRules['access'], $this->config['error_files']['404'])) return THEMEPATH . $this->config['error_files']['404'];
+				else if(file_exists(THEMEPATH . '404.php') AND $this->fileAccessAllowed($contentRules['access'], '404.php')) return THEMEPATH . '404.php';
 				else die('Error 404: File not found');
 			}
 		}
@@ -1277,27 +1277,27 @@ class OliCore {
 		}
 		
 		/** File Access Allowed */
-		public function fileAccessAllowed($contentRules, $fileName) {
+		public function fileAccessAllowed($accessRules, $fileName) {
 			$result = null;
 			$defaultResult = false;
 			
-			// if(empty($contentRules)) return true;
+			// if(empty($accessRules)) return true;
 			// else {
-				if(!empty($fileName) AND !empty($contentRules['access'][$fileName])) {
-					if($contentRules['access'][$fileName]['DENY'] == '*') $result = false;
-					else if($contentRules['access'][$fileName]['ALLOW'] == '*') $result = true;
+				if(!empty($fileName) AND !empty($accessRules[$fileName])) {
+					if($accessRules[$fileName]['DENY'] == '*') $result = false;
+					else if($accessRules[$fileName]['ALLOW'] == '*') $result = true;
 					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
-						if(!empty($contentRules['access'][$fileName]['DENY']) AND ((empty($contentRules['access'][$fileName]['DENY']['from']) OR (!empty($contentRules['access'][$fileName]['DENY']['from']) AND $contentRules['access'][$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['DENY']['to']) OR (!empty($contentRules['access'][$fileName]['DENY']['to']) AND $contentRules['access'][$fileName]['DENY']['to'] >= $userRight)))) $result = false;
-						else if(!empty($contentRules['access'][$fileName]['ALLOW']) AND ((empty($contentRules['access'][$fileName]['ALLOW']['from']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['from']) AND $contentRules['access'][$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) OR (!empty($contentRules['access'][$fileName]['ALLOW']['to']) AND $contentRules['access'][$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
+						if(!empty($accessRules[$fileName]['DENY']) AND ((empty($accessRules[$fileName]['DENY']['from']) OR (!empty($accessRules[$fileName]['DENY']['from']) AND $accessRules[$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['DENY']['to']) OR (!empty($accessRules[$fileName]['DENY']['to']) AND $accessRules[$fileName]['DENY']['to'] >= $userRight)))) $result = false;
+						else if(!empty($accessRules[$fileName]['ALLOW']) AND ((empty($accessRules[$fileName]['ALLOW']['from']) OR (!empty($accessRules[$fileName]['ALLOW']['from']) AND $accessRules[$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['ALLOW']['to']) OR (!empty($accessRules[$fileName]['ALLOW']['to']) AND $accessRules[$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
 					}
 				}
 				
-				if(!isset($result) AND !empty($contentRules['access']['*'])) {
-					if($contentRules['access']['*']['DENY'] == '*') $result = false;
-					else if($contentRules['access']['*']['ALLOW'] == '*') $result = true;
+				if(!isset($result) AND !empty($accessRules['*'])) {
+					if($accessRules['*']['DENY'] == '*') $result = false;
+					else if($accessRules['*']['ALLOW'] == '*') $result = true;
 					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
-						if(!empty($contentRules['access']['*']['DENY']) AND ((empty($contentRules['access']['*']['DENY']['from']) OR (!empty($contentRules['access']['*']['DENY']['from']) AND $contentRules['access']['*']['DENY']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['DENY']['to']) OR (!empty($contentRules['access']['*']['DENY']['to']) AND $contentRules['access']['*']['DENY']['to'] >= $userRight)))) $result = false;
-						else if(!empty($contentRules['access']['*']['ALLOW']) AND ((empty($contentRules['access']['*']['ALLOW']['from']) OR (!empty($contentRules['access']['*']['ALLOW']['from']) AND $contentRules['access']['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($contentRules['access']['*']['ALLOW']['to']) OR (!empty($contentRules['access']['*']['ALLOW']['to']) AND $contentRules['access']['*']['ALLOW']['to'] >= $userRight)))) $result = true;
+						if(!empty($accessRules['*']['DENY']) AND ((empty($accessRules['*']['DENY']['from']) OR (!empty($accessRules['*']['DENY']['from']) AND $accessRules['*']['DENY']['from'] <= $userRight)) XOR (!empty($accessRules['*']['DENY']['to']) OR (!empty($accessRules['*']['DENY']['to']) AND $accessRules['*']['DENY']['to'] >= $userRight)))) $result = false;
+						else if(!empty($accessRules['*']['ALLOW']) AND ((empty($accessRules['*']['ALLOW']['from']) OR (!empty($accessRules['*']['ALLOW']['from']) AND $accessRules['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules['*']['ALLOW']['to']) OR (!empty($accessRules['*']['ALLOW']['to']) AND $accessRules['*']['ALLOW']['to'] >= $userRight)))) $result = true;
 						else $result = $defaultResult;
 					} else $result = $defaultResult;
 				}
