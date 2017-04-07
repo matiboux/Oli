@@ -122,6 +122,7 @@ class OliCore {
 	
 	/** General Config */
 	public $config = null;
+	public $HTTPResponseCode = null;
 	
 	/** MySQL PDO */
 	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
@@ -175,6 +176,7 @@ class OliCore {
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
 		if($this->config['user_management']) $this->verifyAuthKey();
+		if(!empty($HTTPResponseCode)) http_response_code($HTTPResponseCode);
 	}
 	
 	/** Read-only variables */
@@ -1231,10 +1233,10 @@ class OliCore {
 			}
 			
 			if(!empty($found)) {
-				http_response_code(201);
+				$HTTPResponseCode = 201; // 201 Created
 				return $found;
 			} else if(isset($accessAllowed) AND !$accessAllowed) {
-				http_response_code(403);
+				$HTTPResponseCode = 403; // 403 Forbidden
 				if(file_exists(THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php'))) return THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php');
 				else die('Error 403: Access forbidden');
 				
@@ -1243,7 +1245,7 @@ class OliCore {
 				// else if(file_exists(THEMEPATH . '403.php')) return THEMEPATH . '403.php';
 				// else die('Error 403: Access forbidden');
 			} else {
-				http_response_code(404);
+				$HTTPResponseCode = 404; // 404 Not Found
 				if(file_exists(THEMEPATH .  ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) return THEMEPATH . ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php');
 				else die('Error 404: File not found');
 				
