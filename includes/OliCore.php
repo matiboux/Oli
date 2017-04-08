@@ -176,7 +176,7 @@ class OliCore {
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
 		if($this->config['user_management']) $this->verifyAuthKey();
-		if(!empty($this->HTTPResponseCode)) http_response_code($HTTPResponseCode);
+		if(!empty($this->HTTPResponseCode)) http_response_code($this->HTTPResponseCode);
 	}
 	
 	/** Read-only variables */
