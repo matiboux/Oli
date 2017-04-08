@@ -1208,12 +1208,13 @@ class OliCore {
 								$indexFilePath = implode('/', array_slice($eachValue, 0, -1));
 								$indexFileName = implode('/', array_slice($eachValue, -1));
 								
-								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php')  AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName . '.php')) {
-									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName . '.php';
+								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName)  AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
+									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
 									$this->fileNameParam = $indexFilePath;
 								}
-								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0] . '.php')) {
-									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0] . '.php';
+								/** Sub-directory  Content Rules Indexes */
+								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
+									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
 									$this->fileNameParam = implode('/', $fileName);
 								}
 								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
@@ -1224,7 +1225,8 @@ class OliCore {
 						}
 						
 						if(empty($found) AND $fileName[0] == 'home') {
-							if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0] . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFiles[0] . '.php')) $found = THEMEPATH . $indexFiles[0] . '.php';
+							if(!empty($contentRules) AND file_exists(THEMEPATH . $contentRules['index']) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'])) $found = THEMEPATH . $contentRules['index'];
+							else if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFiles[0])) $found = THEMEPATH . $indexFiles[0];
 							else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], 'index.php')) $found = THEMEPATH . 'index.php';
 						}
 					}
