@@ -3104,8 +3104,8 @@ class OliCore {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if(!empty(sha1($authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => sha1($authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => sha1($authKey)))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => sha1($authKey)));
+				if(!empty(hash('sha512', $authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => hash('sha512', $authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => hash('sha512', $authKey)))) >= time()) {
+					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => hash('sha512', $authKey)));
 					return true;
 				}
 				else return false;
@@ -3125,7 +3125,7 @@ class OliCore {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => sha1($authKey)));
+				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}
 		
@@ -3331,7 +3331,7 @@ class OliCore {
 						
 						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;
 						$matches['username'] = $username;
-						$matches['auth_key'] = sha1($newAuthKey);
+						$matches['auth_key'] = hash('sha512', $newAuthKey);
 						$matches['user_ip'] = $this->getUserIP();
 						$matches['login_date'] = date('Y-m-d H:i:s');
 						$matches['expire_date'] = date('Y-m-d H:i:s', time() + $expireDelay);
@@ -3365,7 +3365,7 @@ class OliCore {
 			public function logoutAccount() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if($this->isExistAuthKey()) {
-					if($deleteResult = $this->deleteLinesMySQL($this->config['accounts_tables']['sessions'], array('auth_key' => sha1($this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
+					if($deleteResult = $this->deleteLinesMySQL($this->config['accounts_tables']['sessions'], array('auth_key' => hash('sha512', $this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
 					return $deleteResult ? true : false;
 				}
 				else return false;
