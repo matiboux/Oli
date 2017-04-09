@@ -3161,13 +3161,13 @@ class OliCore {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
 				$requestsMatches['username'] = $username;
-				$requestsMatches['activate_key'] = $this->keygen(6, false, true, true);
+				$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, false, true, true));
 				$requestsMatches['action'] = $action;
 				$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
 				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->config['request_expire_delay']);
 				$this->insertAccountLine('REQUESTS', $requestsMatches);
 				
-				return $requestsMatches['activate_key'];
+				return $activateKey;
 			}
 			
 			/** -------------------- */
@@ -3272,7 +3272,7 @@ class OliCore {
 						
 						if($mailResult) return true;
 						else {
-							$this->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
+							$this->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $activateKey)));
 							$this->deleteFullAccount($username);
 							return false;
 						}
