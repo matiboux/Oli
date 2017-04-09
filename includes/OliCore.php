@@ -139,6 +139,7 @@ class OliCore {
 	/** Content */
 	private $fileNameParam = null;
 	// private $HTTPResponseCode = null;
+	private $contentStatus = null;
 	
 	/** Page Settings */
 	private $contentType = null;
@@ -1171,20 +1172,13 @@ class OliCore {
 		/**  V. 2. Website Content  */
 		/** ----------------------- */
 		
-		/**
-		 * Load page content
-		 * 
-		 * @uses OliCore::getUserLanguage() to get the current language
-		 * @uses OliCore::setCurrentLanguage() to set the current language
-		 * @uses OliCore::getUrlParam() to get url params
-		 * @uses OliCore::$fileNameParam to set the file name param
-		 * @return string|void Path to the page
-		 */
+		/** Load page content */
 		public function loadContent() {
 			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			$params = $this->getUrlParam('params');
-			$found = '';
+			$contentStatus = null;
+			$found = null;
 			
 			$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
 			$contentRules = array_merge(array('access' => array('*' => array('ALLOW' => '*'))), $this->decodeContentRules($contentRulesFile) ?: []);
@@ -1231,6 +1225,8 @@ class OliCore {
 							if(!empty($contentRules) AND file_exists(THEMEPATH . $contentRules['index']) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'])) $found = THEMEPATH . $contentRules['index'];
 							else if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFiles[0])) $found = THEMEPATH . $indexFiles[0];
 							else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], 'index.php')) $found = THEMEPATH . 'index.php';
+							
+							if(!empty($found)) $contentStatus = 'index';
 						}
 					}
 				}
@@ -1238,9 +1234,12 @@ class OliCore {
 			
 			if(!empty($found)) {
 				http_response_code(302); // 302 Found
+				$this->contentStatus = $contentStatus ?: 'found';
 				return $found;
 			} else if(isset($accessAllowed) AND !$accessAllowed) {
 				http_response_code(403); // 403 Forbidden
+				$this->contentStatus = '403';
+				
 				if(file_exists(THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php'))) return THEMEPATH . ($contentRules['error']['403'] ?: $this->config['error_files']['403'] ?: '403.php');
 				else die('Error 403: Access forbidden');
 				
@@ -1250,6 +1249,8 @@ class OliCore {
 				// else die('Error 403: Access forbidden');
 			} else {
 				http_response_code(404); // 404 Not Found
+				$this->contentStatus = '404';
+				
 				if(file_exists(THEMEPATH .  ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php')) return THEMEPATH . ($contentRules['error']['404'] ?: $this->config['error_files']['404'] ?: '404.php');
 				else die('Error 404: File not found');
 				
@@ -1259,6 +1260,9 @@ class OliCore {
 				// else die('Error 404: File not found');
 			}
 		}
+		
+		/** Get content status */
+		public function getContentStatus() { return $this->contentStatus; }
 		
 		/** Decode content rules */
 		public function decodeContentRules($rules, $pathTo = null) {
