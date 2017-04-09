@@ -46,7 +46,8 @@ This license applies to the...
 
 This license does not applies to the...
 - **/config.json** and **/mysql.json** config files
-- New API files created in the **/** directory
+- **/.gitignore** file
+- New API files that might be created in the **/** directory
 - **.htaccess** files
 
 These directories may contains content that might be licensed under another license:
