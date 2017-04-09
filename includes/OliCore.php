@@ -116,13 +116,15 @@ class OliCore {
 	/**  I. Variables  */
 	/** -------------- */
 	
+	/** Read-only variables */
+	private $readOnlyVars = ['oliInfos', 'db'];
+	
 	/** Framework components */
-	public $oliInfos = []; // Oli Infos
+	private $oliInfos = []; // Oli Infos
 	public $addonsList = []; // Addons List & Infos
 	
 	/** General Config */
 	public $config = null;
-	public $HTTPResponseCode = null;
 	
 	/** MySQL PDO */
 	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
@@ -134,10 +136,11 @@ class OliCore {
 	public $ExceptionHandler = null; // Oli Error Handler
 	
 	
-	/** Url Params */
+	/** Content */
 	private $fileNameParam = null;
+	// private $HTTPResponseCode = null;
 	
-	/** Webpage Settings */
+	/** Page Settings */
 	private $contentType = null;
 	private $contentTypeBeenForced = false;
 	private $currentCharset = null;
@@ -180,7 +183,7 @@ class OliCore {
 	
 	/** Read-only variables */
 	function __get($whatVar) {
-        if($whatVar == 'db') return $this->$whatVar;
+		if(in_array($whatVar, $this->readOnlyVars)) return $this->$whatVar;
 		else return null;
     }
 	
