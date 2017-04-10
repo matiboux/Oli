@@ -1222,11 +1222,14 @@ class OliCore {
 						}
 						
 						if(empty($found) AND $fileName[0] == 'home') {
-							if(!empty($contentRules) AND file_exists(THEMEPATH . $contentRules['index']) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'])) $found = THEMEPATH . $contentRules['index'];
-							else if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFiles[0])) $found = THEMEPATH . $indexFiles[0];
-							else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], 'index.php')) $found = THEMEPATH . 'index.php';
+							if(file_exists(THEMEPATH .  ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) $found = THEMEPATH . ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php');
+							else $contentStatus = 'index';
 							
-							if(!empty($found)) $contentStatus = 'index';
+							// if(!empty($contentRules) AND file_exists(THEMEPATH . $contentRules['index']) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'])) $found = THEMEPATH . $contentRules['index'];
+							// else if(!empty($indexFiles) AND file_exists(THEMEPATH . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFiles[0])) $found = THEMEPATH . $indexFiles[0];
+							// else if(file_exists(THEMEPATH . 'index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], 'index.php')) $found = THEMEPATH . 'index.php';
+							
+							// if(!empty($found)) $contentStatus = 'index';
 						}
 					}
 				}
