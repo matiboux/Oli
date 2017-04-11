@@ -289,7 +289,7 @@ class OliCore {
 										else $partResult = $matches[1];
 									}
 									else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
-									else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getDataUrl();
+									else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getAssetsUrl();
 									else $partResult = $eachPart;
 								}
 								$result[] = $partResult;
@@ -1869,16 +1869,16 @@ class OliCore {
 			 * @param boolean|void $minimize Post vars to check
 			 * 
 			 * @uses OliCore::loadStyle() to load stylesheet file
-			 * @uses OliCore::getDataUrl() to get data url
+			 * @uses OliCore::getAssetsUrl() to get data url
 			 * @return void
 			 */
 			public function loadLocalStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-				$this->loadStyle($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
+				$this->loadStyle($this->getAssetsUrl() . $url, $tags, $loadNow, $minimize);
 			}
 			
 			/** Load common CSS stylesheet */
 			public function loadCommonStyle($url, $tags = null, $loadNow = null, $minimize = null) {
-				$this->loadStyle($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
+				$this->loadStyle($this->getCommonAssetsUrl() . $url, $tags, $loadNow, $minimize);
 			}
 			
 			/**
@@ -1931,16 +1931,16 @@ class OliCore {
 			 * @param boolean|void $minimize Post vars to check
 			 * 
 			 * @uses OliCore::loadScript() to load script file
-			 * @uses OliCore::getDataUrl() to get data url
+			 * @uses OliCore::getAssetsUrl() to get data url
 			 * @return void
 			 */
 			public function loadLocalScript($url, $tags = null, $loadNow = null, $minimize = null) {
-				$this->loadScript($this->getDataUrl() . $url, $tags, $loadNow, $minimize);
+				$this->loadScript($this->getAssetsUrl() . $url, $tags, $loadNow, $minimize);
 			}
 			
 			/** Load common JS script */
 			public function loadCommonScript($url, $tags = null, $loadNow = null, $minimize = null) {
-				$this->loadScript($this->getCommonFilesUrl() . $url, $tags, $loadNow, $minimize);
+				$this->loadScript($this->getCommonAssetsUrl() . $url, $tags, $loadNow, $minimize);
 			}
 			
 			/**
@@ -2129,14 +2129,14 @@ class OliCore {
 		
 		/** Get Data Url */
 		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
-		public function getDataUrl() { $this->getAssetsUrl(); }
+		public function getDataUrl() { return $this->getAssetsUrl(); }
 		
 		/** Get Media Url */
 		public function getMediaUrl() { return $this->getUrlParam(0) . $this->config['media_path']; }
 		
 		/** Get Common Files Url */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
-		public function getCommonFilesUrl() { $this->getCommonAssetsUrl(); }
+		public function getCommonFilesUrl() { return $this->getCommonAssetsUrl(); }
 		
 		/** Get CDN Url */
 		public function getCdnUrl() { return $this->config['cdn_url']; }
@@ -3068,8 +3068,8 @@ class OliCore {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if(!empty(hash('sha512', $authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => hash('sha512', $authKey))) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => hash('sha512', $authKey)))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => hash('sha512', $authKey)));
+				if(!empty($authKey = hash('sha512', $authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $authKey)) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $authKey))) >= time()) {
+					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => $authKey));
 					return true;
 				}
 				else return false;
