@@ -2016,31 +2016,21 @@ class OliCore {
 		/**  V. 7. Url Functions  */
 		/** --------------------- */
 		
-		/**
-		 * Get url parameter
-		 * 
-		 * $param variable values:
-		 * null, 'full' => Full Url (e.g. 'http://hello.example.com/page/param')
-		 * 'protocol' => Get url protocol (e.g. 'https')
-		 * 'base' => Get base url (e.g. 'http://hello.example.com/')
-		 * 'allbases' => Get all bases urls (e.g. ['http://hello.example.com/', 'http://example.com/'])
-		 * 'alldomains' => Get all domains (e.g. ['hello.example.com', 'example.com'])
-		 * 'fulldomain' => Get domain (e.g. 'hello.example.com')
-		 * 'domain' => Get main domain (e.g. 'example.com')
-		 * 'subdomain' => Get subdomains (e.g. 'hello')
-		 * 'all' => All url fragments
-		 * 'params' => All parameters fragments
-		 * 0 => Url without any parameters (same as base url)
-		 * 1 => First parameter: file name parameter (e.g. 'page')
-		 * # => Other parameters (e.g. 2 => 'param')
-		 * 
-		 * @param integer|string|null|void $param Parameter to get
-		 * @param boolean $hasUsedHttpHostBase Indicate to the user if the HTTP HOST has been used or not
-		 * 
-		 * @uses OliCore::getSetting() to get url setting
-		 * @uses OliCore::$fileNameParam to get the file name parameter
-		 * @return string|array|boolean Parameter wanted
-		 */
+		/** Get Url Parameter */
+		// $param supported values:
+		// - null 'full' => Full Url (e.g. 'http://hello.example.com/page/param')
+		// - 'protocol' => Get url protocol (e.g. 'https')
+		// - 'base' => Get base url (e.g. 'http://hello.example.com/')
+		// - 'allbases' => Get all bases urls (e.g. ['http://hello.example.com/', 'http://example.com/'])
+		// - 'alldomains' => Get all domains (e.g. ['hello.example.com', 'example.com'])
+		// - 'fulldomain' => Get domain (e.g. 'hello.example.com')
+		// - 'domain' => Get main domain (e.g. 'example.com')
+		// - 'subdomain' => Get subdomains (e.g. 'hello')
+		// - 'all' => All url fragments
+		// - 'params' => All parameters fragments
+		// - 0 => Url without any parameters (same as base url)
+		// - 1 => First parameter: file name parameter (e.g. 'page')
+		// - # => Other parameters (e.g. 2 => 'param')
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
@@ -2148,12 +2138,7 @@ class OliCore {
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
 		public function getCommonFilesUrl() { $this->getCommonAssetsUrl(); }
 		
-		/**
-		 * Get url to cdn files
-		 * 
-		 * @uses OliCore::$cdnUrl to get cdn url
-		 * @return string Returns Full url
-		 */
+		/** Get CDN Url */
 		public function getCdnUrl() { return $this->config['cdn_url']; }
 		
 		/** --------------------- */
@@ -3314,7 +3299,7 @@ class OliCore {
 						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;
 						$matches['username'] = $username;
 						$matches['auth_key'] = hash('sha512', $newAuthKey);
-						$matches['user_ip'] = $this->getUserIP();
+						$matches['ip_address'] = $this->getUserIP();
 						$matches['login_date'] = date('Y-m-d H:i:s');
 						$matches['expire_date'] = date('Y-m-d H:i:s', time() + $expireDelay);
 						$matches['update_date'] = date('Y-m-d H:i:s');
