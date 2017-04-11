@@ -25,8 +25,6 @@
 	"common_assets_folder": "assets/",
 	"cdn_url": null,
 	
-	"encryption_key_length": 1024,
-	
 	"post_vars_cookie": {
 		"name": "OliPostVars",
 		"domain": "UrlParam:fulldomain",

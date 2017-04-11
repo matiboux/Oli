@@ -151,7 +151,7 @@ class OliCore {
 	private $currentLanguage = '';
 	
 	/** Framework Encryption */
-	private $encryptionKey = null;
+	// private $encryptionKey = null;
 	
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
