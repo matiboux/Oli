@@ -215,7 +215,7 @@ class OliCore {
 				
 				if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 				else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
-				else if($eachConfig == 'common_files_path') $this->setCommonFilesPath($eachValue);
+				else if($eachConfig == 'common_path') $this->setCommonFilesPath($eachValue);
 				else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 			}
 			
@@ -359,7 +359,7 @@ class OliCore {
 		
 		/** Set Common Files Path */
 		public function setCommonFilesPath($path) {
-			$this->config['common_files_path'] = $path;
+			$this->config['common_path'] = $path;
 			
 			if(!defined('COMMONPATH')) define('COMMONPATH', $path ? ABSPATH . $path : CONTENTPATH . 'theme/');
 		}
@@ -2139,7 +2139,7 @@ class OliCore {
 		
 		/** Get Common Files Url */
 		public function getCommonFilesUrl() {
-			return $this->getUrlParam(0) . $this->config['common_files_path'] . $this->config['assets_folder'];
+			return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['assets_folder'];
 		}
 		
 		/**

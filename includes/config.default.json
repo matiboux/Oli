@@ -16,12 +16,13 @@
 	"default_user_language": "en",
 	"default_content_type": "HTML",
 	"default_charset": "utf-8",
-	"theme_path": "content/theme/",
-	"media_path": "content/media/",
-	"common_files_path": null,
-	"assets_folder": "assets/",
-	"cdn_url": null,
 	"time_zone": "Europe/Paris",
+	
+	"theme_path": "content/theme/",
+	"assets_folder": "assets/",
+	"media_path": "content/media/",
+	"common_path": null,
+	"cdn_url": null,
 	
 	"encryption_key_length": 1024,
 	
@@ -44,17 +45,19 @@
 		"rights": "accounts_rights"
 	},
 	
-	"auth_key_length": 32,
+	"allow_login": true,
+	"allow_change_password": true,
+	"allow_register": false,
+	"default_user_right": "USER",
+	"register_verification": false,
+	"register_verification_method": "email",
+	
 	"prohibited_usernames": [],
 	"request_expire_delay": "Time:2 days",
 	"default_session_duration": "Time:1 day",
 	"extended_session_duration": "Time:7 days",
 	
-	"hash": {
-		"algorithm": "Const:PASSWORD_DEFAULT",
-		"salt": null,
-		"cost": 10
-	},
+	"auth_key_length": 32,
 	"auth_key_cookie": {
 		"name": "OliAuthKey",
 		"domain": "UrlParam:fulldomain",
@@ -62,10 +65,9 @@
 		"http_only": false
 	},
 	
-	"allow_login": true,
-	"allow_register": true,
-	"default_user_right": "USER",
-	"register_verification": false,
-	"register_verification_method": "email",
-	"allow_change_password": true
+	"hash": {
+		"algorithm": "Const:PASSWORD_DEFAULT",
+		"salt": null,
+		"cost": 10
+	}
 }
