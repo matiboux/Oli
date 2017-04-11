@@ -2134,34 +2134,19 @@ class OliCore {
 			}
 		}
 		
-		/** Get full url */
+		/** Get Full Url */
 		public function getFullUrl() { return $this->getUrlParam('full'); }
 		
+		/** Get Data Url */
+		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
+		public function getDataUrl() { $this->getAssetsUrl(); }
+		
+		/** Get Media Url */
+		public function getMediaUrl() { return $this->getUrlParam(0) . $this->config['media_path']; }
+		
 		/** Get Common Files Url */
-		public function getCommonFilesUrl() {
-			return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['assets_folder'];
-		}
-		
-		/**
-		 * Get url to data files
-		 * 
-		 * @uses OliCore::getUrlParam() to get full url
-		 * @deprecated OliCore::getUrlParam() can be directly used instead
-		 * @return string Full url
-		 */
-		public function getDataUrl() {
-			return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder'];
-		}
-		
-		/**
-		 * Get url to media content
-		 * 
-		 * @uses OliCore::getUrlParam() to get base url
-		 * @return string Full url
-		 */
-		public function getMediaUrl() {
-			return $this->getUrlParam(0) . ($this->config['media_path'] ?: 'content/media/');
-		}
+		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
+		public function getCommonFilesUrl() { $this->getCommonAssetsUrl(); }
 		
 		/**
 		 * Get url to cdn files

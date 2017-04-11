@@ -22,6 +22,7 @@
 	"assets_folder": "assets/",
 	"media_path": "content/media/",
 	"common_path": null,
+	"common_assets_folder": "assets/",
 	"cdn_url": null,
 	
 	"encryption_key_length": 1024,
