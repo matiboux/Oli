@@ -3320,7 +3320,7 @@ class OliCore {
 						$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
 					
 					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
-						$newAuthKey = $this->keygen(28);
+						$newAuthKey = $this->keygen($this->config['auth_key_length']);
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = 24*3600;
 						
 						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;

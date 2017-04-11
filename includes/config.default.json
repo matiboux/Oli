@@ -44,6 +44,7 @@
 		"rights": "accounts_rights"
 	},
 	
+	"auth_key_length": 32,
 	"prohibited_usernames": [],
 	"request_expire_delay": "Time:2 days",
 	"default_session_duration": "Time:1 day",
