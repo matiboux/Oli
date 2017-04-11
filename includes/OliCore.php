@@ -3204,6 +3204,9 @@ class OliCore {
 			public function registerAccount($username, $password, $email, $subject = null, $message = null, $headers = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if(!$this->config['allow_register']) trigger_error('Sorry, the registering has been disabled.', E_USER_ERROR);
+				else if(empty($username)) return false;
+				else if(empty($password)) return false;
+				else if(empty($email)) return false;
 				else {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false)))
 						$this->deleteFullAccount(array('username' => $username));
