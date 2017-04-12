@@ -79,7 +79,7 @@
 |*|    2. Read Functions
 |*|    3. Write Functions
 |*|    4. Database Functions
-|*|  V. Oli Functions
+|*|  V. General Functions
 |*|    1. Oli Informations
 |*|    2. Website Content
 |*|    3. Website Settings
@@ -120,7 +120,7 @@ class OliCore {
 	private $readOnlyVars = ['oliInfos', 'db'];
 	
 	/** Framework components */
-	private $oliInfos = []; // Oli Infos
+	private $oliInfos = []; // Oli Infos (PUBLIC READONLY)
 	public $addonsList = []; // Addons List & Infos
 	
 	/** General Config */
@@ -129,16 +129,10 @@ class OliCore {
 	/** MySQL PDO */
 	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
 	private $mysqlConfig = null;
-	// public $isSetupMySQL = false;
-	
-	/** Externals Class */
-	public $ErrorHandler = null; // Oli Error Handler
-	public $ExceptionHandler = null; // Oli Error Handler
 	
 	
 	/** Content */
 	private $fileNameParam = null;
-	// private $HTTPResponseCode = null;
 	private $contentStatus = null;
 	
 	/** Page Settings */
@@ -149,9 +143,6 @@ class OliCore {
 	
 	/** User Language */
 	private $currentLanguage = '';
-	
-	/** Framework Encryption */
-	// private $encryptionKey = null;
 	
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
@@ -164,14 +155,11 @@ class OliCore {
 	
 	/** Class Construct function */
 	public function __construct($initTimestamp = null) {
-		// $this->ExceptionHandler = new \OliFramework\ErrorManager\ExceptionHandler;
-		// $this->ErrorHandler = new \OliFramework\ErrorManager\ErrorHandler;
-		
 		/** Load Oli Infos & Default Config */
 		if(file_exists(INCLUDEPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
 		if(file_exists(INCLUDEPATH . 'config.default.json')) $this->loadConfig(json_decode(file_get_contents(INCLUDEPATH . 'config.default.json'), true));
-		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
 		
+		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
 	}
@@ -201,29 +189,16 @@ class OliCore {
 		/**  III. 1. Config Loader  */
 		/** ----------------------- */
 		
-		/**
-		 * Load config from an array
-		 * 
-		 * @param array $config Config to load
-		 * 
-		 * @uses OliCore::decodeConfigValues() to decode values
-		 * @return void
-		 */
+		/** Load Config */
 		public function loadConfig($config) {
 			foreach($config as $eachConfig => $eachValue) {
 				$eachValue = $this->decodeConfigValues($eachValue);
 				
 				if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 				else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
-				else if($eachConfig == 'common_path') $this->setCommonFilesPath($eachValue);
+				else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
 				else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 			}
-			
-			// if(file_exists(CONTENTPATH . '.oliEncryptionKey')) $this->encryptionKey = file_get_contents(CONTENTPATH . '.oliEncryptionKey');
-			// else if($encryptFile = fopen(CONTENTPATH . '.oliEncryptionKey', 'w')) {
-				// fwrite($encryptFile, $this->encryptionKey = $this->keygen($this->config['encryption_key_length'] ?: 1024, true, true, true, true));
-				// fclose($encryptFile);
-			// }
 		}
 		
 		/** Decode config arrays */
@@ -326,14 +301,7 @@ class OliCore {
 		/**  III. 3. General Config  */
 		/** ------------------------ */
 		
-		/**
-		 * Set Oli settings tables
-		 * 
-		 * @param string|array $tables Oli settings tables
-		 * 
-		 * @uses OliCore::$config to set the settings tables
-		 * @return void
-		 */
+		/** Set Settings Tables */
 		public function setSettingsTables($tables) {
 			$this->config['settings_tables'] = $tables = !is_array($tables) ? [$tables] : $tables;
 			$hasArray = false;
@@ -358,10 +326,11 @@ class OliCore {
 		}
 		
 		/** Set Common Files Path */
-		public function setCommonFilesPath($path) {
-			$this->config['common_path'] = $path;
-			
-			if(!defined('COMMONPATH')) define('COMMONPATH', $path ? ABSPATH . $path : CONTENTPATH . 'theme/');
+		public function setCommonPath($path) {
+			if(!empty($path)) {
+				$this->config['common_path'] = $path;
+				if(!defined('COMMONPATH')) define('COMMONPATH', ABSPATH . $path);
+			}
 		}
 		
 		/** --------------------- */
@@ -1133,20 +1102,15 @@ class OliCore {
 	
 	/** *** *** *** */
 	
-	/** ------------------ */
-	/**  V. Oli Functions  */
-	/** ------------------ */
+	/** ---------------------- */
+	/**  V. General Functions  */
+	/** ---------------------- */
 	
 		/** ------------------------ */
 		/**  V. 1. Oli Informations  */
 		/** ------------------------ */
 		
-		/**
-		 * To string function
-		 * 
-		 * @todo Shows oli versionn, copyright, license and other stuff
-		 * @return string Show infos about this framework
-		 */
+		/** Magic __toString function */
 		public function __toString() {
 			return 'Powered by <a href="' . $this->oliInfos['website'] . '">' . $this->oliInfos['name'] . '</a> (v. ' . $this->getOliInfos('version') . ')';
 		}
