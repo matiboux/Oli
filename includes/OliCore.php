@@ -167,7 +167,7 @@ class OliCore {
 	/** Class Destruct function */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
-		if($this->config['user_management']) $this->verifyAuthKey();
+		if($this->config['user_management']) $this->updateUserSession();
 	}
 	
 	/** Read-only variables */
@@ -3015,27 +3015,21 @@ class OliCore {
 				return $this->isEmptyCookie($this->config['auth_key_cookie']['name']);
 			}
 			
-			/**
-			 * Verify auth key validity
-			 * 
-			 * @param string|void $authKey Auth key to check
-			 * 
-			 * @uses OliCore::getAuthKey() to get the auth key
-			 * @uses OliCore::isExistAccountInfos() to get if infos exists in account table
-			 * @uses OliCore::getAccountInfos() to get infos from account table
-			 * @uses OliCore::updateAccountInfos() to update infos from account table
-			 * @uses OliCore::getUrlParam() to get url parameters
-			 * @api
-			 * @return boolean Returns true if auth key is valid, false otherwise
-			 */
+			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if(!empty($authKey = hash('sha512', $authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $authKey)) AND strtotime($this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $authKey))) >= time()) {
-					$this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => $authKey));
-					return true;
-				}
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				if(!empty($authKey = hash('sha512', $authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $authKey)) AND $expireDate = $this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $authKey)) AND strtotime($expireDate) >= time()) return true;
+				else return false;
+			}
+			
+			/** Update User Session */
+			public function updateUserSession($authKey = null) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				if($this->verifyAuthKey($authKey)) return $this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}
 			
