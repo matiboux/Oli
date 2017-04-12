@@ -56,6 +56,14 @@
 	"default_session_duration": "Time:1 day",
 	"extended_session_duration": "Time:7 days",
 	
+	"user_id_length": 16,
+	"user_id_cookie": {
+		"name": "OliUserID",
+		"domain": "UrlParam:fulldomain",
+		"secure": false,
+		"http_only": false
+	},
+	
 	"auth_key_length": 32,
 	"auth_key_cookie": {
 		"name": "OliAuthKey",

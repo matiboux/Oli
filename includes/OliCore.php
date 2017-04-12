@@ -147,6 +147,10 @@ class OliCore {
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
 	
+	
+	/** User ID */
+	private $userID = null;
+	
 	/** *** *** *** */
 	
 	/** ------------------- */
@@ -1631,7 +1635,7 @@ class OliCore {
 					$value = (is_array($value)) ? json_encode($value, JSON_FORCE_OBJECT) : $value;
 					$domains = (!is_array($domains)) ? [$domains] : $domains;
 					foreach($domains as $eachDomain) {
-						if(!setcookie($name, $value, time() + $expireDelay, '/', $eachDomain, $secure, $httpOnly)) {
+						if(!setcookie($name, $value, $expireDelay ? time() + $expireDelay : 0, '/', $eachDomain, $secure, $httpOnly)) {
 							$cookieError = true;
 							break;
 						}
@@ -3024,15 +3028,6 @@ class OliCore {
 				else return false;
 			}
 			
-			/** Update User Session */
-			public function updateUserSession($authKey = null) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				
-				if(empty($authKey)) $authKey = $this->getAuthKey();
-				if($this->verifyAuthKey($authKey)) return $this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => hash('sha512', $authKey)));
-				else return false;
-			}
-			
 			/**
 			 * Get auth key owner
 			 * 
@@ -3050,6 +3045,67 @@ class OliCore {
 				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}
+		
+		/** --------------- */
+		/**  User Sessions  */
+		/** --------------- */
+		
+			/** --------- */
+			/**  General  */
+			/** --------- */
+			
+			/** Init User Session */
+			/* public function initUserSession() {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				else if(!$this->isExistUserID() OR strlen($userID = $this->getUserID()) != $this->config['user_id_length']) {
+					// if(!empty($userID)) // Delete invalid session
+					
+					if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $newUserID = $this->keygen($this->config['user_id_length']), 'ip_address' => $this->getUserIP(), 'update_date' => date('Y-m-d H:i:s')))) {
+						// if($setUserIDCookie)
+							$this->setUserIDCookie($newUserID, null);
+						return $newAuthKey;
+					} else return false;
+				} else return false;
+			} */
+			
+			/** Update User Session */
+			public function updateUserSession($authKey = null) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				if($this->verifyAuthKey($authKey)) return $this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('auth_key' => hash('sha512', $authKey)));
+				else return false;
+			}
+			
+			/** ------------------- */
+			/**  Cookie Management  */
+			/** ------------------- */
+			
+			/** Set User ID cookie */
+			// public function setUserIDCookie($authKey, $expireDelay = null) {
+				// if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				
+				// return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+			// }
+			
+			/** Delete User ID cookie */
+			// public function deleteUserIDCookie() {
+				// if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				
+				// return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+			// }
+			
+			/** -------------- */
+			/**  Cookie Infos  */
+			/** -------------- */
+			
+			/** Get User ID cookie name */
+			// public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
+			
+			/** User ID cookie content */
+			// public function getUserID() { return $this->getCookieContent($this->config['user_id_cookie']['name']); }
+			// public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
+			// public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 		
 		/** ---------------- */
 		/**  Login Requests  */
