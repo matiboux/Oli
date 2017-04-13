@@ -27,6 +27,7 @@ if(!empty($config['addons'])) {
 			$className = (!empty($eachAddon['namespace']) ? str_replace('/', '\\', $eachAddon['namespace']) . '\\' : '\\') . $eachAddon['class'];
 			${$eachAddon['var']} = new $className;
 			$_Oli->addAddon($eachAddon['name'], $eachAddon['var']);
+			$_Oli->addAddonInfos($eachAddon['name'], $eachAddon);
 		}
 	}
 }

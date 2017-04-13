@@ -73,7 +73,9 @@
 |*|    1. Config Loader
 |*|    2. MySQL Config
 |*|    3. General Config 
-|*|    4. Addons List [Work to do]
+|*|    4. Addons
+|*|      A. Management
+|*|      B. Infos
 |*|  IV. MySQL Functions
 |*|    1. Status Functions
 |*|    2. Read Functions
@@ -117,17 +119,15 @@ class OliCore {
 	/** -------------- */
 	
 	/** Read-only variables */
-	private $readOnlyVars = ['oliInfos', 'db'];
+	private $readOnlyVars = ['oliInfos', 'addonsInfos', 'db', 'config'];
 	
-	/** Framework components */
+	/** Components infos */
 	private $oliInfos = []; // Oli Infos (PUBLIC READONLY)
-	public $addonsList = []; // Addons List & Infos
+	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
 	
-	/** General Config */
-	public $config = null;
-	
-	/** MySQL PDO */
+	/** Config */
 	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
+	private $config = null; // (PUBLIC READONLY)
 	private $mysqlConfig = null;
 	
 	
@@ -337,54 +337,63 @@ class OliCore {
 			}
 		}
 		
-		/** --------------------- */
-		/**  III. 4. Addons List  */
-		/** --------------------- */
+		/** ---------------- */
+		/**  III. 4. Addons  */
+		/** ---------------- */
 		
-		/**
-		 * Add addon
-		 * 
-		 * @param string $name Addon name
-		 * @param string $var Addon variable
-		 * 
-		 * @return void
-		 */
-		public function addAddon($name, $var) {
-			$this->addonsList[$name] = $var;
-		}
-		
-		/**
-		 * Get addon name
-		 * 
-		 * @param string $var Addon variable
-		 * 
-		 * @return string Addon name
-		 */
-		public function getAddonName($var) {
-			return array_search($var, $this->addonsList);
-		}
-		
-		/**
-		 * Get addon var
-		 * 
-		 * @param string $name Addon name
-		 * 
-		 * @return string Addon variable
-		 */
-		public function getAddonVar($name) {
-			return $this->addonsList[$name];
-		}
-		
-		/**
-		 * Is exist addon
-		 * 
-		 * @param string $info Addon name or variable
-		 * 
-		 * @return boolean
-		 */
-		public function isExistAddon($info) {
-			return (array_key_exists($info, $this->addonsList) OR array_search($info, $this->addonsList)) ? true : false;
-		}
+			/** ----------------------- */
+			/**  III. 4. A. Management  */
+			/** ----------------------- */
+			
+			/** Add Addon */
+			public function addAddon($id, $varname) { $this->addonsInfos[$id]['varname'] = $varname; }
+			
+			/** Remove Addon */
+			// public function removeAddons(...$id) {}
+			public function removeAddon($id) { unset($this->addonsInfos[$id]); }
+			
+			/** Is exist Addon */
+			public function isExistAddon($id) { return array_key_exists($id, $this->addonsInfos); }
+			
+			/** Rename Addon */
+			public function renameAddon($id, $newId) {
+				if($this->isExistAddon($id) AND !$this->isExistAddon($newId)) {
+					$this->addonsInfos[$newId] = $this->addonsInfos[$id];
+					$this->removeAddon($id);
+					return true;
+				} else return false;
+			}
+			
+			/** ------------------ */
+			/**  III. 4. B. Infos  */
+			/** ------------------ */
+			
+			/** Add Addon Infos */
+			public function addAddonInfos($id, $infos) {
+				$this->addonsInfos[$id] = array_merge($this->addonsInfos[$id], !is_array($infos) ? [$infos] : $infos);
+			}
+			// public function addAddonInfo($id, $infoId, $infoValue) {}
+			
+			/** Remove Addon Infos */
+			// public function removeAddonInfos($id, ...$infoIds) {}
+			public function removeAddonInfo($id, $infoId) { unset($this->addonsInfos[$id][$infoId]); }
+			
+			/** Is exist Addon */
+			public function isExistAddonInfo($id, $infoId) { return array_key_exists($infoId, $this->addonsInfos[$id]); }
+			
+			/** Get Addon Infos */
+			public function getAddonInfos($id = null, $infoId = null) {
+				if(!isset($id) OR $id == '*') return $this->addonsInfos;
+				else if($this->isExistAddon($id)) {
+					if($this->isExistAddonInfo($id, $infoId)) return $this->addonsInfos[$id][$infoId];
+					else return $this->addonsInfos[$id];
+				} else return false;
+			}
+			public function getAddonVar($id) {
+				if($this->isExistAddon($id) AND $this->isExistAddonInfo($id, 'varname')) return $this->addonsInfos[$id]['varname'];
+				else return false;
+			}
+			// public function getAddonName($varname) {}
 	
 	/** *** *** *** */
 	
