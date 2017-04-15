@@ -2206,46 +2206,31 @@ class OliCore {
 			/**  V. 9. A. Generators  */
 			/** --------------------- */
 			
-			/**
-			 * Generate random number
-			 * 
-			 * @param integer|void $minimal Minimal value (default: 1)
-			 * @param integer|void $maximal Maximal value (default: 100)
-			 * 
-			 * @return integer Returns random number between minimal and maximal value
-			 */
-			public function randomNumber($minimal = 1, $maximal = 100) {
-				return mt_rand($minimal, $maximal);
+			/** Random Number generator */
+			public function randomNumber($min = 1, $max = 100) {
+				if(is_numeric($min) AND is_numeric($max)) {
+					if($min > $max) $min = [$max, $max = $min][0];
+					return mt_rand($min, $max);
+				} else return false;
 			}
 			
-			/**
-			 * Generate random secure key
-			 * 
-			 * @param integer|void $length Keygen length (default: 12)
-			 * @param boolean|void $numeric Numeric characters (default: true)
-			 * @param boolean|void $lowercase Lowercase characters (default: true)
-			 * @param boolean|void $uppercase Uppercase characters (default: true)
-			 * @param boolean|void $special Special characters (default: false)
-			 * @param boolean|void $characterRedundancy Force characters redundancy (default: false)
-			 * 
-			 * @uses OliCore::randomNumber() to get a random number
-			 * @return string|boolean Returns generated keygen
-			 */
-			public function keygen($length = 12, $numeric = true, $lowercase = true, $uppercase = true, $special = false, $characterRedundancy = false) {
-				$charactersAllowed = '';
-				if($numeric) $charactersAllowed .= '1234567890';
-				if($lowercase) $charactersAllowed .= 'abcdefghijklmnopqrstuvwxyz';
-				if($uppercase) $charactersAllowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-				if($special) $charactersAllowed .= '!#$%&\()+-;?@[]^_{|}';
+			/** KeyGen built-in script */
+			// See https://github.com/matiboux/KeyGen-Lib for the full PHP library.
+			public function keygen($length = 12, $numeric = true, $lowercase = true, $uppercase = true, $special = false, $redundancy = false) {
+				$charactersSet = '';
+				if($numeric) $charactersSet .= '1234567890';
+				if($lowercase) $charactersSet .= 'abcdefghijklmnopqrstuvwxyz';
+				if($uppercase) $charactersSet .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+				if($special) $charactersSet .= '!#$%&\()+-;?@[]^_{|}';
 				
-				if(empty($charactersAllowed) OR empty($length) OR $length <= 0) return false;
+				if(empty($charactersSet) OR empty($length) OR $length <= 0) return false;
 				else {
-					if($length > strlen($charactersAllowed) AND !$characterRedundancy) $characterRedundancy = true;
+					if($length > strlen($redundancy) AND !$redundancy) $redundancy = true;
 					
 					$keygen = '';
 					while(strlen($keygen) < $length) {
-						$randomCharacter = substr($charactersAllowed, $this->randomNumber(0, strlen($charactersAllowed) - 1), 1);
-						if($characterRedundancy OR !strstr($keygen, $randomCharacter)) $keygen .= $randomCharacter;
+						$randomCharacter = substr($charactersSet, $this->randomNumber(0, strlen($charactersSet) - 1), 1);
+						if($redundancy OR !strstr($keygen, $randomCharacter)) $keygen .= $randomCharacter;
 					}
 					
 					return $keygen;
@@ -2338,11 +2323,7 @@ class OliCore {
 			/**  V. 9. C. Client Infos  */
 			/** ----------------------- */
 			
-			/**
-			 * Get user IP address
-			 * 
-			 * @return string Returns user IP address
-			 */
+			/** Get User IP address */
 			public function getUserIP() {
 				if(!empty($_SERVER['REMOTE_ADDR'])) $client_ip = $_SERVER['REMOTE_ADDR'];
 				else if(!empty($_ENV['REMOTE_ADDR'])) $client_ip = $_ENV['REMOTE_ADDR'];
@@ -2371,7 +2352,6 @@ class OliCore {
 						}
 					}
 				}
-				
 				return $client_ip;
 			}
 	
