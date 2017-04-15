@@ -1,25 +1,26 @@
 # Oli BETA 1.8.0 (development branch)
 
-**Oli** is an *open source PHP framework* made to help web developers creating their website.  
-Want to discover the project team? [Go to the "Oli Team" section!](#oli-team)
-
-**Community and feedbacks are everything!** Suggest me anything you got on your mind!
+**Oli** is an *open source PHP framework*. It has been made to help developers make their website. The framework brings SQL and utility tools, addons support and more.  
+Want to discover the project team? [Go to the "Oli Team" section](#oli-team)!
 
 ### Start using it!
 
-[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and configure your website!  
-Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started) (wip).
+*Warning: The BETA is barely documented.*
 
-Once configuration is done, start creating your pages in the **/content/theme/...** directory.  
-Put your stylesheets and scripts in **/content/theme/assets/...** directory for an easier access through Oli.
+[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and start configuring your website!  
+Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
+
+Once the framework is setup, you can create your pages in the **/content/theme/...** directory.  
+Put your stylesheets and scripts in the **/content/theme/assets/...** directory for an easier access through Oli.
 
 ### More things
 
 **You might also want to see *other things that could help you*:**  
-Wanna use a database with Oli? Get the [default Oli SQL file here](https://github.com/OliFramework/Oli-Default-SQL).  
-Wanna use the account management feature? Get the [Oli login page](https://github.com/OliFramework/Oli-Login-Page) now!
+Want to use a database with your website? Get the [default Oli SQL file here](https://github.com/OliFramework/Oli-Default-SQL).  
+Want to use the account management feature? Get the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page) now!
 
-Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community) (wip).  
+Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community) (wip).
+
 Are you a developer? You can create your own addon for Oli, [here's how](#) (wip).  
 Don't forget to **share your creations with us**!
 
@@ -67,9 +68,9 @@ Want to get in touch with me? Here's how:
  - **Twitter**: [@Matiboux](https://twitter.com/Matiboux)
  - **Telegram**: [@Matiboux](https://t.me/Matiboux)
 
-*Also some thanks credits:*
-- [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name.
-- [@Elionatrox](https://twitter.com/Elionatrox) who helped me and cheered me up when I needed him to.  
+*Thanks credits:*
+- [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested me "Oli" as the framework name.
+- [@Elionatrox](https://twitter.com/Elionatrox), who helped me and cheered me up when I needed him to.  
 Even though if he has now left and abandoned me..
 
 ---

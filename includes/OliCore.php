@@ -5,16 +5,17 @@
 |*|  --- [  Version BETA: 1.8.0  ] ---
 |*|  ---------------------------------
 |*|  
-|*|  Oli is an open source PHP framework made to help web developers creating their website.
-|*|  Created and developed by Mathieu Guérin – aka Matiboux.
+|*|  Oli is an open source PHP framework.
+|*|  It has been made to help developers make their website.
 |*|  
-|*|  Oli Github repository: https://github.com/OliFramework/Oli/
+|*|  Oli Github repository: https://github.com/OliFramework/Oli
 |*|  
 |*|  Creator & Developer: Matiboux (Mathieu Guérin)
+|*|    → Github: https://github.com/matiboux
 |*|    → Email: matiboux@gmail.com
 |*|  
 |*|  For more info, please read the README.md file.
-|*|  You can find it on the Oli repository (Github link above).
+|*|  You can find it in the project repository (Github link above).
 |*|  
 |*|  --- --- ---
 |*|  
@@ -31,7 +32,8 @@
 |*|    See the GNU Affero General Public License for more details.
 |*|    
 |*|    You should have received a copy of the GNU Affero General Public License
-|*|    along with this program. If not, see <http://www.gnu.org/licenses/>.
+|*|    along with this program.
+|*|    If not, see <http://www.gnu.org/licenses/>.
 |*|  
 |*|  You'll find a copy of the GNU AGPL v3 license in the LICENSE file.
 |*|  
@@ -70,9 +72,9 @@
 |*|  I. Variables
 |*|  II. Magic Methods
 |*|  III. Configuration
-|*|    1. Config Loader
-|*|    2. MySQL Config
-|*|    3. General Config 
+|*|    1. Loader
+|*|    2. MySQL
+|*|    3. General 
 |*|    4. Addons
 |*|      A. Management
 |*|      B. Infos
@@ -189,9 +191,9 @@ class OliCore {
 	/**  III. Configuration  */
 	/** -------------------- */
 	
-		/** ----------------------- */
-		/**  III. 1. Config Loader  */
-		/** ----------------------- */
+		/** ---------------- */
+		/**  III. 1. Loader  */
+		/** ---------------- */
 		
 		/** Load Config */
 		public function loadConfig($config) {
@@ -281,9 +283,9 @@ class OliCore {
 			} else return $values;
 		}
 		
-		/** ---------------------- */
-		/**  III. 2. MySQL Config  */
-		/** ---------------------- */
+		/** --------------- */
+		/**  III. 2. MySQL  */
+		/** --------------- */
 		
 		/** MySQL Setup & Config */
 		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
@@ -300,11 +302,11 @@ class OliCore {
 			$this->db = null;
 			$this->mysqlConfig = null;
 		}
-		
-		/** ------------------------ */
-		/**  III. 3. General Config  */
-		/** ------------------------ */
-		
+	
+		/** ----------------- */
+		/**  III. 3. General  */
+		/** ----------------- */
+	
 		/** Set Settings Tables */
 		public function setSettingsTables($tables) {
 			$this->config['settings_tables'] = $tables = !is_array($tables) ? [$tables] : $tables;
