@@ -158,8 +158,8 @@ class OliCore {
 	/** Class Construct function */
 	public function __construct($initTimestamp = null) {
 		/** Load Oli Infos & Default Config */
-		if(file_exists(INCLUDEPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDEPATH . 'oli-infos.json'), true);
-		if(file_exists(INCLUDEPATH . 'config.default.json')) $this->loadConfig(json_decode(file_get_contents(INCLUDEPATH . 'config.default.json'), true));
+		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
+		if(file_exists(INCLUDESPATH . 'config.default.json')) $this->loadConfig(json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true));
 		
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
 		$this->setContentType('DEFAULT', 'utf-8');
