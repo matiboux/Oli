@@ -52,8 +52,8 @@
 	"allow_recover": true,
 	"allow_register": false,
 	"default_user_right": "USER",
-	"register_verification": false,
-	"register_verification_method": "email",
+	"account_activation": false,
+	"account_activation_method": "email",
 	
 	"prohibited_usernames": [],
 	"request_expire_delay": "Time:2 days",

@@ -54,8 +54,8 @@
 		"allow_recover": null,
 		"allow_register": null,
 		"default_user_right": null,
-		"register_verification": null,
-		"register_verification_method": null,
+		"account_activation": null,
+		"account_activation_method": null,
 		
 		"prohibited_usernames": null,
 		"request_expire_delay": null,
