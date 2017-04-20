@@ -51,7 +51,7 @@
 		},
 		
 		"allow_login": null,
-		"allow_change_password": null,
+		"allow_recover": null,
 		"allow_register": null,
 		"default_user_right": null,
 		"register_verification": null,

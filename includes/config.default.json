@@ -49,7 +49,7 @@
 	},
 	
 	"allow_login": true,
-	"allow_change_password": true,
+	"allow_recover": true,
 	"allow_register": false,
 	"default_user_right": "USER",
 	"register_verification": false,
