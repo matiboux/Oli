@@ -34,7 +34,7 @@
 	
 	"templates": {
 		"mail": "mail.html"
-	}
+	},
 	
 	
 	"user_management": false,
