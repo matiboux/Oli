@@ -102,9 +102,10 @@
 |*|    7. Url Functions
 |*|    8. User Language
 |*|    9. Utility Tools
-|*|      A. Generators
-|*|      B. Date & Time
-|*|      C. Client Infos
+|*|      A. Templates
+|*|      B. Generators
+|*|      C. Date & Time
+|*|      D. Client Infos
 |*|  [...]
 \*/
 
@@ -2198,8 +2199,29 @@ class OliCore {
 		/**  V. 9. Utility Tools  */
 		/** --------------------- */
 		
+			/** -------------------- */
+			/**  V. 9. A. Templates  */
+			/** -------------------- */
+			
+			/** Get Template */
+			public function getTemplate($template, $filter = null, $regex = false) {
+				if(!empty($template)) {
+					if(file_exists(TEMPLATESPATH . $this->config['templates'][$template])) $template = file_get_contents(TEMPLATESPATH . $this->config['templates'][$template]);
+					else if(INCLUDESPATH . 'templates/' . $this->config['templates'][$template]) $template = file_get_contents(INCLUDESPATH . 'templates/' . $this->config['templates'][$template]);
+					
+					if(!empty($filter)) {
+						foreach(!is_array($filter) ? [$filter] : $filter as $eachPattern => $eachReplacement) {
+							if($regex) $template = preg_replace($eachPattern, $eachReplacement, $template);
+							else $template = str_replace($eachPattern, $eachReplacement, $template);
+						}
+					}
+					
+					return $template ?: false;
+				} else return false;
+			}
+		
 			/** --------------------- */
-			/**  V. 9. A. Generators  */
+			/**  V. 9. B. Generators  */
 			/** --------------------- */
 			
 			/** Random Number generator */
@@ -2234,7 +2256,7 @@ class OliCore {
 			}
 			
 			/** ---------------------- */
-			/**  V. 9. B. Date & Time  */
+			/**  V. 9. C. Date & Time  */
 			/** ---------------------- */
 			
 			/**
@@ -2316,7 +2338,7 @@ class OliCore {
 			}
 			
 			/** ----------------------- */
-			/**  V. 9. C. Client Infos  */
+			/**  V. 9. D. Client Infos  */
 			/** ----------------------- */
 			
 			/** Get User IP address */
