@@ -1162,7 +1162,7 @@ class OliCore {
 			if(!empty($params)) {
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
-					$pathTo = implode('/', array_slice($fileName, 0, -1));
+					$pathTo = implode('/', array_slice($fileName, 0, -1)) . '/';
 					$accessAllowed = null;
 					
 					if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
@@ -1244,10 +1244,14 @@ class OliCore {
 							foreach((!is_array($files) ? [$files] : $files) as $eachFile) {
 								if(is_string($eachFile)) {
 									if(preg_match('/^(?:\*|all|(?:from\s([a-zA-Z]+))?\s?(?:to\s([a-zA-Z]+))?)$/', $matches[3], $rights)) {
-										if($rights[0] == 'all' OR $rights[0] == '*') $results['access'][$pathTo . $eachFile][$matches[2]] = '*';
-										else {
+										if($rights[0] == 'all' OR $rights[0] == '*') {
+											$results['access'][$pathTo . $eachFile][$matches[2]] = '*';
+											$results['access'][$eachFile][$matches[2]] = '*';
+										} else {
 											$results['access'][$pathTo . $eachFile][$matches[2]]['from'] = $this->translateUserRight($rights[1]);
 											$results['access'][$pathTo . $eachFile][$matches[2]]['to'] = $this->translateUserRight($rights[2]);
+											$results['access'][$eachFile][$matches[2]]['from'] = $this->translateUserRight($rights[1]);
+											$results['access'][$eachFile][$matches[2]]['to'] = $this->translateUserRight($rights[2]);
 										}
 									}
 								}
