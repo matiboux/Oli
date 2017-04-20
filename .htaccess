@@ -2,7 +2,9 @@ DirectoryIndex index.php
 ErrorDocument 404 /index.php
 ErrorDocument 403 /index.php
 
-Order deny,allow
-<FilesMatch "config.(json|php)|load.php">
-	deny from all
+Order allow,deny
+<FilesMatch "index.php|README.md|LICENSE">
+	allow from all
 </FilesMatch>
+
+Options -Indexes
