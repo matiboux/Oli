@@ -7,6 +7,7 @@ if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
 if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
 
 $config = file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(ABSPATH . 'config.json'), true) : [];
 if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', $config['source_path'] ?: ABSPATH);
