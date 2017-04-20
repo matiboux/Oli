@@ -13,12 +13,12 @@ $config = file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(A
 if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', $config['source_path'] ?: ABSPATH);
 unset($config['source_path']);
 
-if(!defined('INCLUDEPATH')) define('INCLUDEPATH', SCRIPTBASEPATH . 'includes/');
+if(!defined('INCLUDESPATH')) define('INCLUDESPATH', SCRIPTBASEPATH . 'includes/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
 
 /** Include OliCore & Addons */
-if(file_exists(INCLUDEPATH . 'loader.php')) require_once INCLUDEPATH . 'loader.php';
-else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (used path: "' . INCLUDEPATH . 'loader.php")', E_USER_ERROR);
+if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';
+else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (used path: "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
 
 /** Load OliCore & Addons */
 $_Oli = new \OliFramework\OliCore($initTimestamp);

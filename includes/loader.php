@@ -10,9 +10,9 @@ if(!defined('PHP_VERSION_ID')) {
 }
 
 /** Load Oli files */
-require_once INCLUDEPATH . 'OliCore.php'; // Oli core file
-foreach(array_merge(glob(INCLUDEPATH . '*.php'), glob(INCLUDEPATH . '*/*.php')) as $filename) {
-	if($filename != INCLUDEPATH . 'OliCore.php') require_once $filename;
+require_once INCLUDESPATH . 'OliCore.php'; // Oli core file
+foreach(array_merge(glob(INCLUDESPATH . '*.php'), glob(INCLUDESPATH . '*/*.php')) as $filename) {
+	if($filename != INCLUDESPATH . 'OliCore.php') require_once $filename;
 }
 
 /** Load Addons files */
