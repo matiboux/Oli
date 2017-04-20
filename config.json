@@ -18,14 +18,14 @@
 		"default_user_language": null,
 		"default_content_type": null,
 		"default_charset": null,
-		"theme_path": null,
-		"media_path": null,
-		"common_files_path": null,
-		"assets_folder": null,
-		"cdn_url": null,
 		"time_zone": null,
 		
-		"encryption_key_length": null,
+		"theme_path": null,
+		"assets_folder": null,
+		"media_path": null,
+		"common_path": null,
+		"common_assets_folder": null,
+		"cdn_url": null,
 		
 		"post_vars_cookie": {
 			"name": null,
@@ -33,6 +33,10 @@
 			"secure": null,
 			"http_only": null
 		},
+		
+		"templates": {
+			"mail": null
+		}
 		
 		
 		"user_management": null,
@@ -46,16 +50,27 @@
 			"rights": null
 		},
 		
+		"allow_login": null,
+		"allow_change_password": null,
+		"allow_register": null,
+		"default_user_right": null,
+		"register_verification": null,
+		"register_verification_method": null,
+		
 		"prohibited_usernames": null,
 		"request_expire_delay": null,
 		"default_session_duration": null,
 		"extended_session_duration": null,
 		
-		"hash": {
-			"algorithm": null,
-			"salt": null,
-			"cost": null
+		"user_id_length": null,
+		"user_id_cookie": {
+			"name": null,
+			"domain": null,
+			"secure": null,
+			"http_only": null
 		},
+		
+		"auth_key_length": null,
 		"auth_key_cookie": {
 			"name": null,
 			"domain": null,
@@ -63,11 +78,10 @@
 			"http_only": null
 		},
 		
-		"allow_login": null,
-		"allow_register": null,
-		"default_user_right": null,
-		"register_verification": null,
-		"register_verification_method": null,
-		"allow_change_password": null
+		"hash": {
+			"algorithm": null,
+			"salt": null,
+			"cost": null
+		}
 	}
 }

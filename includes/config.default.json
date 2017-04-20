@@ -32,6 +32,10 @@
 		"http_only": false
 	},
 	
+	"templates": {
+		"mail": "mail.html"
+	}
+	
 	
 	"user_management": false,
 	"accounts_tables": {
