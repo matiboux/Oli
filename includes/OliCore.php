@@ -3257,23 +3257,14 @@ class OliCore {
 			/**  Logout Functions  */
 			/** ------------------ */
 			
-			/**
-			 * Logout account
-			 * 
-			 * This also delete auth key cookie
-			 * 
-			 * @uses OliCore::isExistAuthKey()
-			 * @uses OliCore::deleteLinesMySQL() to delete lines from account table
-			 * @uses OliCore::deleteAuthKeyCookie() to delete the auth key cookie
-			 * @return boolean
-			 */
+			/** Logout account */
 			public function logoutAccount() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if($this->isExistAuthKey()) {
-					if($deleteResult = $this->deleteLinesMySQL($this->config['accounts_tables']['sessions'], array('auth_key' => hash('sha512', $this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
+				else if(!empty($authKey = $this->getAuthKey())) {
+					if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => null, 'login_date' => null, 'expire_date' => null), array('auth_key' => hash('sha512', $this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
+					
 					return $deleteResult ? true : false;
-				}
-				else return false;
+				} else return false;
 			}
 			
 			/** -------------------- */
