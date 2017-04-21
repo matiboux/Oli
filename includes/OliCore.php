@@ -205,11 +205,11 @@ class OliCore {
 		}
 		
 		/** Decode config arrays */
-		public function decodeConfigArray($array, $currentConfig = []) {
+		public function decodeConfigArray($array, $currentConfig = null) {
 			$output = [];
 			foreach((!is_array($array) ? [$array] : $array) as $eachKey => $eachValue) {
 				if(is_assoc($eachValue)) $output[$eachKey] = $this->decodeConfigArray($eachValue, $currentConfig[$eachKey]);
-				else if(!empty($currentConfig) AND $eachValue === null) $output[$eachKey] = is_array($currentConfig) ? $currentConfig[$eachKey] : $currentConfig;
+				else if(isset($currentConfig) AND $eachValue === null) $output[$eachKey] = (is_array($array) AND is_array($currentConfig)) ? $currentConfig[$eachKey] : $currentConfig;
 				else if($eachValue == 'NULL') $output[$eachKey] = null;
 				else $output[$eachKey] = $eachValue;
 			}
@@ -3187,9 +3187,8 @@ class OliCore {
 						
 						if($this->config['account_activation']) $activateKey = $this->createRequest($username, 'activate');
 						
-						$subject = $mailInfos['subject'] ?: ($mailInfos[0] ?: 'Your account has been created!');
-						
-						$message = $mailInfos['subject'] ?: ($mailInfos[0] ?: null);
+						$subject = (is_array($mailInfos[0]) ? $mailInfos[0]['subject'] : $mailInfos[0]) ?: 'Your account has been created!';
+						$message = (is_array($mailInfos[0]) ? $mailInfos[0]['message'] : $mailInfos[1]) ?: null;
 						if(!isset($message)) {
 							$message .= '<p>Congratulations, <b>your account has been successfully created</b>! ♫</p>';
 							if(!empty($activateKey)) {
@@ -3208,12 +3207,12 @@ class OliCore {
 							if(!empty($this->config['allow_recover'])) $message .= '<a href="' . $this->getUrlParam(0) . 'login/recover' . '">Recover your account</a> – ' . $this->getUrlParam(0) . 'login/recover' . '</p>';
 						}
 						
-						$headers = $mailInfos['headers'] ?: ($mailInfos[2] ?: [
+						$headers = (is_array($mailInfos[0]) ? $mailInfos[0]['headers'] : $mailInfos[2]) ?: [
 							'MIME-Version: 1.0',
 							'Content-type: text/html; charset=UTF-8',
 							'From: noreply@' . $this->getUrlParam('domain'),
 							'X-Mailer: PHP/' . phpversion()
-						]);
+						];
 						if(is_array($headers)) implode("\r\n", $headers);
 						
 						$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
@@ -3339,7 +3338,7 @@ class OliCore {
 		public function hashPassword($password) {
 			if(!empty($this->config['hash']['salt'])) $hashOptions['salt'] = $this->config['hash']['salt'];
 			if(!empty($this->config['hash']['cost'])) $hashOptions['cost'] = $this->config['hash']['cost'];
-			return password_hash($password, $this->config['hash']['algorithm'], $hashOptions);
+			return password_hash($password, $this->config['hash']['algorithm'], $hashOptions ?: []);
 		}
 		
 		public function needsRehashPassword($password) {
