@@ -3128,37 +3128,24 @@ class OliCore {
 			/**  Requests Management Functions  */
 			/** ------------------------------- */
 			
-			/**
-			 * Get the requests expire delay
-			 * 
-			 * @uses OliCore::$requestsExpireDelay to get the the requests expire delay
-			 * @return string Returns the the requests expire delay
-			 */
+			/** Get the requests expire delay */
+			// -- Deprecated --
 			public function getRequestsExpireDelay() { return $this->config['request_expire_delay']; }
 			
-			/**
-			 * Create a new request
-			 * 
-			 * @param string $username User to link the request to
-			 * @param string $action Request action to set to
-			 * 
-			 * @uses OliCore::getLastAccountInfo() to get last info from account table
-			 * @uses OliCore::keygen() to generate a keygen
-			 * @uses OliCore::$requestsExpireDelay to get the requests expire delay
-			 * @uses OliCore::insertAccountLine() to insert line in account table
-			 * @return string Returns the activation key if the request succeed, false otherwise
-			 */
+			/** Create a new request */
 			public function createRequest($username, $action, &$requestTime = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
-				$requestsMatches['username'] = $username;
-				$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, false, true, true));
-				$requestsMatches['action'] = $action;
-				$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
-				$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->config['request_expire_delay']);
-				$this->insertAccountLine('REQUESTS', $requestsMatches);
-				
-				return $activateKey;
+				else {
+					$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
+					$requestsMatches['username'] = $username;
+					$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, false, true, true));
+					$requestsMatches['action'] = $action;
+					$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
+					$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->config['request_expire_delay']);
+					$this->insertAccountLine('REQUESTS', $requestsMatches);
+					
+					return $activateKey;
+				}
 			}
 			
 			/** -------------------- */
@@ -3166,6 +3153,7 @@ class OliCore {
 			/** -------------------- */
 			
 			/** Is register verification enabled */
+			// -- Deprecated --
 			public function isRegisterVerificationEnabled() { return $this->config['account_activation']; }
 			public function getRegisterVerificationStatus() { return $this->config['account_activation']; }
 			
