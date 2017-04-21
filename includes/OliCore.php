@@ -3069,15 +3069,14 @@ class OliCore {
 			public function initUserSession($setUserIDCookie = true) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else {
-					$this->userID = $this->getUserID() ?: null;
-					
-					if(empty($this->userID) OR !$isExist = $this->isExistAccountInfos('SESSIONS', array('user_id' => $this->userID)) OR strlen($this->userID) != $this->config['user_id_length']) {
-						if($isExist) $this->deleteAccountLines('SESSIONS', array('user_id' => $this->userID));
-						
+					if(empty($this->userID = $this->getUserID() ?: null)
+					OR !$this->isExistAccountInfos('SESSIONS', array('user_id' => $this->userID))
+					OR $this->getAccountInfos('SESSIONS', 'auth_key', array('user_id' => $this->userID)) != ($this->getAuthKey())) {
 						$this->userID = $this->keygen($this->config['user_id_length']);
-						if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $this->userID))) {
-							if($setUserIDCookie) $this->setUserIDCookie($this->userID, null);
-							return $this->userID;
+						
+						if((!empty($authKey = $this->getAuthKey()) AND $userID = $this->getAccountInfos('SESSIONS', 'user_id', array('auth_key' => hash('sha512', $authKey)))) OR $this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $userID = $this->keygen($this->config['user_id_length'])))) {
+							if($setUserIDCookie) $this->setUserIDCookie($userID, null);
+							return $this->userID = $userID;
 						} else return false;
 					} else return false;
 				}
