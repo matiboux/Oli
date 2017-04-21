@@ -3260,9 +3260,10 @@ class OliCore {
 			public function logoutAccount() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if(!empty($authKey = $this->getAuthKey())) {
-					if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => null, 'login_date' => null, 'expire_date' => null), array('auth_key' => hash('sha512', $this->getAuthKey())))) $deleteResult = $this->deleteAuthKeyCookie();
+					$result[] = $this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => null, 'login_date' => null, 'expire_date' => null), array('auth_key' => hash('sha512', $authKey)))
+					$result[] = $this->deleteAuthKeyCookie();
 					
-					return $deleteResult ? true : false;
+					return in_array(true, $result);
 				} else return false;
 			}
 			
