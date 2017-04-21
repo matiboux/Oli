@@ -3075,7 +3075,7 @@ class OliCore {
 						if($isExist) $this->deleteAccountLines('SESSIONS', array('user_id' => $this->userID));
 						
 						$this->userID = $this->keygen($this->config['user_id_length']);
-						if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $this->userID, 'ip_address' => $this->getUserIP()))) {
+						if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $this->userID))) {
 							if($setUserIDCookie) $this->setUserIDCookie($this->userID, null);
 							return $this->userID;
 						} else return false;
@@ -3086,7 +3086,7 @@ class OliCore {
 			/** Update User Session */
 			public function updateUserSession($authKey = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if($this->verifyAuthKey($authKey)) return $this->updateAccountInfos('SESSIONS', array('update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->userID));
+				else if($this->verifyAuthKey($authKey)) return $this->updateAccountInfos('SESSIONS', array('ip_address' => $this->getUserIP(), 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->userID));
 				else return false;
 			}
 			
@@ -3239,17 +3239,10 @@ class OliCore {
 					
 					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
 						$newAuthKey = $this->keygen($this->config['auth_key_length']);
-						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = 24*3600;
+						$now = time();
+						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'];
 						
-						$matches['id'] = $this->getLastAccountInfo('SESSIONS', 'id') + 1;
-						$matches['username'] = $username;
-						$matches['auth_key'] = hash('sha512', $newAuthKey);
-						$matches['ip_address'] = $this->getUserIP();
-						$matches['login_date'] = date('Y-m-d H:i:s');
-						$matches['expire_date'] = date('Y-m-d H:i:s', time() + $expireDelay);
-						$matches['update_date'] = date('Y-m-d H:i:s');
-						
-						if($this->insertAccountLine('SESSIONS', $matches)) {
+						if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->userID))) {
 							if($setAuthKeyCookie) $this->setAuthKeyCookie($newAuthKey, $expireDelay);
 							return $newAuthKey;
 						}
