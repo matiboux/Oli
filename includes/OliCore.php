@@ -43,7 +43,7 @@
 |*|  
 |*|  Releases date:
 |*|  - PRE-DEV: November 15, 2014
-|*|  - ALPHA: February 6, 2015 (released on Github)
+|*|  - ALPHA: February 6, 2015 (later released on Github)
 |*|  - BETA: July 2015
 |*|    * No info on previous releases
 |*|    * BETA 1.5.0: August 17, 2015
@@ -146,17 +146,13 @@ class OliCore {
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
 	
-	
-	/** User ID */
-	private $userID = null;
-	
 	/** *** *** *** */
 	
 	/** ------------------- */
 	/**  II. Magic Methods  */
 	/** ------------------- */
 	
-	/** Class Construct function */
+	/** Class Construct & Destruct functions */
 	public function __construct($initTimestamp = null) {
 		/** Load Oli Infos & Default Config */
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
@@ -166,8 +162,6 @@ class OliCore {
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
 	}
-	
-	/** Class Destruct function */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
 		if($this->config['user_management']) $this->updateUserSession();
@@ -1151,6 +1145,7 @@ class OliCore {
 		/** Load page content */
 		public function loadContent() {
 			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
+			$this->initUserSession();
 			
 			$params = $this->getUrlParam('params');
 			$contentStatus = null;
@@ -3068,18 +3063,18 @@ class OliCore {
 			/** --------- */
 			
 			/** Init User Session */
-			/* public function initUserSession() {
+			public function initUserSession($setUserIDCookie = true) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!$this->isExistUserID() OR strlen($userID = $this->getUserID()) != $this->config['user_id_length']) {
-					// if(!empty($userID)) // Delete invalid session
+				else if(!$isExist = $this->isExistAccountInfos('SESSIONS', array('user_id' => $userID = $this->getUserID())) OR strlen($userID) != $this->config['user_id_length']) {
+					if($isExist) $this->deleteAccountLines('SESSIONS', array('user_id' => $userID));
+					// $this->deleteAccountLines('SESSIONS', array('user_id' => ''));
 					
-					if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $newUserID = $this->keygen($this->config['user_id_length']), 'ip_address' => $this->getUserIP(), 'update_date' => date('Y-m-d H:i:s')))) {
-						// if($setUserIDCookie)
-							$this->setUserIDCookie($newUserID, null);
-						return $newAuthKey;
+					if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $newUserID = $this->keygen($this->config['user_id_length']), 'ip_address' => $this->getUserIP()))) {
+						if($setUserIDCookie) $this->setUserIDCookie($newUserID, null);
+						return $newUserID;
 					} else return false;
 				} else return false;
-			} */
+			}
 			
 			/** Update User Session */
 			public function updateUserSession($authKey = null) {
@@ -3095,30 +3090,30 @@ class OliCore {
 			/** ------------------- */
 			
 			/** Set User ID cookie */
-			// public function setUserIDCookie($authKey, $expireDelay = null) {
-				// if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+			public function setUserIDCookie($authKey, $expireDelay = null) {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				
-				// return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
-			// }
+				return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+			}
 			
 			/** Delete User ID cookie */
-			// public function deleteUserIDCookie() {
-				// if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+			public function deleteUserIDCookie() {
+				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				
-				// return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
-			// }
+				return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+			}
 			
 			/** -------------- */
 			/**  Cookie Infos  */
 			/** -------------- */
 			
 			/** Get User ID cookie name */
-			// public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
+			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
 			
 			/** User ID cookie content */
-			// public function getUserID() { return $this->getCookieContent($this->config['user_id_cookie']['name']); }
-			// public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
-			// public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
+			public function getUserID() { return $this->getCookieContent($this->config['user_id_cookie']['name']); }
+			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
+			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 		
 		/** ---------------- */
 		/**  Login Requests  */
@@ -3181,7 +3176,7 @@ class OliCore {
 							$message .= '<p>Congratulations, <b>your account has been successfully created</b>! ♫</p>';
 							if(!empty($activateKey)) {
 								$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
-								$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . $days = floor($this->config['request_expire_delay'] /3600 /24) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same username or email you used.</p>';
+								$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . ($days = floor($this->config['request_expire_delay'] /3600 /24)) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same username or email you used.</p>';
 							} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->getUrlParam(0) . 'login/">our login page</a>, using your username or email, and – of course – your password.</p>';
 							if(!empty($this->config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
 							
