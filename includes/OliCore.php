@@ -3068,18 +3068,14 @@ class OliCore {
 			/** Init User Session */
 			public function initUserSession($setUserIDCookie = true) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else {
-					if(empty($this->userID = $this->getUserID() ?: null)
-					OR !$this->isExistAccountInfos('SESSIONS', array('user_id' => $this->userID))
-					OR $this->getAccountInfos('SESSIONS', 'auth_key', array('user_id' => $this->userID)) != ($this->getAuthKey())) {
-						$this->userID = $this->keygen($this->config['user_id_length']);
-						
-						if((!empty($authKey = $this->getAuthKey()) AND $userID = $this->getAccountInfos('SESSIONS', 'user_id', array('auth_key' => hash('sha512', $authKey)))) OR $this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $userID = $this->keygen($this->config['user_id_length'])))) {
-							if($setUserIDCookie) $this->setUserIDCookie($userID, null);
-							return $this->userID = $userID;
-						} else return false;
+				else if(empty($this->userID = $this->getUserID() ?: null) OR !$this->isExistAccountInfos('SESSIONS', array('user_id' => $this->userID)) OR $this->getAccountInfos('SESSIONS', 'auth_key', array('user_id' => $this->userID)) != ($this->getAuthKey())) {
+					$this->userID = $this->keygen($this->config['user_id_length']);
+					
+					if((!empty($authKey = $this->getAuthKey()) AND $userID = $this->getAccountInfos('SESSIONS', 'user_id', array('auth_key' => hash('sha512', $authKey)))) OR $this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $userID = $this->keygen($this->config['user_id_length'])))) {
+						if($setUserIDCookie) $this->setUserIDCookie($userID, null);
+						return $this->userID = $userID;
 					} else return false;
-				}
+				} else return false;
 			}
 			
 			/** Update User Session */
@@ -3271,24 +3267,12 @@ class OliCore {
 			/**  Users Restrictions  */
 			/** -------------------- */
 			
-			/**
-			 * Get prohibited usernames
-			 * 
-			 * @uses OliCore::$prohibitedUsernames to get prohibited usernames
-			 * @return array Returns prohibited usernames
-			 */
+			/** Get prohibited usernames */
 			public function getProhibitedUsernames() {
 				return $this->config['prohibited_usernames'];
 			}
 			
-			/**
-			 * Is this a prohibited username?
-			 * 
-			 * @param string $username Username to check
-			 * 
-			 * @uses OliCore::$prohibitedUsernames to get prohibited usernames
-			 * @return boolean Returns true if the username is prohibited, false otherwise
-			 */
+			/** Is prohibited username? */
 			public function isProhibitedUsername($username) {
 				return in_array($username, $this->config['prohibited_usernames']);
 			}
@@ -3297,16 +3281,7 @@ class OliCore {
 		/**  Hash Password  */
 		/** --------------- */
 		
-		/**
-		 * Hash a password
-		 * 
-		 * @param string $username Username to check
-		 * 
-		 * @uses OliCore::$hashSalt to get the hash salt parameter
-		 * @uses OliCore::$hashCost to get the hash cost parameter
-		 * @uses OliCore::$hashAlgorithm to get the hash algorithm parameter
-		 * @return string Returns the password hash
-		 */
+		/** Hash Password */
 		public function hashPassword($password) {
 			if(!empty($this->config['hash']['salt'])) $hashOptions['salt'] = $this->config['hash']['salt'];
 			if(!empty($this->config['hash']['cost'])) $hashOptions['cost'] = $this->config['hash']['cost'];
