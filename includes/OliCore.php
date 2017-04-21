@@ -146,6 +146,9 @@ class OliCore {
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
 	
+	/** User ID */
+	private $userID = null;
+	
 	/** *** *** *** */
 	
 	/** ------------------- */
@@ -3065,15 +3068,19 @@ class OliCore {
 			/** Init User Session */
 			public function initUserSession($setUserIDCookie = true) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!$isExist = $this->isExistAccountInfos('SESSIONS', array('user_id' => $userID = $this->getUserID())) OR strlen($userID) != $this->config['user_id_length']) {
-					if($isExist) $this->deleteAccountLines('SESSIONS', array('user_id' => $userID));
-					// $this->deleteAccountLines('SESSIONS', array('user_id' => ''));
+				else {
+					$this->userID = $this->getUserID() ?: null;
 					
-					if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $newUserID = $this->keygen($this->config['user_id_length']), 'ip_address' => $this->getUserIP()))) {
-						if($setUserIDCookie) $this->setUserIDCookie($newUserID, null);
-						return $newUserID;
+					if(empty($this->userID) OR !$isExist = $this->isExistAccountInfos('SESSIONS', array('user_id' => $this->userID)) OR strlen($this->userID) != $this->config['user_id_length']) {
+						if($isExist) $this->deleteAccountLines('SESSIONS', array('user_id' => $this->userID));
+						
+						$this->userID = $this->keygen($this->config['user_id_length']);
+						if($this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $this->userID, 'ip_address' => $this->getUserIP()))) {
+							if($setUserIDCookie) $this->setUserIDCookie($this->userID, null);
+							return $this->userID;
+						} else return false;
 					} else return false;
-				} else return false;
+				}
 			}
 			
 			/** Update User Session */
