@@ -3181,8 +3181,8 @@ class OliCore {
 							$message .= '<p>Congratulations, <b>your account has been successfully created</b>! ♫</p>';
 							if(!empty($activateKey)) {
 								$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
-								$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in __EXPIREDELAY__ day(s), then you won\'t be able to use it anymore and anyone will be able to register using the same username or email you used.</p>';
-							} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="__LOGINURL__">our login page</a>, using your username or email, and – of course – your password.</p>';
+								$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . $days = floor($this->config['request_expire_delay'] /3600 /24) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same username or email you used.</p>';
+							} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->getUrlParam(0) . 'login/">our login page</a>, using your username or email, and – of course – your password.</p>';
 							if(!empty($this->config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
 							
 							$message .= '<p>Your username: <i>' . $username . '</i> <br />';
@@ -3191,8 +3191,8 @@ class OliCore {
 							$message .= '<p>Your password is kept secret and stored hashed in our database. <b>Do not give your password to anyone</b>, including our staff.</p> <hr />';
 							
 							$message .= '<p>Go on our website – <a href="' . $this->getUrlParam(0) . '">' . $this->getUrlParam(0) . '</a> <br />';
-							$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/' . '">' . $this->getUrlParam(0) . 'login/</a> <br />';
-							if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover' . '">' . $this->getUrlParam(0) . 'login/recover</a></p>';
+							$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/">' . $this->getUrlParam(0) . 'login/</a> <br />';
+							if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover">' . $this->getUrlParam(0) . 'login/recover</a></p>';
 						}
 						
 						$headers = (is_array($mailInfos[0]) ? $mailInfos[0]['headers'] : $mailInfos[2]) ?: [
