@@ -1204,7 +1204,7 @@ class OliCore {
 			}
 			
 			if(!empty($found)) {
-				http_response_code(302); // 302 Found
+				http_response_code(200); // 200 OK
 				$this->contentStatus = $contentStatus ?: 'found';
 				return $found;
 			} else if(isset($accessAllowed) AND !$accessAllowed) {
