@@ -3014,7 +3014,7 @@ class OliCore {
 			/** Update User Session */
 			public function updateUserSession() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->updateAccountInfos('SESSIONS', array('ip_address' => $this->getUserIP(), 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->userID));
+				else return $this->updateAccountInfos('SESSIONS', array('ip_address' => $this->getUserIP(), 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->userID));
 			}
 			
 			/** ------------------- */
