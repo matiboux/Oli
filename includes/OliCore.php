@@ -2952,108 +2952,41 @@ class OliCore {
 			/**  Create and Delete  */
 			/** ------------------- */
 			
-			/**
-			 * Set auth key cookie
-			 * 
-			 * @param string $authKey Auth key
-			 * @param integer $expireDelay Cookie expire delay
-			 * 
-			 * @uses OliCore::setCookie() to set the auth key cookie
-			 * @uses OliCore::$authKeyCookieName to get the auth key cookie name
-			 * @uses OliCore::$authKeyCookieDomain to get the auth key cookie domain
-			 * @uses OliCore::$authKeyCookieSecure to get the auth key cookie secure parameter
-			 * @uses OliCore::$authKeyCookieHttpOnly to get the auth key cookie http only parameter
-			 * @return boolean Returns true if the cookies have been created, false otherwise
-			 */
+			/** Set Auth Key cookie */
 			public function setAuthKeyCookie($authKey, $expireDelay) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
+				else return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
-			/**
-			 * Delete cookie
-			 * 
-			 * @uses OliCore::deleteCookie() to delete the auth key cookie
-			 * @uses OliCore::$authKeyCookieName to get the auth key cookie name
-			 * @uses OliCore::$authKeyCookieDomain to get the auth key cookie domain
-			 * @uses OliCore::$authKeyCookieSecure to get the auth key cookie secure parameter
-			 * @uses OliCore::$authKeyCookieHttpOnly to get the auth key cookie http only parameter
-			 * @return boolean Returns true if the cookies have been deleted, false otherwise
-			 */
+			/** Delete Auth Key cookie */
 			public function deleteAuthKeyCookie() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
+				else return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
 			/** -------------------- */
 			/**  Get Auth Key Infos  */
 			/** -------------------- */
 			
-			/**
-			 * Get the auth key cookie name
-			 * 
-			 * @uses OliCore::$authKeyCookieName to get the auth key cookie name
-			 * @return string Returns the auth key cookie name
-			 */
+			/** Get Auth Key cookie name */
 			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
 			
-			/**
-			 * Get auth key
-			 * 
-			 * Get the auth key cookie content
-			 * 
-			 * @uses OliCore::getCookieContent() to get the auth key cookie content
-			 * @uses OliCore::$authKeyCookieName to get the auth key cookie name
-			 * @return string Returns the auth key
-			 */
-			public function getAuthKey() {
-				return $this->getCookieContent($this->config['auth_key_cookie']['name']);
-			}
-			
-			/**
-			 * Is exist auth key
-			 * 
-			 * @uses OliCore::isExistCookie()
-			 * @return boolean Returns true if the cookie exists, false otherwise
-			 */
-			public function isExistAuthKey() {
-				return $this->isExistCookie($this->config['auth_key_cookie']['name']);
-			}
-			
-			/**
-			 * Is empty auth key
-			 * 
-			 * @uses OliCore::isEmptyCookie()
-			 * @return boolean Returns true if the cookie is empty, false otherwise
-			 */
-			public function isEmptyAuthKey() {
-				return $this->isEmptyCookie($this->config['auth_key_cookie']['name']);
-			}
+			/** Auth Key cookie content */
+			public function getAuthKey() { return $this->getCookieContent($this->config['auth_key_cookie']['name']); }
+			public function isExistAuthKey() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
+			public function isEmptyAuthKey() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 			
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				
-				if(empty($authKey)) $authKey = $this->getAuthKey();
-				if(!empty($authKey = hash('sha512', $authKey)) AND $this->isExistAccountInfos('SESSIONS', array('auth_key' => $authKey)) AND $expireDate = $this->getAccountInfos('SESSIONS', 'expire_date', array('auth_key' => $authKey)) AND strtotime($expireDate) >= time()) return true;
+				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND $authKey == ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $this->userID)))['auth_key'] AND strtotime($sessionInfos['expire_date']) >= time()) return true;
 				else return false;
 			}
 			
-			/**
-			 * Get auth key owner
-			 * 
-			 * @param string|void $authKey Auth key to get owner of
-			 * 
-			 * @uses OliCore::getCookieContent() to get the auth key cookie content
-			 * @uses OliCore::$authKeyCookieName to get the auth key cookie name
-			 * @api
-			 * @return string Returns the auth key owner
-			 */
+			/** Get Auth Key Owner */
 			public function getAuthKeyOwner($authKey = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				if(empty($authKey)) $authKey = $this->getAuthKey();
-				
-				if($this->verifyAuthKey($authKey)) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
+				else if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey())) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}
 		
@@ -3091,15 +3024,13 @@ class OliCore {
 			/** Set User ID cookie */
 			public function setUserIDCookie($authKey, $expireDelay = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				
-				return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+				else return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
 			}
 			
 			/** Delete User ID cookie */
 			public function deleteUserIDCookie() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				
-				return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+				else return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
 			}
 			
 			/** -------------- */
