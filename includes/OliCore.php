@@ -2236,7 +2236,7 @@ class OliCore {
 			
 			/** KeyGen built-in script */
 			// See https://github.com/matiboux/KeyGen-Lib for the full PHP library.
-			public function keygen($length = 12, $numeric = true, $lowercase = true, $uppercase = true, $special = false, $redundancy = false) {
+			public function keygen($length = 12, $numeric = true, $lowercase = true, $uppercase = true, $special = false, $redundancy = true) {
 				$charactersSet = '';
 				if($numeric) $charactersSet .= '1234567890';
 				if($lowercase) $charactersSet .= 'abcdefghijklmnopqrstuvwxyz';
