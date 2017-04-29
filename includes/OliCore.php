@@ -2249,7 +2249,7 @@ class OliCore {
 					
 					$keygen = '';
 					while(strlen($keygen) < $length) {
-						$randomCharacter = substr($charactersSet, $this->randomNumber(0, strlen($charactersSet) - 1), 1);
+						$randomCharacter = substr($charactersSet, mt_rand(0, strlen($charactersSet) - 1), 1);
 						if($redundancy OR !strstr($keygen, $randomCharacter)) $keygen .= $randomCharacter;
 					}
 					
