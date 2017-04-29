@@ -2227,12 +2227,13 @@ class OliCore {
 			/** --------------------- */
 			
 			/** Random Number generator */
-			public function randomNumber($min = 1, $max = 100) {
+			public function rand($min = 1, $max = 100) {
 				if(is_numeric($min) AND is_numeric($max)) {
 					if($min > $max) $min = [$max, $max = $min][0];
 					return mt_rand($min, $max);
 				} else return false;
 			}
+			public function randomNumber($min = null, $max = null) { $this->rand($min, $max); }
 			
 			/** KeyGen built-in script */
 			// See https://github.com/matiboux/KeyGen-Lib for the full PHP library.
