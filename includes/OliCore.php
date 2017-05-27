@@ -429,26 +429,25 @@ class OliCore {
 		/**  IV. 2. Read Functions  */
 		/** ----------------------- */
 		
-		/**
-		 * Get all data from table
-		 * 
-		 * @param string $table Table to get data from
-		 * @param string|array|void $params MySQL Parameters
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return array|boolean Returns data from specified table
-		 */
+		/** Run a raw MySQL query */
+		public function runQueryMySQL($queryText, $fetchStyle = true) {
+			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+			$query = $this->db->prepare($queryText);
+			if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
+			else return false;
+		}
+		
+		/** Get Data from table */
 		public function getDataMySQL($table, ...$params) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$select = (is_array($params[0])) ? implode(', ', $params[0]) : '*';
-			foreach($params as $eachKey => $eachParam) {
-				if(!empty($eachParam)) $queryParams .= ' ' . $eachParam;
+			$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
+			$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
+			if(!empty($params)) {
+				foreach($params as $eachKey => $eachParam) {
+					if(!empty($eachParam)) $queryParams .= ' ' . $eachParam;
+				}
 			}
-
-			$query = $this->db->prepare('SELECT ' . $select . ' FROM ' . $table . $queryParams);
-			if($query->execute()) return $query->fetchAll(\PDO::FETCH_ASSOC);
-			else return false;
+			return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
 		}
 		
 		/**
