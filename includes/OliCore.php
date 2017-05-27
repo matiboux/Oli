@@ -970,7 +970,7 @@ class OliCore {
 		 */
 		public function deleteLinesMySQL($table, $where) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			if($where != 'all') {
+			if(is_array($where)) {
 				$matches = [];
 				foreach($where as $whereVar => $whereValue) {
 					$queryWhere[] = $whereVar . ' = :' . $whereVar;
@@ -979,7 +979,8 @@ class OliCore {
 					$matches[$whereVar] = $whereValue;
 				}
 			}
-			$query = $this->db->prepare('DELETE FROM ' . $table . (($where != 'all') ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
+			$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
+			(is_array($where) ? implode(' AND ', $queryWhere) : ($where != 'all' ? $where : '*')));
 			return $query->execute($matches);
 		}
 	
