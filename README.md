@@ -48,6 +48,7 @@ This license applies to the...
 This license does not applies to the...
 - **/config.json** and **/mysql.json** config files
 - **/.gitignore** file
+- **/oli.default.sql** file (which is licensed under the MIT license)
 - New API files that might be created in the **/** directory
 - **.htaccess** files
 
