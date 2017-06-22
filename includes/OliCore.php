@@ -136,8 +136,8 @@ class OliCore {
 	
 	/** Page Settings */
 	private $contentType = null;
+	private $charset = null;
 	private $contentTypeBeenForced = false;
-	private $currentCharset = null;
 	private $htmlLoaderList = [];
 	
 	/** User Language */
@@ -1521,38 +1521,33 @@ class OliCore {
 				if(!$this->contentTypeBeenForced OR $force) {
 					if($force) $this->contentTypeBeenForced = true;
 					
-					if(!isset($contentType) OR $contentType == 'DEFAULT') $contentType = $this->config['default_content_type'];
-					if(!isset($charset) OR $charset == 'DEFAULT') $charset = $this->config['default_charset'];
-					error_reporting($contentType == 'DEBUG_MODE' ? E_ALL : E_ALL & ~E_NOTICE);
+					if(isset($contentType)) $contentType = strtolower($contentType);
+					if(!isset($contentType) OR $contentType == 'default') $contentType = strtolower($this->config['default_content_type']);
 					
-					if($contentType == 'HTML') $newContentType = 'text/html';
-					else if($contentType == 'CSS') $newContentType = 'text/css';
-					else if($contentType == 'JAVASCRIPT') $newContentType = 'text/javascript';
-					else if($contentType == 'JSON') $newContentType = 'application/json';
-					else if($contentType == 'PDF') $newContentType = 'application/pdf';
-					else if($contentType == 'RSS') $newContentType = 'application/rss+xml';
-					else if($contentType == 'XML') $newContentType = 'text/xml';
-					else if($contentType == 'DEBUG_MODE' OR $contentType == 'PLAIN') $newContentType = 'text/plain';
+					if($contentType == 'html') $newContentType = 'text/html';
+					else if($contentType == 'css') $newContentType = 'text/css';
+					else if(in_array($contentType, ['js', 'javascript'])) $newContentType = 'text/javascript';
+					else if($contentType == 'json') $newContentType = 'application/json';
+					else if($contentType == 'pdf') $newContentType = 'application/pdf';
+					else if($contentType == 'rss') $newContentType = 'application/rss+xml';
+					else if($contentType == 'xml') $newContentType = 'text/xml';
+					else if(in_array($contentType, ['debug', 'plain'])) $newContentType = 'text/plain';
 					else $newContentType = $contentType;
 					
-					header('Content-Type: ' . $newContentType . ';charset=' . $charset);
-					$this->currentContentType = $newContentType;
-					$this->currentCharset = $charset;
+					if(isset($charset)) $charset = strtolower($charset);
+					if(!isset($charset) OR $charset == 'default') $charset = $this->config['default_charset'];
 					
+					error_reporting($contentType == 'debug' ? E_ALL : E_ALL & ~E_NOTICE);
+					header('Content-Type: ' . $newContentType . ';charset=' . $charset);
+					
+					$this->contentType = $newContentType;
+					$this->charset = $charset;
 					return $newContentType;
-				}
-				else return false;
+				} else return false;
 			}
 			
-			/**
-			 * Get current content type
-			 * 
-			 * @uses OliCore::$contentType to get the current content type
-			 * @return string
-			 */
-			public function getContentType() {
-				return $this->currentContentType;
-			}
+			/** Reset Content Type */
+			public function resetContentType() { return $this->setContentType(); }
 			
 			/**
 			 * Get current charset
