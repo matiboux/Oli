@@ -1121,7 +1121,7 @@ class OliCore {
 		
 		/** Magic __toString function */
 		public function __toString() {
-			return 'Powered by <a href="' . $this->oliInfos['website'] . '">' . $this->oliInfos['name'] . '</a> (v. ' . $this->getOliInfos('version') . ')';
+			return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (' . $this->oliInfos['url'] . ') — Running version ' . $this->oliInfos['version'];
 		}
 		
 		public function getOliInfos($whatInfo = null) {
@@ -1202,6 +1202,8 @@ class OliCore {
 					}
 				}
 			}
+			
+			if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
 			
 			if(!empty($found)) {
 				http_response_code(200); // 200 OK
