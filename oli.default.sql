@@ -46,9 +46,10 @@
 |*|  II. Oli Accounts Tables
 |*|    II. 1. Table `accounts`
 |*|    II. 2. Table `accounts_infos`
-|*|    II. 3. Table `accounts_requests`
-|*|    II. 4. Table `accounts_rights`
-|*|    II. 5. Table `accounts_sessions`
+|*|    II. 3. Table `accounts_log_limits`
+|*|    II. 4. Table `accounts_sessions`
+|*|    II. 5. Table `accounts_requests`
+|*|    II. 6. Table `accounts_rights`
 \*/
 
 -- phpMyAdmin SQL Dump
