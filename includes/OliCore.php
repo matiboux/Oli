@@ -1124,11 +1124,13 @@ class OliCore {
 			return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (' . $this->oliInfos['url'] . ') — Running version ' . $this->oliInfos['version'];
 		}
 		
+		/** Get Oli Infos */
 		public function getOliInfos($whatInfo = null) {
 			if(!empty($whatInfo)) return $this->oliInfos[$whatInfo];
 			else return $this->oliInfos;
 		}
 		
+		/** Get Team Infos */
 		public function getTeamInfos($who = null, $whatInfo = null) {
 			if(!empty($who)) {
 				foreach($this->oliInfos['team'] as $eachMember) {
@@ -1137,8 +1139,7 @@ class OliCore {
 						else return $eachMember;
 					}
 				}
-			}
-			else return $this->oliInfos['team'];
+			} else return $this->oliInfos['team'];
 		}
 		
 		/** ----------------------- */
@@ -1323,15 +1324,7 @@ class OliCore {
 		/** [WIP] Get All Settings */
 		// public function getAllSettings() { return $this->getSetting(null); }
 		
-		/**
-		 * Get shortcut link
-		 * 
-		 * @param string $setting Setting to get
-		 * 
-		 * @uses OliCore::$shortcutLinksTable to get the shortcut links table name
-		 * @uses OliCore::getInfosMySQL() to get shortcut links infos
-		 * @return mixed Shortcut link
-		 */
+		/** Get Shortcut Link */
 		public function getShortcutLink($shortcut) {
 			if(isset($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut));
 			else return false;
@@ -1357,51 +1350,17 @@ class OliCore {
 			/**  V. 5. A. Read Functions  */
 			/** ------------------------- */
 			
-			/**
-			 * Get translations lines
-			 * 
-			 * @param array $where Where to get translations from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * @param boolean|void $forceArray Always return an array or not
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getLinesMySQL() to get translations lines
-			 * @uses OliCore::$translationsTable to get Oli setup timestamp
-			 * @return array|boolean Translations lines
-			 */
+			/** Get translations lines */
 			public function getTranslationLines($where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				return $this->getLinesMySQL($this->config['translations_table'], $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
-			/**
-			 * Get translation
-			 * 
-			 * @param string|array $whatLanguage What language to return
-			 * @param array $where Where to get translations from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * @param boolean|void $forceArray Always return an array or not
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getInfosMySQL() to get translations infos
-			 * @uses OliCore::$translationsTable to get Oli setup timestamp
-			 * @return array|boolean Translation
-			 */
+			/** Get translation */
 			public function getTranslation($whatLanguage, $where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				return $this->getInfosMySQL($this->config['translations_table'], $whatLanguage, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
-			/**
-			 * Is exist translation
-			 * 
-			 * @param array $where Where to get translations from
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * 
-			 * @uses OliCore::isExistInfosMySQL() to get if infos exists or not
-			 * @uses OliCore::$translationsTable to get Oli setup timestamp
-			 * @return array|boolean Translation
-			 */
+			/** Is exist translation */
 			public function isExistTranslation($where, $caseSensitive = true) {
 				return $this->isExistInfosMySQL($this->config['translations_table'], $where, $caseSensitive);
 			}
@@ -1410,42 +1369,17 @@ class OliCore {
 			/**  V. 5. B. Write Functions  */
 			/** -------------------------- */
 			
-			/**
-			 * Add translations
-			 * 
-			 * @param array $translations Translations to add
-			 * 
-			 * @uses OliCore::insertLineMySQL() to add translations
-			 * @uses OliCore::$translationsTable to get the translations table name
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
+			/** Add translations */
 			public function addTranslations($translations) {
 				return $this->insertLineMySQL($this->config['translations_table'], $translations);
 			}
 			
-			/**
-			 * Update translations
-			 * 
-			 * @param array $what What to replace translations with
-			 * @param array $where Where to update translations
-			 * 
-			 * @uses OliCore::updateInfosMySQL() to update translations
-			 * @uses OliCore::$translationsTable to get the translations table name
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
+			/** Update translations */
 			public function updateTranslations($what, $where) {
 				return $this->updateInfosMySQL($this->config['translations_table'], $what, $where);
 			}
 			
-			/**
-			 * Delete translations
-			 * 
-			 * @param array $where Where to delete translations
-			 * 
-			 * @uses OliCore::deleteLinesMySQL() to delete translations
-			 * @uses OliCore::$translationsTable to get the translations table name
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
+			/** Delete translations */
 			public function deleteTranslations($where) {
 				return $this->deleteLinesMySQL($this->config['translations_table'], $where);
 			}
@@ -1454,28 +1388,12 @@ class OliCore {
 			/**  V. 5. C. Print Functions  */
 			/** -------------------------- */
 			
-			/**
-			 * Echo translated text
-			 * 
-			 * @param string $text Text to echo or translate
-			 * @param string|void $text_plural Text in plural form
-			 * @param integer|void $count Will define which form to use
-			 * 
-			 * @uses OliCore::$currentLanguage to get the current language
-			 * @uses OliCore::$defaultLanguage to get the default language
-			 * @uses OliCore::getTranslation() to get translation
-			 * @uses OliCore::isExistTranslation() to check if a translation exists or not
-			 * @uses OliCore::addTranslations() to add a new translation
-			 * @return void
-			 */
+			/** Echo translated text */
 			public function __($text, $text_plural = '', $count = 0) {
 				$text = ($count > 1) ? $text_plural : $text;
-				if($this->currentLanguage != $this->config['default_user_language'] AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->config['default_user_language'] => $text)))
-					echo $translatedText;
-				else {
-					if(!$this->isExistTranslation(array($this->config['default_user_language'] => $text))) $this->addTranslations(array($this->config['default_user_language'] => $text));
-					echo $text;
-				}
+				if($this->currentLanguage != $this->config['default_user_language'] AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->config['default_user_language'] => $text))) echo $translatedText;
+				else if(!$this->isExistTranslation(array($this->config['default_user_language'] => $text))) $this->addTranslations(array($this->config['default_user_language'] => $text));
+				else echo $text;
 			}
 		
 		/** ------------------ */
@@ -1486,20 +1404,7 @@ class OliCore {
 			/**  V. 6. A. Content Type  */
 			/** ----------------------- */
 			
-			/**
-			 * Set content type
-			 * 
-			 * @param string|void $contentType Content type to set
-			 * @param string|void $charset Charset to use
-			 * @param boolean|void $force Force the new content type
-			 * 
-			 * @uses OliCore::$contentTypeBeenForced to lock the new content type, if forced
-			 * @uses OliCore::$defaultContentType to get the default content type
-			 * @uses OliCore::$contentType to get the current content type
-			 * @uses OliCore::$defaultCharset to get the default charset
-			 * @uses OliCore::$currentCharset to get the current charset
-			 * @return boolean|void
-			 */
+			/** Set Content Type */
 			public function setContentType($contentType = null, $charset = null, $force = false) {
 				if(!$this->contentTypeBeenForced OR $force) {
 					if($force) $this->contentTypeBeenForced = true;
@@ -1532,15 +1437,11 @@ class OliCore {
 			/** Reset Content Type */
 			public function resetContentType() { return $this->setContentType(); }
 			
-			/**
-			 * Get current charset
-			 * 
-			 * @uses OliCore::$contentType to get the current content type
-			 * @return string
-			 */
-			public function getCharset() {
-				return $this->currentCharset;
-			}
+			/** Get Content Type */
+			public function getContentType() { return $this->contentType; }
+			
+			/** Get Charset */
+			public function getCharset() { return $this->charset; }
 			
 			/** ---------------------------- */
 			/**  V. 6. B. Cookie Management  */
@@ -1550,57 +1451,22 @@ class OliCore {
 				/**  V. 6. B. a. Read Functions  */
 				/** ---------------------------- */
 				
-				/**
-				 * Get cookie content
-				 * 
-				 * @param string $name Cookie name
-				 * @param boolean|void $rawResult Return raw result or not
-				 * 
-				 * @return mixed Returns cookie content
-				 */
+				/** Get cookie content */
 				public function getCookieContent($name, $rawResult = false) {
 					return (!is_array($_COOKIE[$name]) AND is_array(json_decode($_COOKIE[$name], true)) AND !$rawResult) ? json_decode($_COOKIE[$name], true) : $_COOKIE[$name];
 				}
 				
-				/**
-				 * Is exist cookie
-				 * 
-				 * @param string $name Cookie name
-				 * 
-				 * @return boolean Returns true if the cookie exists, false otherwise
-				 */
-				public function isExistCookie($name) {
-					return isset($_COOKIE[$name]);
-				}
+				/** Is exist cookie */
+				public function isExistCookie($name) { return isset($_COOKIE[$name]); }
 				
-				/**
-				 * Is empty cookie
-				 * 
-				 * @param string $name Cookie name
-				 * 
-				 * @return boolean Returns true if the cookie is empty, false otherwise
-				 */
-				public function isEmptyCookie($name) {
-					return empty($_COOKIE[$name]);
-				}
+				/** Is empty cookie */
+				public function isEmptyCookie($name) { return empty($_COOKIE[$name]); }
 				
 				/** ----------------------------- */
 				/**  V. 6. B. b. Write Functions  */
 				/** ----------------------------- */
 				
-				/**
-				 * Set cookie
-				 * 
-				 * @param string $name Cookie name
-				 * @param string $value Cookie value
-				 * @param integer $expireDelay Cookie expire delay
-				 * @param string $path Cookie path
-				 * @param string|array $domains Cookie domains
-				 * @param boolean|void $secure Cookie secure parameter
-				 * @param boolean|void $httpOnly Cookie http only parameter
-				 * 
-				 * @return boolean Returns true if the cookies have been created, false otherwise
-				 */
+				/** Set cookie */
 				public function setCookie($name, $value, $expireDelay, $path, $domains, $secure = false, $httpOnly = false) {
 					$value = (is_array($value)) ? json_encode($value, JSON_FORCE_OBJECT) : $value;
 					$domains = (!is_array($domains)) ? [$domains] : $domains;
@@ -1613,17 +1479,7 @@ class OliCore {
 					return !$cookieError ? true : false;
 				}
 				
-				/**
-				 * Delete cookie
-				 * 
-				 * @param string $name Cookie name
-				 * @param string $path Cookie path
-				 * @param string|array $domains Cookie domains
-				 * @param boolean|void $secure Cookie secure parameter
-				 * @param boolean|void $httpOnly Cookie http only parameter
-				 * 
-				 * @return boolean Returns true if the cookies have been deleted, false otherwise
-				 */
+				/** Delete cookie */
 				public function deleteCookie($name, $path, $domains, $secure = false, $httpOnly = false) {
 					$domains = (!is_array($domains)) ? [$domains] : $domains;
 					foreach($domains as $eachDomain) {
@@ -1644,121 +1500,45 @@ class OliCore {
 				/**  V. 6. C. a. Read Functions  */
 				/** ---------------------------- */
 				
-				/**
-				 * Get post vars cookie name
-				 * 
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @return string Returns the post vars cookie name
-				 */
-				public function getPostVarsCookieName() {
-					return $this->config['post_vars_cookie']['name'];
-				}
+				/** Get post vars cookie name */
+				public function getPostVarsCookieName() { return $this->config['post_vars_cookie']['name']; }
 				
-				/**
-				 * Get post vars
-				 * 
-				 * @param string|void $whatVar Post vars to get
-				 * @param boolean|void $rawResult Return raw result or not
-				 * 
-				 * @uses OliCore::getCookieContent() to get the post vars cookie content
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @return string Returns the post vars cookie content
-				 */
+				/** Get post vars */
 				public function getPostVars($whatVar = null, $rawResult = false) {
 					$postVars = $this->getCookieContent($this->config['post_vars_cookie']['name'], $rawResult);
 					return isset($whatVar) ? $postVars[$whatVar] : $postVars;
 				}
 				
-				/**
-				 * Is empty post vars
-				 * 
-				 * @param string|void $whatVar Post vars to check
-				 * 
-				 * @uses OliCore::getPostVars() to get the post vars
-				 * @uses OliCore::isEmptyCookie() to check if the post vars cookie is empty or not
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @return boolean Returns true if the post vars is empty, false otherwise
-				 */
+				/** Is empty post vars */
 				public function isEmptyPostVars($whatVar = null) {
 					return isset($whatVar) ? empty($this->getPostVars($whatVar)) : $this->isEmptyCookie($this->config['post_vars_cookie']['name']);
 				}
 				
-				/**
-				 * Is set post vars
-				 * 
-				 * @param string|void $whatVar Post vars to check
-				 * 
-				 * @uses OliCore::getPostVars() to get the post vars
-				 * @uses OliCore::isExistCookie() to check if the post vars cookie exists or not
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @return boolean Returns true if the post vars is set, false otherwise
-				 */
+				/** Is set post vars */
 				public function issetPostVars($whatVar = null) {
 					return isset($whatVar) ? $this->getPostVars($whatVar) !== null : $this->isExistCookie($this->config['post_vars_cookie']['name']);
 				}
 				
-				/**
-				 * Is protected post vars
-				 * 
-				 * @uses OliCore::$postVarsProtection to get post vars protection status
-				 * @return boolean Returns true if the post vars is protected, false otherwise
-				 */
-				public function isProtectedPostVarsCookie() {
-					return $this->postVarsProtection;
-				}
+				/** Is protected post vars */
+				public function isProtectedPostVarsCookie() { return $this->postVarsProtection; }
 				
 				/** ----------------------------- */
 				/**  V. 6. C. b. Write Functions  */
 				/** ----------------------------- */
 				
-				/**
-				 * Set post vars cookie
-				 * 
-				 * @param string $postVars Post vars values
-				 * 
-				 * @uses OliCore::setCookie() to set the post vars cookie
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
-				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
-				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
-				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
-				 * @return boolean Returns true if the cookie have been created, false otherwise
-				 */
+				/** Set post vars cookie */
 				public function setPostVarsCookie($postVars) {
 					$this->postVarsProtection = true;
 					return $this->setCookie($this->config['post_vars_cookie']['name'], $postVars, 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 				} 
 				
-				/**
-				 * Delete post vars cookie
-				 * 
-				 * @uses OliCore::$postVarsProtection to get post vars protection status
-				 * @uses OliCore::deleteCookie() to delete the post vars cookie
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
-				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
-				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
-				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
-				 * @deprecated Post vars cookie shouldn't be deleted by the user
-				 * @return boolean Returns true if the cookie have been deleted, false otherwise
-				 */
+				/** Delete post vars cookie */
 				public function deletePostVarsCookie() {
 					if(!$this->postVarsProtection) return $this->deleteCookie($this->config['post_vars_cookie']['name'], '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 					else return false;
 				} 
 				
-				/**
-				 * Protect post vars cookie
-				 * 
-				 * @uses OliCore::$postVarsProtection to set post vars protection
-				 * @uses OliCore::setCookie() to reset the post vars cookie
-				 * @uses OliCore::$postVarsCookieName to get the post vars cookie name
-				 * @uses OliCore::$postVarsCookieExpireDelay to get the post vars cookie expire delay
-				 * @uses OliCore::$postVarsCookieDomain to get the post vars cookie domain
-				 * @uses OliCore::$postVarsCookieSecure to get the post vars cookie secure parameter
-				 * @uses OliCore::$postVarsCookieHttpOnly to get the post vars cookie http only parameter
-				 * @return boolean Returns true if the cookie have been created, false otherwise
-				 */
+				/** Protect post vars cookie */
 				public function protectPostVarsCookie() {
 					$this->postVarsProtection = true;
 					return $this->setCookie($this->config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
