@@ -15,7 +15,7 @@
 |*|    → Email: matiboux@gmail.com
 |*|  
 |*|  For more info, please read the README.md file.
-|*|  You can find it in the project repository (Github link above).
+|*|  You can find it in the project repository (see the Github link above).
 |*|  
 |*|  --- --- ---
 |*|  
@@ -43,7 +43,7 @@
 |*|  
 |*|  Releases date:
 |*|  - PRE-DEV: November 15, 2014
-|*|  - ALPHA: February 6, 2015 (later released on Github)
+|*|  - ALPHA: February 6, 2015
 |*|  - BETA: July 2015
 |*|    * No info on previous releases
 |*|    * BETA 1.5.0: August 17, 2015
