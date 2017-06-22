@@ -16,13 +16,13 @@ Put your stylesheets and scripts in the **/content/theme/assets/...** directory 
 ### More things
 
 **You might also want to see *other things that could help you*:**  
-Want to use a database with your website? Get the [default Oli SQL file here](https://github.com/OliFramework/Oli-Default-SQL).  
-Want to use the account management feature? Get the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page) now!
+Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database.  
+Want to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
 
-Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community) (wip).
+Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community) (**WIP**).
 
-Are you a developer? You can create your own addon for Oli, [here's how](#) (wip).  
-Don't forget to **share your creations with us**!
+You are a developer? Learn about [creating your own addon for Oli](#) (**WIP**).  
+Don't forget to *share your creations with us*! ♪
 
 ---
 
