@@ -1300,44 +1300,26 @@ class OliCore {
 		 */
 		public function getSettingsTables() { return $this->config['settings_tables']; }
 		
-		/**
-		 * Get setting
-		 * 
-		 * @param string $setting Setting to get
-		 * 
-		 * @uses OliCore::$settingsTables to get the settings tables
-		 * @uses OliCore::getInfosMySQL() to get settings infos
-		 * @return mixed|void Setting value
-		 */
-		public function getSetting($setting /*= null*/) {
+		/** Get Setting */
+		public function getSetting($setting) {
 			if(!empty($this->config['settings_tables'])) {
 				foreach($this->config['settings_tables'] as $eachTable) {
-					// if(isset($setting)) {
+					if(isset($setting)) {
 						$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
 						if(!empty($optionResult)) {
 							if($optionResult == 'null') return '';
 							else return $optionResult;
 						}
-					// }
-					// else false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
+					}
+					else false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
 				}
 			}
 			else return false;
 		}
+		public function getOption($setting) { return $this->getSetting($setting); }
 		
-		/**
-		 * Get option
-		 * 
-		 * @param string $setting Setting to get
-		 * 
-		 * @uses OliCore::getSetting() to get the settings
-		 * @see OliCore::getSetting() Alternative to this function
-		 * @deprecated Old function, alternative to another function
-		 * @return mixed Setting value
-		 */
-		public function getOption($setting /*= null*/) {
-			return $this->getSetting($setting);
-		}
+		/** [WIP] Get All Settings */
+		// public function getAllSettings() { return $this->getSetting(null); }
 		
 		/**
 		 * Get shortcut link
