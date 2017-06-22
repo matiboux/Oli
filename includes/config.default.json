@@ -7,14 +7,14 @@
 	"translations_table": null,
 	
 	"force_https": false,
-	"index_files": null,
+	"index_files": "index.php",
 	"error_files": {
 		"404": "404.php",
 		"403": "403.php"
 	},
 	
 	"default_user_language": "en",
-	"default_content_type": "HTML",
+	"default_content_type": "html",
 	"default_charset": "utf-8",
 	"time_zone": "Europe/Paris",
 	
@@ -42,7 +42,7 @@
 		"accounts": "accounts",
 		"infos": "accounts_infos",
 		"sessions": "accounts_sessions",
-		"login_limits": "accounts_login_limits",
+		"login_limits": "",
 		"requests": "accounts_requests",
 		"permissions": "accounts_permissions",
 		"rights": "accounts_rights"
