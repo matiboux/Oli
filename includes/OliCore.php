@@ -1339,32 +1339,13 @@ class OliCore {
 		/**  V. 4. Website Tools  */
 		/** --------------------- */
 		
-		/**
-		 * Get execution delay
-		 * 
-		 * @param boolean|void $fromRequest Get delay from request time or not
-		 * 
-		 * @uses OliCore::$config to get Oli setup timestamp
-		 * @return integer Execution delay
-		 */
-		public function getExecutionDelay($fromRequest = false) {
+		/** Get Execution Time */
+		public function getExecutionTime($fromRequest = false) {
 			if($fromRequest) return microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
 			else return microtime(true) - $this->config['init_timestamp'];
 		}
-		
-		/**
-		 * Get execute delay
-		 * 
-		 * @param boolean|void $fromRequest Get delay from request time or not
-		 * 
-		 * @uses OliCore::getExecutionDelay() to get the execution delay
-		 * @see OliCore::getExecutionDelay() Alternative to this function
-		 * @deprecated Old function, alternative to another function
-		 * @return integer Execution delay
-		 */
-		public function getExecuteDelay($fromRequest = false) {
-			return $this->getExecutionDelay($fromRequest);
-		}
+		public function getExecutionDelay($fromRequest = false) { return $this->getExecutionTime($fromRequest); }
+		public function getExecuteDelay($fromRequest = false) { return $this->getExecutionTime($fromRequest); }
 		
 		/** --------------------------- */
 		/**  V. 5. Translations & Text  */
