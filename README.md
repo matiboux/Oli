@@ -56,7 +56,7 @@ These directories may contains content that might be licensed under another lice
 - files in **/content/...** – and files in its sub-directories
 - files in **/addons/...** – and files in its sub-directories
 
-*Paths are relative to **/**, refering to the main directory of this repository.*
+*Paths beginning with **/** are relative to the main directory of this repository.*
 
 ---
 
