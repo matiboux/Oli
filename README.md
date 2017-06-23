@@ -70,9 +70,9 @@ Want to get in touch with me? Here's how:
  - **Telegram**: [@Matiboux](https://t.me/Matiboux)
 
 *Thanks credits:*
-- [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested me "Oli" as the framework name.
+- [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
 - [@Elionatrox](https://twitter.com/Elionatrox), who helped me and cheered me up when I needed him to.  
-Even though if he has now left and abandoned me..
+Even though if he has broke my heart lel..
 
 ---
 
