@@ -3,7 +3,7 @@
 **Oli** is an *open source PHP framework* made to help you creating your website.  
 The framework brings up various development tools such as database and user management, and more. ♪
 
-Want to know more about the project team? [Check out the "Oli Team" section](#oli-team)!
+Want to know more about the project team? [Check out the "Team" section](#team)!
 
 ### Get started!
 
@@ -11,27 +11,27 @@ Want to know more about the project team? [Check out the "Oli Team" section](#ol
 
 #### Prerequisites
 
-First, make sure you have a working web server set up, with PHP installed. 
+First, you need to make sure you have a working web server set up, with PHP installed. 
 
-As the framework is currently in BETA, please be careful with your installation. Oli is developed using an Apache server with PHP 7.0 and MySQL installed, and no test has been made using other configations.
+As the framework is currently in BETA, please be careful with your installation: Oli is developed using an Apache server with PHP 7.0 and MySQL installed, and no tests has been run using other configations.
 
 #### Install
 
-[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract it and place Oli on your web server. Then, you just need to go through the *config.json* file!  
-Need help setting it all up? [Here's a more detailed guide to get started](https://github.com/OliFramework/Oli/wiki/Get-started). (**WIP**)
+[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract the archive and place Oli in your web server file directory.  
+The last thing you'll have to do is the config! Need help with that? [Here's a more detailed guide to get started](https://github.com/OliFramework/Oli/wiki/Get-started). (**WIP**)
 
-Once the framework is setup, you can create your pages in the **/content/theme/...** directory as *.php* files.  
-You can place your stylesheets and scripts in the **/content/theme/assets/...** directory for an easier access through Oli, using its built-in HTML tools.
+Once the framework set up, you can create and place your pages in the **/content/theme/...** directory as *.php* files.  
+You can place your CSS stylesheets and JS scripts in the **/content/theme/assets/...** directory for an easier access through Oli, using its built-in HTML tools.
 
 #### Some extras
 
-**You might also want to look into *other things that might help you*:**  
-Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database, and update your *config.json* file.  
-Also want to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
+**You might also want to look into other things that might help you:**  
+Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database, and update your *config.json* file with the MySQL access infos.  
+Need to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
 
-Interesting in looking at things made by the community? [Check out what the projects and addons they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community)!
+Interesting by things made by the community? [Check out what projects and addons they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community)!
 
-You have something to add to the framework? Learn about [creating your own addon for Oli](#). (**WIP**)  
+You have something to add to the framework? Let us know, or learn about [creating your own addon for Oli](#). (**WIP**)  
 Don't forget to *share your creations with us*! ♪
 
 ### You
@@ -40,13 +40,15 @@ Please make sure to read the [Code of Conduct](https://github.com/OliFramework/O
 
 #### Contributing
 
-You can contribute to the project by developing addons or suggesting new features.  
-If you want to help in the framework developement, please read the [Contributing](#) file first! (**WIP**)
+You have something to add to the framework? You can contribute to the project by developing addons or suggesting new features.  
+To do so, learn about [creating your own addon for Oli](#) (**WIP**) or see the ["Team" section](#team) to contact us.
+
+If you want to get involved in the framework developement, please read the [Contributing](#) file first! (**WIP**)
 
 #### Help & Support
 
 Have trouble? Need some help with something?  
-You can contact us directly (see the ["Oli Team" section](#oli-team)) or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
+You can contact us directly (see the ["Team" section](#team)) or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
 
 ---
 
@@ -97,9 +99,11 @@ Want to get in touch with me? Here's how:
 
 See who also [contributed to this project](#)!
 
-*Thanks credits:*
-- [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
-- [@Elionatrox](https://twitter.com/Elionatrox), who helped me and cheered me up when I needed him to.  
+#### Thanks credits
+
+[@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
+
+[@Elionatrox](https://twitter.com/Elionatrox), who helped me and cheered me up when I needed him to.  
 Even though if he has broke my heart lel..
 
 ---
