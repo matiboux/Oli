@@ -1,28 +1,52 @@
-# Oli BETA 1.8.0 — dev. branch
+## Oli BETA 1.8.0 — dev. branch
 
-**Oli** is an *open source PHP framework*. It has been made to help developers make their website. The framework brings SQL and utility tools, addons support and more.  
-Want to discover the project team? [Go to the "Oli Team" section](#oli-team)!
+**Oli** is an *open source PHP framework* made to help you creating your website.  
+The framework brings up various development tools such as database and user management, and more. ♪
 
-### Start using it!
+Want to know more about the project team? [Check out the "Oli Team" section](#oli-team)!
+
+### Get started!
 
 *Warning: The BETA is barely documented.*
 
-[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and start configuring your website!  
-Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
+#### Prerequisites
 
-Once the framework is setup, you can create your pages in the **/content/theme/...** directory.  
-Put your stylesheets and scripts in the **/content/theme/assets/...** directory for an easier access through Oli.
+First, make sure you have a working web server set up, with PHP installed. 
 
-### More things
+As the framework is currently in BETA, please be careful with your installation. Oli is developed using an Apache server with PHP 7.0 and MySQL installed, and no test has been made using other configations.
 
-**You might also want to see *other things that could help you*:**  
-Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database.  
-Want to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
+#### Install
 
-Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community) (**WIP**).
+[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract it and place Oli on your web server. Then, you just need to go through the *config.json* file!  
+Need help setting it all up? [Here's a more detailed guide to get started](https://github.com/OliFramework/Oli/wiki/Get-started). (**WIP**)
 
-You are a developer? Learn about [creating your own addon for Oli](#) (**WIP**).  
+Once the framework is setup, you can create your pages in the **/content/theme/...** directory as *.php* files.  
+You can place your stylesheets and scripts in the **/content/theme/assets/...** directory for an easier access through Oli, using its built-in HTML tools.
+
+#### Some extras
+
+**You might also want to look into *other things that might help you*:**  
+Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database, and update your *config.json* file.  
+Also want to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
+
+Interesting in looking at things made by the community? [Check out what the projects and addons they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community)!
+
+You have something to add to the framework? Learn about [creating your own addon for Oli](#). (**WIP**)  
 Don't forget to *share your creations with us*! ♪
+
+### You
+
+Please make sure to read the [Code of Conduct](https://github.com/OliFramework/Oli/blob/master/CODE_OF_CONDUCT.md) before getting involved in the project, either by participating or by contributing.
+
+#### Contributing
+
+You can contribute to the project by developing addons or suggesting new features.  
+If you want to help in the framework developement, please read the [Contributing](#) file first! (**WIP**)
+
+#### Help & Support
+
+Have trouble? Need some help with something?  
+You can contact us directly (see the ["Oli Team" section](#oli-team)) or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
 
 ---
 
@@ -60,7 +84,7 @@ These directories may contains content that might be licensed under another lice
 
 ---
 
-### Oli Team
+### Team
 
 **Creator & Developer**: Matiboux (Mathieu Guérin)  
 Want to get in touch with me? Here's how:
@@ -68,6 +92,10 @@ Want to get in touch with me? Here's how:
  - **Github**: [@matiboux](https://github.com/Matiboux)
  - **Twitter**: [@Matiboux](https://twitter.com/Matiboux)
  - **Telegram**: [@Matiboux](https://t.me/Matiboux)
+ 
+#### Contributors
+
+See who also [contributed to this project](#)!
 
 *Thanks credits:*
 - [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
