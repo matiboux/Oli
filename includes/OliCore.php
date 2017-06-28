@@ -11,8 +11,9 @@
 |*|  Oli Github repository: https://github.com/OliFramework/Oli/
 |*|  
 |*|  Creator & Developer: Matiboux (Mathieu Guérin)
-|*|    → Github: https://github.com/matiboux
-|*|    → Email: matiboux@gmail.com
+|*|   → Github: @matiboux – https://github.com/matiboux/
+|*|   → Telegram: @Matiboux – https://t.me/Matiboux/
+|*|   → Email: matiboux@gmail.com
 |*|  
 |*|  For more info, please read the README.md file.
 |*|  You can find it in the project repository (see the Github link above).
