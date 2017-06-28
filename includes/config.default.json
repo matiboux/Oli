@@ -42,7 +42,7 @@
 		"accounts": "accounts",
 		"infos": "accounts_infos",
 		"sessions": "accounts_sessions",
-		"login_limits": "",
+		"log_limits": "accounts_log_limits",
 		"requests": "accounts_requests",
 		"permissions": "accounts_permissions",
 		"rights": "accounts_rights"

@@ -2179,7 +2179,7 @@ class OliCore {
 				if($tableCode == 'ACCOUNTS') return $this->config['accounts_tables']['accounts'];
 				else if($tableCode == 'INFOS') return $this->config['accounts_tables']['infos'];
 				else if($tableCode == 'SESSIONS') return $this->config['accounts_tables']['sessions'];
-				else if($tableCode == 'LOGIN_LIMITS') return $this->config['accounts_tables']['login_limits'];
+				else if($tableCode == 'LOG_LIMITS') return $this->config['accounts_tables']['log_limits'];
 				else if($tableCode == 'REQUESTS') return $this->config['accounts_tables']['requests'];
 				else if($tableCode == 'PERMISSIONS') return $this->config['accounts_tables']['permissions'];
 				else if($tableCode == 'RIGHTS') return $this->config['accounts_tables']['rights'];
