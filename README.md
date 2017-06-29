@@ -49,7 +49,7 @@ You can also get involved in the framework developement, if you'd like to. Pleas
 ### Help & Support
 
 Have trouble? Need some help with something?  
-You can contact us directly (see the ["Team" section](#team)) or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
+You can check out the ["Team" section](#team) to contact us directly or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
 
 ---
 
