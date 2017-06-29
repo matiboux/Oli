@@ -1,21 +1,21 @@
-## Oli BETA 1.8.0 — dev. branch
+# Oli BETA 1.8.0 — dev. branch
 
 **Oli** is an *open source PHP framework* made to help you creating your website.  
 The framework brings up various development tools such as database and user management, and more. ♪
 
 Want to know more about the project team? [Check out the "Team" section](#team)!
 
-### Get started!
+## Get started!
 
 *Warning: The BETA is barely documented.*
 
-#### Prerequisites
+### Prerequisites
 
 First, you need to make sure you have a working web server set up, with PHP installed. 
 
 As the framework is currently in BETA, please be careful with your installation: Oli is developed using an Apache server with PHP 7.0 and MySQL installed, and no tests has been run using other configations.
 
-#### Install
+### Install
 
 [Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract the archive and place Oli in your web server file directory.  
 The last thing you'll have to do is the config! Need help with that? [Here's a more detailed guide to get started](https://github.com/OliFramework/Oli/wiki/Get-started). (**WIP**)
@@ -23,7 +23,7 @@ The last thing you'll have to do is the config! Need help with that? [Here's a m
 Once the framework set up, you can create and place your pages in the **/content/theme/...** directory as *.php* files.  
 You can place your CSS stylesheets and JS scripts in the **/content/theme/assets/...** directory for an easier access through Oli, using its built-in HTML tools.
 
-#### Some extras
+### Some extras
 
 **You might also want to look into other things that might help you:**  
 Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database, and update your *config.json* file with the MySQL access infos.  
@@ -34,25 +34,26 @@ Interesting by things made by the community? [Check out what projects and addons
 You have something to add to the framework? Let us know, or learn about [creating your own addon for Oli](#). (**WIP**)  
 Don't forget to *share your creations with us*! ♪
 
-### You
+## You
 
 Please make sure to read the [Code of Conduct](https://github.com/OliFramework/Oli/blob/master/CODE_OF_CONDUCT.md) before getting involved in the project, either by participating or by contributing.
 
-#### Contributing
+### Contributing
 
-You have something to add to the framework? You can contribute to the project by developing addons or suggesting new features.  
-To do so, learn about [creating your own addon for Oli](#) (**WIP**) or see the ["Team" section](#team) to contact us.
+You have something to add to the framework? You can contribute to the project by developing addons. To do so, learn about [creating your own addon for Oli](#) (**WIP**).
 
-If you want to get involved in the framework developement, please read the [Contributing](#) file first! (**WIP**)
+If you want to suggest new features, feel free to [open a new issue](https://github.com/OliFramework/Oli/issues/new) or see the ["Team" section](#team) to contact us.
 
-#### Help & Support
+You can also get involved in the framework developement, if you'd like to. Please read the [Contributing](#) file first! (**WIP**)
+
+### Help & Support
 
 Have trouble? Need some help with something?  
 You can contact us directly (see the ["Team" section](#team)) or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
 
 ---
 
-### License
+## License
 
 Copyright (C) 2015-2017 Matiboux (Mathieu Guérin)
 > This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.  
@@ -69,7 +70,7 @@ This license applies to the...
 - **/index.php** file
 - **/load.php** file
 - **/form.php** file
-- files in **/includes/...** – and files in its sub-directories
+- files in **/includes/...** – and in its sub-directories
 
 This license does not applies to the...
 - **/config.json** and **/mysql.json** config files
@@ -79,14 +80,14 @@ This license does not applies to the...
 - **.htaccess** files
 
 These directories may contains content that might be licensed under another license:
-- files in **/content/...** – and files in its sub-directories
-- files in **/addons/...** – and files in its sub-directories
+- files in **/content/...** – and in its sub-directories
+- files in **/addons/...** – and in its sub-directories
 
 *Paths beginning with **/** are relative to the main directory of this repository.*
 
 ---
 
-### Team
+## Team
 
 **Creator & Developer**: Matiboux (Mathieu Guérin)  
 Want to get in touch with me? Here's how:
@@ -95,11 +96,11 @@ Want to get in touch with me? Here's how:
  - **Twitter**: [@Matiboux](https://twitter.com/Matiboux)
  - **Telegram**: [@Matiboux](https://t.me/Matiboux)
  
-#### Contributors
+### Contributors
 
-See who also [contributed to this project](#)!
+See who also [contributed to this project](#) (CONTRIBUTORS.md)!
 
-#### Thanks credits
+### Thanks credits
 
 [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
 
