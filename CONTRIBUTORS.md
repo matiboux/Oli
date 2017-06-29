@@ -1,4 +1,4 @@
-# Oli Contributors
+# Oli — Contributors
 
 - [@matiboux](https://github.com/Matiboux) — Oli Team
 
