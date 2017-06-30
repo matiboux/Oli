@@ -148,6 +148,11 @@ class OliCore {
 	/** User ID */
 	private $userID = null;
 	
+	
+	/** Data Cache */
+	private $cache = [];
+	
+	
 	/** *** *** *** */
 	
 	/** ------------------- */
