@@ -145,12 +145,13 @@ class OliCore {
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
 	
-	/** User ID */
-	private $userID = null;
-	
 	
 	/** Data Cache */
 	private $cache = [];
+	
+	
+	/** DEPRECATED – For backward compatibility only */
+	private $userID = null; // User ID
 	
 	
 	/** *** *** *** */
@@ -2724,7 +2725,7 @@ class OliCore {
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND $authKey == ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $this->userID)))['auth_key'] AND strtotime($sessionInfos['expire_date']) >= time()) return true;
+				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND $authKey == ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $this->cache['userID'])))['auth_key'] AND strtotime($sessionInfos['expire_date']) >= time()) return true;
 				else return false;
 			}
 			
@@ -2752,14 +2753,15 @@ class OliCore {
 					}
 					
 					if($setUserIDCookie) $this->setUserIDCookie($userID, null);
-					return $this->userID = $userID;
+					return $this->cache['userID'] = $this->userID = $userID;
+					/**                            \-------------/ BACKWARD COMPATIBILITY */
 				}
 			}
 			
 			/** Update User Session */
 			public function updateUserSession() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->updateAccountInfos('SESSIONS', array('ip_address' => $this->getUserIP(), 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->userID));
+				else return $this->updateAccountInfos('SESSIONS', array('ip_address' => $this->getUserIP(), 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->cache['userID']));
 			}
 			
 			/** ------------------- */
@@ -2912,7 +2914,7 @@ class OliCore {
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'];
 						
-						if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->userID))) {
+						if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->cache['userID']))) {
 							if($setAuthKeyCookie) $this->setAuthKeyCookie($newAuthKey, $expireDelay);
 							return $newAuthKey;
 						}
