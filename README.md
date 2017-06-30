@@ -1,4 +1,4 @@
-# Oli BETA 1.8.0 — dev. branch
+# Oli BETA 1.8.0
 
 **Oli** is an *open source PHP framework* made to help you creating your website.  
 The framework brings up various development tools such as database and user management, and more. ♪
@@ -26,7 +26,7 @@ You can place your CSS stylesheets and JS scripts in the **/content/theme/assets
 ### Some extras
 
 **You might also want to look into other things that might help you:**  
-Want to use a database with your website? Import the [default Oli SQL file](#) (oli.default.sql) in your MySQL database, and update your *config.json* file with the MySQL access infos.  
+Want to use a database with your website? Import the [default Oli SQL file](https://github.com/OliFramework/Oli/blob/master/oli.default.sql) in your MySQL database, and update your *config.json* file with the MySQL access infos.  
 Need to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
 
 Interesting by things made by the community? [Check out what projects and addons they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community)!
@@ -44,7 +44,7 @@ You have something to add to the framework? You can contribute to the project by
 
 If you want to suggest new features, feel free to [open a new issue](https://github.com/OliFramework/Oli/issues/new) or see the ["Team" section](#team) to contact us.
 
-You can also get involved in the framework developement, if you'd like to. Please read the [Contributing](#) file first! (**WIP**)
+You can also get involved in the framework developement, if you'd like to. Please read the [Contributing](https://github.com/OliFramework/Oli/blob/master/CONTRIBUTING.md) file first! (**WIP**)
 
 ### Help & Support
 
@@ -98,7 +98,7 @@ Want to get in touch with me? Here's how:
  
 ### Contributors
 
-See who also [contributed to this project](#) (CONTRIBUTORS.md)!
+See who also [contributed to this project](https://github.com/OliFramework/Oli/blob/master/CONTRIBUTORS.md)!
 
 ### Thanks credits
 
