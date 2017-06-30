@@ -1,73 +1,112 @@
-# Oli BETA 1.7.2
+# Oli BETA 1.8.0
 
-**Oli** is an *open source PHP framework* made to help web developers creating their website.
+**Oli** is an *open source PHP framework* made to help you creating your website.  
+The framework brings up various development tools such as database and user management, and more. ♪
 
-**Community is everything!**
-Support me and suggest me anything!
+Want to know more about the project team? [Check out the "Team" section](#team)!
 
-### Start using it
+## Get started!
 
-[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract Oli on your web server and configure your website!  
-Need help setting it up? [Here's how to get started](https://github.com/OliFramework/Oli/wiki/Get-started).
+*Warning: The BETA is barely documented.*
 
-Once configuration is done, start creating your pages in the "**content/theme/...**" directory.  
-Put your stylesheets and scripts in "**content/theme/data/...**" directory for an easier access through Oli.
+### Prerequisites
 
-### More things
+First, you need to make sure you have a working web server set up, with PHP installed. 
 
-Want to find addons or pages made by the community? Or maybe even their own projects? [Check what they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community).  
-Are you a developer? You can create your own addon for Oli, [here's how](#).  
-Don't forget to **share your creations with us**!
+As the framework is currently in BETA, please be careful with your installation: Oli is developed using an Apache server with PHP 7.0 and MySQL installed, and no tests has been run using other configations.
 
-**Hey, you might want to check the *official Oli stuff that could helps you*:**  
-Wanna use a database with Oli? Get the [default Oli SQL file here](#).  
-Wanna the account management feature? Get the [official Oli login page](https://gist.github.com/matiboux/38f1057947c26b8ccf234da8b47e20b3) now!
+### Install
 
-### License
+[Download the latest release](https://github.com/OliFramework/Oli/releases/latest), extract the archive and place Oli in your web server file directory.  
+The last thing you'll have to do is the config! Need help with that? [Here's a more detailed guide to get started](https://github.com/OliFramework/Oli/wiki/Get-started). (**WIP**)
 
-Copyright (C) 2015-2017 Mathieu Guérin
-> This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Once the framework set up, you can create and place your pages in the **/content/theme/...** directory as *.php* files.  
+You can place your CSS stylesheets and JS scripts in the **/content/theme/assets/...** directory for an easier access through Oli, using its built-in HTML tools.
+
+### Some extras
+
+**You might also want to look into other things that might help you:**  
+Want to use a database with your website? Import the [default Oli SQL file](https://github.com/OliFramework/Oli/blob/master/oli.default.sql) in your MySQL database, and update your *config.json* file with the MySQL access infos.  
+Need to use the account management feature? Learn about the [official Oli login page](https://github.com/OliFramework/Oli-Login-Page)!
+
+Interesting by things made by the community? [Check out what projects and addons they made](https://github.com/OliFramework/Oli/wiki/Created-by-the-community)!
+
+You have something to add to the framework? Let us know, or learn about [creating your own addon for Oli](#). (**WIP**)  
+Don't forget to *share your creations with us*! ♪
+
+## You
+
+Please make sure to read the [Code of Conduct](https://github.com/OliFramework/Oli/blob/master/CODE_OF_CONDUCT.md) before getting involved in the project, either by participating or by contributing.
+
+### Contributing
+
+You have something to add to the framework? You can contribute to the project by developing addons. To do so, learn about [creating your own addon for Oli](#) (**WIP**).
+
+If you want to suggest new features, feel free to [open a new issue](https://github.com/OliFramework/Oli/issues/new) or see the ["Team" section](#team) to contact us.
+
+You can also get involved in the framework developement, if you'd like to. Please read the [Contributing](https://github.com/OliFramework/Oli/blob/master/CONTRIBUTING.md) file first! (**WIP**)
+
+### Help & Support
+
+Have trouble? Need some help with something?  
+You can check out the ["Team" section](#team) to contact us directly or [open a new issue](https://github.com/OliFramework/Oli/issues/new).
+
+---
+
+## License
+
+Copyright (C) 2015-2017 Matiboux (Mathieu Guérin)
+> This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.  
 > 
-> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+> See the GNU Affero General Public License for more details.
 > 
-> You should have received a copy of the GNU Affero General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+> You should have received a copy of the GNU Affero General Public License along with this program.  
+> If not, see <http://www.gnu.org/licenses/>.
 
 *You'll find a copy of the GNU AGPL v3 license in the **LICENSE** file.*
 
-This license applies to:
+This license applies to the...
+- **/index.php** file
+- **/load.php** file
+- **/form.php** file
+- files in **/includes/...** – and in its sub-directories
 
-- "**/index.php**"
-- "**/form.php**"
-- "**/load.php**"
-- *all files* in "**/includes/...**" (and sub-directories)
-- *files* in "**/content/...**" (and *not* sub-directories)
-- (*except .htaccess*)
+This license does not applies to the...
+- **/config.json** and **/mysql.json** config files
+- **/.gitignore** file
+- **/oli.default.sql** file (which is licensed under the MIT license)
+- New API files that might be created in the **/** directory
+- **.htaccess** files
 
-These belongs to their respective owners and may be licensed under another license:
+These directories may contains content that might be licensed under another license:
+- files in **/content/...** – and in its sub-directories
+- files in **/addons/...** – and in its sub-directories
 
-- *all files* in "**/content/...**" **directories** (and sub-directories)
-- *all files* in "**/addons/...**" (and sub-directories)
+*Paths beginning with **/** are relative to the main directory of this repository.*
 
-### Oli Team
+---
 
-Owner & Developer: Mathieu Guérin (aka "Matiboux", detailed profile & contact infos below)
+## Team
 
-*Also some thanks credits:*
-- [@SeeMyPing](https://twitter.com/SeeMyPing) who suggested me "Oli" as the framework name
-- [@Elionatrox](https://twitter.com/Elionatrox) who supported me and helped me when I needed him to
-
-### About me and my contact infos
-
-My name is Mathieu Guérin, also known as "Matiboux" on the Internet.  
-I'm a young developer who created this project and now works on it.  
-I also made some other personnal projects like [ImgShot](https://github.com/matiboux/ImgShot) or [KeyGen](https://github.com/matiboux/KeyGen).  
-Want to **disvover them**? Go check [my projects portal](http://projects.matiboux.com/)!
-
-Want to talk with me? You can **contact me there**:
+**Creator & Developer**: Matiboux (Mathieu Guérin)  
+Want to get in touch with me? Here's how:
  - **Email**: [matiboux@gmail.com](mailto:matiboux@gmail.com)
- - **Twitter**: http://twitter.com/Matiboux
- - **Telegram**: [@Matiboux](http://telegram.me/Matiboux)
- - *(maybe soon Matiboux Social or Matiboux Messenger)*
+ - **Github**: [@matiboux](https://github.com/Matiboux)
+ - **Twitter**: [@Matiboux](https://twitter.com/Matiboux)
+ - **Telegram**: [@Matiboux](https://t.me/Matiboux)
+ 
+### Contributors
 
-*You can also use these to suggest me new features!*  
-**Help is always appreciated! <3**
+See who also [contributed to this project](https://github.com/OliFramework/Oli/blob/master/CONTRIBUTORS.md)!
+
+### Thanks credits
+
+[@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
+
+[@Elionatrox](https://twitter.com/Elionatrox), who helped me and cheered me up when I needed him to.  
+Even though if he has broke my heart lel..
+
+---
+
+**Community and feedbacks are everything! Help is always appreciated! <3**
