@@ -2,7 +2,7 @@
 /*\
 |*|  ---------------------------------
 |*|  --- [  Oli - PHP Framework  ] ---
-|*|  --- [  Version BETA: 1.8.0  ] ---
+|*|  --- [  Version BETA: 1.8.1  ] ---
 |*|  ---------------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help you creating your website.
