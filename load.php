@@ -14,6 +14,7 @@ if(!defined('OLIPATH')) define('OLIPATH', $config['source_path'] ?: ABSPATH);
 unset($config['source_path']);
 
 if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
+if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 
 /** Include OliCore & Addons */
