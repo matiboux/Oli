@@ -1754,6 +1754,7 @@ class OliCore {
 		// - 0 => Url without any parameters (same as base url)
 		// - 1 => First parameter: file name parameter (e.g. 'page')
 		// - # => Other parameters (e.g. 2 => 'param')
+		// - 'last' => Get the last parameters fragment
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
@@ -1840,6 +1841,7 @@ class OliCore {
 						
 						if($param == 'all') return $newFrationnedUrl;
 						else if($param == 'params') return array_slice($newFrationnedUrl, 1);
+						else if($param == 'last') return $newFrationnedUrl[count($newFrationnedUrl) - 1];
 						else if(isset($newFrationnedUrl[$param])) return $newFrationnedUrl[$param];
 						else return false;
 					}
