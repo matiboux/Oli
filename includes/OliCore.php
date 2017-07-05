@@ -1835,7 +1835,6 @@ class OliCore {
 									$countLoop += 2;
 								}
 								
-								str_replace('\/', '/', $nextFrationnedUrl);
 								preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFrationnedUrl, $matches);
 								if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : $nextFrationnedUrl)) array_pop($newFrationnedUrl);
 							}
