@@ -1755,6 +1755,7 @@ class OliCore {
 		// - 1 => First parameter: file name parameter (e.g. 'page')
 		// - # => Other parameters (e.g. 2 => 'param')
 		// - 'last' => Get the last parameters fragment
+		// - 'get' => Get $_GET
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
@@ -1821,7 +1822,9 @@ class OliCore {
 									$countLoop++;
 								}
 							}
-							$newFrationnedUrl[] = implode('/', $fileName);
+							
+							preg_match('/^([^?]*)(?:\?(.*))?$/', implode('/', $fileName), $matches);
+							if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFrationnedUrl);
 						}
 						
 						while(isset($frationnedUrl[$countLoop])) {
@@ -1833,15 +1836,18 @@ class OliCore {
 								}
 								
 								str_replace('\/', '/', $nextFrationnedUrl);
-								$newFrationnedUrl[] = $nextFrationnedUrl;
+								preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFrationnedUrl, $matches);
+								if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : $nextFrationnedUrl)) array_pop($newFrationnedUrl);
 							}
 							$countLoop++;
 						}
+						
 						$newFrationnedUrl[1] = $newFrationnedUrl[1] ?: 'home';
 						
 						if($param == 'all') return $newFrationnedUrl;
 						else if($param == 'params') return array_slice($newFrationnedUrl, 1);
 						else if($param == 'last') return $newFrationnedUrl[count($newFrationnedUrl) - 1];
+						else if($param == 'get') return $_GET;
 						else if(isset($newFrationnedUrl[$param])) return $newFrationnedUrl[$param];
 						else return false;
 					}
