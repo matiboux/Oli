@@ -104,8 +104,7 @@ See who also [contributed to this project](https://github.com/OliFramework/Oli/b
 
 [@SeeMyPing](https://twitter.com/SeeMyPing), who suggested "Oli" as the framework name.
 
-[@Elionatrox](https://twitter.com/Elionatrox), who helped me and cheered me up when I needed him to.  
-Even though if he has broke my heart lel..
+[@Elionatrox](https://twitter.com/Elionatrox), who helped me for a while..
 
 ---
 
