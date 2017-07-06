@@ -1,4 +1,5 @@
 <?php
+$_Oli->setContentType('JSON');
 $params = array_merge($_GET, $_POST);
 $result = [];
 
@@ -24,5 +25,5 @@ if(!empty($params)) {
 	} else $result = array('error' => 'Error: "Action" parameter is missing');
 } else $result = array('error' => 'Error: No parameters provided');
 
-die(!empty($result) ? json_encode($result, JSON_FORCE_OBJECT) : 'Unknown script result.');
+die(!empty($result) ? json_encode($result, JSON_FORCE_OBJECT) : array('error' => 'Unknown script result.'));
 ?>
