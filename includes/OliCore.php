@@ -1171,7 +1171,11 @@ class OliCore {
 					
 					if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 					
-					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
+					if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
+						$found = SCRIPTSPATH . implode('/', $fileName);
+						$this->fileNameParam = implode('/', $fileName);
+					}
+					else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
 						$this->fileNameParam = implode('/', $fileName);
 					}
@@ -1189,7 +1193,7 @@ class OliCore {
 									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
 									$this->fileNameParam = $indexFilePath;
 								}
-								/** Sub-directory  Content Rules Indexes */
+								/** Sub-directory Content Rules Indexes */
 								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
 									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
 									$this->fileNameParam = implode('/', $fileName);
