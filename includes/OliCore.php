@@ -2736,7 +2736,7 @@ class OliCore {
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND $authKey == ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $this->cache['userID'])))['auth_key'] AND strtotime($sessionInfos['expire_date']) >= time()) return true;
+				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $this->cache['userID'])))['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time()) return true;
 				else return false;
 			}
 			
