@@ -59,6 +59,8 @@
 	"request_expire_delay": "Time:2 days",
 	"default_session_duration": "Time:1 day",
 	"extended_session_duration": "Time:7 days",
+		
+	"associated_websites": [],
 	
 	"user_id_length": 16,
 	"user_id_cookie": {

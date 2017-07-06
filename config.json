@@ -62,6 +62,8 @@
 		"default_session_duration": null,
 		"extended_session_duration": null,
 		
+		"associated_websites": null,
+		
 		"user_id_length": null,
 		"user_id_cookie": {
 			"name": null,
