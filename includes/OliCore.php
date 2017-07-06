@@ -2799,7 +2799,7 @@ class OliCore {
 			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
 			
 			/** User ID cookie content */
-			public function getUserID() { return $this->getCookieContent($this->config['user_id_cookie']['name']); }
+			public function getUserID() { return $this->cache['userID'] ?: $this->getCookieContent($this->config['user_id_cookie']['name']); }
 			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
 			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 		
