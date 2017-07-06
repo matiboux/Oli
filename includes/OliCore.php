@@ -2729,7 +2729,7 @@ class OliCore {
 			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
 			
 			/** Auth Key cookie content */
-			public function getAuthKey() { return $this->getCookieContent($this->config['auth_key_cookie']['name']); }
+			public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookieContent($this->config['auth_key_cookie']['name']); }
 			public function isExistAuthKey() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
 			public function isEmptyAuthKey() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 			
