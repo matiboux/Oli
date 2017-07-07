@@ -2907,8 +2907,7 @@ class OliCore {
 			/** Verify login informations */
 			public function verifyLogin($username, $password) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false))
-					return password_verify($password, $userPassword);
+				else if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
 				else return false;
 			}
 			
