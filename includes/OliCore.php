@@ -262,10 +262,10 @@ class OliCore {
 		}
 		
 		/** Convert File Size */
-		public function convertFileSize($size, $toUnit = null) {
+		public function convertFileSize($size, $toUnit = null, $precision = null) {
 			if(preg_match('/^(\d+)\s?(\S*)$/i', $size, $matches)) {
 				list(, $result, $unit) = $matches;
-				if(!empty($unit) AND $unit != $toUnit) {
+				if($unit != $toUnit) {
 					$unitsTable = array(
 						'TiB' => 1024 ** 4,
 						'GiB' => 1024 ** 3,
@@ -296,12 +296,10 @@ class OliCore {
 						'b' => 1 / 8,
 					);
 					
-					if(!empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
-					else $result = $result;
-					
+					if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
 					if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
 				}
-				return $result;
+				return isset($precision) ? round($result, $precision) : $result;
 			} else return $size;
 		}
 		
