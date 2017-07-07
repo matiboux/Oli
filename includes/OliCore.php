@@ -256,15 +256,15 @@ class OliCore {
 										else if($matches[2] == 'KiB' OR $matches[2] == 'Kio') $partResult = $matches[1] * 1024;
 										else if($matches[2] == 'KB' OR $matches[2] == 'Ko') $partResult = $matches[1] * 1000;
 										
-										else if($matches[2] == 'Tib') $partResult = $matches[1] * 8 * (1024 ** 4);
-										else if($matches[2] == 'Tb') $partResult = $matches[1] * 8 * (1000 ** 4);
-										else if($matches[2] == 'Gib') $partResult = $matches[1] * 8 * (1024 ** 3);
-										else if($matches[2] == 'Gb') $partResult = $matches[1] * 8 * (1000 ** 3);
-										else if($matches[2] == 'Mib') $partResult = $matches[1] * 8 * (1024 ** 2);
-										else if($matches[2] == 'Mb') $partResult = $matches[1] * 8 * (1000 ** 2);
-										else if($matches[2] == 'Kib') $partResult = $matches[1] * 8 * 1024;
-										else if($matches[2] == 'Kb') $partResult = $matches[1] * 8 * 1000;
-										else if($matches[2] == 'b') $partResult = $matches[1] * 8;
+										else if($matches[2] == 'Tib') $partResult = $matches[1] / 8 * (1024 ** 4);
+										else if($matches[2] == 'Tb') $partResult = $matches[1] / 8 * (1000 ** 4);
+										else if($matches[2] == 'Gib') $partResult = $matches[1] / 8 * (1024 ** 3);
+										else if($matches[2] == 'Gb') $partResult = $matches[1] / 8 * (1000 ** 3);
+										else if($matches[2] == 'Mib') $partResult = $matches[1] / 8 * (1024 ** 2);
+										else if($matches[2] == 'Mb') $partResult = $matches[1] / 8 * (1000 ** 2);
+										else if($matches[2] == 'Kib') $partResult = $matches[1] / 8 * 1024;
+										else if($matches[2] == 'Kb') $partResult = $matches[1] / 8 * 1000;
+										else if($matches[2] == 'b') $partResult = $matches[1] / 8;
 										
 										else $partResult = $matches[1];
 									}
