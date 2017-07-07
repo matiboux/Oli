@@ -1191,7 +1191,7 @@ class OliCore {
 								$indexFilePath = implode('/', array_slice($eachValue, 0, -1));
 								$indexFileName = implode('/', array_slice($eachValue, -1));
 								
-								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName)  AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
+								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
 									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
 									$this->fileNameParam = $indexFilePath;
 								}
