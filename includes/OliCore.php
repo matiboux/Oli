@@ -1164,10 +1164,10 @@ class OliCore {
 			$contentRules = array_merge(array('access' => array('*' => array('ALLOW' => '*'))), $this->decodeContentRules($contentRulesFile) ?: []);
 			
 			if(!empty($params)) {
+				$accessAllowed = null;
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
 					$pathTo = implode('/', array_slice($fileName, 0, -1)) . '/';
-					$accessAllowed = null;
 					
 					if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 					
