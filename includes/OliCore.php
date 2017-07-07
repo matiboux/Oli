@@ -1215,7 +1215,7 @@ class OliCore {
 				}
 			}
 			
-			if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
+			// if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
 			
 			if(!empty($found)) {
 				http_response_code(200); // 200 OK
