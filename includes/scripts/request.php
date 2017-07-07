@@ -1,5 +1,4 @@
 <?php
-$_Oli->setContentType('JSON');
 $params = array_merge($_GET, $_POST);
 $result = [];
 
