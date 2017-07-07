@@ -1283,8 +1283,8 @@ class OliCore {
 			if(empty($accessRules)) return $defaultResult;
 			else {
 				if(!empty($fileName) AND !empty($accessRules[$fileName])) {
-					if($accessRules[$fileName]['DENY'] == '*') $result = false;
-					else if($accessRules[$fileName]['ALLOW'] == '*') $result = true;
+					if(in_array($accessRules[$fileName]['DENY'], ['*', 'all'])) $result = false;
+					else if(in_array($accessRules[$fileName]['ALLOW'], ['*', 'all'])) $result = true;
 					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
 						if(!empty($accessRules[$fileName]['DENY']) AND ((empty($accessRules[$fileName]['DENY']['from']) OR (!empty($accessRules[$fileName]['DENY']['from']) AND $accessRules[$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['DENY']['to']) OR (!empty($accessRules[$fileName]['DENY']['to']) AND $accessRules[$fileName]['DENY']['to'] >= $userRight)))) $result = false;
 						else if(!empty($accessRules[$fileName]['ALLOW']) AND ((empty($accessRules[$fileName]['ALLOW']['from']) OR (!empty($accessRules[$fileName]['ALLOW']['from']) AND $accessRules[$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['ALLOW']['to']) OR (!empty($accessRules[$fileName]['ALLOW']['to']) AND $accessRules[$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
@@ -1292,8 +1292,8 @@ class OliCore {
 				}
 				
 				if(!isset($result) AND !empty($accessRules['*'])) {
-					if($accessRules['*']['DENY'] == '*') $result = false;
-					else if($accessRules['*']['ALLOW'] == '*') $result = true;
+					if(in_array($accessRules['*']['DENY'], ['*', 'all'])) $result = false;
+					else if(in_array($accessRules['*']['ALLOW'], ['*', 'all'])) $result = true;
 					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
 						if(!empty($accessRules['*']['DENY']) AND ((empty($accessRules['*']['DENY']['from']) OR (!empty($accessRules['*']['DENY']['from']) AND $accessRules['*']['DENY']['from'] <= $userRight)) XOR (!empty($accessRules['*']['DENY']['to']) OR (!empty($accessRules['*']['DENY']['to']) AND $accessRules['*']['DENY']['to'] >= $userRight)))) $result = false;
 						else if(!empty($accessRules['*']['ALLOW']) AND ((empty($accessRules['*']['ALLOW']['from']) OR (!empty($accessRules['*']['ALLOW']['from']) AND $accessRules['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules['*']['ALLOW']['to']) OR (!empty($accessRules['*']['ALLOW']['to']) AND $accessRules['*']['ALLOW']['to'] >= $userRight)))) $result = true;
