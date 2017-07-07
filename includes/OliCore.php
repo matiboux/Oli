@@ -1174,6 +1174,8 @@ class OliCore {
 					if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
 						$found = SCRIPTSPATH . implode('/', $fileName);
 						$this->fileNameParam = implode('/', $fileName);
+						$this->setContentType('JSON');
+						break;
 					}
 					else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
