@@ -246,28 +246,7 @@ class OliCore {
 										else if($matches[2] == 'hours' OR $matches[2] == 'hour') $partResult = $matches[1] * 3600;
 										else if($matches[2] == 'minutes' OR $matches[2] == 'minute') $partResult = $matches[1] * 60;
 										else $partResult = $matches[1];
-									} else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
-										if($matches[2] == 'TiB' OR $matches[2] == 'Tio') $partResult = $matches[1] * (1024 ** 4);
-										else if($matches[2] == 'TB' OR $matches[2] == 'To') $partResult = $matches[1] * (1000 ** 4);
-										else if($matches[2] == 'GiB' OR $matches[2] == 'Gio') $partResult = $matches[1] * (1024 ** 3);
-										else if($matches[2] == 'GB' OR $matches[2] == 'Go') $partResult = $matches[1] * (1000 ** 3);
-										else if($matches[2] == 'MiB' OR $matches[2] == 'Mio') $partResult = $matches[1] * (1024 ** 2);
-										else if($matches[2] == 'MB' OR $matches[2] == 'Mo') $partResult = $matches[1] * (1000 ** 2);
-										else if($matches[2] == 'KiB' OR $matches[2] == 'Kio') $partResult = $matches[1] * 1024;
-										else if($matches[2] == 'KB' OR $matches[2] == 'Ko') $partResult = $matches[1] * 1000;
-										
-										else if($matches[2] == 'Tib') $partResult = $matches[1] / 8 * (1024 ** 4);
-										else if($matches[2] == 'Tb') $partResult = $matches[1] / 8 * (1000 ** 4);
-										else if($matches[2] == 'Gib') $partResult = $matches[1] / 8 * (1024 ** 3);
-										else if($matches[2] == 'Gb') $partResult = $matches[1] / 8 * (1000 ** 3);
-										else if($matches[2] == 'Mib') $partResult = $matches[1] / 8 * (1024 ** 2);
-										else if($matches[2] == 'Mb') $partResult = $matches[1] / 8 * (1000 ** 2);
-										else if($matches[2] == 'Kib') $partResult = $matches[1] / 8 * 1024;
-										else if($matches[2] == 'Kb') $partResult = $matches[1] / 8 * 1000;
-										else if($matches[2] == 'b') $partResult = $matches[1] / 8;
-										
-										else $partResult = $matches[1];
-									}
+									} else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) $partResult = $this->convertFileSize($matches[1] . ' ' . $matches[2]);
 									else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
 									else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getAssetsUrl();
 									else $partResult = $eachPart;
@@ -280,6 +259,50 @@ class OliCore {
 				}
 				return (!is_array($values) AND count($output) == 1) ? $output[0] : $output;
 			} else return $values;
+		}
+		
+		/** Convert File Size */
+		public function convertFileSize($size, $unit = null) {
+			if(preg_match('/^(\d+)\s?(\S*)$/i', $size, $matches)) {
+				if(!empty($matches[2]) AND $matches[2] != $unit) {
+					$unitsTable = array(
+						'TiB' => 1024 ** 4,
+						'GiB' => 1024 ** 3,
+						'MiB' => 1024 ** 2,
+						'KiB' => 1024,
+						'TB' => 1000 ** 4,
+						'GB' => 1000 ** 3,
+						'MB' => 1000 ** 2,
+						'KB' => 1000,
+						
+						'Tio' => 1024 ** 4,
+						'Gio' => 1024 ** 3,
+						'Mio' => 1024 ** 2,
+						'Kio' => 1024,
+						'To' => 1000 ** 4,
+						'Go' => 1000 ** 3,
+						'Mo' => 1000 ** 2,
+						'Ko' => 1000,
+						
+						'Tib' => 1024 ** 4 / 8,
+						'Gib' => 1024 ** 3 / 8,
+						'Mib' => 1024 ** 2 / 8,
+						'Kib' => 1024 / 8,
+						'Tb' => 1000 ** 4 / 8,
+						'Gb' => 1000 ** 3 / 8,
+						'Mb' => 1000 ** 2 / 8,
+						'Kb' => 1000 / 8,
+						'b' => 1 / 8,
+					);
+					
+					if(!empty($unitsTable[$matches[2]])) $result *= $unitsTable[$matches[2]];
+					else $result = $matches[1];
+					
+					if(!empty($unit) AND !empty($unitsTable[$unit])) $result /= $unitsTable[$unit];
+					
+					return $result;
+				} else return $matches[1];
+			} else return $size;
 		}
 		
 		/** --------------- */
