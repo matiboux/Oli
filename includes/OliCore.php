@@ -2985,7 +2985,17 @@ class OliCore {
 			
 			/** Is prohibited username? */
 			public function isProhibitedUsername($username) {
-				return in_array($username, $this->config['prohibited_usernames']);
+				if(in_array($username, $this->config['prohibited_usernames'])) return true;
+				else {
+					$found = false;
+					foreach($this->config['prohibited_usernames'] as $eachProhibitedUsername) {
+						if(stristr($username, $eachProhibitedUsername)) {
+							$found = true;
+							break;
+						}
+					}
+					return $found ? true : false;
+				}
 			}
 		
 		/** --------------- */
