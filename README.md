@@ -1,4 +1,4 @@
-# Oli BETA 1.8.0
+# Oli BETA 1.8.1
 
 **Oli** is an *open source PHP framework* made to help you creating your website.  
 The framework brings up various development tools such as database and user management, and more. ♪
