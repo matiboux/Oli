@@ -17,6 +17,14 @@ if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
 if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 
+/** Define Additional Constants */
+if(!empty($config['constants'] AND is_array($config['constants'])) {
+	foreach($config['constants'] as $eachName => $eachValue) {
+		if(!defined($eachName)) define($eachName, $eachValue);
+	}
+}
+unset($config['constants']);
+
 /** Include OliCore & Addons */
 if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';
 else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (used path: "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
