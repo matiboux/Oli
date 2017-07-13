@@ -1333,10 +1333,7 @@ class OliCore {
 		/**  V. 3. Website Settings  */
 		/** ------------------------ */
 		
-		/**
-		 * Get settings tables
-		 * @return string|array Settings tables
-		 */
+		/** Get Settings Tables */
 		public function getSettingsTables() { return $this->config['settings_tables']; }
 		
 		/** Get Setting */
