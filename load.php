@@ -18,7 +18,7 @@ if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 
 /** Define Additional Constants */
-if(!empty($config['constants'] AND is_array($config['constants'])) {
+if(!empty($config['constants']) AND is_array($config['constants'])) {
 	foreach($config['constants'] as $eachName => $eachValue) {
 		if(!defined($eachName)) define($eachName, $eachValue);
 	}
