@@ -199,7 +199,11 @@ class OliCore {
 			foreach($config as $eachConfig => $eachValue) {
 				$eachValue = $this->decodeConfigValues($eachValue);
 				
-				if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+				if($eachConfig == 'constants' AND !empty($eachValue) AND is_array($eachValue)) {
+					foreach($eachValue as $eachConstantName => $eachConstantValue) {
+						if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
+					}
+				} else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 				else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
 				else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
 				else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);

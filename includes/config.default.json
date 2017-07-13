@@ -1,6 +1,8 @@
 {
 	"init_timestamp": null,
 	
+	"constants": null,
+	
 	"mysql": null,
 	"settings_tables": null,
 	"shortcut_links_table": null,

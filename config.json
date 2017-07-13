@@ -3,6 +3,8 @@
 	"addons": [],
 	
 	"Oli": {
+		"constants": null,
+		
 		"mysql": null,
 		"settings_tables": null,
 		"shortcut_links_table": null,
