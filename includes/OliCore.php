@@ -1361,8 +1361,8 @@ class OliCore {
 		// public function getAllSettings() { return $this->getSetting(null); }
 		
 		/** Get Shortcut Link */
-		public function getShortcutLink($shortcut) {
-			if(isset($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut));
+		public function getShortcutLink($shortcut, $caseSensitive = false) {
+			if(isset($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut), $caseSensitive);
 			else return false;
 		}
 		
