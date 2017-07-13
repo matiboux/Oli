@@ -10,11 +10,12 @@ if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
 
 $config = file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(ABSPATH . 'config.json'), true) : [];
-if(!defined('SCRIPTBASEPATH')) define('SCRIPTBASEPATH', $config['source_path'] ?: ABSPATH);
+if(!defined('OLIPATH')) define('OLIPATH', $config['source_path'] ?: ABSPATH);
 unset($config['source_path']);
 
-if(!defined('INCLUDESPATH')) define('INCLUDESPATH', SCRIPTBASEPATH . 'includes/');
-if(!defined('ADDONSPATH')) define('ADDONSPATH', SCRIPTBASEPATH . 'addons/');
+if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
+if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
+if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 
 /** Include OliCore & Addons */
 if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';

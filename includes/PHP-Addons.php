@@ -19,4 +19,19 @@ function is_assoc($array) {
 	return is_array($array) ? !empty($array) AND array_keys($array) !== range(0, count($array) - 1) : false;
 }
 
+/** Array Pull */
+// Like an array_pop or array_shift, but for a specific key
+// Inspirated by http://php.net/manual/fr/function.array-slice.php#81973 (user note)
+function array_pull(&$array, $key){
+    $holding = [];
+    foreach($array as $eachKey => $eachValue) {
+        if($eachKey == $key) {
+			$holding[$eachKey] = $eachValue;
+			break;
+		}
+    }
+	$array = array_diff_assoc($array, $holding);
+    return $holding[$key];
+}
+
 }

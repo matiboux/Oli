@@ -4,5 +4,5 @@
 #/index.php
 #/load.php
 
+#/config.json
 /mysql.json
-/content/.oliEncryptionKey

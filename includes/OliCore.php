@@ -2,7 +2,7 @@
 /*\
 |*|  ---------------------------------
 |*|  --- [  Oli - PHP Framework  ] ---
-|*|  --- [  Version BETA: 1.8.0  ] ---
+|*|  --- [  Version BETA: 1.8.1  ] ---
 |*|  ---------------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help you creating your website.
@@ -145,8 +145,14 @@ class OliCore {
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
 	
-	/** User ID */
-	private $userID = null;
+	
+	/** Data Cache */
+	private $cache = [];
+	
+	
+	/** DEPRECATED – For backward compatibility only */
+	private $userID = null; // User ID
+	
 	
 	/** *** *** *** */
 	
@@ -240,28 +246,7 @@ class OliCore {
 										else if($matches[2] == 'hours' OR $matches[2] == 'hour') $partResult = $matches[1] * 3600;
 										else if($matches[2] == 'minutes' OR $matches[2] == 'minute') $partResult = $matches[1] * 60;
 										else $partResult = $matches[1];
-									} else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) {
-										if($matches[2] == 'TiB' OR $matches[2] == 'Tio') $partResult = $matches[1] * (1024 ** 4);
-										else if($matches[2] == 'TB' OR $matches[2] == 'To') $partResult = $matches[1] * (1000 ** 4);
-										else if($matches[2] == 'GiB' OR $matches[2] == 'Gio') $partResult = $matches[1] * (1024 ** 3);
-										else if($matches[2] == 'GB' OR $matches[2] == 'Go') $partResult = $matches[1] * (1000 ** 3);
-										else if($matches[2] == 'MiB' OR $matches[2] == 'Mio') $partResult = $matches[1] * (1024 ** 2);
-										else if($matches[2] == 'MB' OR $matches[2] == 'Mo') $partResult = $matches[1] * (1000 ** 2);
-										else if($matches[2] == 'KiB' OR $matches[2] == 'Kio') $partResult = $matches[1] * 1024;
-										else if($matches[2] == 'KB' OR $matches[2] == 'Ko') $partResult = $matches[1] * 1000;
-										
-										else if($matches[2] == 'Tib') $partResult = $matches[1] * 8 * (1024 ** 4);
-										else if($matches[2] == 'Tb') $partResult = $matches[1] * 8 * (1000 ** 4);
-										else if($matches[2] == 'Gib') $partResult = $matches[1] * 8 * (1024 ** 3);
-										else if($matches[2] == 'Gb') $partResult = $matches[1] * 8 * (1000 ** 3);
-										else if($matches[2] == 'Mib') $partResult = $matches[1] * 8 * (1024 ** 2);
-										else if($matches[2] == 'Mb') $partResult = $matches[1] * 8 * (1000 ** 2);
-										else if($matches[2] == 'Kib') $partResult = $matches[1] * 8 * 1024;
-										else if($matches[2] == 'Kb') $partResult = $matches[1] * 8 * 1000;
-										else if($matches[2] == 'b') $partResult = $matches[1] * 8;
-										
-										else $partResult = $matches[1];
-									}
+									} else if(preg_match('/^Size:\s?(\d+)\s?(\S*)$/i', $eachPart, $matches)) $partResult = $this->convertFileSize($matches[1] . ' ' . $matches[2]);
 									else if(preg_match('/^MediaUrl$/i', $eachPart)) $partResult = $this->getMediaUrl();
 									else if(preg_match('/^DataUrl$/i', $eachPart)) $partResult = $this->getAssetsUrl();
 									else $partResult = $eachPart;
@@ -274,6 +259,48 @@ class OliCore {
 				}
 				return (!is_array($values) AND count($output) == 1) ? $output[0] : $output;
 			} else return $values;
+		}
+		
+		/** Convert File Size */
+		public function convertFileSize($size, $toUnit = null, $precision = null) {
+			if(preg_match('/^(\d+)\s?(\S*)$/i', $size, $matches)) {
+				list(, $result, $unit) = $matches;
+				if($unit != $toUnit) {
+					$unitsTable = array(
+						'TiB' => 1024 ** 4,
+						'GiB' => 1024 ** 3,
+						'MiB' => 1024 ** 2,
+						'KiB' => 1024,
+						'TB' => 1000 ** 4,
+						'GB' => 1000 ** 3,
+						'MB' => 1000 ** 2,
+						'KB' => 1000,
+						
+						'Tio' => 1024 ** 4,
+						'Gio' => 1024 ** 3,
+						'Mio' => 1024 ** 2,
+						'Kio' => 1024,
+						'To' => 1000 ** 4,
+						'Go' => 1000 ** 3,
+						'Mo' => 1000 ** 2,
+						'Ko' => 1000,
+						
+						'Tib' => 1024 ** 4 / 8,
+						'Gib' => 1024 ** 3 / 8,
+						'Mib' => 1024 ** 2 / 8,
+						'Kib' => 1024 / 8,
+						'Tb' => 1000 ** 4 / 8,
+						'Gb' => 1000 ** 3 / 8,
+						'Mb' => 1000 ** 2 / 8,
+						'Kb' => 1000 / 8,
+						'b' => 1 / 8,
+					);
+					
+					if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
+					if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
+				}
+				return isset($precision) ? round($result, $precision) : $result;
+			} else return $size;
 		}
 		
 		/** --------------- */
@@ -1158,14 +1185,20 @@ class OliCore {
 			$contentRules = array_merge(array('access' => array('*' => array('ALLOW' => '*'))), $this->decodeContentRules($contentRulesFile) ?: []);
 			
 			if(!empty($params)) {
+				$accessAllowed = null;
 				foreach($params as $eachParam) {
 					$fileName[] = $eachParam;
 					$pathTo = implode('/', array_slice($fileName, 0, -1)) . '/';
-					$accessAllowed = null;
 					
 					if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 					
-					if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
+					if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
+						$found = SCRIPTSPATH . implode('/', $fileName);
+						$this->fileNameParam = implode('/', $fileName);
+						$this->setContentType('JSON');
+						break;
+					}
+					else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 						$found = THEMEPATH . implode('/', $fileName) . '.php';
 						$this->fileNameParam = implode('/', $fileName);
 					}
@@ -1179,11 +1212,11 @@ class OliCore {
 								$indexFilePath = implode('/', array_slice($eachValue, 0, -1));
 								$indexFileName = implode('/', array_slice($eachValue, -1));
 								
-								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName)  AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
+								if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
 									$found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
 									$this->fileNameParam = $indexFilePath;
 								}
-								/** Sub-directory  Content Rules Indexes */
+								/** Sub-directory Content Rules Indexes */
 								else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
 									$found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
 									$this->fileNameParam = implode('/', $fileName);
@@ -1203,7 +1236,7 @@ class OliCore {
 				}
 			}
 			
-			if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
+			// if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
 			
 			if(!empty($found)) {
 				http_response_code(200); // 200 OK
@@ -1271,8 +1304,8 @@ class OliCore {
 			if(empty($accessRules)) return $defaultResult;
 			else {
 				if(!empty($fileName) AND !empty($accessRules[$fileName])) {
-					if($accessRules[$fileName]['DENY'] == '*') $result = false;
-					else if($accessRules[$fileName]['ALLOW'] == '*') $result = true;
+					if(in_array($accessRules[$fileName]['DENY'], ['*', 'all'])) $result = false;
+					else if(in_array($accessRules[$fileName]['ALLOW'], ['*', 'all'])) $result = true;
 					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
 						if(!empty($accessRules[$fileName]['DENY']) AND ((empty($accessRules[$fileName]['DENY']['from']) OR (!empty($accessRules[$fileName]['DENY']['from']) AND $accessRules[$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['DENY']['to']) OR (!empty($accessRules[$fileName]['DENY']['to']) AND $accessRules[$fileName]['DENY']['to'] >= $userRight)))) $result = false;
 						else if(!empty($accessRules[$fileName]['ALLOW']) AND ((empty($accessRules[$fileName]['ALLOW']['from']) OR (!empty($accessRules[$fileName]['ALLOW']['from']) AND $accessRules[$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['ALLOW']['to']) OR (!empty($accessRules[$fileName]['ALLOW']['to']) AND $accessRules[$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
@@ -1280,8 +1313,8 @@ class OliCore {
 				}
 				
 				if(!isset($result) AND !empty($accessRules['*'])) {
-					if($accessRules['*']['DENY'] == '*') $result = false;
-					else if($accessRules['*']['ALLOW'] == '*') $result = true;
+					if(in_array($accessRules['*']['DENY'], ['*', 'all'])) $result = false;
+					else if(in_array($accessRules['*']['ALLOW'], ['*', 'all'])) $result = true;
 					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
 						if(!empty($accessRules['*']['DENY']) AND ((empty($accessRules['*']['DENY']['from']) OR (!empty($accessRules['*']['DENY']['from']) AND $accessRules['*']['DENY']['from'] <= $userRight)) XOR (!empty($accessRules['*']['DENY']['to']) OR (!empty($accessRules['*']['DENY']['to']) AND $accessRules['*']['DENY']['to'] >= $userRight)))) $result = false;
 						else if(!empty($accessRules['*']['ALLOW']) AND ((empty($accessRules['*']['ALLOW']['from']) OR (!empty($accessRules['*']['ALLOW']['from']) AND $accessRules['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules['*']['ALLOW']['to']) OR (!empty($accessRules['*']['ALLOW']['to']) AND $accessRules['*']['ALLOW']['to'] >= $userRight)))) $result = true;
@@ -1748,6 +1781,8 @@ class OliCore {
 		// - 0 => Url without any parameters (same as base url)
 		// - 1 => First parameter: file name parameter (e.g. 'page')
 		// - # => Other parameters (e.g. 2 => 'param')
+		// - 'last' => Get the last parameters fragment
+		// - 'get' => Get $_GET
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
@@ -1814,7 +1849,9 @@ class OliCore {
 									$countLoop++;
 								}
 							}
-							$newFrationnedUrl[] = implode('/', $fileName);
+							
+							preg_match('/^([^?]*)(?:\?(.*))?$/', implode('/', $fileName), $matches);
+							if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFrationnedUrl);
 						}
 						
 						while(isset($frationnedUrl[$countLoop])) {
@@ -1825,15 +1862,18 @@ class OliCore {
 									$countLoop += 2;
 								}
 								
-								str_replace('\/', '/', $nextFrationnedUrl);
-								$newFrationnedUrl[] = $nextFrationnedUrl;
+								preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFrationnedUrl, $matches);
+								if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : $nextFrationnedUrl)) array_pop($newFrationnedUrl);
 							}
 							$countLoop++;
 						}
+						
 						$newFrationnedUrl[1] = $newFrationnedUrl[1] ?: 'home';
 						
 						if($param == 'all') return $newFrationnedUrl;
 						else if($param == 'params') return array_slice($newFrationnedUrl, 1);
+						else if($param == 'last') return $newFrationnedUrl[count($newFrationnedUrl) - 1];
+						else if($param == 'get') return $_GET;
 						else if(isset($newFrationnedUrl[$param])) return $newFrationnedUrl[$param];
 						else return false;
 					}
@@ -2712,21 +2752,21 @@ class OliCore {
 			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
 			
 			/** Auth Key cookie content */
-			public function getAuthKey() { return $this->getCookieContent($this->config['auth_key_cookie']['name']); }
+			public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookieContent($this->config['auth_key_cookie']['name']); }
 			public function isExistAuthKey() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
 			public function isEmptyAuthKey() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 			
 			/** Verify Auth Key validity */
-			public function verifyAuthKey($authKey = null) {
+			public function verifyAuthKey($authKey = null, $userID = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND $authKey == ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $this->userID)))['auth_key'] AND strtotime($sessionInfos['expire_date']) >= time()) return true;
+				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID ?: $this->cache['userID'])))['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time()) return true;
 				else return false;
 			}
 			
 			/** Get Auth Key Owner */
-			public function getAuthKeyOwner($authKey = null) {
+			public function getAuthKeyOwner($authKey = null, $userID = null) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey())) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
+				else if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}
 		
@@ -2747,14 +2787,15 @@ class OliCore {
 					}
 					
 					if($setUserIDCookie) $this->setUserIDCookie($userID, null);
-					return $this->userID = $userID;
+					return $this->cache['userID'] = $this->userID = $userID;
+					/**                            \-------------/ BACKWARD COMPATIBILITY */
 				}
 			}
 			
 			/** Update User Session */
 			public function updateUserSession() {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->updateAccountInfos('SESSIONS', array('ip_address' => $this->getUserIP(), 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->userID));
+				else return $this->updateAccountInfos('SESSIONS', array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))), array('user_id' => $this->cache['userID']));
 			}
 			
 			/** ------------------- */
@@ -2781,7 +2822,7 @@ class OliCore {
 			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
 			
 			/** User ID cookie content */
-			public function getUserID() { return $this->getCookieContent($this->config['user_id_cookie']['name']); }
+			public function getUserID() { return $this->cache['userID'] ?: $this->getCookieContent($this->config['user_id_cookie']['name']); }
 			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
 			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 		
@@ -2887,8 +2928,7 @@ class OliCore {
 			/** Verify login informations */
 			public function verifyLogin($username, $password) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false))
-					return password_verify($password, $userPassword);
+				else if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
 				else return false;
 			}
 			
@@ -2907,7 +2947,7 @@ class OliCore {
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'];
 						
-						if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->userID))) {
+						if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->cache['userID']))) {
 							if($setAuthKeyCookie) $this->setAuthKeyCookie($newAuthKey, $expireDelay);
 							return $newAuthKey;
 						}
