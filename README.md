@@ -3,6 +3,8 @@
 **Oli** is an *open source PHP framework* made to help you creating your website.  
 The framework brings up various development tools such as database and user management, and more. ♪
 
+If you're interested into the project, please consider to leave a star! ★
+
 Want to know more about the project team? [Check out the "Team" section](#team)!
 
 ## Get started!
