@@ -267,8 +267,8 @@ class OliCore {
 		
 		/** Convert File Size */
 		public function convertFileSize($size, $toUnit = null, $precision = null) {
-			if(preg_match('/^(\d+)\s?(\S*)$/i', $size, $matches)) {
-				list(, $result, $unit) = $matches;
+			if(preg_match('/^([\d.]+)\s?(\S*)$/i', $size, $matches)) {
+				list($result, $unit) = [floatval($matches[1]), $matches[2]];
 				if($unit != $toUnit) {
 					$unitsTable = array(
 						'TiB' => 1024 ** 4,
