@@ -94,7 +94,7 @@ These directories may contains content that might be licensed under another lice
 **Creator & Developer**: Matiboux (Mathieu Guérin)  
 Want to get in touch with me? Here's how:
  - **Email**: [matiboux@gmail.com](mailto:matiboux@gmail.com)
- - **Github**: [@matiboux](https://github.com/Matiboux)
+ - **Github**: [@matiboux](https://github.com/matiboux)
  - **Twitter**: [@Matiboux](https://twitter.com/Matiboux)
  - **Telegram**: [@Matiboux](https://t.me/Matiboux)
  
