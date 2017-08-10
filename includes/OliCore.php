@@ -566,7 +566,7 @@ class OliCore {
 		 * @return array|boolean Returns lines from specified table
 		 */
 		public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-			if(is_bool($settings)) {
+			if(!is_array($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
 				$forceArray = $caseSensitive;
 				$caseSensitive = $settings;
@@ -688,7 +688,7 @@ class OliCore {
 			if(!is_array($whatVar)) $whatVar = [$whatVar];
 			else $whatVarArray = true;
 			
-			if(is_bool($settings)) {
+			if(!is_array($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
 				$forceArray = $caseSensitive;
 				$caseSensitive = $settings;
@@ -808,7 +808,7 @@ class OliCore {
 		 * @return mixed Returns summed infos from specified table
 		 */
 		public function getSummedInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $rawResult = null) {
-			if(is_bool($settings)) {
+			if(!is_array($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $caseSensitive;
 				$caseSensitive = isset($rawResult) ? $caseSensitive : $settings;
 				$settings = null;
