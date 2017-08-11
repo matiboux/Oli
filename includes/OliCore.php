@@ -1485,9 +1485,10 @@ class OliCore {
 				/** ---------------------------- */
 				
 				/** Get cookie content */
-				public function getCookieContent($name, $rawResult = false) {
+				public function getCookie($name, $rawResult = false) {
 					return (!is_array($_COOKIE[$name]) AND is_array(json_decode($_COOKIE[$name], true)) AND !$rawResult) ? json_decode($_COOKIE[$name], true) : $_COOKIE[$name];
 				}
+				public function getCookieContent($name, $rawResult = false) { $this->getCookie($name, $rawResult); }
 				
 				/** Is exist cookie */
 				public function isExistCookie($name) { return isset($_COOKIE[$name]); }
@@ -1538,7 +1539,7 @@ class OliCore {
 				
 				/** Get post vars */
 				public function getPostVars($whatVar = null, $rawResult = false) {
-					$postVars = $this->getCookieContent($this->config['post_vars_cookie']['name'], $rawResult);
+					$postVars = $this->getCookie($this->config['post_vars_cookie']['name'], $rawResult);
 					return isset($whatVar) ? $postVars[$whatVar] : $postVars;
 				}
 				
@@ -2753,7 +2754,7 @@ class OliCore {
 			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
 			
 			/** Auth Key cookie content */
-			public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookieContent($this->config['auth_key_cookie']['name']); }
+			public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookie($this->config['auth_key_cookie']['name']); }
 			public function isExistAuthKey() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
 			public function isEmptyAuthKey() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 			
@@ -2823,7 +2824,7 @@ class OliCore {
 			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
 			
 			/** User ID cookie content */
-			public function getUserID() { return $this->cache['userID'] ?: $this->getCookieContent($this->config['user_id_cookie']['name']); }
+			public function getUserID() { return $this->cache['userID'] ?: $this->getCookie($this->config['user_id_cookie']['name']); }
 			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
 			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 		
