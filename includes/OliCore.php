@@ -2823,7 +2823,7 @@ class OliCore {
 			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
 			
 			/** User ID cookie content */
-			public function getUserID($refresh = false) { return !empty($this->cache['userID']) AND !$refresh ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
+			public function getUserID($refresh = false) { return (!empty($this->cache['userID']) AND !$refresh) ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
 			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
 			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 		
