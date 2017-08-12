@@ -19,10 +19,10 @@ if(!empty($params)) {
 		
 		if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot remove valid login infos');
 		else {
-			$_Oli->setUserIDCookie($params['userID'], null);
-			$_Oli->setAuthKeyCookie($params['authKey'], $expireDelay = $params['extendedDelay'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration']);
+			$_Oli->deleteUserIDCookie();
+			$_Oli->deleteAuthKeyCookie();
 			
-			$result = array('error' => false, 'authKey' => $params['authKey'], 'userID' => $params['userID'], 'expireDelay' => $expireDelay);
+			$result = array('error' => false);
 		}
 	} else $wrongAction = true;
 	
