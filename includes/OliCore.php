@@ -266,6 +266,35 @@ class OliCore {
 		}
 		
 		/** Convert File Size */
+		public function convertNumber($value, $toUnit = null, $precision = null) {
+			if(preg_match('/^([\d.]+)\s?(\S*)$/i', $value, $matches)) {
+				list($result, $unit) = [floatval($matches[1]), $matches[2]];
+				if($unit != $toUnit) {
+					$unitsTable = array(
+						'Yi' => 1024 ** 8,
+						'Zi' => 1024 ** 7,
+						'Ei' => 1024 ** 6,
+						'Pi' => 1024 ** 5,
+						'Ti' => 1024 ** 4,
+						'Gi' => 1024 ** 3,
+						'Mi' => 1024 ** 2,
+						'Ki' => 1024,
+						'Y' => 1000 ** 8,
+						'Z' => 1000 ** 7,
+						'E' => 1000 ** 6,
+						'P' => 1000 ** 5,
+						'T' => 1000 ** 4,
+						'G' => 1000 ** 3,
+						'M' => 1000 ** 2,
+						'K' => 1000
+					);
+					
+					if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
+					if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
+				}
+				return isset($precision) ? round($result, $precision) : $result;
+			} else return $value;
+		}
 		public function convertFileSize($size, $toUnit = null, $precision = null) {
 			if(preg_match('/^([\d.]+)\s?(\S*)$/i', $size, $matches)) {
 				list($result, $unit) = [floatval($matches[1]), $matches[2]];
