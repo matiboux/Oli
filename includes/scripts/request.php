@@ -19,9 +19,7 @@ if(!empty($params)) {
 		
 		if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot remove valid login infos');
 		else {
-			$_Oli->deleteUserIDCookie();
 			$_Oli->deleteAuthKeyCookie();
-			
 			$result = array('error' => false);
 		}
 	} else $wrongAction = true;
