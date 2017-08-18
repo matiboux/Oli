@@ -28,7 +28,7 @@ if(!empty($params)) {
 	else if(!empty($params['next'])) {
 		$params['next'] = json_decode($params['next'], true);
 		$next = array_shift($params['next']);
-		$params['next'] = json_encode($params['next'], JSON_FORCE_OBJECT);
+		$params['next'] = !empty($params['next']) ? json_encode($params['next'], JSON_FORCE_OBJECT) : null;
 		
 		header('Location: ' . $next . '?' . http_build_query($params));
 	} else if(!empty($params['callback'])) header('Location: ' . $params['callback']);
