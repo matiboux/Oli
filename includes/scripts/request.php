@@ -26,11 +26,11 @@ if(!empty($params)) {
 	
 	if($wrongAction) $result = array('error' => 'Error: "Action" parameter is missing');
 	else if(!empty($params['next'])) {
-		$params['next'] = json_decode($params['next'], true);
+		// $params['next'] = json_decode($params['next'], true);
 		$next = array_shift($params['next']);
-		$params['next'] = !empty($params['next']) ? json_encode($params['next'], JSON_FORCE_OBJECT) : null;
+		// $params['next'] = !empty($params['next']) ? json_encode($params['next'], JSON_FORCE_OBJECT) : null;
 		
-		header('Location: ' . $next . '?' . http_build_query($params));
+		header('Location: ' . (substr($next, -1) == '/' ? $next : $next . '/') . 'request.php' . '?' . http_build_query($params));
 	} else if(!empty($params['callback'])) header('Location: ' . $params['callback']);
 } else $result = array('error' => 'Error: No parameters provided');
 
