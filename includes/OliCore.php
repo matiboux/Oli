@@ -565,8 +565,7 @@ class OliCore {
 					$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
 				}
 				return $dataMySQL[0];
-			}
-			else return false;
+			} else return false;
 		}
 		
 		/**
@@ -601,8 +600,7 @@ class OliCore {
 					$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
 				}
 				return $dataMySQL[0];
-			}
-			else return false;
+			} else return false;
 		}
 		
 		/**
@@ -664,20 +662,17 @@ class OliCore {
 										}
 										
 										if($status[$eachLineKey][$whereLineID] == $eachKey) break;
-									}
-									else {
+									} else {
 										$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
 										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
 										
 										if($toCompare == $compareWith) {
 											$status[$eachLineKey][$whereLineID] = $eachKey;
 											break;
-										}
-										else $status[$eachLineKey][$whereLineID] = false;
+										} else $status[$eachLineKey][$whereLineID] = false;
 									}
 								}
-							}
-							else {
+							} else {
 								if(is_array($whereValue)) {
 									$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
 									
@@ -691,8 +686,7 @@ class OliCore {
 											break;
 										}
 									}
-								}
-								else {
+								} else {
 									$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
 									$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
 									
@@ -715,8 +709,7 @@ class OliCore {
 						$valueArray[] = $eachLine;
 					}
 				}
-			}
-			else return false;
+			} else return false;
 			
 			if($forceArray OR count($valueArray) > 1) return $valueArray;
 			else if(count($valueArray) == 1) return $valueArray[0];
@@ -786,8 +779,7 @@ class OliCore {
 										}
 										
 										if($status[$eachLineKey][$whereLineID] == $eachKey) break;
-									}
-									else {
+									} else {
 										$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
 										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
 										
@@ -839,8 +831,7 @@ class OliCore {
 						$valueArray[] = (!isset($lineResult) OR $whatVarArray OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
 					}
 				}
-			}
-			else return false;
+			} else return false;
 			
 			if($forceArray OR count($valueArray) > 1) return $valueArray;
 			else if(count($valueArray) == 1) return $valueArray[0];
@@ -931,20 +922,17 @@ class OliCore {
 										}
 										
 										if($status[$eachLineKey][$whereLineID] == $eachKey) break;
-									}
-									else {
+									} else {
 										$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
 										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
 										
 										if($toCompare == $compareWith) {
 											$status[$eachLineKey][$whereLineID] = $eachKey;
 											break;
-										}
-										else $status[$eachLineKey][$whereLineID] = false;
+										} else $status[$eachLineKey][$whereLineID] = false;
 									}
 								}
-							}
-							else {
+							} else {
 								if(is_array($whereValue)) {
 									$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
 									
@@ -969,17 +957,12 @@ class OliCore {
 						}
 					}
 					
-					if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where))
-						$valueArray[] = true;
+					if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where)) $valueArray[] = true;
 				}
-			}
-			else
-				return false;
+			} else return false;
 			
-			if(count($valueArray) >= 1)
-				return count($valueArray);
-			else
-				return false;
+			if(count($valueArray) >= 1) return count($valueArray);
+			else return false;
 		}
 	
 		/** ------------------------ */
