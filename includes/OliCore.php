@@ -517,7 +517,7 @@ class OliCore {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare($queryText);
 			if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
-			else return false;
+			else return $query->errorInfo();
 		}
 		
 		/** Get Data from table */
@@ -1006,7 +1006,7 @@ class OliCore {
 				$matches[$matchKey] = $matchValue;
 			}
 			$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
-			return $query->execute($matches);
+			return $query->execute($matches) ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1038,7 +1038,7 @@ class OliCore {
 				}
 			}
 			$query = $this->db->prepare('UPDATE ' . $table . ' SET '  . implode(', ', $queryWhat) . ($where != 'all' ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
-			return $query->execute($matches);
+			return $query->execute($matches) ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1064,7 +1064,7 @@ class OliCore {
 			}
 			$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
 			(is_array($where) ? implode(' AND ', $queryWhere) : ($where != 'all' ? $where : '*')));
-			return $query->execute($matches);
+			return $query->execute($matches) ?: $query->errorInfo();
 		}
 	
 		/** --------------------------- */
@@ -1087,7 +1087,7 @@ class OliCore {
 				$queryData[] = $matchName . ' ' . $matchOption;
 			}
 			$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1104,7 +1104,7 @@ class OliCore {
 		public function clearTableMySQL($table) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1119,7 +1119,7 @@ class OliCore {
 		public function deleteTableMySQL($table) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare('DROP TABLE ' . $table);
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1136,7 +1136,7 @@ class OliCore {
 		public function addColumnTableMySQL($table, $column, $type) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1154,7 +1154,7 @@ class OliCore {
 		public function updateColumnTableMySQL($table, $column, $type) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1172,7 +1172,7 @@ class OliCore {
 		public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 		
 		/**
@@ -1189,7 +1189,7 @@ class OliCore {
 		public function deleteColumnTableMySQL($table, $column) {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
-			return $query->execute();
+			return $query->execute() ?: $query->errorInfo();
 		}
 	
 	/** *** *** *** */
