@@ -1375,9 +1375,9 @@ class OliCore {
 		public function getSettingsTables() { return $this->config['settings_tables']; }
 		
 		/** Get Setting */
-		public function getSetting($setting) {
+		public function getSetting($setting, $depth = 0) {
 			if(!empty($this->config['settings_tables'])) {
-				foreach($this->config['settings_tables'] as $eachTable) {
+				foreach(($depth > 0 AND count($this->config['settings_tables']) >= $depth + 1) ? array_slice($this->config['settings_tables'], $depth) : $this->config['settings_tables'] as $eachTable) {
 					if(isset($setting)) {
 						$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
 						if(!empty($optionResult)) {
@@ -1390,7 +1390,7 @@ class OliCore {
 			}
 			else return false;
 		}
-		public function getOption($setting) { return $this->getSetting($setting); }
+		public function getOption($setting, $depth = 0) { return $this->getSetting($setting, $depth); }
 		
 		/** [WIP] Get All Settings */
 		// public function getAllSettings() { return $this->getSetting(null); }
