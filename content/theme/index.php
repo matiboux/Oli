@@ -1,1 +1,1 @@
-Oli Framrework: Index page (/content/theme/index.php)
+Oli Framework: Index page (/content/theme/index.php)
