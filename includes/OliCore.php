@@ -2,7 +2,7 @@
 /*\
 |*|  ---------------------------------
 |*|  --- [  Oli - PHP Framework  ] ---
-|*|  --- [  Version BETA: 1.8.2  ] ---
+|*|  --- [  Version BETA: 1.9.0  ] ---
 |*|  ---------------------------------
 |*|  
 |*|  Oli is an open source PHP framework made to help you creating your website.
@@ -61,6 +61,7 @@
 |*|    * BETA 1.8.0: June 30, 2017
 |*|           1.8.1: July 13, 2017
 |*|           1.8.2: [WIP]
+|*|    * BETA 1.9.0: [WIP]
 \*/
 
 /*\
@@ -1216,8 +1217,10 @@ class OliCore {
 		
 		/** Load page content */
 		public function loadContent() {
-			if($this->config['user_management'] AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
-			$this->initUserSession();
+			if($this->config['user_management']) {
+				if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
+				$this->initUserSession();
+			}
 			
 			$params = $this->getUrlParam('params');
 			$contentStatus = null;
