@@ -1,6 +1,6 @@
 <?php
-/* Initial Timestamp */
-$initTimestamp = microtime(true);
+/** Define Initial Timestamp */
+if(!defined('INITTIME')) define('INITTIME', $initTimestamp = microtime(true));
 
 /** Define Global Paths */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
@@ -9,13 +9,37 @@ if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
 
-$config = file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(ABSPATH . 'config.json'), true) : [];
-if(!defined('OLIPATH')) define('OLIPATH', $config['source_path'] ?: ABSPATH);
-unset($config['source_path']);
+
+/** Get Oli Source Files Path */
+if(!file_exists(ABSPATH . '.olipath')) {
+	$userConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+	
+	$handle = fopen(ABSPATH . '.olipath', 'w');
+	fwrite($handle, $oliPath = $userConfig['source_path']);
+	fclose($handle);
+} else $oliPath = file_get_contents(ABSPATH . '.olipath');
+
+/** Define Oli Paths */
+if(!defined('OLIPATH')) define('OLIPATH', $oliPath ?: ABSPATH);
+
+unset($oliPath);
 
 if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
 if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
+
+/** Get Website Config */
+if(!file_exists(INCLUDESPATH . 'config/config.oli') OR filemtime(ABSPATH . 'config.json') > filemtime(INCLUDESPATH . 'config/config.oli')) {
+	if(!isset($userConfig)) $userConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+	$config = $userConfig;
+	
+	if(!file_exists(INCLUDESPATH . 'config/')) mkdir(INCLUDESPATH . 'config/');
+	$handle = fopen(INCLUDESPATH . 'config/config.oli', 'w');
+	fwrite($handle, json_encode($config, JSON_FORCE_OBJECT));
+	fclose($handle);
+} else $config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+
+unset($config['source_path']);
 
 /** Define Additional Constants */
 if(!empty($config['constants']) AND is_array($config['constants'])) {
