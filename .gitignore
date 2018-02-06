@@ -1,5 +1,7 @@
 # Oli: Framework Files
 
+/.olipath
+
 #/form.php
 #/index.php
 #/load.php
