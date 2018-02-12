@@ -10,6 +10,7 @@
 |*|  
 |*|  Creator & Developer: Matiboux (Mathieu Guérin)
 |*|   → Github: @matiboux – https://github.com/matiboux/
+|*|   → Twitter: @Matiboux – https://twitter.com/Matiboux/
 |*|   → Telegram: @Matiboux – https://t.me/Matiboux/
 |*|   → Email: matiboux@gmail.com
 |*|  
