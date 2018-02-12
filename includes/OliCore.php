@@ -18,7 +18,7 @@
 |*|  
 |*|  --- --- ---
 |*|  
-|*|  Copyright (C) 2015-2017 Matiboux (Mathieu Guérin)
+|*|  Copyright (C) 2015-2018 Matiboux (Mathieu Guérin)
 |*|  
 |*|    This program is free software: you can redistribute it and/or modify
 |*|    it under the terms of the GNU Affero General Public License as published
