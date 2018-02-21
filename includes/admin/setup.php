@@ -34,5 +34,70 @@ if(!empty($params)) {
 	} else if(!empty($params['callback'])) header('Location: ' . $params['callback']);
 } else $result = array('error' => 'Error: No parameters provided');
 
-die(!empty($result) ? json_encode($result, JSON_FORCE_OBJECT) : array('error' => 'Unknown script result.'));
+$result = json_encode(!empty($result) ? $result : array('error' => 'Unknown script result.'), JSON_FORCE_OBJECT);
+// die(!empty($result) ? json_encode($result, JSON_FORCE_OBJECT) : array('error' => 'Unknown script result.'));
 ?>
+
+<html>
+<head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="author" content="Matiboux" />
+
+<title>Oli Admin: Setup</title>
+
+</head>
+<body>
+
+<p><u><b>Script response</b>:</u> <code><?=$result?></code></p>
+
+<h1>Oli Initial Setup —</h1>
+<p>Looks like your website lacks basic config. Please follow the instructions to setup your website.</p>
+
+<form action="#" method="post">
+	<input type="hidden" value="<?=$encodedform?>" />
+	
+	<h2>Step 1/4 — Verify your identity</h2>
+	<?php if(!file_get_contents(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
+		$handle = fopen(ABSPATH . '.olisc', 'w');
+		fwrite($handle, $_Oli->keygen(6, true, false, true));
+		fclose($handle); ?>
+		<p><i>New security code generated in <code>/.olisc</code>.</i></p>
+	<?php } else { ?>
+		<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
+	<?php } ?>
+	
+	<p>In order to verify that you are the owner of this website, please type in below the generated security code. You can find the file containing the security code in the main folder of your website.</p>
+	<input type="text" name="olisc" placeholder="Oli Security Code" />
+	<button type="submit">Verify my identity</button>
+	
+	<h2>Step 2/4 — Define the base url</h2>
+	<?php $baseurl = $_Oli->getUrlParam(0); ?>
+	<p>To ensure that your website works properly, please select which one of these addresses should be the base url (or home page) of your website.</p>
+	<p><i>By default, Oli uses the full domain name as the website base url. The base url currently used by the framework is "<?=$_Oli->getUrlParam('base')?>".</i></p>
+	<select name="baseurl" />
+		<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+		<?php foreach($_Oli->getUrlParam('params') as $eachUrlPart) {
+			$baseurl .= $eachUrlPart . '/'; ?>
+			<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+		<?php } ?>
+	</select>
+	<button type="submit">Confirm this address</button>
+	
+	<h2>Step 3/4 — Your website basic infos</h2>
+	<p>Finally, let's add some basic information that makes the identity of your website.</p>
+	Wesbite name: <input type="text" name="name" placeholder="Name" /> <br />
+	Wesbite description: <input type="text" name="description" placeholder="Description" /> <br />
+	Wesbite creation date: <input type="date" name="creation_date" placeholder="Creation date" /> <br />
+	Website owner: <input type="text" name="owner" placeholder="Owner" />
+	
+	
+	<h2>Step 4/4 — Thank you! ♥</h2>
+	<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
+	<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
+	
+</form>
+
+</body>
+</html>
