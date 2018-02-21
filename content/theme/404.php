@@ -1,1 +1,1 @@
-Oli Framework: 404 page (/content/theme/404.php)
+Oli: 404 page (/content/theme/404.php)
