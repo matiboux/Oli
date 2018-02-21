@@ -1,4 +1,27 @@
 {
+	"init_timestamp": true,
+	"init_setup": true,
+	
+	"mysql": null,
+	"settings": null,
+	
+	"index_file": "index.php",
+	"http_errors": {
+		"404": "404.php",
+		"403": "403.php"
+	},
+	
+	"default_language": "en",
+	"default_content_type": "html",
+	"default_charset": "utf-8",
+	
+	"cdn_url": null,
+	"templates": {},
+	
+	
+	
+"#": {
+	
 	"init_timestamp": null,
 	
 	"constants": null,
@@ -85,4 +108,5 @@
 		"salt": null,
 		"cost": 10
 	}
+}
 }
