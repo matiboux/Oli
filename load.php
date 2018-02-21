@@ -4,10 +4,6 @@ if(!defined('INITTIME')) define('INITTIME', $initTimestamp = microtime(true));
 
 /** Define Global Paths */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
-if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
-if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
-if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
 
 /** Get Oli Source Files Path */
 $oliPath = file_exists(ABSPATH . '.olipath') ? file_get_contents(ABSPATH . '.olipath') : null;
@@ -51,7 +47,6 @@ if(!defined('OLIPATH')) define('OLIPATH', $oliPath ?: ABSPATH);
 unset($oliPath);
 
 if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
-if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 
 /** Get Website Config */

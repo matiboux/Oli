@@ -166,6 +166,15 @@ class OliCore {
 	
 	/** Class Construct & Destruct functions */
 	public function __construct($initTimestamp = null) {
+		/** Define constants */
+		if(!defined('ABSPATH')) die('ABSPATH is not defined.');
+		if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
+		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
+
+		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
+		
 		/** Load Oli Infos */
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
 		
