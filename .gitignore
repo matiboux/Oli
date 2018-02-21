@@ -1,10 +1,7 @@
-# Oli: Framework Files
+# Oli Path & Oli Security Code
+/.olipath 
+/.olisc
 
-/.olipath
-
-#/form.php
-#/index.php
-#/load.php
 
 #/config.json
 /mysql.json
