@@ -1912,7 +1912,7 @@ class OliCore {
 							
 							preg_match('/^([^?]*)(?:\?(.*))?$/', implode('/', $fileName), $matches);
 							if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFrationnedUrl);
-						}
+						} else $countLoop = 1;
 						
 						while(isset($frationnedUrl[$countLoop])) {
 							if(!empty($frationnedUrl[$countLoop]) OR isset($frationnedUrl[$countLoop + 1])) {
