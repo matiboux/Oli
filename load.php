@@ -80,7 +80,7 @@ if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader
 else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (used path: "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
 
 /** Load OliCore & Addons */
-$_Oli = new \OliFramework\OliCore($initTimestamp);
+$_Oli = new \Oli\OliCore($initTimestamp);
 if(!empty($config['user-config']['addons'])) {
 	foreach($config['user-config']['addons'] as $eachAddon) {
 		if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {

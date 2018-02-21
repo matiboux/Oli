@@ -13,7 +13,7 @@
 |*|  I REALLY DON'T KNOW WHY DOES THIS FILE STILL EXISTS
 \*/
 
-namespace OliFramework\ErrorManager {
+namespace Oli\ErrorManager {
 
 class ExceptionHandler {
 	function __construct() {

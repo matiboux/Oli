@@ -112,7 +112,7 @@
 |*|  [...]
 \*/
 
-namespace OliFramework {
+namespace Oli {
 
 class OliCore {
 
