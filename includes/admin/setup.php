@@ -50,54 +50,79 @@ $result = json_encode(!empty($result) ? $result : array('error' => 'Unknown scri
 </head>
 <body>
 
-<p><u><b>Script response</b>:</u> <code><?=$result?></code></p>
+<p><u><b>Script logs</b>:</u> <code><?=$result?></code></p>
 
 <h1>Oli Initial Setup —</h1>
 <p>Looks like your website lacks basic config. Please follow the instructions to setup your website.</p>
 
 <form action="#" method="post">
-	<input type="hidden" value="<?=$encodedform?>" />
-	
-	<h2>Step 1/4 — Verify your identity</h2>
-	<?php if(!file_get_contents(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
-		$handle = fopen(ABSPATH . '.olisc', 'w');
-		fwrite($handle, $_Oli->keygen(6, true, false, true));
-		fclose($handle); ?>
-		<p><i>New security code generated in <code>/.olisc</code>.</i></p>
-	<?php } else { ?>
-		<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
-	<?php } ?>
-	
-	<p>In order to verify that you are the owner of this website, please type in below the generated security code. You can find the file containing the security code in the main folder of your website.</p>
-	<input type="text" name="olisc" placeholder="Oli Security Code" />
-	<button type="submit">Verify my identity</button>
-	
-	<h2>Step 2/4 — Define the base url</h2>
-	<?php $baseurl = $_Oli->getUrlParam(0); ?>
-	<p>To ensure that your website works properly, please select which one of these addresses should be the base url (or home page) of your website.</p>
-	<p><i>By default, Oli uses the full domain name as the website base url. The base url currently used by the framework is "<?=$_Oli->getUrlParam('base')?>".</i></p>
-	<select name="baseurl" />
-		<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
-		<?php foreach($_Oli->getUrlParam('params') as $eachUrlPart) {
-			$baseurl .= $eachUrlPart . '/'; ?>
-			<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+	<div step="1">
+		<h2>Step 1/4 — Verify your identity</h2>
+		<?php if(!file_get_contents(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
+			$handle = fopen(ABSPATH . '.olisc', 'w');
+			fwrite($handle, $_Oli->keygen(6, true, false, true));
+			fclose($handle); ?>
+			<p><i>New security code generated in <code>/.olisc</code>.</i></p>
+		<?php } else { ?>
+			<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
 		<?php } ?>
-	</select>
-	<button type="submit">Confirm this address</button>
-	
-	<h2>Step 3/4 — Your website basic infos</h2>
-	<p>Finally, let's add some basic information that makes the identity of your website.</p>
-	Wesbite name: <input type="text" name="name" placeholder="Name" /> <br />
-	Wesbite description: <input type="text" name="description" placeholder="Description" /> <br />
-	Wesbite creation date: <input type="date" name="creation_date" placeholder="Creation date" /> <br />
-	Website owner: <input type="text" name="owner" placeholder="Owner" />
-	
-	
-	<h2>Step 4/4 — Thank you! ♥</h2>
-	<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
-	<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
-	
+		
+		<p>In order to verify that you are the owner of this website, please type in below the generated security code. You can find the file containing the security code in the main folder of your website.</p>
+		<input type="text" name="olisc" placeholder="Oli Security Code" />
+		<button type="button" onclick="nextStep(this.parentNode.getAttribute('step'));">Verify my identity</button>
+	</div>
+		
+	<div step="2" style="display: none">
+		<h2>Step 2/4 — Define the base url</h2>
+		<?php $baseurl = $_Oli->getUrlParam(0); ?>
+		<p>To ensure that your website works properly, please select which one of these addresses should be the base url (or home page) of your website.</p>
+		<p><i>By default, Oli uses the full domain name as the website base url. The base url currently used by the framework is "<?=$_Oli->getUrlParam('base')?>".</i></p>
+		<select name="baseurl" />
+			<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+			<?php foreach($_Oli->getUrlParam('params') as $eachUrlPart) {
+				$baseurl .= $eachUrlPart . '/'; ?>
+				<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+			<?php } ?>
+		</select>
+		<button type="button" onclick="nextStep(this.parentNode.getAttribute('step'));">Confirm this address</button>
+	</div>
+		
+	<div step="3" style="display: none">
+		<h2>Step 3/4 — Your website basic infos</h2>
+		<p>Finally, let's add some basic information that makes the identity of your website.</p>
+		Website name: <input type="text" name="name" placeholder="Name" /> <br />
+		Website description: <input type="text" name="description" placeholder="Description" /> <br />
+		Website creation date: <input type="date" name="creation_date" placeholder="Creation date" /> <br />
+		Website owner: <input type="text" name="owner" placeholder="Owner" /> <br />
+		<button type="button" onclick="nextStep(this.parentNode.getAttribute('step'));">Confirm those infos</button>
+	</div>
+		
+	<div step="4" style="display: none">
+		<h2>Step 4/4 — Thank you! ♥</h2>
+		<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
+		<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
+		
+		<p class="summary">Summary of the data you're sending: <ul></ul></p>
+		
+		<button type="submit">Save</button>
+	</div>
 </form>
+
+<script>
+// TODO: Disable submit by enter
+var nextStep = function(step) {
+	if(step == 1 && document.querySelector('[name="olisc"]').value == '') alert('Step 1 error');
+	else if(step == 2 && document.querySelector('[name="baseurl"]').value == '') alert('Step 2 error');
+	else if(step == 3 && (document.querySelector('[name="name"]').value == '' || document.querySelector('[name="description"]').value == '' || document.querySelector('[name="creation_date"]').value == '' || document.querySelector('[name="owner"]').value == '')) alert('Step 3 error');
+	else {
+		var nextStepElem = document.querySelector('[step="' + (Number(step)+1) + '"]')
+		if(nextStepElem !== null) {
+			document.querySelector('[step="' + step + '"]').style.display = "none";
+			document.querySelector('[step="' + (Number(step)+1) + '"]').style.display = "block";
+		} else alert('An error occurred!');
+	}
+}
+</script>
 
 </body>
 </html>
