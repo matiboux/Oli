@@ -13,7 +13,7 @@ if(!$oliPath OR !file_exists($oliPath . 'includes/')) {
 }
 
 /** Define Oli Source Files Path (if files not found) */
-if(!empty($_POST) AND $_POST['olipath']) {
+if(!empty($_POST['olipath'])) {
 	$_POST['olipath'] = substr($_POST['olipath'], -1) != '/' ? $_POST['olipath'] . '/' : $_POST['olipath'];;
 
 	if(!file_exists($_POST['olipath'] . 'includes/')) $oliPath = null;
