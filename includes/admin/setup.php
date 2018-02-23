@@ -98,9 +98,10 @@ Step <button type="button" onclick="nextStep(1);">1</button>
 	<div class="step" step="3" style="display: none">
 		<h2>Step 3/4 — Your website basic infos</h2>
 		<p>Finally, let's add some basic information that makes the identity of your website.</p>
-		Website name: <input type="text" name="name" placeholder="Name" value="<?=$_POST['name']?>" /> <br />
+		Website name*: <input type="text" name="name" placeholder="Name" value="<?=$_POST['name']?>" /> <br />
 		Website description: <input type="text" name="description" placeholder="Description" value="<?=$_POST['description']?>" /> <br />
-		Website creation date: <input type="date" name="creation_date" placeholder="Creation date" value="<?=$_POST['creation_date']?>" /> <br />
+		Website creation date: <input type="date" name="creation_date" placeholder="Creation date" value="<?=$_POST['creation_date']?>" />
+		<button type="button" onclick="document.querySelector('[name=\'creation_date\']').value = (new Date()).toJSON().substr(0, 10);">Today</button> <br />
 		Website owner: <input type="text" name="owner" placeholder="Owner" value="<?=$_POST['owner']?>" /> <br />
 		<button type="button" onclick="nextStep();">Confirm those infos</button>
 	</div>
@@ -112,7 +113,7 @@ Step <button type="button" onclick="nextStep(1);">1</button>
 		
 		<p class="summary">Summary of the data you're sending: <ul></ul></p>
 		
-		<button type="submit">Save</button>
+		<button type="submit">Submit</button>
 	</div>
 </form>
 
