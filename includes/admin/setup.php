@@ -6,35 +6,36 @@ if(!empty($params['formdata'])) $formdata = json_decode(base64_decode($params['f
 else $formdata = null;
 
 if(!empty($params)) {
-	if($params['action'] == 'setLoginInfos') {
-		if(!$_Oli->config['user_management']) $result = array('error' => 'Error: User Management is disabled');
-		else if(empty($params['authKey'])) $result = array('error' => 'Error: "authKey" parameter is missing');
-		else if(empty($params['userID'])) $result = array('error' => 'Error: "userID" parameter is missing');
-		else if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot overwrite a valid authKey');
-		else {
-			$_Oli->setUserIDCookie($params['userID'], null);
-			$_Oli->setAuthKeyCookie($params['authKey'], $expireDelay = $params['extendedDelay'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration']);
+	$result = array('_POST' => $_POST);
+	// if($params['action'] == 'setLoginInfos') {
+		// if(!$_Oli->config['user_management']) $result = array('error' => 'Error: User Management is disabled');
+		// else if(empty($params['authKey'])) $result = array('error' => 'Error: "authKey" parameter is missing');
+		// else if(empty($params['userID'])) $result = array('error' => 'Error: "userID" parameter is missing');
+		// else if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot overwrite a valid authKey');
+		// else {
+			// $_Oli->setUserIDCookie($params['userID'], null);
+			// $_Oli->setAuthKeyCookie($params['authKey'], $expireDelay = $params['extendedDelay'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration']);
 			
-			$result = array('error' => false, 'authKey' => $params['authKey'], 'userID' => $params['userID'], 'expireDelay' => $expireDelay);
-		}
-	} else if($params['action'] == 'removeLoginInfos') {
-		if(!$_Oli->config['user_management']) $result = array('error' => 'Error: User Management is disabled');
+			// $result = array('error' => false, 'authKey' => $params['authKey'], 'userID' => $params['userID'], 'expireDelay' => $expireDelay);
+		// }
+	// } else if($params['action'] == 'removeLoginInfos') {
+		// if(!$_Oli->config['user_management']) $result = array('error' => 'Error: User Management is disabled');
 		
-		if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot remove valid login infos');
-		else {
-			$_Oli->deleteAuthKeyCookie();
-			$result = array('error' => false);
-		}
-	} else $wrongAction = true;
+		// if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot remove valid login infos');
+		// else {
+			// $_Oli->deleteAuthKeyCookie();
+			// $result = array('error' => false);
+		// }
+	// } else $wrongAction = true;
 	
-	if($wrongAction) $result = array('error' => 'Error: "Action" parameter is missing');
-	else if(!empty($params['next'])) {
-		// $params['next'] = json_decode($params['next'], true);
-		$next = array_shift($params['next']);
-		// $params['next'] = !empty($params['next']) ? json_encode($params['next'], JSON_FORCE_OBJECT) : null;
+	// if($wrongAction) $result = array('error' => 'Error: "Action" parameter is missing');
+	// else if(!empty($params['next'])) {
+		$params['next'] = json_decode($params['next'], true);
+		// $next = array_shift($params['next']);
+		$params['next'] = !empty($params['next']) ? json_encode($params['next'], JSON_FORCE_OBJECT) : null;
 		
-		header('Location: ' . (substr($next, -1) == '/' ? $next : $next . '/') . 'request.php' . '?' . http_build_query($params));
-	} else if(!empty($params['callback'])) header('Location: ' . $params['callback']);
+		// header('Location: ' . (substr($next, -1) == '/' ? $next : $next . '/') . 'request.php' . '?' . http_build_query($params));
+	// } else if(!empty($params['callback'])) header('Location: ' . $params['callback']);
 } else $result = array('error' => 'Error: No parameters provided');
 
 $result = json_encode(!empty($result) ? $result : array('error' => 'Unknown script result.'), JSON_FORCE_OBJECT);
