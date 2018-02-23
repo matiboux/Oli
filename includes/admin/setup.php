@@ -127,7 +127,7 @@ var nextStep = function(next) {
 	if(next <= 0 || next > 4) return false;
 	else if(next > 1 && document.querySelector('[name="olisc"]').value == '') error = 'Step 1 error';
 	else if(next > 2 && document.querySelector('[name="baseurl"]').value == '') error = 'Step 2 error';
-	else if(next > 3 && (document.querySelector('[name="name"]').value == '' || document.querySelector('[name="description"]').value == '' || document.querySelector('[name="creation_date"]').value == '' || document.querySelector('[name="owner"]').value == '')) error = 'Step 3 error';
+	else if(next > 3 && document.querySelector('[name="name"]').value == '') error = 'Step 3 error';
 	
 	if(error) {
 		alert(error);
