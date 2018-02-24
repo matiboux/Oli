@@ -24,7 +24,7 @@ if(!empty($params)) {
 				'owner' => $params['owner'],
 			));
 		
-		if($_Oli->updateConfig($newConfig)) $result = array('error' => false, '_POST' => $_POST);
+		if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, '_POST' => $_POST);
 		else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
 	}
 } else $result = array('error' => 'Error: No parameters provided');
