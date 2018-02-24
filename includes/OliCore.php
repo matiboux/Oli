@@ -1265,7 +1265,7 @@ class OliCore {
 						}
 						else if($fileName[0] == 'data') break;
 						else {
-							if(!empty($this->config['index_files'])) $indexFiles = !is_array($this->config['index_files']) ? [$this->config['index_files']] : $this->config['index_files'];
+							if(!empty($this->config['index_file'])) $indexFiles = !is_array($this->config['index_file']) ? [$this->config['index_file']] : $this->config['index_file'];
 							
 							if(!empty($indexFiles)) {
 								foreach(array_slice($indexFiles, 1) as $eachValue) {
