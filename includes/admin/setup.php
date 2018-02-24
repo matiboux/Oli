@@ -2,6 +2,8 @@
 $params = array_merge($_GET, $_POST);
 $result = [];
 
+if(!$_Oli->config['init_setup']) die('Sorry. The initial config seem to have been done already.');
+
 if(!empty($params['formdata'])) $formdata = json_decode(base64_decode($params['formdata']), true);
 else $formdata = null;
 
