@@ -179,7 +179,7 @@ class OliCore {
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
 		
 		/** Load Config */
-		if(file_exists(CONTENTPATH . 'config.json')) $this->config = json_decode(file_get_contents(INCLUDESPATH . 'config/config.json'), true);
+		if(file_exists(CONTENTPATH . 'config.json')) $this->config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
 		if(empty($this->config)) $this->config = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
 		
 		/** Framework Init */
