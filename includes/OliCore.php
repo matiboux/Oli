@@ -211,6 +211,39 @@ class OliCore {
 		/**  III. 1. Loader  */
 		/** ---------------- */
 		
+		/**
+		 * Update Oli Config
+		 * 
+		 * @param array $newConfig New config fragment to complete or replace the old config.
+		 * @param boolean $replaceWhole Whether or not to force the new config to replace completely the old config.
+		 * 
+		 * @version BETA-1.9.0
+		 * @updated BETA-1.9.0
+		 * @return array|boolean Returns the updated config if the update succeeded.
+		 */
+		public function updateConfig($newConfig, $replaceWhole = false) {
+			if($replaceWhole) $this->config = $newConfig;
+			else $this->config = array_merge($this->config, $newConfig);
+			
+			if($this->saveConfig()) return $this->config;
+			else return false;
+		}
+		
+		/**
+		 * Save Oli Config
+		 * 
+		 * @version BETA-1.9.0
+		 * @updated BETA-1.9.0
+		 * @return boolean Returns true if succeeded.
+		 */
+		public function saveConfig() {
+			$handle = fopen(CONTENTPATH . 'config.json', 'w');
+			$result = fwrite($handle, json_encode($this->config, JSON_FORCE_OBJECT));
+			fclose($handle);
+			
+			return $result !== false;
+		}
+		
 		/** Load Config */
 		public function loadConfig($config) {
 			foreach($config as $eachConfig => $eachValue) {
