@@ -64,7 +64,7 @@ Step <button type="button" onclick="nextStep(1);">1</button>
 <button type="button" onclick="nextStep(3);">3</button>
 <button type="button" onclick="nextStep(4);">4</button>
 
-<form action="#" method="post">
+<form action="#" method="post" id="form">
 	<div class="step" step="1">
 		<h2>Step 1/4 — Verify your identity</h2>
 		<?php if(!file_get_contents(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
@@ -112,7 +112,8 @@ Step <button type="button" onclick="nextStep(1);">1</button>
 		<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
 		<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
 		
-		<p class="summary">Summary of the data you're sending: <ul></ul></p>
+		<h3>Summary of the data you're sending</h3>
+		<ul class="data-summary"></ul>
 		
 		<button type="submit">Submit</button>
 	</div>
@@ -123,6 +124,7 @@ Step <button type="button" onclick="nextStep(1);">1</button>
 var step = 1;
 var nextStep = function(next) {
 	var error = null;
+	var last = 4;
 	next = next || step+1;
 	
 	if(next <= 0 || next > 4) return false;
@@ -136,9 +138,19 @@ var nextStep = function(next) {
 	} else {
 		var nextStepElem = document.querySelector('[step="' + next + '"]')
 		if(nextStepElem !== null) {
-			for(elem of document.querySelectorAll('.step')) {
+			for(var elem of document.querySelectorAll('.step')) {
 				elem.style.display = "none";
 			}
+			
+			if(next == last) {
+				nextStepElem.querySelector('.data-summary').innerHTML = '';
+				for(var pair of (new FormData(document.querySelector('#form'))).entries()) {
+					var node = document.createElement('li');
+					node.appendChild(document.createTextNode(pair[0] + ' → "' + pair[1] + '"'));
+					document.querySelector('.data-summary').appendChild(node);
+				}
+			}
+			
 			document.querySelector('[step="' + next + '"]').style.display = "block";
 			step = next;
 		} else alert('An error occurred!');
