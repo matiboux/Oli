@@ -193,7 +193,7 @@ class OliCore {
 	}
 	
 	/** Read-only variables */
-	function __get($whatVar) {
+	public function __get($whatVar) {
 		if(in_array($whatVar, $this->readOnlyVars)) return $this->$whatVar;
 		else return null;
     }
