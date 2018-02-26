@@ -1270,7 +1270,7 @@ class OliCore {
 				$this->initUserSession();
 			}
 			
-			if($this->config['init_setup']) $found = INCLUDESPATH . 'admin/setup.php';
+			if($this->config['init_setup'] AND !isset($_GET['oli-debug'])) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
 				$params = $this->getUrlParam('params');
 				$contentStatus = null;

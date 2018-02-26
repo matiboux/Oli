@@ -8,14 +8,13 @@ if(!empty($params['formdata'])) $formdata = json_decode(base64_decode($params['f
 else $formdata = null;
 
 if(!empty($params)) {
-	$result = array('_POST' => $_POST);
 	if(empty($params['olisc'])) $result = array('error' => 'Error: The "olisc" parameter is missing');
 	else if($params['olisc'] != file_get_contents(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
 	else if(empty($params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
 	else if(!preg_match('/^[a-zA-Z0-9-.]{3,}\.[a-z]+\/[a-zA-Z0-9-@:%_\+.~#?&\/=]*$/', $params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
 	else if(empty($params['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
 	else {
-		$newConfig = array('init_setup' => false,
+		$newConfig = array(//'init_setup' => false,
 			'settings' => array(
 				'url' => $params['baseurl'],
 				'name' => $params['name'],
@@ -112,9 +111,18 @@ if(!empty($params)) {
 	<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
 	<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
 	
-	<h3>Enjoy your website!</h3>
-	<p>Now that the basics are done, you can go to <a href="<?=$_Oli->getUrlParam(0)?>">the home page of your website</a>.</p>
+	<h3>Confirm that everything works!</h3>
 	<p>If the default home page doesn't appear, something wrong happened..</p>
+	
+	<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug"></iframe>
+	<form action="#" method="post" id="form">
+		<p>Does it work?</p>
+		<select name="baseurl" />
+			<option value="yes">Yes!</option>
+			<option value="no">No..</option>
+		</select>
+		<button type="submit">Submit</button>
+	</form>
 <?php } ?>
 
 <script>
