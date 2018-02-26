@@ -9,7 +9,7 @@ else $formdata = null;
 
 if(!empty($params)) {
 	if(empty($params['olisc'])) $result = array('error' => 'Error: The "olisc" parameter is missing');
-	else if($params['olisc'] != file_get_contents(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
+	else if($params['olisc'] != $_Oli->getOliSecurityCode()) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
 	else if(empty($params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
 	else if(!preg_match('/^[a-zA-Z0-9-.]{3,}\.[a-z]+\/[a-zA-Z0-9-@:%_\+.~#?&\/=]*$/', $params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
 	else if(empty($params['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
@@ -55,14 +55,7 @@ if(!empty($params)) {
 	<form action="#" method="post" id="form">
 		<div class="step" step="1">
 			<h2>Step 1/4 — Verify your identity</h2>
-			<?php if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
-				$handle = fopen(ABSPATH . '.olisc', 'w');
-				fwrite($handle, $_Oli->keygen(6, true, false, true));
-				fclose($handle); ?>
-				<p><i>New security code generated in <code>/.olisc</code>.</i></p>
-			<?php } else { ?>
-				<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
-			<?php } ?>
+			<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
 			
 			<p>In order to verify that you are the owner of this website, please type in below the generated security code. You can find the file containing the security code in the main folder of your website.</p>
 			<input type="text" name="olisc" placeholder="Oli Security Code" value="<?=$_POST['olisc']?>" />

@@ -207,6 +207,17 @@ class OliCore {
 	/**  III. Configuration  */
 	/** -------------------- */
 	
+	/** Get Oli Security Code */
+	public function getOliSecurityCode() {
+		if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
+			$handle = fopen(ABSPATH . '.olisc', 'w');
+			fwrite($handle, $olisc = $this->keygen(6, true, false, true));
+			fclose($handle);
+		} else $olisc = file_get_contents(ABSPATH . '.olisc');
+		return $olisc;
+    }
+	public function getOliSC() { $this->getOliSecurityCode(); }
+	
 		/** ---------------- */
 		/**  III. 1. Loader  */
 		/** ---------------- */
