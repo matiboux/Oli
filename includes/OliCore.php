@@ -121,11 +121,14 @@ class OliCore {
 	/** -------------- */
 	
 	/** Read-only variables */
-	private $readOnlyVars = ['oliInfos', 'addonsInfos', 'db', 'config', 'fileNameParam', 'contentStatus'];
+	private $readOnlyVars = ['oliInfos', 'addonsInfos', 'debugStatus', 'db', 'config', 'fileNameParam', 'contentStatus'];
 	
 	/** Components infos */
 	private $oliInfos = []; // Oli Infos (PUBLIC READONLY)
 	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
+	
+	/** Oli Debug */
+	private $debugStatus = false;
 	
 	/** Config */
 	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
@@ -186,6 +189,10 @@ class OliCore {
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
+		
+		/** Oli debug */
+		if($this->config['debug'] OR (!empty($_GET['oli-debug']) AND $_GET['oli-debug'] == $this->getOliSecurityCode())) $this->debugStatus = true;
+		else $this->debugStatus = false;
 	}
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
@@ -1281,7 +1288,7 @@ class OliCore {
 				$this->initUserSession();
 			}
 			
-			if($this->config['init_setup'] AND !isset($_GET['oli-debug'])) $found = INCLUDESPATH . 'admin/setup.php';
+			if($this->config['init_setup'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
 				$params = $this->getUrlParam('params');
 				$contentStatus = null;
