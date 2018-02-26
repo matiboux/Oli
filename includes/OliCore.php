@@ -121,7 +121,7 @@ class OliCore {
 	/** -------------- */
 	
 	/** Read-only variables */
-	private $readOnlyVars = ['oliInfos', 'addonsInfos', 'db', 'config'];
+	private $readOnlyVars = ['oliInfos', 'addonsInfos', 'db', 'config', 'fileNameParam', 'contentStatus'];
 	
 	/** Components infos */
 	private $oliInfos = []; // Oli Infos (PUBLIC READONLY)
@@ -134,8 +134,8 @@ class OliCore {
 	
 	
 	/** Content */
-	private $fileNameParam = null;
-	private $contentStatus = null;
+	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
+	private $contentStatus = null; // Content Status (found, not found, forbidden...) (PUBLIC READONLY)
 	
 	/** Page Settings */
 	private $contentType = null;
@@ -1353,7 +1353,7 @@ class OliCore {
 			}
 		}
 		
-		/** Get content status */
+		/** Get content status — Deprecated */
 		public function getContentStatus() { return $this->contentStatus; }
 		
 		/** Decode content rules */
