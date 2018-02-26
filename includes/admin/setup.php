@@ -23,7 +23,7 @@ if(!empty($params)) {
 				'owner' => $params['owner'],
 			));
 		
-		if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, '_POST' => $_POST);
+		if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, 'olisc' => $_POST['olisc'], '_POST' => $_POST);
 		else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
 	}
 } else $result = array('error' => 'Error: No parameters provided');
@@ -107,14 +107,14 @@ if(!empty($params)) {
 		
 	</form>
 <?php } else { ?>
-	<h2>Step 4/4 — Thank you! ♥</h2>
+	<h2>Thank you! ♥</h2>
 	<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
 	<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
 	
 	<h3>Confirm that everything works!</h3>
 	<p>If the default home page doesn't appear, something wrong happened..</p>
 	
-	<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug"></iframe>
+	<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug=<?=$result['olisc']?>"></iframe>
 	<form action="#" method="post" id="form">
 		<p>Does it work?</p>
 		<select name="baseurl" />
