@@ -71,10 +71,11 @@
 |*|  I. Variables
 |*|  II. Magic Methods
 |*|  III. Configuration
-|*|    1. Loader
-|*|    2. MySQL
-|*|    3. General 
-|*|    4. Addons
+|*|    1. Basic Security
+|*|    2. Loader
+|*|    3. MySQL
+|*|    4. General 
+|*|    5. Addons
 |*|      A. Management
 |*|      B. Infos
 |*|  IV. MySQL Functions
@@ -135,10 +136,10 @@ class OliCore {
 	private $config = null; // (PUBLIC READONLY)
 	private $mysqlConfig = null;
 	
-	
 	/** Content */
 	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
 	private $contentStatus = null; // Content Status (found, not found, forbidden...) (PUBLIC READONLY)
+	
 	
 	/** Page Settings */
 	private $contentType = null;
@@ -175,7 +176,6 @@ class OliCore {
 		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
-
 		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 		
 		/** Load Oli Infos */
@@ -214,19 +214,23 @@ class OliCore {
 	/**  III. Configuration  */
 	/** -------------------- */
 	
-	/** Get Oli Security Code */
-	public function getOliSecurityCode() {
-		if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
-			$handle = fopen(ABSPATH . '.olisc', 'w');
-			fwrite($handle, $olisc = $this->keygen(6, true, false, true));
-			fclose($handle);
-		} else $olisc = file_get_contents(ABSPATH . '.olisc');
-		return $olisc;
-    }
-	public function getOliSC() { $this->getOliSecurityCode(); }
+		/** ------------------------ */
+		/**  III. 1. Basic Security  */
+		/** ------------------------ */
+	
+		/** Get Oli Security Code */
+		public function getOliSecurityCode() {
+			if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
+				$handle = fopen(ABSPATH . '.olisc', 'w');
+				fwrite($handle, $olisc = $this->keygen(6, true, false, true));
+				fclose($handle);
+			} else $olisc = file_get_contents(ABSPATH . '.olisc');
+			return $olisc;
+		}
+		public function getOliSC() { $this->getOliSecurityCode(); }
 	
 		/** ---------------- */
-		/**  III. 1. Loader  */
+		/**  III. 2. Loader  */
 		/** ---------------- */
 		
 		/**
@@ -430,7 +434,7 @@ class OliCore {
 		}
 		
 		/** --------------- */
-		/**  III. 2. MySQL  */
+		/**  III. 3. MySQL  */
 		/** --------------- */
 		
 		/** MySQL Setup & Config */
@@ -450,7 +454,7 @@ class OliCore {
 		}
 	
 		/** ----------------- */
-		/**  III. 3. General  */
+		/**  III. 4. General  */
 		/** ----------------- */
 	
 		/** Set Settings Tables */
@@ -486,11 +490,11 @@ class OliCore {
 		}
 		
 		/** ---------------- */
-		/**  III. 4. Addons  */
+		/**  III. 5. Addons  */
 		/** ---------------- */
 		
 			/** ----------------------- */
-			/**  III. 4. A. Management  */
+			/**  III. 5. A. Management  */
 			/** ----------------------- */
 			
 			/** Add Addon */
@@ -513,7 +517,7 @@ class OliCore {
 			}
 			
 			/** ------------------ */
-			/**  III. 4. B. Infos  */
+			/**  III. 5. B. Infos  */
 			/** ------------------ */
 			
 			/** Add Addon Infos */
