@@ -176,6 +176,7 @@ class OliCore {
 		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
+		if(!defined('ADMINPATH')) define('ADMINPATH', INCLUDESPATH . 'admin/');
 		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 		
 		/** Load Oli Infos */
