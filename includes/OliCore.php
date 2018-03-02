@@ -183,8 +183,11 @@ class OliCore {
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
 		
 		/** Load Config */
-		if(file_exists(CONTENTPATH . 'config.json')) $this->config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
-		if(empty($this->config)) $this->config = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+		$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+		if(file_exists(CONTENTPATH . 'config.json')) {
+			$this->config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
+			if($this->config != array_merge($defaultConfig, $this->config)) $this->updateConfig(array_merge($defaultConfig, $this->config), true, true);
+		} else $this->config = $defaultConfig;
 		
 		/** Framework Init */
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
