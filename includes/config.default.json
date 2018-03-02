@@ -5,12 +5,16 @@
 	"mysql": null,
 	"settings": null,
 	
-	"admin_param": "oli-admin",
 	"index_file": "index.php",
 	"http_errors": {
 		"404": "404.php",
 		"403": "403.php"
 	},
+	
+	"admin_param": "oli-admin",
+	"login_alias": "login",
+	
+	"assets_folder": "assets/",
 	
 	"default_language": "en",
 	"default_content_type": "html",
