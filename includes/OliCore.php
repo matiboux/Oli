@@ -1315,14 +1315,17 @@ class OliCore {
 						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 						
 						if($fileName[0] == $this->config['admin_param']) {
-							if(count($fileName) == 1) {
+							if(count($fileName) > 1) {
+								if(file_exists(ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
+									$found = ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
+									$this->fileNameParam = implode('/', $fileName);
+								} else if(file_exists(ADMINPATH . '404.php')) { 
+									$found = ADMINPATH . '404.php';
+									$this->contentStatus = '404';
+								} else $found = null;
+							} else if(file_exists(ADMINPATH . 'index.php')) {
 								$found = ADMINPATH . 'index.php';
 								$this->fileNameParam = implode('/', $fileName);
-								break;
-							} else if(count($fileName) > 1 AND file_exists(ADMINPATH . implode('/', array_slice($fileName, 1)))) {
-								$found = ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
-								$this->fileNameParam = implode('/', $fileName);
-								break;
 							}
 						}
 						else if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
