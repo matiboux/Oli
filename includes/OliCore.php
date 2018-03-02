@@ -1311,7 +1311,7 @@ class OliCore {
 						
 						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 						
-						if($fileName[0] == 'oli-admin') {
+						if($fileName[0] == $this->config['admin_param']) {
 							if(count($fileName) == 1) {
 								$found = ADMINPATH . 'index.php';
 								$this->fileNameParam = implode('/', $fileName) . '/index.php';

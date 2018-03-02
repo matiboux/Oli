@@ -5,6 +5,7 @@
 	"mysql": null,
 	"settings": null,
 	
+	"admin_param": "oli-admin",
 	"index_file": "index.php",
 	"http_errors": {
 		"404": "404.php",
