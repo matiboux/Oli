@@ -1317,10 +1317,10 @@ class OliCore {
 						if($fileName[0] == $this->config['admin_param']) {
 							if(count($fileName) == 1) {
 								$found = ADMINPATH . 'index.php';
-								$this->fileNameParam = implode('/', $fileName) . '/index.php';
+								$this->fileNameParam = implode('/', $fileName);
 								break;
 							} else if(count($fileName) > 1 AND file_exists(ADMINPATH . implode('/', array_slice($fileName, 1)))) {
-								$found = ADMINPATH . implode('/', array_slice($fileName, 1));
+								$found = ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
 								$this->fileNameParam = implode('/', $fileName);
 								break;
 							}
