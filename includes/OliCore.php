@@ -1289,7 +1289,13 @@ class OliCore {
 		/**  V. 2. Website Content  */
 		/** ----------------------- */
 		
-		/** Load page content */
+		/**
+		 * Load page content
+		 * 
+		 * @version BETA
+		 * @updated BETA-1.9.0
+		 * @return string|void Returns the path to the file to include.
+		 */
 		public function loadContent() {
 			if($this->config['user_management']) {
 				if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
