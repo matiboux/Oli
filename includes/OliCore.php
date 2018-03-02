@@ -1334,11 +1334,14 @@ class OliCore {
 							$this->setContentType('JSON');
 							break;
 						}
+						else if($fileName[0] == $this->config['assets_folder']) {
+							$accessAllowed = false;
+							break;
+						}
 						else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 							$found = THEMEPATH . implode('/', $fileName) . '.php';
 							$this->fileNameParam = implode('/', $fileName);
 						}
-						else if($fileName[0] == 'data') break;
 						else if($fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
 							$found = THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php');
 							$contentStatus = 'index';
