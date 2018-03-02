@@ -1314,6 +1314,7 @@ class OliCore {
 						
 						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 						
+						/** Oli Admin */
 						if($fileName[0] == $this->config['admin_param']) {
 							if(count($fileName) > 1) {
 								if(file_exists(ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
@@ -1328,21 +1329,21 @@ class OliCore {
 								$this->fileNameParam = implode('/', $fileName);
 							}
 						}
+						/** General Scripts */
 						else if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
 							$found = SCRIPTSPATH . implode('/', $fileName);
 							$this->fileNameParam = implode('/', $fileName);
 							$this->setContentType('JSON');
 							break;
 						}
+						/** User Pages */
 						else if($fileName[0] == $this->config['assets_folder']) {
 							$accessAllowed = false;
 							break;
-						}
-						else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
+						} else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
 							$found = THEMEPATH . implode('/', $fileName) . '.php';
 							$this->fileNameParam = implode('/', $fileName);
-						}
-						else if($fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
+						} else if($fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
 							$found = THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php');
 							$contentStatus = 'index';
 						}
