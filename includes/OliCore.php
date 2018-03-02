@@ -1318,12 +1318,10 @@ class OliCore {
 							if(count($fileName) == 1) {
 								$found = ADMINPATH . 'index.php';
 								$this->fileNameParam = implode('/', $fileName) . '/index.php';
-								$this->setContentType('JSON');
 								break;
 							} else if(count($fileName) > 1 AND file_exists(ADMINPATH . implode('/', array_slice($fileName, 1)))) {
 								$found = ADMINPATH . implode('/', array_slice($fileName, 1));
 								$this->fileNameParam = implode('/', $fileName);
-								$this->setContentType('JSON');
 								break;
 							}
 						}
