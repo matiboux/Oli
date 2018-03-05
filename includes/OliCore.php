@@ -1345,12 +1345,14 @@ class OliCore {
 						
 						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 						
-						/** Oli Admin */
+						/** Oli Login */
 						if($fileName[0] == $this->config['login_alias'] AND file_exists(OLIADMINPATH . 'login.php')) {
 							$found = OLIADMINPATH . 'login.php';
 							$this->fileNameParam = implode('/', $fileName);
 							break;
-						} else if($fileName[0] == $this->config['admin_param']) {
+						}
+						/** Oli Admin */
+						else if($fileName[0] == $this->config['admin_param']) {
 							if(count($fileName) > 1) {
 								if(file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
 									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
