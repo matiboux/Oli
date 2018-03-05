@@ -168,7 +168,13 @@ class OliCore {
 	/**  II. Magic Methods  */
 	/** ------------------- */
 	
-	/** Class Construct & Destruct functions */
+	/**
+	 * OliCore Class Contruct function
+	 * 
+	 * @version BETA
+	 * @updated BETA-1.9.0
+	 * @return boolean Returns true if succeeded.
+	 */
 	public function __construct($initTimestamp = null) {
 		/** Define primary constants */
 		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.'); // Defined in load.php
@@ -204,12 +210,26 @@ class OliCore {
 		if($this->config['debug'] OR (!empty($_GET['oli-debug']) AND $_GET['oli-debug'] == $this->getOliSecurityCode())) $this->debugStatus = true;
 		else $this->debugStatus = false;
 	}
+	
+	/**
+	 * OliCore Class Destruct function
+	 * 
+	 * @version BETA
+	 * @updated BETA-1.8.0
+	 * @return boolean Returns true if succeeded.
+	 */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
 		if($this->config['user_management']) $this->updateUserSession();
 	}
 	
-	/** Read-only variables */
+	/**
+	 * OliCore Class Read-only variables management
+	 * 
+	 * @version BETA
+	 * @updated BETA-1.9.0
+	 * @return boolean Returns true if succeeded.
+	 */
 	public function __get($whatVar) {
 		if(in_array($whatVar, $this->readOnlyVars)) return $this->$whatVar;
 		else return null;
