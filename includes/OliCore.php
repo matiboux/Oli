@@ -187,7 +187,7 @@ class OliCore {
 		} else $this->config = $defaultConfig;
 		
 		/** Define secondary constants */
-		if(!defined('ADMINPATH')) define('ADMINPATH', INCLUDESPATH . 'admin/');
+		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
 		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/'); /*!*/
 		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
@@ -1327,21 +1327,21 @@ class OliCore {
 						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 						
 						/** Oli Admin */
-						if($fileName[0] == $this->config['login_alias'] AND file_exists(ADMINPATH . 'login.php')) {
-							$found = ADMINPATH . 'login.php';
+						if($fileName[0] == $this->config['login_alias'] AND file_exists(OLIADMINPATH . 'login.php')) {
+							$found = OLIADMINPATH . 'login.php';
 							$this->fileNameParam = implode('/', $fileName);
 							break;
 						} else if($fileName[0] == $this->config['admin_param']) {
 							if(count($fileName) > 1) {
-								if(file_exists(ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
-									$found = ADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
+								if(file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
+									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
 									$this->fileNameParam = implode('/', $fileName);
-								} else if(file_exists(ADMINPATH . '404.php')) {
-									$found = ADMINPATH . '404.php';
+								} else if(file_exists(OLIADMINPATH . '404.php')) {
+									$found = OLIADMINPATH . '404.php';
 									$this->contentStatus = '404';
 								} else $found = null;
-							} else if(file_exists(ADMINPATH . 'index.php')) {
-								$found = ADMINPATH . 'index.php';
+							} else if(file_exists(OLIADMINPATH . 'index.php')) {
+								$found = OLIADMINPATH . 'index.php';
 								$this->fileNameParam = implode('/', $fileName);
 							}
 						}
