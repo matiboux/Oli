@@ -187,11 +187,13 @@ class OliCore {
 		} else $this->config = $defaultConfig;
 		
 		/** Define secondary constants */
+		if(!defined('ADMINPATH')) define('ADMINPATH', INCLUDESPATH . 'admin/');
+		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/'); /*!*/
 		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+			if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
 		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
-		if(!defined('ADMINPATH')) define('ADMINPATH', INCLUDESPATH . 'admin/');
-		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
+		// if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
 		
 		/** Framework Init */
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
