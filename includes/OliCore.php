@@ -194,12 +194,11 @@ class OliCore {
 		
 		/** Define secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
-		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/'); /*!*/
 		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 			if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
 		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
-		// if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
+		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
 		
 		/** Framework Init */
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
@@ -1365,9 +1364,16 @@ class OliCore {
 								$this->fileNameParam = implode('/', $fileName);
 							}
 						}
-						/** General Scripts */
+						/** User Scripts */
 						else if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
 							$found = SCRIPTSPATH . implode('/', $fileName);
+							$this->fileNameParam = implode('/', $fileName);
+							$this->setContentType('JSON');
+							break;
+						}
+						/** General Scripts */
+						else if(file_exists(INCLUDESPATH . 'scripts/' . implode('/', $fileName))) {
+							$found = INCLUDESPATH . 'scripts/' . implode('/', $fileName);
 							$this->fileNameParam = implode('/', $fileName);
 							$this->setContentType('JSON');
 							break;
