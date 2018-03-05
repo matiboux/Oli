@@ -246,8 +246,14 @@ class OliCore {
 		/** ------------------------ */
 		/**  III. 1. Basic Security  */
 		/** ------------------------ */
-	
-		/** Get Oli Security Code */
+		
+		/**
+		 * Get Oli Security Code
+		 * 
+		 * @version BETA-1.9.0
+		 * @updated BETA-1.9.0
+		 * @return boolean Returns true if succeeded.
+		 */
 		public function getOliSecurityCode() {
 			if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
 				$handle = fopen(ABSPATH . '.olisc', 'w');
@@ -256,8 +262,9 @@ class OliCore {
 			} else $olisc = file_get_contents(ABSPATH . '.olisc');
 			return $olisc;
 		}
+		/** * @alias OliCore::getOliSecurityCode() */
 		public function getOliSC() { $this->getOliSecurityCode(); }
-	
+		
 		/** ---------------- */
 		/**  III. 2. Loader  */
 		/** ---------------- */
