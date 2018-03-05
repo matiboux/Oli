@@ -170,14 +170,11 @@ class OliCore {
 	
 	/** Class Construct & Destruct functions */
 	public function __construct($initTimestamp = null) {
-		/** Define constants */
-		if(!defined('ABSPATH')) die('ABSPATH is not defined.');
+		/** Define primary constants */
+		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.'); // Defined in load.php
+		if(!defined('INCLUDESPATH')) die('Oli Error: INCLUDESPATH is not defined.'); // Defined in load.php
+		if(!defined('ADDONSPATH')) die('Oli Error: ADDONSPATH is not defined.'); // Defined in load.php
 		if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
-		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
-		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
-		if(!defined('ADMINPATH')) define('ADMINPATH', INCLUDESPATH . 'admin/');
-		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 		
 		/** Load Oli Infos */
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
@@ -188,6 +185,13 @@ class OliCore {
 			$this->config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
 			if($this->config != array_merge($defaultConfig, $this->config)) $this->updateConfig(array_merge($defaultConfig, $this->config), true, true);
 		} else $this->config = $defaultConfig;
+		
+		/** Define secondary constants */
+		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
+		if(!defined('ADMINPATH')) define('ADMINPATH', INCLUDESPATH . 'admin/');
+		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', INCLUDESPATH . 'scripts/');
 		
 		/** Framework Init */
 		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
