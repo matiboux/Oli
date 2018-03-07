@@ -27,7 +27,20 @@ $config = array(
 );
 
 /** Login management is disabled by the current config */
-if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
+// if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
+
+/** Login Method (LOCAL LOGIN or LOGIN WITH DATABASE) */
+if(!$_Oli->isSetupMySQL() OR !$_Oli->isAccountsManagement) {
+	$localLogin = true;
+	if(file_exists(CONTENTPATH . '.oliauth') AND !empty($adminUserInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true))) $allowRootRegister = true;
+	else $allowRootRegister = false;
+} else {
+	$localLogin = false;
+	if(!$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false)) $allowRootRegister = true;
+	else $allowRootRegister = false;
+}
+var_dump($localLogin); echo '<br />';
+var_dump($allowRootRegister); echo '<br />';
 
 $mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_Oli->getUrlParam('domain') . '>' . "\r\n";
 $mailHeaders .= 'MIME-Version: 1.0' . "\r\n";
