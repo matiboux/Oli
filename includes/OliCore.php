@@ -122,21 +122,29 @@ class OliCore {
 	/** -------------- */
 	
 	/** Read-only variables */
-	private $readOnlyVars = ['oliInfos', 'addonsInfos', 'debugStatus', 'db', 'config', 'fileNameParam', 'contentStatus'];
+	private $readOnlyVars = [
+		'oliInfos', 'addonsInfos',
+		'debugStatus', 'config',
+		'db',
+		'isAccountsManagement',
+		'fileNameParam', 'contentStatus'];
 	
 	/** Components infos */
 	private $oliInfos = []; // Oli Infos (PUBLIC READONLY)
 	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
 	
-	/** Oli Debug */
-	private $debugStatus = false;
-	
-	/** Config */
-	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
+	/** Oli Config */
+	private $debugStatus = false; // (PUBLIC READONLY)
 	private $config = null; // (PUBLIC READONLY)
+	
+	/** Database Management */
+	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
 	private $mysqlConfig = null;
 	
-	/** Content */
+	/** Accounts & Users Management */
+	private $isAccountsManagement = false; // (PUBLIC READONLY)
+	
+	/** Content Management */
 	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
 	private $contentStatus = null; // Content Status (found, not found, forbidden...) (PUBLIC READONLY)
 	
