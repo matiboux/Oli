@@ -252,7 +252,7 @@ class OliCore {
 		 * 
 		 * @version BETA-1.9.0
 		 * @updated BETA-1.9.0
-		 * @return boolean Returns true if succeeded.
+		 * @return string Returns Oli Security Code.
 		 */
 		public function getOliSecurityCode() {
 			if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
