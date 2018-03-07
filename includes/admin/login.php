@@ -3,51 +3,21 @@
 |*|  ----------------------------
 |*|  --- [  Oli Login page  ] ---
 |*|  ----------------------------
-|*|  Developed for Oli Beta 1.8.0 (development branch)
 |*|  
-|*|  The official login page for Oli, an open source PHP Framework made by Matiboux.
-|*|  Created and developed by Mathieu Guérin – aka Matiboux.
-|*|  
-|*|  Oli Login page Github repository: https://github.com/OliFramework/Oli-Login-Page
 |*|  Original CSS template by Andy Tran: http://codepen.io/andytran/pen/PwoQgO
 |*|  Oli Github repository: https://github.com/OliFramework/Oli/
 |*|  
-|*|  Once the framework is properly setup and configured, just place this file in the website theme directory.
-|*|  If the login page is stored in 'content/theme/' as 'login.php', you should be able to open it from '[domain.name]/login/'.
+|*|  For Oli version BETA-1.8.0 and prior versions,
+|*|  the source code of the Oli Login page was hosted on a standalone Github repository.
+|*|  → https://github.com/OliFramework/Oli-Login-Page
 |*|  
 |*|  --- --- ---
-|*|  
-|*|  Changelog: refer to repository commits
 |*|  
 |*|  Stuff to do next:
 |*|  - Add captcha for registering.
 |*|  
 |*|  Stuff to do on Oli:
 |*|  - Add support and config for login limits.
-|*|  
-|*|  --- --- ---
-|*|  
-|*|  MIT License
-|*|  
-|*|  Copyright (c) 2015-2017 Matiboux (Mathieu Guérin)
-|*|  
-|*|    Permission is hereby granted, free of charge, to any person obtaining a copy
-|*|    of this software and associated documentation files (the "Software"), to deal
-|*|    in the Software without restriction, including without limitation the rights
-|*|    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-|*|    copies of the Software, and to permit persons to whom the Software is
-|*|    furnished to do so, subject to the following conditions:
-|*|    
-|*|    The above copyright notice and this permission notice shall be included in all
-|*|    copies or substantial portions of the Software.
-|*|    
-|*|    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-|*|    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-|*|    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-|*|    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-|*|    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-|*|    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-|*|    SOFTWARE.
 \*/
 
 $config = array(
