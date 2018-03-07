@@ -15,6 +15,7 @@
 |*|  --- --- ---
 |*|  
 |*|  Stuff to do next:
+|*|  - (?) Support for more than two container for the switcher
 |*|  - Add captcha for registering.
 |*|  
 |*|  Stuff to do on Oli:
@@ -33,7 +34,7 @@ $config = array(
 /** Login Method (LOCAL LOGIN or LOGIN WITH DATABASE) */
 if(!$_Oli->isSetupMySQL() OR !$_Oli->isAccountsManagement) {
 	$localLogin = true;
-	if(file_exists(CONTENTPATH . '.oliauth') AND !empty($adminUserInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true))) $allowRootRegister = true;
+	if(!file_exists(CONTENTPATH . '.oliauth') OR empty($adminUserInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true))) $allowRootRegister = true;
 	else $allowRootRegister = false;
 } else {
 	$localLogin = false;
@@ -239,7 +240,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #header a, #message a { color: #4080c0; text-decoration: none }
 #header a { font-weight: bold }
 
-.message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 3px rgba(0, 0, 0, 0.1) }
+.message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 30px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
 .message.message-info, #module { border-top-color: #4080c0 }
 .message.message-success { border-top-color: #40c040 }
 .message.message-error { border-top-color: #c04040 }
@@ -356,7 +357,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</div>
 		<?php } ?>
 		
-		<div class="form" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
+		<?php // $allowRootRegister ?>
+		<div class="form" data-icon="fas fa-sign-in" data-text="Login" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Login to your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login')?>" method="post">
 				<?php if(!empty($_Oli->getPostVars('referer')) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
@@ -370,7 +372,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</form>
 		</div>
 		<?php if($_Oli->config['allow_register']) { ?>
-			<div class="form" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
+			<div class="form" data-icon="fas fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
 					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
