@@ -1,7 +1,8 @@
-# Oli Path & Oli Security Code
+# Oli Files
 /.olipath 
 /.olisc
 
-
-#/config.json
-/mysql.json
+# User or Config Files
+/content/.oliauth
+/content/config.json
+/content/mysql.json
