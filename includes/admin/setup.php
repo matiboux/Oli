@@ -62,6 +62,11 @@ if(!empty($params)) {
 		<div class="step" step="1">
 			<h2>Step 1/4 — Verify your identity</h2>
 			<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
+			<?php if($_Oli->refreshOliSecurityCode()) { ?>
+				<p><i>New security code generated in <code>/.olisc</code>.</i></p>
+			<?php } else { ?>
+				<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
+			<?php } ?>
 			
 			<p>In order to verify that you are the owner of this website, please type in below the generated security code. You can find the file containing the security code in the main folder of your website.</p>
 			<input type="text" name="olisc" placeholder="Oli Security Code" value="<?=$_POST['olisc']?>" />
