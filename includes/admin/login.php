@@ -4,12 +4,13 @@
 |*|  --- [  Oli Login page  ] ---
 |*|  ----------------------------
 |*|  
-|*|  Original CSS template by Andy Tran: http://codepen.io/andytran/pen/PwoQgO
 |*|  Oli Github repository: https://github.com/OliFramework/Oli/
 |*|  
 |*|  For Oli version BETA-1.8.0 and prior versions,
 |*|  the source code of the Oli Login page was hosted on a standalone Github repository.
 |*|  → https://github.com/OliFramework/Oli-Login-Page
+|*|  
+|*|  Original Login Page based on Andy Tran's template (http://codepen.io/andytran/pen/PwoQgO)
 |*|  
 |*|  --- --- ---
 |*|  
@@ -221,52 +222,59 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 <meta name="author" content="Matiboux" />
 <title>Login - <?php echo $_Oli->getSetting('name'); ?></title>
 
-<style>html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}table{border-collapse:collapse;border-spacing:0}</style>
-<link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700" />
-<?php $_Oli->loadStyle('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', true); ?>
+<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
 <style>
-body { background: #e9e9e9; color: #666; font-family: 'Roboto', sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale }
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
+html { position: relative; min-height: 100% }
+body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; margin: 0; color: #808080; font-size: 14px; overflow-x: hidden }
 
-#header { margin: 50px 0; text-align: center; letter-spacing: 2px }
+#header { margin: 50px 0; text-align: center; color: #303030; letter-spacing: 1px }
 #header h1 { margin: 0 0 20px; font-size: 40px; font-weight: 400 }
-@media (max-width:  420px) { #header h1{font-size: 32px;} }
-#header h1 a, #header span a, #message a { color: #0084b4; font-weight: 400; text-decoration: none }
-#header span { font-size: 12px }
-@media (max-width:  420px) { #header span{ font-size: 10px; } }
-#header span .fa { color: #0084b4 }
-#header span a { font-weight: 600 }
+#header p { font-size: 12px }
+#header p.description { font-size: 14px }
+@media (max-width: 520px) {
+	#header h1 { font-size: 32px }
+	#header p { font-size: 10px; }
+	#header p.description { font-size: 12px; } }
+#header a, #message a { color: #4080c0; text-decoration: none }
+#header a { font-weight: bold }
 
-#message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; margin: 30px auto;  border-top: 5px solid #777; box-shadow: 0 0 3px rgba(0, 0, 0, 0.1) }
-#message.message-info, #module { border-top-color: #0084b4 }
-#message.message-success { border-top-color: #5cb85c }
-#message.message-error { border-top-color: #d9534f }
-#message .content { padding: 20px 40px }
-#message h2 { color: #555; font-size: 16px; font-weight: 400; line-height: 1 }
-#message a:hover { text-decoration: underline }
-#message b { font-weight: 700 }
+.message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 3px rgba(0, 0, 0, 0.1) }
+.message.message-info, #module { border-top-color: #4080c0 }
+.message.message-success { border-top-color: #40c040 }
+.message.message-error { border-top-color: #c04040 }
+.message .content { padding: 20px 40px }
+.message h2 { color: #555; font-size: 16px; font-weight: 400; line-height: 1 }
+.message a:hover { text-decoration: underline }
 
-#module .toggle { cursor: pointer; position: absolute; top: -0; right: -0; background: #0084b4; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 12px; line-height: 30px; text-align: center }
-#module .toggle .tooltip { position: absolute; top: 8px; right: 40px; display: block; background: rgba(0,  0,  0,  0.6); width: auto; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
-#module .toggle .tooltip: before { content: ''; position: absolute; top: 5px; right: -5px; display: block; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid rgba(0,  0,  0,  0.6) }
+#module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; line-height: 30px; text-align: center }
+#module .toggle [data-fa-i2svg] { padding: 8px }
+#module .toggle .tooltip { position: absolute; top: 8px; right: 40px; display: block; background: #808080; width: auto; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
+#module .toggle .tooltip:before { content: ''; position: absolute; top: 5px; right: -5px; display: block; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
 #module .form { display: none; padding: 40px }
-#module .form: first-child, #module .form:nth-child(2) { display: block }
-#module h2 { margin: 0 0 20px; color: #0084b4; font-size: 18px; font-weight: 400; line-height: 1 }
-#module input { outline: none; display: block; width: 100%; border: 1px solid #d9d9d9; margin: 0 0 20px; padding: 10px 15px; box-sizing: border-box; font-weight: 400; -webkit-transition: .3s ease; transition: .3s ease }
-#module .checkbox { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: .3s ease; transition: .3s ease }
-#module .checkbox > label { cursor: pointer }
-#module .checkbox > label > input[type=checkbox] { display: initial; width: auto; margin: 0; margin-top: 1px\9; line-height: normal }
-#module input:focus { border: 1px solid #0084b4; color: #333 }
-#module button { cursor: pointer; background: #0084b4; width: 100%; border: 0; padding: 10px 15px; color: #fff; -webkit-transition: .3s ease; transition: .3s ease }
-#module button:hover { background: #178ab4 }
-#module .help-block { margin-top: 20px; padding: 10px 15px; color: #777; border-left: 2px solid #c9c9c9 }
-#module .cta { background: #f2f2f2; width: 100%; padding: 15px 40px; box-sizing: border-box; color: #666; font-size: 12px; text-align: center }
-#module .cta:nth-child(odd) { background:  #ebebeb }
-#module .cta a { color: #333; text-decoration: none }
+#module .form:first-child, #module .form:nth-child(2) { display: block }
+#module form { margin: 0 }
+#module h2 { margin: 0 0 20px; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
+#module input { outline: none; display: block; width: 100%; border: 1px solid #e0e0e0; margin: 0 0 20px; padding: 10px 15px; box-sizing: border-box; font-weight: 400; -webkit-transition: .3s ease; transition: .3s ease }
+#module .checkbox, #module .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: .3s ease; transition: .3s ease }
+#module .checkbox > label, #module .radio > label { cursor: pointer }
+#module .checkbox > label > input[type=checkbox] { display: initial; width: auto; margin: 0 }
+#module .radio > label > input[type=radio] { display: initial; width: auto; margin: 0 }
+#module input:focus { border: 1px solid #4080c0; color: #303030 }
+#module button { cursor: pointer; background: #4080c0; width: 100%; border: 0; padding: 10px 15px; color: #fff; -webkit-transition: .3s ease; transition: .3s ease }
+#module button:hover, #module button:focus { background: #306090 }
+#module .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
+#module .cta { background: #f0f0f0; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
+#module .cta:nth-child(odd) { background: #e8e8e8 } 
+#module .cta a, #module .cta span { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
+#module .cta a { text-decoration: none }
+#module .cta a:hover, #module .cta a:focus { color: #303030 }
 
-#footer { margin: 20px 0; text-align: center; letter-spacing: 2px }
-#footer span { font-size: 12px }
-#footer span .fa { color: #0084b4 }
-#footer span a { color: #0084b4; font-weight: 600; text-decoration: none }
+#footer { margin: 30px 0; text-align: center; letter-spacing: 1px }
+#footer p { font-size: 12px }
+@media (max-width: 520px) { #footer p { font-size: 10px; } }
+#footer p .fa { color: #4080c0 }
+#footer p a { color: #4080c0; font-weight: bold; text-decoration: none }
 </style>
 
 </head>
@@ -274,10 +282,11 @@ body { background: #e9e9e9; color: #666; font-family: 'Roboto', sans-serif; font
 
 <div id="header">
 	<h1><a href="<?php echo $_Oli->getUrlParam(0); ?>"><?php echo $_Oli->getSetting('name'); ?></a></h1>
-	<span>Powered by <a href="https://github.com/OliFramework/Oli">Oli</a>, an open source PHP framework</span>
+	<p class="description"><?php echo $_Oli->getSetting('description'); ?></p>
+	<?php if($localLogin) { ?><p class="method"><b>Local login</b> (restricted to the root user)</p><?php } ?>
 </div>
 <?php /*
-<div id="message">
+<div class="message">
 	<div class="content">
 		<b>New!</b> Anti brute-force system. <br /> <br />
 		
@@ -295,7 +304,7 @@ body { background: #e9e9e9; color: #666; font-family: 'Roboto', sans-serif; font
 	else if($prefix == 'S') $type = 'message-success';
 	else if($prefix == 'E') $type = 'message-error';
 	?>
-	<div id="message" class="<?php echo $type; ?>">
+	<div class="message <?php echo $type; ?>">
 		<div class="content"><?php echo $message; ?></div>
 	</div>
 <?php } ?>
@@ -342,7 +351,7 @@ body { background: #e9e9e9; color: #666; font-family: 'Roboto', sans-serif; font
 	<?php } else { ?>
 		<?php if($_Oli->config['allow_register']) { ?>
 			<div class="toggle">
-				<i class="fa <?php if($_Oli->getUrlParam(2) != 'register') { ?>fa-pencil" placeholder="fa-sign-in<?php } else { ?>fa-sign-in" placeholder="fa-pencil<?php } ?>"></i>
+				<i class="fas <?php if($_Oli->getUrlParam(2) != 'register') { ?>fa-pencil-alt" placeholder="fa-sign-in<?php } else { ?>fa-sign-in-alt" placeholder="fa-pencil<?php } ?>"></i>
 				<div class="tooltip" placeholder="<?php if($_Oli->getUrlParam(2) != 'register') { ?>Login">Register<?php } else { ?>Register">Login<?php } ?></div>
 			</div>
 		<?php } ?>
@@ -410,15 +419,15 @@ ob_end_clean(); ?>
 </div>
 
 <div id="footer">
-	<span><i class="fa fa-code"></i> by Matiboux</span> - <span><i class="fa fa-paint-brush"></i> by Andy Tran</span>
+	<p>Powered by <a href="https://github.com/OliFramework/Oli">Oli</a>, an open source PHP framework</p>
 </div>
 
-<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
 $('.toggle').click(function() {
 	$(this).children('i').addClass([
-		'fa ' + $(this).children('i').attr('placeholder'),
-		$(this).children('i').removeClass('fa'),
+		'fas ' + $(this).children('i').attr('placeholder'),
+		$(this).children('i').removeClass('fas'),
 		$(this).children('i').attr('placeholder', $(this).children('i').attr('class')),
 		$(this).children('i').removeClass()][0]);
 	$(this).children('.tooltip').text([
