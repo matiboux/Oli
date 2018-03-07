@@ -263,15 +263,28 @@ class OliCore {
 		 * @return string Returns Oli Security Code.
 		 */
 		public function getOliSecurityCode() {
+			return $this->refreshOliSecurityCode() ?: file_get_contents(ABSPATH . '.olisc');
+		}
+		/** * @alias OliCore::getOliSecurityCode() */
+		public function getOliSC() { return $this->getOliSecurityCode(); }
+		
+		/**
+		 * Refresh Oli Security Code
+		 * 
+		 * @version BETA-1.9.0
+		 * @updated BETA-1.9.0
+		 * @return string|boolean Returns Oli Security Code if it was updated, false otherwise.
+		 */
+		public function refreshOliSecurityCode() {
 			if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
 				$handle = fopen(ABSPATH . '.olisc', 'w');
 				fwrite($handle, $olisc = $this->keygen(6, true, false, true));
 				fclose($handle);
-			} else $olisc = file_get_contents(ABSPATH . '.olisc');
-			return $olisc;
+				return $olisc;
+			} else return false;
 		}
-		/** * @alias OliCore::getOliSecurityCode() */
-		public function getOliSC() { $this->getOliSecurityCode(); }
+		/** * @alias OliCore::refreshOliSecurityCode() */
+		public function refreshOliSC() { return $this->refreshOliSecurityCode(); }
 		
 		/** ---------------- */
 		/**  III. 2. Loader  */
