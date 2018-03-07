@@ -473,7 +473,13 @@ class OliCore {
 		/**  III. 3. MySQL  */
 		/** --------------- */
 		
-		/** MySQL Setup & Config */
+		/**
+		 * MySQL Connection Setup
+		 * 
+		 * @version BETA
+		 * @updated BETA-1.8.0
+		 * @return boolean Returns true if succeeded.
+		 */
 		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
 			if(!empty($database)) {
 				try {
@@ -484,6 +490,14 @@ class OliCore {
 				}
 			} else return false;
 		}
+		
+		/**
+		 * MySQL Connection Reset
+		 * 
+		 * @version BETA-1.8.0
+		 * @updated BETA-1.8.0
+		 * @return boolean Returns true if succeeded.
+		 */
 		public function resetMySQL() {
 			$this->db = null;
 			$this->mysqlConfig = null;
