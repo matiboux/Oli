@@ -2989,14 +2989,14 @@ class OliCore {
 			
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null, $userID = null) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->config['user_management']) echo 'DEBUG; verifyAuthKey; usermanagement disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID ?: $this->cache['userID'])))['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time()) return true;
 				else return false;
 			}
 			
 			/** Get Auth Key Owner */
 			public function getAuthKeyOwner($authKey = null, $userID = null) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->config['user_management']) echo 'DEBUG; getAuthKeyOwner; usermanagement disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}

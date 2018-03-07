@@ -276,7 +276,7 @@ body { background: #e9e9e9; color: #666; font-family: 'Roboto', sans-serif; font
 	<h1><a href="<?php echo $_Oli->getUrlParam(0); ?>"><?php echo $_Oli->getSetting('name'); ?></a></h1>
 	<span>Powered by <a href="https://github.com/OliFramework/Oli">Oli</a>, an open source PHP framework</span>
 </div>
-
+<?php /*
 <div id="message">
 	<div class="content">
 		<b>New!</b> Anti brute-force system. <br /> <br />
@@ -286,7 +286,7 @@ body { background: #e9e9e9; color: #666; font-family: 'Roboto', sans-serif; font
 		- by IP address: <b><?=$userIPAttempts ?: ($_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIPAttempts']?>) <br />
 		<?php if(!empty($username)) { ?>- by username (<?=$username?>): <b><?=$usernameAttempts ?: ($_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND username = \'' . $username . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUsernameAttempts']?>)<?php } ?>
 	</div>
-</div>
+</div>*/ ?>
 
 <?php if(isset($resultCode)) { ?>
 	<?php
