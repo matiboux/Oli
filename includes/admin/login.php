@@ -377,7 +377,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</div>
 		<?php } ?>
 		
-		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
+		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND $_Oli->getUrlParam(2) != 'root') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Login to your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login')?>" method="post">
 				<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
@@ -430,11 +430,11 @@ ob_end_clean(); ?>
 			</div>
 		<?php } ?>
 		<?php if($allowRootRegister) { ?>
-			<div class="form" data-icon="fa-unlock" data-text="Root Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
+			<div class="form" data-icon="fa-unlock" data-text="Root Register" style="display: <?php if($_Oli->getUrlParam(2) == 'root') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a root account</h2>
 				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
 				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshOliSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
-				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
+				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root')?>" method="post">
 					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
