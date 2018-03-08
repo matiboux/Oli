@@ -255,6 +255,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module .form:first-child, #module .form:nth-child(2) { display: block }
 #module form { margin: 0 }
 #module h2 { margin: 0 0 20px; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
+#module p { margin: 0 0 20px }
 #module input { outline: none; display: block; width: 100%; border: 1px solid #e0e0e0; margin: 0 0 20px; padding: 10px 15px; box-sizing: border-box; font-weight: 400; -webkit-transition: .3s ease; transition: .3s ease }
 #module .checkbox, #module .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: .3s ease; transition: .3s ease }
 #module .checkbox > label, #module .radio > label { cursor: pointer }
@@ -275,6 +276,10 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 @media (max-width: 520px) { #footer p { font-size: 10px; } }
 #footer p .fa { color: #4080c0 }
 #footer p a { color: #4080c0; font-weight: bold; text-decoration: none }
+
+.text-info { color: #4080c0 }
+.text-success { color: #40c040 }
+.text-error { color: #c04040 }
 </style>
 
 </head>
@@ -411,6 +416,8 @@ ob_end_clean(); ?>
 		<?php if($allowRootRegister) { ?>
 			<div class="form" data-icon="fa-unlock" data-text="Root Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a root account</h2>
+				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
+				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshOliSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
 					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
 					<input type="password" name="password" value="<?=$_Oli->getPostVars('password')?>" placeholder="Password" />
