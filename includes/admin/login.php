@@ -422,6 +422,7 @@ ob_end_clean(); ?>
 					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
 					<input type="password" name="password" value="<?=$_Oli->getPostVars('password')?>" placeholder="Password" />
 					<input type="text" name="olisc" value="<?=$_Oli->getPostVars('olisc')?>" placeholder="Oli Security Code" />
+					<input type="text" name="user-right" value="ROOT" disabled />
 					<button type="submit">Register</button>
 				</form>
 			</div>
