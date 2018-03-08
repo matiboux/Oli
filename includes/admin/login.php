@@ -349,14 +349,13 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		
 		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
 	<?php } else { ?>
-		<?php if($_Oli->config['allow_register']) { ?>
+		<?php if($_Oli->config['allow_register'] OR $allowRootRegister) { ?>
 			<div class="toggle">
 				<i class="fas"></i>
 				<div class="tooltip"></div>
 			</div>
 		<?php } ?>
 		
-		<?php // $allowRootRegister ?>
 		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Login to your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login')?>" method="post">
@@ -405,6 +404,17 @@ ob_end_clean(); ?>
 <img src="data:image/png;base64,<?=base64_encode($captchaImage)?>" alt="Captcha" />
 					<input type="text" name="captcha" placeholder="Captcha (wip)" disabled />*/ ?>
 					
+					<button type="submit">Register</button>
+				</form>
+			</div>
+		<?php } ?>
+		<?php if($allowRootRegister) { ?>
+			<div class="form" data-icon="fa-unlock" data-text="Root Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
+				<h2>Create a root account</h2>
+				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
+					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
+					<input type="password" name="password" value="<?=$_Oli->getPostVars('password')?>" placeholder="Password" />
+					<input type="text" name="olisc" value="<?=$_Oli->getPostVars('olisc')?>" placeholder="Oli Security Code" />
 					<button type="submit">Register</button>
 				</form>
 			</div>
