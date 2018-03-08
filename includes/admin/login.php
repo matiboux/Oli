@@ -167,21 +167,25 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 	/** Register */
 	} else if(($_Oli->config['allow_register'] OR ($allowRootRegister AND isset($_['olisc']))) AND isset($_['email'])) {
 		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
-		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The "username" parameter is incorrect (use "_", 0-9, a-z, A-Z';
-		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, the username you choose is prohibited.';
-		else if(empty($_['password'])) $resultCode = 'E:Please enter an password.';
+		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
+		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
+		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
 		else if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
+		else if(!preg_match('/^[-_a-zA-Z0-9]+(?:\.?[-_a-zA-Z0-9]+)*@[^\s]+(?:\.[a-z]+)$/', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
 		
 		/** Local Root Register */
-		else if($localLogin AND $allowRootRegister AND isset($_['olisc'])) {
-			if(empty($_['olisc'])) $resultCode = 'E:The "olisc" parameter is missing.';
+		else if($allowRootRegister AND isset($_['olisc'])) {
+			if(empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
 			else if($params['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
-			else if(!empty($hashedPassword = $_Oli->hashPassword($params['password']))) {
-				$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-				fwrite($handle, json_encode(array('username' => $params['username'], 'password' => $hashedPassword), JSON_FORCE_OBJECT));
-				fclose($handle);
-				$registering = false;
-			} else $result = array('error' => 'Error: An error occurred');
+			else if($localLogin) {
+				if(!empty($hashedPassword = $_Oli->hashPassword($params['password']))) $resultCode = 'E:Your password couldn\'t be hashed.';
+				else {
+					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+					fwrite($handle, json_encode(array('username' => $params['username'], 'password' => $hashedPassword), JSON_FORCE_OBJECT));
+					fclose($handle);
+					$resultCode = 'S:Your account has been successfully created as a root and local account.';
+				}
+			} else $resultCode = 'W:Root register with database is not yet supported.';
 		
 		/** Classic Register */
 		} else {
