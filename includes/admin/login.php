@@ -259,8 +259,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module input { outline: none; display: block; width: 100%; border: 1px solid #e0e0e0; margin: 0 0 20px; padding: 10px 15px; box-sizing: border-box; font-weight: 400; -webkit-transition: .3s ease; transition: .3s ease }
 #module .checkbox, #module .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: .3s ease; transition: .3s ease }
 #module .checkbox > label, #module .radio > label { cursor: pointer }
-#module .checkbox > label > input[type=checkbox] { display: initial; width: auto; margin: 0 }
-#module .radio > label > input[type=radio] { display: initial; width: auto; margin: 0 }
+#module .checkbox > label > input[type=checkbox],
+#module .radio > label > input[type=radio] { display: initial; width: 14px; height: 14px; margin: 0 }
 #module input:focus { border: 1px solid #4080c0; color: #303030 }
 #module button { cursor: pointer; background: #4080c0; width: 100%; border: 0; padding: 10px 15px; color: #fff; -webkit-transition: .3s ease; transition: .3s ease }
 #module button:hover, #module button:focus { background: #306090 }
