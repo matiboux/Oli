@@ -160,23 +160,37 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				}
 			} else $resultCode = 'E:An error occurred while creating the unlock request.';
 		}
-	} else if($_Oli->config['allow_register'] AND isset($_['email'])) {
-		if(empty($_['username'])) $resultCode = 'E:Please enter an username.';
-		else {
-			$username = trim($_['username']);
-			if($_Oli->isExistAccountInfos('ACCOUNTS', $username, false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
-			else if($_Oli->isProhibitedUsername($username)) $resultCode = 'E:Sorry, the username you choose is prohibited.';
-			else if(empty($_['password'])) $resultCode = 'E:Please enter an password.';
-			else if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
-			else {
-				$email = strtolower(trim($_['email']));
-				if($_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $email), false)) $resultCode = 'E:Sorry, the email you entered is already associated with an existing account.';
-				else if($_Oli->registerAccount($username, $_['password'], $email, array('headers' => $mailHeaders))) {
-					if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created and a mail has been sent to <b>' . $email . '</b>.';
-					else $resultCode = 'S:Your account has been successfully created; you can now log into it.';
-				} else $resultCode = 'E:An error occurred while creating your account.';
-			}
+	
+	/** Register */
+	} else if(($_Oli->config['allow_register'] OR ($allowRootRegister AND isset($_['olisc']))) AND isset($_['email'])) {
+		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
+		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The "username" parameter is incorrect (use "_", 0-9, a-z, A-Z';
+		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, the username you choose is prohibited.';
+		else if(empty($_['password'])) $resultCode = 'E:Please enter an password.';
+		else if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
+		
+		/** Local Root Register */
+		else if($localLogin AND $allowRootRegister AND isset($_['olisc'])) {
+			if(empty($_['olisc'])) $resultCode = 'E:The "olisc" parameter is missing.';
+			else if($params['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
+			else if(!empty($hashedPassword = $_Oli->hashPassword($params['password']))) {
+				$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+				fwrite($handle, json_encode(array('username' => $params['username'], 'password' => $hashedPassword), JSON_FORCE_OBJECT));
+				fclose($handle);
+				$registering = false;
+			} else $result = array('error' => 'Error: An error occurred');
+		
+		/** Classic Register */
+		} else {
+			if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
+			else if($_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['email']), false)) $resultCode = 'E:Sorry, the email you entered is already associated with an existing account.';
+			else if($_Oli->registerAccount($_['username'], $_['password'], $_['email'], array('headers' => $mailHeaders))) {
+				if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created and a mail has been sent to <b>' . $_['email'] . '</b>.';
+				else $resultCode = 'S:Your account has been successfully created; you can now log into it.';
+			} else $resultCode = 'E:An error occurred while creating your account.';
 		}
+	
+	/** Login */
 	} else if($_Oli->config['allow_login']) {
 		$_Oli->deleteAccountLines('LOG_LIMITS', 'action = \'login\' AND last_trigger < date_sub(now(), INTERVAL 1 HOUR)');
 		$username = trim($_['username']);
@@ -423,9 +437,9 @@ ob_end_clean(); ?>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
 					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
 					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" />
-					<input type="text" name="user-right" value="ROOT" disabled />
-					<button type="submit">Register</button>
+					<button type="submit">Register as Root</button>
 				</form>
 			</div>
 		<?php } ?>
