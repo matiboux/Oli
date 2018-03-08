@@ -635,7 +635,7 @@ class OliCore {
 		 * @return boolean|void Returns the MySQL connection status
 		 */
 		public function isSetupMySQL() {
-			if($this->db) return true;
+			if(isset($this->db)) return true;
 			else return false;
 		}
 		
