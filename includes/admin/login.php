@@ -22,6 +22,7 @@
 \*/
 
 $_ = array_merge($_GET, $_POST);
+var_dump($_); echo '<br />';
 
 $config = array(
 	'maxUserIdAttempts' => 3,
@@ -97,8 +98,10 @@ else if($_Oli->config['account_activation'] AND $_Oli->getUrlParam(2) == 'activa
 	else $resultCode = 'E:An error occurred while activating your account.';
 }
 else if(!empty($_)) {
-	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('REQUESTS') . '` WHERE expire_date < now()');
-	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('SESSIONS') . '` WHERE expire_date < now() OR (expire_date IS NULL AND update_date < date_sub(now(), INTERVAL 7 DAY))');
+	if($_Oli->isSetupMySQL() AND $_Oli->isAccountsManagement) {
+		$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('REQUESTS') . '` WHERE expire_date < now()');
+		$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('SESSIONS') . '` WHERE expire_date < now() OR (expire_date IS NULL AND update_date < date_sub(now(), INTERVAL 7 DAY))');
+	}
 	
 	if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') {
 		if(empty($_['email'])) $resultCode = 'E:Please enter your email.';

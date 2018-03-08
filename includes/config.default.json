@@ -24,6 +24,24 @@
 	"templates": {},
 	
 	
+	"prohibited_usernames": [],
+	
+	
+	"auth_key_length": 32,
+	"auth_key_cookie": {
+		"name": "OliAuthKey",
+		"domain": "UrlParam:fulldomain",
+		"secure": false,
+		"http_only": false
+	},
+	
+	"hash": {
+		"algorithm": "Const:PASSWORD_DEFAULT",
+		"salt": null,
+		"cost": 10
+	},
+	
+	
 	
 "#": {
 	
