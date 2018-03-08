@@ -21,6 +21,8 @@
 |*|  - Add support and config for login limits.
 \*/
 
+$_ = array_merge($_GET, $_POST);
+
 $config = array(
 	'maxUserIdAttempts' => 3,
 	'maxUserIPAttempts' => 5,
@@ -47,9 +49,9 @@ $mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_O
 $mailHeaders .= 'MIME-Version: 1.0' . "\r\n";
 $mailHeaders .= 'Content-type: text/html; charset=utf-8';
 
-if($_Oli->getUrlParam(2) == 'change-password' AND !empty($_Oli->getPostVars('activateKey'))) {
-	if($_Oli->isEmptyPostVars('newPassword')) $resultCode = 'E:Please enter the new password you want to set.';
-	else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getPostVars('activateKey'))))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
+if($_Oli->getUrlParam(2) == 'change-password' AND !empty($_['activateKey'])) {
+	if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
+	else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
 	else if($requestInfos['action'] != 'change-password') $resultCode = 'E:The request you triggered does not allow you to change your password.';
 	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
 	else {
@@ -57,18 +59,18 @@ if($_Oli->getUrlParam(2) == 'change-password' AND !empty($_Oli->getPostVars('act
 		if($_Oli->verifyAuthKey()) $_Oli->logoutAccount();
 		
 		/** Deletes all the user sessions, change the user password and delete the request */
-		if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_Oli->getPostVars('newPassword'))), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getPostVars('activateKey'))))) {
+		if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
 			$hideChangePasswordUI = true;
 			$resultCode = 'S:Your password has been successfully changed!';
 		} else $resultCode = 'E:An error occurred while changing your password.';
 	}
 }
-else if(!$_Oli->issetPostVars() AND $_Oli->getUrlParam(2) == 'unlock' AND $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) {
+else if(empty($_) AND $_Oli->getUrlParam(2) == 'unlock' AND $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) {
 	if($requestInfos['action'] != 'unlock') $resultCode = 'E:The request you triggered does not allow you to unlock your account.';
 	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
 	else {
 		/** Deletes all the account log limits and delete the request */
-		if($_Oli->deleteAccountLines('LOG_LIMITS', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getPostVars('activateKey'))))) {
+		if($_Oli->deleteAccountLines('LOG_LIMITS', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
 			$hideUnlockUI = true;
 			$resultCode = 'S:Your account has been successfully unlocked!';
 		} else $resultCode = 'E:An error occurred while changing your password.';
@@ -94,16 +96,16 @@ else if($_Oli->config['account_activation'] AND $_Oli->getUrlParam(2) == 'activa
 	else if($_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3)))) AND $_Oli->updateUserRight('USER', $requestInfos['username'])) $resultCode = 'S:Your account has been successfully activated!';
 	else $resultCode = 'E:An error occurred while activating your account.';
 }
-else if($_Oli->issetPostVars()) {
+else if(!empty($_)) {
 	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('REQUESTS') . '` WHERE expire_date < now()');
 	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('SESSIONS') . '` WHERE expire_date < now() OR (expire_date IS NULL AND update_date < date_sub(now(), INTERVAL 7 DAY))');
 	
 	if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') {
-		if($_Oli->isEmptyPostVars('email')) $resultCode = 'E:Please enter your email.';
-		else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_Oli->getPostVars('email'))), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
+		if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
+		else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_['email'])), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
 		else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('username' => $username, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
 		else if($activateKey = $_Oli->createRequest($username, 'change-password')) {
-			$email = $_Oli->getPostVars('email');
+			$email = $_['email'];
 			$subject = 'One more step to change your password';
 			/** This message will need to be reviewed in a future release */
 			$message = nl2br('Hi ' . $username . '!
@@ -125,7 +127,7 @@ Also, if possible, please take time to cancel the request from your account sett
 			}
 		} else $resultCode = 'E:An error occurred while creating the change-password request.';
 	} else if($_Oli->getUrlParam(2) == 'unlock') {
-		$username = trim($_Oli->getPostVars('username'));
+		$username = trim($_['username']);
 		
 		if(empty($username)) $resultCode = 'E:Please enter your username or your email.';
 		else {
@@ -158,18 +160,18 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				}
 			} else $resultCode = 'E:An error occurred while creating the unlock request.';
 		}
-	} else if($_Oli->config['allow_register'] AND $_Oli->issetPostVars('email')) {
-		if($_Oli->isEmptyPostVars('username')) $resultCode = 'E:Please enter an username.';
+	} else if($_Oli->config['allow_register'] AND isset($_['email'])) {
+		if(empty($_['username'])) $resultCode = 'E:Please enter an username.';
 		else {
-			$username = trim($_Oli->getPostVars('username'));
+			$username = trim($_['username']);
 			if($_Oli->isExistAccountInfos('ACCOUNTS', $username, false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
 			else if($_Oli->isProhibitedUsername($username)) $resultCode = 'E:Sorry, the username you choose is prohibited.';
-			else if($_Oli->isEmptyPostVars('password')) $resultCode = 'E:Please enter an password.';
-			else if($_Oli->isEmptyPostVars('email')) $resultCode = 'E:Please enter your email.';
+			else if(empty($_['password'])) $resultCode = 'E:Please enter an password.';
+			else if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
 			else {
-				$email = strtolower(trim($_Oli->getPostVars('email')));
+				$email = strtolower(trim($_['email']));
 				if($_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $email), false)) $resultCode = 'E:Sorry, the email you entered is already associated with an existing account.';
-				else if($_Oli->registerAccount($username, $_Oli->getPostVars('password'), $email, array('headers' => $mailHeaders))) {
+				else if($_Oli->registerAccount($username, $_['password'], $email, array('headers' => $mailHeaders))) {
 					if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created and a mail has been sent to <b>' . $email . '</b>.';
 					else $resultCode = 'S:Your account has been successfully created; you can now log into it.';
 				} else $resultCode = 'E:An error occurred while creating your account.';
@@ -177,13 +179,13 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		}
 	} else if($_Oli->config['allow_login']) {
 		$_Oli->deleteAccountLines('LOG_LIMITS', 'action = \'login\' AND last_trigger < date_sub(now(), INTERVAL 1 HOUR)');
-		$username = trim($_Oli->getPostVars('username'));
+		$username = trim($_['username']);
 		
 		if(($userIdAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_Oli->getUserID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIdAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIdAttempts . '), your user ID has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . (!empty($username) ? '/unlock/' . $username : '/unlock') . '">unlock your account</a>.';
 		else if(($userIPAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIPAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIPAttempts . '), your IP address has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . (!empty($username) ? '/unlock/' . $username : '/unlock') . '">unlock your account</a>.';
 		else if(empty($username)) $resultCode = 'E:Please enter your username or your email.';
 		else if(($usernameAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND username = \'' . $username . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUsernameAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $usernameAttempts . '), this username has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . (!empty($username) ? '/unlock/' . $username : '/unlock') . '">unlock your account</a>.';
-		else if($_Oli->isEmptyPostVars('password')) $resultCode = 'E:Please enter your password.';
+		else if(empty($_['password'])) $resultCode = 'E:Please enter your password.';
 		else {
 			$isExistByUsername = $_Oli->isExistAccountInfos('ACCOUNTS', $username, false);
 			$isExistByEmail = $_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $username), false);
@@ -193,13 +195,13 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			else if(($isExistByUsername AND $_Oli->getUserRightLevel($username, false) == $_Oli->translateUserRight('BANNED')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $username), false) == $_Oli->translateUserRight('BANNED'))) $resultCode = 'E:Sorry, the account associated with that username or email is banned and is not allowed to log in.';
 			else if(($isExistByUsername AND $_Oli->getUserRightLevel($username, false) < $_Oli->translateUserRight('USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $username), false) < $_Oli->translateUserRight('USER'))) $resultCode = 'E:Sorry, the account associated with that username or email is not allowed to log in.';
 			
-			else if($_Oli->verifyLogin($username, $_Oli->getPostVars('password'))) {
-				$loginDuration = $_Oli->getPostVars('rememberMe') ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
-				if($authKey = $_Oli->loginAccount($username, $_Oli->getPostVars('password'), $loginDuration)) {
+			else if($_Oli->verifyLogin($username, $_['password'])) {
+				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
+				if($authKey = $_Oli->loginAccount($username, $_['password'], $loginDuration)) {
 					if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
 						$url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
-						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $authKey, 'extendedDelay' => $_Oli->getPostVars('rememberMe'), 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_Oli->getPostVars('referer') ?: $_Oli->getFullUrl())));
-					} else if(!empty($_Oli->getPostVars('referer'))) header('Location: ' . $_Oli->getPostVars('referer'));
+						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $authKey, 'extendedDelay' => $_['rememberMe'], 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
+					} else if(!empty($_['referer'])) header('Location: ' . $_['referer']);
 					else header('Location: ' . $_Oli->getUrlParam(0));
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
@@ -325,7 +327,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<div class="form" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Recover your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover')?>" method="post">
-					<input type="email" name="email" value="<?=$_Oli->getPostVars('email')?>" placeholder="Email address" />
+					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
 					<button type="submit">Recover</button>
 				</form>
 			</div>
@@ -333,10 +335,10 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	
 		<div class="form" style="display:<?php if(!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Change your pasword</h2>
-			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password')?><?php if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_Oli->getPostVars('activateKey'))))) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_Oli->getPostVars('activateKey'))?><?php } ?>" method="post">
+			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password')?><?php if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey'])))) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
 				<?php if($requestInfos) { ?><input type="text" name="username" value="<?=$requestInfos['username']?>" placeholder="Username" disabled /><?php } ?>
-				<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_Oli->getPostVars('activateKey')?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
-				<input type="password" name="newPassword" value="<?=$_Oli->getPostVars('newPassword')?>" placeholder="New password" />
+				<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
+				<input type="password" name="newPassword" value="<?=$_['newPassword']?>" placeholder="New password" />
 				<button type="submit">Update</button>
 			</form>
 		</div>
@@ -346,7 +348,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<div class="form" style="display: block">
 			<h2>Unlock your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock')?>" method="post">
-				<input type="text" name="username" value="<?=$_Oli->getPostVars('username') ?: $_Oli->getUrlParam(3)?>" placeholder="Username" />
+				<input type="text" name="username" value="<?=$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" />
 				<button type="submit">Unlock</button>
 				<?php /*<p class="help-block">Introducing help blocks! Yay. Totally not inspired from Bootstrap CSS. uwu</p>*/ ?>
 			</form>
@@ -364,13 +366,13 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Login to your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login')?>" method="post">
-				<?php if(!empty($_Oli->getPostVars('referer')) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
-					<input type="hidden" name="referer" value="<?=$_Oli->getPostVars('referer') ?: $_SERVER['HTTP_REFERER']?>" />
+				<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
+					<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
 				<?php } ?>
 				
-				<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
-				<input type="password" name="password" value="<?=$_Oli->getPostVars('password')?>" placeholder="Password" />
-				<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!$_Oli->issetPostVars('rememberMe') OR $_Oli->getPostVars('rememberMe')) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
+				<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
+				<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+				<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
 				<button type="submit">Login</button>
 			</form>
 		</div>
@@ -378,9 +380,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
-					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
-					<input type="password" name="password" value="<?=$_Oli->getPostVars('password')?>" placeholder="Password" />
-					<input type="email" name="email" value="<?=$_Oli->getPostVars('email')?>" placeholder="Email address" />
+					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
 					
 <?php /*<?php function captcha($captcha) {
 	$width = strlen($captcha) * 10 + 200;
@@ -419,9 +421,9 @@ ob_end_clean(); ?>
 				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
 				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshOliSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
-					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
-					<input type="password" name="password" value="<?=$_Oli->getPostVars('password')?>" placeholder="Password" />
-					<input type="text" name="olisc" value="<?=$_Oli->getPostVars('olisc')?>" placeholder="Oli Security Code" />
+					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" />
 					<input type="text" name="user-right" value="ROOT" disabled />
 					<button type="submit">Register</button>
 				</form>
