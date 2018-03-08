@@ -1,6 +1,6 @@
 DirectoryIndex index.php
-ErrorDocument 404 /oli-BETA-1.9/index.php
-ErrorDocument 403 /oli-BETA-1.9/index.php
+ErrorDocument 404 /index.php
+ErrorDocument 403 /index.php
 
 Order deny,allow
 <FilesMatch ".olipath|.olisc|load.php">
@@ -9,7 +9,7 @@ Order deny,allow
 
 <IfModule mod_rewrite.c>
 	RewriteEngine On
-	RewriteBase /oli-BETA-1.9/
+	RewriteBase /
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ^(.*)$ index.php [QSA,L]
