@@ -176,12 +176,12 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		/** Local Root Register */
 		else if($allowRootRegister AND isset($_['olisc'])) {
 			if(empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
-			else if($params['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
+			else if($_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 			else if($localLogin) {
-				if(!empty($hashedPassword = $_Oli->hashPassword($params['password']))) $resultCode = 'E:Your password couldn\'t be hashed.';
+				if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:Your password couldn\'t be hashed.';
 				else {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-					fwrite($handle, json_encode(array('username' => $params['username'], 'password' => $hashedPassword), JSON_FORCE_OBJECT));
+					fwrite($handle, json_encode(array('username' => $_['username'], 'password' => $hashedPassword, 'email' => $_['email']), JSON_FORCE_OBJECT));
 					fclose($handle);
 					$resultCode = 'S:Your account has been successfully created as a root and local account.';
 				}
@@ -316,7 +316,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 <?php /*
 <div class="message">
 	<div class="content">
-		<b>New!</b> Anti brute-force system. <br /> <br />
+		Anti brute-force system. <br /> <br />
 		
 		Login attempts in the last hour... <br />
 		- by user id: <b><?=$userIdAttempts ?: ($_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_Oli->getUserID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIdAttempts']?>) <br />
