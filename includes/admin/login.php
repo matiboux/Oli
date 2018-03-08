@@ -15,7 +15,6 @@
 |*|  --- --- ---
 |*|  
 |*|  Stuff to do next:
-|*|  - (?) Support for more than two container for the switcher
 |*|  - Add captcha for registering.
 |*|  
 |*|  Stuff to do on Oli:
@@ -223,7 +222,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 <meta name="author" content="Matiboux" />
 <title>Login - <?php echo $_Oli->getSetting('name'); ?></title>
 
-<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+<script id="fontawesome" defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
 <style>
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
 html { position: relative; min-height: 100% }
@@ -250,7 +249,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 
 #module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; line-height: 30px; text-align: center }
 #module .toggle [data-fa-i2svg] { padding: 8px }
-#module .toggle .tooltip { position: absolute; top: 8px; right: 40px; display: block; background: #808080; width: auto; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
+#module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
 #module .toggle .tooltip:before { content: ''; position: absolute; top: 5px; right: -5px; display: block; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
 #module .form { display: none; padding: 40px }
 #module .form:first-child, #module .form:nth-child(2) { display: block }
@@ -352,13 +351,13 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	<?php } else { ?>
 		<?php if($_Oli->config['allow_register']) { ?>
 			<div class="toggle">
-				<i class="fas <?php if($_Oli->getUrlParam(2) != 'register') { ?>fa-pencil-alt" placeholder="fa-sign-in<?php } else { ?>fa-sign-in-alt" placeholder="fa-pencil<?php } ?>"></i>
-				<div class="tooltip" placeholder="<?php if($_Oli->getUrlParam(2) != 'register') { ?>Login">Register<?php } else { ?>Register">Login<?php } ?></div>
+				<i class="fas"></i>
+				<div class="tooltip"></div>
 			</div>
 		<?php } ?>
 		
 		<?php // $allowRootRegister ?>
-		<div class="form" data-icon="fas fa-sign-in" data-text="Login" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
+		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if(!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Login to your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login')?>" method="post">
 				<?php if(!empty($_Oli->getPostVars('referer')) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
@@ -372,7 +371,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</form>
 		</div>
 		<?php if($_Oli->config['allow_register']) { ?>
-			<div class="form" data-icon="fas fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
+			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0)?>form.php?callback=<?=urlencode($_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register')?>" method="post">
 					<input type="text" name="username" value="<?=$_Oli->getPostVars('username')?>" placeholder="Username" />
@@ -426,16 +425,28 @@ ob_end_clean(); ?>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
+var updateForm = function(setup) {
+	var index = $('.form').index($('.form:visible'));
+	var length = $('.form').length;
+	var nextIndex = (index+1) % length;
+	if(!setup) var futureIndex = (index+2) % length;
+	
+	console.log('a:' + index);
+	console.log('b:' + nextIndex);
+	console.log($('.form').eq(setup ? nextIndex : futureIndex).attr('data-icon'));
+	console.log('---');
+	
+	if(setup) $('#fontawesome').ready(function() { $('.toggle').children('[data-fa-i2svg]').addClass($('.form').eq(nextIndex).attr('data-icon')); }); 
+	else $('.toggle').children('[data-fa-i2svg]').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
+	$('.toggle').children('.tooltip').text($('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
+	return nextIndex;
+};
+
+$(document).ready(function() { updateForm(true); });
 $('.toggle').click(function() {
-	$(this).children('i').addClass([
-		'fas ' + $(this).children('i').attr('placeholder'),
-		$(this).children('i').removeClass('fas'),
-		$(this).children('i').attr('placeholder', $(this).children('i').attr('class')),
-		$(this).children('i').removeClass()][0]);
-	$(this).children('.tooltip').text([
-		$(this).children('.tooltip').attr('placeholder'),
-		$(this).children('.tooltip').attr('placeholder', $(this).children('.tooltip').text())][0]);
-	$('.form').animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
+	var nextIndex = updateForm();
+	$('.form:visible').animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
+	$($('.form')[nextIndex]).animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
 });
 </script>
 
