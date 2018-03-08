@@ -3,7 +3,7 @@ ErrorDocument 404 /oli-BETA-1.9/index.php
 ErrorDocument 403 /oli-BETA-1.9/index.php
 
 Order deny,allow
-<FilesMatch "config.(json|php)|mysql.json|load.php">
+<FilesMatch ".olipath|.olisc|load.php">
 	deny from all
 </FilesMatch>
 
