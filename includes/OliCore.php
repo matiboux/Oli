@@ -2989,14 +2989,14 @@ class OliCore {
 			
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null, $userID = null) {
-				if(!$this->config['user_management']) echo 'DEBUG; verifyAuthKey; usermanagement disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->config['user_management']) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID ?: $this->cache['userID'])))['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time()) return true;
 				else return false;
 			}
 			
 			/** Get Auth Key Owner */
 			public function getAuthKeyOwner($authKey = null, $userID = null) {
-				if(!$this->config['user_management']) echo 'DEBUG; getAuthKeyOwner; usermanagement disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->config['user_management']) echo 'DEBUG; getAuthKeyOwner; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
 				else return false;
 			}
@@ -3158,15 +3158,15 @@ class OliCore {
 			
 			/** Verify login informations */
 			public function verifyLogin($username, $password) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
 				else return false;
 			}
 			
 			/** Login account */
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!$this->config['allow_login']) trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
+				if(!$this->config['user_management']) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				else if(!$this->config['allow_login']) echo 'DEBUG; loginAccount; login management disabled. <br />';// trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
 				else if($this->verifyLogin($username, $password)) {
 					$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
 					
