@@ -3167,7 +3167,25 @@ class OliCore {
 				return !$this->isSetupMySQL() OR !$this->isAccountsManagement;
 			}
 			
-			/** Verify login informations */
+			/**
+			 * Get Local Root User informations
+			 * 
+			 * @version BETA-1.9.0
+			 * @updated BETA-1.9.0
+			 * @return array|boolean Returns Local Root User informations if they exist, false otherwise.
+			 */
+			public function getLocalRootInfos() {
+				if(file_exists(CONTENTPATH . '.oliauth')) return json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true);
+				else return false;
+			}
+			
+			/**
+			 * Verify login informations
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return boolean Returns true if local.
+			 */
 			public function verifyLogin($username, $password) {
 				if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
