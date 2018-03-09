@@ -2965,14 +2965,16 @@ class OliCore {
 			
 			/** Set Auth Key cookie */
 			public function setAuthKeyCookie($authKey, $expireDelay) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
+				// if(!$this->config['user_management']) echo 'DEBUG; setAuthKeyCookie; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
 			/** Delete Auth Key cookie */
 			public function deleteAuthKeyCookie() {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
+				// if(!$this->config['user_management']) echo 'DEBUG; deleteAuthKeyCookie; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
 			/** -------------------- */
@@ -3187,7 +3189,8 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function verifyLogin($username, $password) {
-				if($this->isLoginLocal()) {
+				if(empty($username) OR empty($password)) return false;
+				else if($this->isLoginLocal()) {
 					$rootUserInfos = $this->getLocalRootInfos();
 					return ($username == strtolower($rootUserInfos['username']) OR $username == $rootUserInfos['email']) AND password_verify($password, $rootUserInfos['password']);
 				} else {
@@ -3200,28 +3203,37 @@ class OliCore {
 			
 			/** Login account */
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
-				if(!$this->config['user_management']) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!$this->config['allow_login']) echo 'DEBUG; loginAccount; login management disabled. <br />';// trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
-				else if($this->verifyLogin($username, $password)) {
-					$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
+				// if(!$this->config['user_management']) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else if(!$this->config['allow_login']) echo 'DEBUG; loginAccount; login management disabled. <br />';// trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
+				// else
+				if($this->verifyLogin($username, $password)) {
+					if($this->isLoginLocal()) {
+						$rootUserInfos = $this->getLocalRootInfos();
+						$username = $rootUserInfos['username'];
+					} else {
+						$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
 					
-					if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $username)))
-						$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
+						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $username)))
+							$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
+					}
 					
-					if($this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
+					if($this->isLoginLocal() OR $this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
 						$newAuthKey = $this->keygen($this->config['auth_key_length']);
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'];
 						
-						if($this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->cache['userID']))) {
+						if($this->isLoginLocal()) {
+							$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+							$isError = !fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_key' => $newAuthKey)), JSON_FORCE_OBJECT));
+							fclose($handle);
+						} else $isError = !$this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->cache['userID']));
+						
+						if(!$isError) {
 							if($setAuthKeyCookie) $this->setAuthKeyCookie($newAuthKey, $expireDelay);
 							return $newAuthKey;
-						}
-						else return false;
-					}
-					else return false;
-				}
-				else return false;
+						} else return false;
+					} else return false;
+				} else return false;
 			}
 			
 			/** ------------------ */

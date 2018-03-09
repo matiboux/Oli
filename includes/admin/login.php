@@ -229,11 +229,12 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			else if($_Oli->verifyLogin($_['username'], $_['password'])) {
 				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
 				if($authKey = $_Oli->loginAccount($_['username'], $_['password'], $loginDuration)) {
-					if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
-						$url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
-						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $authKey, 'extendedDelay' => $_['rememberMe'], 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
-					} else if(!empty($_['referer'])) header('Location: ' . $_['referer']);
-					else header('Location: ' . $_Oli->getUrlParam(0));
+					// if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
+						// $url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
+						// header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $authKey, 'extendedDelay' => $_['rememberMe'], 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
+					// } else if(!empty($_['referer'])) //header('Location: ' . $_['referer']);
+					// else header('Location: ' . $_Oli->getUrlParam(0));
+					$resultCode = 'S:Successfully logged in?';
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
 				if($_Oli->isSetupMySQL()) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
