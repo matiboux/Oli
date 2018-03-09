@@ -3209,7 +3209,13 @@ class OliCore {
 				}
 			}
 			
-			/** Login account */
+			/**
+			 * Handle the login process
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
+			 */
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
 				// if(!$this->config['user_management']) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else if(!$this->config['allow_login']) echo 'DEBUG; loginAccount; login management disabled. <br />';// trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
@@ -3250,11 +3256,17 @@ class OliCore {
 			
 			/** Logout account */
 			public function logoutAccount() {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!empty($authKey = $this->getAuthKey())) {
-					$result[] = $this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => null, 'login_date' => null, 'expire_date' => null), array('auth_key' => hash('sha512', $authKey)));
-					$result[] = $this->deleteAuthKeyCookie();
+				// if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				if(!empty($authKey = $this->getAuthKey())) {
+					if($this->isLoginLocal()) {
+						$rootUserInfos = $this->getLocalRootInfos();
+						$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+						$result[] = fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_key' => null, 'ip_address' => null, 'login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
+						fclose($handle);
+					} else $result[] = $this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => null, 'login_date' => null, 'expire_date' => null), array('auth_key' => hash('sha512', $authKey)));
 					
+					$result[] = $this->deleteAuthKeyCookie();
 					return in_array(true, $result);
 				} else return false;
 			}
