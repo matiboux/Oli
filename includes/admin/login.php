@@ -384,16 +384,25 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php } ?>
 		
 		<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(((!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) != 'recover') AND !$_Oli->verifyAuthKey()) OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
-			<h2>Change your pasword</h2> 
-			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php /*if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey'])))) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php }*/ ?>" method="post">
-				<?php //if($requestInfos) { ?><input type="text" name="username" value="<?=$requestInfos['username']?>" placeholder="Username" disabled /><?php //} ?>
-				<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php /*if($requestInfos) { ?>disabled<?php }*/ ?> />
-				<input type="password" name="newPassword" value="<?=$_['newPassword']?>" placeholder="New password" />
+			<h2>Change your pasword</h2>
+			<?php if(!$_Oli->isLoginLocal()) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
+			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
+				<?php $username = !empty($requestInfos) ? $requestInfos['username'] : $_Oli->getLocalRootInfos()['username']; ?>
+				
+				<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
+				<?php if(!$_Oli->isLoginLocal()) { ?>
+					<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
+				<?php } else { ?>
+					<input type="text" name="password" value="<?php //=$_Oli->getUrlParam(3) ?: $_['activateKey'] ?>" placeholder="Old password" <?php if($requestInfos) { ?>disabled<?php } ?> />
+				<?php } ?>
+				<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
 				<button type="submit">Update</button>
 			</form>
 		</div>
 		
-		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
+		<?php if(!$_Oli->verifyAuthKey()) { ?>
+			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
+		<?php } ?>
 	<?php } else if($_Oli->getUrlParam(2) == 'unlock' AND !$hideUnlockUI) { ?>
 		<div class="form" style="display: block">
 			<h2>Unlock your account</h2>
