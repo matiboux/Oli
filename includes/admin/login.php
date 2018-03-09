@@ -84,7 +84,7 @@ else if($_Oli->verifyAuthKey()) {
 			} else $resultCode = 'S:You have been successfully disconnected.';
 		}
 		else $resultCode = 'E:An error occurred while disconnecting you.';
-	} else if($_Oli->getUrlParam(2) != 'change-password') header('Location: ' . $_Oli->getUrlParam(0));	
+	} else if($_Oli->getUrlParam(2) != 'change-password' AND !empty($_SERVER['HTTP_REFERER'])) header('Location: ' . $_SERVER['HTTP_REFERER']);
 }
 /** At this point, the user cannot be logged in */
 else if($_Oli->getUrlParam(2) == 'logout') { $resultCode = 'I:You are disconnected.'; }
@@ -398,19 +398,26 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</div>
 		<?php } ?>
 		
-		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
-			<h2>Login to your account</h2>
-			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login'?>" method="post">
-				<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
-					<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
-				<?php } ?>
-				
-				<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
-				<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
-				<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
-				<button type="submit">Login</button>
-			</form>
-		</div>
+		<?php if($_Oli->verifyAuthKey()) { ?>
+			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Logout from your account</h2>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login'?>">Logout</a>!
+			</div>
+		<?php } else { ?>
+			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Login to your account</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login'?>" method="post">
+					<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
+						<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
+					<?php } ?>
+					
+					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
+					<button type="submit">Login</button>
+				</form>
+			</div>
+		<?php } ?>
 		<?php if($_Oli->config['allow_register']) { ?>
 			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
