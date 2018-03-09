@@ -3156,6 +3156,17 @@ class OliCore {
 			/**  Login Functions  */
 			/** ----------------- */
 			
+			/**
+			 * Check if the login process is considered to be local
+			 * 
+			 * @version BETA-1.9.0
+			 * @updated BETA-1.9.0
+			 * @return boolean Returns true if local.
+			 */
+			public function isLoginLocal() {
+				return !$_Oli->isSetupMySQL() OR !$_Oli->isAccountsManagement;
+			}
+			
 			/** Verify login informations */
 			public function verifyLogin($username, $password) {
 				if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
