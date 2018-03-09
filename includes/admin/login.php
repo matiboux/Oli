@@ -329,7 +329,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	<?php if($_Oli->isLoginLocal()) { ?><p class="method"><b>Local login</b> (restricted to the root user)</p><?php } ?>
 </div>
 
-<?php if($_Oli->isSetupMySQL()) { ?>
+<?php if(!$_Oli->isLoginLocal()) { ?>
 	<div class="message">
 		<div class="content">
 			Anti brute-force system. <br /> <br />
