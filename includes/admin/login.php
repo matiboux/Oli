@@ -84,7 +84,10 @@ else if($_Oli->verifyAuthKey()) {
 			} else $resultCode = 'S:You have been successfully disconnected.';
 		}
 		else $resultCode = 'E:An error occurred while disconnecting you.';
-	} else if($_Oli->getUrlParam(2) != 'change-password' AND !empty($_SERVER['HTTP_REFERER'])) header('Location: ' . $_SERVER['HTTP_REFERER']);
+	} else if($_Oli->getUrlParam(2) != 'change-password') {
+		if(!empty($_SERVER['HTTP_REFERER'])) header('Location: ' . $_SERVER['HTTP_REFERER']);
+		else $resultCode = 'I:You\'re already logged in, ' . $_Oli->getAuthKeyOwner() . '.';
+	}
 }
 /** At this point, the user cannot be logged in */
 else if($_Oli->getUrlParam(2) == 'logout') { $resultCode = 'I:You are disconnected.'; }
@@ -352,8 +355,13 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 <?php } ?>
 
 <div id="module">
-	<?php if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'change-password' AND !$hideChangePasswordUI)) { ?>
-		<?php if($_Oli->config['allow_recover']) { ?>
+	<div class="toggle" style="display: none">
+		<i class="fas"></i>
+		<div class="tooltip"></div>
+	</div>
+	
+	<?php if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'change-password' AND !$hideChangePasswordUI) OR $_Oli->verifyAuthKey()) { ?>
+		<?php if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
 			<div class="toggle">
 				<i class="fa <?php if($_Oli->getUrlParam(2) != 'change-password') { ?>fa-unlock-alt" placeholder="fa-refresh<?php } else { ?>fa-refresh" placeholder="fa-unlock-alt<?php } ?>"></i>
 				<div class="tooltip" placeholder="<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>Recover">Change password<?php } else { ?>Change password">Recover<?php } ?></div>
@@ -366,13 +374,20 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<button type="submit">Recover</button>
 				</form>
 			</div>
+		<?php } else if($_Oli->verifyAuthKey()) { ?>
+			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Logout from your account</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
+					<button type="submit">Logout</button>
+				</form>
+			</div>
 		<?php } ?>
-	
-		<div class="form" style="display:<?php if(!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
-			<h2>Change your pasword</h2>
-			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey'])))) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
-				<?php if($requestInfos) { ?><input type="text" name="username" value="<?=$requestInfos['username']?>" placeholder="Username" disabled /><?php } ?>
-				<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
+		
+		<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(((!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) != 'recover') AND !$_Oli->verifyAuthKey()) OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
+			<h2>Change your pasword</h2> 
+			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php /*if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey'])))) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php }*/ ?>" method="post">
+				<?php //if($requestInfos) { ?><input type="text" name="username" value="<?=$requestInfos['username']?>" placeholder="Username" disabled /><?php //} ?>
+				<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php /*if($requestInfos) { ?>disabled<?php }*/ ?> />
 				<input type="password" name="newPassword" value="<?=$_['newPassword']?>" placeholder="New password" />
 				<button type="submit">Update</button>
 			</form>
@@ -391,33 +406,20 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		
 		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
 	<?php } else { ?>
-		<?php if($_Oli->config['allow_register'] OR $allowRootRegister) { ?>
-			<div class="toggle">
-				<i class="fas"></i>
-				<div class="tooltip"></div>
-			</div>
-		<?php } ?>
+		<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
+			<h2>Login to your account</h2>
+			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login'?>" method="post">
+				<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
+					<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
+				<?php } ?>
+				
+				<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
+				<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+				<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
+				<button type="submit">Login</button>
+			</form>
+		</div>
 		
-		<?php if($_Oli->verifyAuthKey()) { ?>
-			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Logout from your account</h2>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login'?>">Logout</a>!
-			</div>
-		<?php } else { ?>
-			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Login to your account</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/login'?>" method="post">
-					<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
-						<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
-					<?php } ?>
-					
-					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
-					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
-					<button type="submit">Login</button>
-				</form>
-			</div>
-		<?php } ?>
 		<?php if($_Oli->config['allow_register']) { ?>
 			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
@@ -488,20 +490,23 @@ ob_end_clean(); ?>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
 var updateForm = function(setup) {
-	var index = $('.form').index($('.form:visible'));
 	var length = $('.form').length;
-	var nextIndex = (index+1) % length;
-	if(!setup) var futureIndex = (index+2) % length;
-	
-	console.log('a:' + index);
-	console.log('b:' + nextIndex);
-	console.log($('.form').eq(setup ? nextIndex : futureIndex).attr('data-icon'));
-	console.log('---');
-	
-	if(setup) $('#fontawesome').ready(function() { $('.toggle').children('[data-fa-i2svg]').addClass($('.form').eq(nextIndex).attr('data-icon')); }); 
-	else $('.toggle').children('[data-fa-i2svg]').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
-	$('.toggle').children('.tooltip').text($('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
-	return nextIndex;
+	if(length > 1) {
+		$('.toggle').show();
+		var index = $('.form').index($('.form:visible'));
+		var nextIndex = (index+1) % length;
+		if(!setup) var futureIndex = (index+2) % length;
+		
+		console.log('a:' + index);
+		console.log('b:' + nextIndex);
+		console.log($('.form').eq(setup ? nextIndex : futureIndex).attr('data-icon'));
+		console.log('---');
+		
+		if(setup) $('#fontawesome').ready(function() { $('.toggle').children('[data-fa-i2svg]').addClass($('.form').eq(nextIndex).attr('data-icon')); }); 
+		else $('.toggle').children('[data-fa-i2svg]').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
+		$('.toggle').children('.tooltip').text($('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
+		return nextIndex;
+	}
 };
 
 $(document).ready(function() { updateForm(true); });
