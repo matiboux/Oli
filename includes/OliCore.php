@@ -3019,10 +3019,16 @@ class OliCore {
 			/**  General  */
 			/** --------- */
 			
-			/** Init User Session */
+			/**
+			 * Initialize User Session
+			 * 
+			 * @version BETA-1.8.0
+			 * @updated BETA-1.9.0
+			 * @return string|void Returns Oli Security Code if it was updated, false otherwise.
+			 */
 			public function initUserSession($setUserIDCookie = true) {
 				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else {
+				else if(!$this->isLoginLocal()) {
 					if(empty($userID = $this->getUserID() ?: null) OR !$this->isExistAccountInfos('SESSIONS', array('user_id' => $userID)) OR (!empty($authKey = $this->getAuthKey()) AND $this->getAccountInfos('SESSIONS', 'auth_key', array('user_id' => $userID)) != hash('sha512', $authKey))) {
 						$userID = $this->getAccountInfos('SESSIONS', 'user_id', array('auth_key' => hash('sha512', $authKey ?: $this->getAuthKey())));
 						if(empty($userID)) $this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $userID = $this->keygen($this->config['user_id_length'])));
@@ -3035,8 +3041,9 @@ class OliCore {
 			
 			/** Update User Session */
 			public function updateUserSession() {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
+				// if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
 			}
 			
 			/** ------------------- */
