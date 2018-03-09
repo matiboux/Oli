@@ -2991,16 +2991,24 @@ class OliCore {
 			
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null, $userID = null) {
-				if(!$this->config['user_management']) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey())) AND ($sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID ?: $this->cache['userID'])))['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time()) return true;
-				else return false;
+				// if(!$this->config['user_management']) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey()))) {
+					if($this->isLoginLocal()) $sessionInfos = $this->getLocalRootInfos();
+					else $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID ?: $this->cache['userID']));
+					
+					return $sessionInfos['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time();
+				} else return false;
 			}
 			
 			/** Get Auth Key Owner */
 			public function getAuthKeyOwner($authKey = null, $userID = null) {
-				if(!$this->config['user_management']) echo 'DEBUG; getAuthKeyOwner; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
-				else return false;
+				// if(!$this->config['user_management']) echo 'DEBUG; getAuthKeyOwner; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) {
+					if($this->isLoginLocal()) return $this->getLocalRootInfos()['username'];
+					else return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
+				} else return false;
 			}
 		
 		/** --------------- */
@@ -3220,11 +3228,11 @@ class OliCore {
 					if($this->isLoginLocal() OR $this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
 						$newAuthKey = $this->keygen($this->config['auth_key_length']);
 						$now = time();
-						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'];
+						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'] ?: 2*3600;
 						
 						if($this->isLoginLocal()) {
 							$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-							$isError = !fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_key' => $newAuthKey)), JSON_FORCE_OBJECT));
+							$isError = !fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_key' => hash('sha512', $newAuthKey), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
 							fclose($handle);
 						} else $isError = !$this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->cache['userID']));
 						
