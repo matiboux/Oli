@@ -3164,7 +3164,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isLoginLocal() {
-				return !$_Oli->isSetupMySQL() OR !$_Oli->isAccountsManagement;
+				return !$this->isSetupMySQL() OR !$this->isAccountsManagement;
 			}
 			
 			/** Verify login informations */
