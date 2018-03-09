@@ -219,13 +219,14 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			else if(!$_Oli->isLoginLocal() AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) < $_Oli->translateUserRight('USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) < $_Oli->translateUserRight('USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not allowed to log in.';
 			
 			/** Local Login */
-			else if($_Oli->isLoginLocal()) {
-				$rootUserInfos = $_Oli->getLocalRootInfos();
-				if(($_['username'] == strtolower($rootUserInfos['username']) OR $_['username'] == $rootUserInfos['email']) AND password_verify($_['password'], $rootUserInfos['password'])) $resultCode = 'S:Login Root Login successful, but not yet supported.';
-				else $resultCode = 'E:Sorry, the password you used is wrong.';
+			// else if($_Oli->isLoginLocal()) {
+				// $rootUserInfos = $_Oli->getLocalRootInfos();
+				// if(($_['username'] == strtolower($rootUserInfos['username']) OR $_['username'] == $rootUserInfos['email']) AND password_verify($_['password'], $rootUserInfos['password'])) $resultCode = 'S:Login Root Login successful, but not yet supported.';
+				// else $resultCode = 'E:Sorry, the password you used is wrong.';
+			// }
 			
 			/** Classic Login */
-			} else if($_Oli->verifyLogin($_['username'], $_['password'])) {
+			else if($_Oli->verifyLogin($_['username'], $_['password'])) {
 				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
 				if($authKey = $_Oli->loginAccount($_['username'], $_['password'], $loginDuration)) {
 					if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
@@ -236,7 +237,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
 				if($_Oli->isSetupMySQL()) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
-				$resultCode = 'E:Sorry, the password you entered seems to be wrong.';
+				$resultCode = 'E:Sorry, the password you used is wrong.';
 			}
 		}
 	}

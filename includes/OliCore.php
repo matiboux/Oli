@@ -3187,9 +3187,15 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function verifyLogin($username, $password) {
-				if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
-				else return false;
+				if($this->isLoginLocal()) {
+					$rootUserInfos = $this->getLocalRootInfos();
+					return ($username == strtolower($rootUserInfos['username']) OR $username == $rootUserInfos['email']) AND password_verify($password, $rootUserInfos['password']);
+				} else {
+					// if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+					// else 
+					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
+					else return false;
+				}
 			}
 			
 			/** Login account */
