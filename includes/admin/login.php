@@ -48,20 +48,37 @@ $mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_O
 $mailHeaders .= 'MIME-Version: 1.0' . "\r\n";
 $mailHeaders .= 'Content-type: text/html; charset=utf-8';
 
-if($_Oli->getUrlParam(2) == 'change-password' AND !empty($_['activateKey'])) {
-	if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
-	else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
-	else if($requestInfos['action'] != 'change-password') $resultCode = 'E:The request you triggered does not allow you to change your password.';
-	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
-	else {
-		/** Logout the user if they're logged in */
-		if($_Oli->verifyAuthKey()) $_Oli->logoutAccount();
-		
-		/** Deletes all the user sessions, change the user password and delete the request */
-		if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
-			$hideChangePasswordUI = true;
-			$resultCode = 'S:Your password has been successfully changed!';
-		} else $resultCode = 'E:An error occurred while changing your password.';
+if($_Oli->getUrlParam(2) == 'change-password' AND !empty($_)) {
+	if(!$_Oli->isLoginLocal()) {
+		if(empty($_['activateKey'])) $resultCode = 'E:The Activate Key is missing.';
+		else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
+		else if($requestInfos['action'] != 'change-password') $resultCode = 'E:The request you triggered does not allow you to change your password.';
+		else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
+		else {
+			/** Logout the user if they're logged in */
+			if($_Oli->verifyAuthKey()) $_Oli->logoutAccount();
+			
+			/** Deletes all the user sessions, change the user password and delete the request */
+			if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
+				$hideChangePasswordUI = true;
+				$resultCode = 'S:Your password has been successfully changed!';
+			} else $resultCode = 'E:An error occurred while changing your password.';
+		}
+	} else if($_Oli->verifyAuthKey()) {
+		if(empty($_['oldPassword'])) $resultCode = 'E:Please enter your current password.';
+		else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
+		else {
+			$rootUserInfos = $_Oli->getLocalRootInfos();
+			if(!password_verify($_['oldPassword'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
+			else if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:The new password couldn\'t be hashed.';
+			else {
+				$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+				fwrite($handle, json_encode($rootUserInfos, array('password' => $hashedPassword), JSON_FORCE_OBJECT));
+				fclose($handle);
+				$_Oli->logoutAccount();
+				$resultCode = 'S:Your password has been successfully updated.';
+			}
+		}
 	}
 }
 else if(empty($_) AND $_Oli->getUrlParam(2) == 'unlock' AND $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) {
@@ -370,7 +387,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				</form>
 			</div>
 		<?php } else if($_Oli->verifyAuthKey()) { ?>
-			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$allowRootRegister OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Logout from your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
 					<button type="submit">Logout</button>
@@ -378,22 +395,24 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</div>
 		<?php } ?>
 		
-		<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(((!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) != 'recover') AND !$_Oli->verifyAuthKey()) OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
-			<h2>Change your pasword</h2>
-			<?php if(!$_Oli->isLoginLocal()) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
-			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
-				<?php $username = !empty($requestInfos) ? $requestInfos['username'] : $_Oli->getLocalRootInfos()['username']; ?>
-				
-				<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
-				<?php if(!$_Oli->isLoginLocal()) { ?>
-					<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
-				<?php } else { ?>
-					<input type="text" name="password" value="<?php //=$_Oli->getUrlParam(3) ?: $_['activateKey'] ?>" placeholder="Old password" <?php if($requestInfos) { ?>disabled<?php } ?> />
-				<?php } ?>
-				<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
-				<button type="submit">Update</button>
-			</form>
-		</div>
+		<?php if(!$_Oli->isLoginLocal() OR $_Oli->verifyAuthKey()) { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(((!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) != 'recover') AND !$_Oli->verifyAuthKey()) OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Change your pasword</h2>
+				<?php if(!$_Oli->isLoginLocal()) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
+					<?php $username = !empty($requestInfos) ? $requestInfos['username'] : $_Oli->getLocalRootInfos()['username']; ?>
+					
+					<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
+					<?php if(!$_Oli->isLoginLocal()) { ?>
+						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
+					<?php } else { ?>
+						<input type="password" name="oldPassword" value="<?php //=$_['oldPassword'] ?>" placeholder="Current password" />
+					<?php } ?>
+					<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
+					<button type="submit">Update Password</button>
+				</form>
+			</div>
+		<?php } ?>
 		
 		<?php if(!$_Oli->verifyAuthKey()) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
