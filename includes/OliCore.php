@@ -3191,9 +3191,11 @@ class OliCore {
 			 * @updated BETA-1.9.0
 			 * @return array|boolean Returns Local Root User informations if they exist, false otherwise.
 			 */
-			public function getLocalRootInfos() {
-				if(file_exists(CONTENTPATH . '.oliauth')) return json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true);
-				else return false;
+			public function getLocalRootInfos($whatVar = null) {
+				if(file_exists(CONTENTPATH . '.oliauth')) {
+					$localRootInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true);
+					return !empty($whatVar) ? $localRootInfos[$whatVar] : $localRootInfos;
+				} else return false;
 			}
 			
 			/**
