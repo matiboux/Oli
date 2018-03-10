@@ -286,8 +286,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	#header h1 { font-size: 32px }
 	#header p { font-size: 10px; }
 	#header p.description { font-size: 12px; } }
-#header a, #message a { color: #4080c0; text-decoration: none }
-#header a { font-weight: bold }
+#header a { background: #4080c0; color: #fff; padding: 5px 10px; text-decoration: none; font-weight: bold; border-radius: 10px }
 
 .message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 30px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
 .message.message-info, #module { border-top-color: #4080c0 }
@@ -295,6 +294,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 .message.message-error { border-top-color: #c04040 }
 .message .content { padding: 20px 40px }
 .message h2 { color: #555; font-size: 16px; font-weight: 400; line-height: 1 }
+.message a { color: #4080c0; text-decoration: none }
 .message a:hover { text-decoration: underline }
 
 #module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; line-height: 30px; text-align: center }
