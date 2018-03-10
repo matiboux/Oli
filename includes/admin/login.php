@@ -291,14 +291,16 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	#header p.description { font-size: 12px; } }
 
 .message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 30px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
-@media (max-width: 340px) { .message, #module { width: auto; margin: 20px 10px } }
 .message.message-info, #module { border-top-color: #4080c0 }
 .message.message-success { border-top-color: #40c040 }
 .message.message-error { border-top-color: #c04040 }
 .message .content { padding: 20px 40px }
-@media (max-width: 420px) { .message .content { padding: 20px 30px } }
 .message h2 { color: #555; font-size: 16px; font-weight: 400; line-height: 1 }
 .message a:hover { text-decoration: underline }
+@media (max-width: 420px) {
+	.message, #module { margin-top: 20px; margin-bottom: 20px }
+	.message .content { padding: 20px 30px } }
+@media (max-width: 340px) { .message, #module { width: auto; margin-left: 10px; margin-right: 10px } }
 
 #module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center }
 #module .toggle [data-fa-i2svg] { padding: 8px 0 }
@@ -340,7 +342,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #footer p .fa { color: #4080c0 }
 #footer p a { color: #4080c0; font-weight: bold; text-decoration: none }
 @media (max-width: 420px) {
-	#footer p { font-size: 10px; } }
+	#footer { margin-top: 20px; margin-bottom: 20px }
+	#footer p { font-size: 10px } }
 
 .text-info { color: #4080c0 }
 .text-success { color: #40c040 }
