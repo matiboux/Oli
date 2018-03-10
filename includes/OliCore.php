@@ -3209,7 +3209,7 @@ class OliCore {
 				if(empty($username) OR empty($password)) return false;
 				else if($this->isLoginLocal()) {
 					$rootUserInfos = $this->getLocalRootInfos();
-					return $username == strtolower($rootUserInfos['username']) AND password_verify($password, $rootUserInfos['password']);
+					return strtolower($username) == strtolower($rootUserInfos['username']) AND password_verify($password, $rootUserInfos['password']);
 				} else {
 					// if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 					// else 
