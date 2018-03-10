@@ -411,7 +411,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 @media (max-width: 420px) {
 	#module .toggle { width: 25px; height: 25px; font-size: 12px }
 	#module .toggle [data-fa-i2svg] { padding: 6.5px 0 }
-	#module .toggle .tooltip { top: 7px; right: 32px; padding: 4px 4px 3px; font-size: 9px }
+	#module .toggle .tooltip { top: 7px; right: 32px; padding: 3px 4px; font-size: 9px }
 	#module .toggle .tooltip:before { top: 4px; right: -4px; border-width: 4px }
 	#module .form { padding: 30px }
 	#module h2 { margin: 0 0 15px; font-size: 16px }
