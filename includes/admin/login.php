@@ -390,7 +390,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			It's better to be transparent about the data we receive from you.
 			<ul>
 				<?php foreach($_ as $eachParam => $eachValue) { ?>
-					<li><?=$eachParam?> → <?=$eachValue ? '"' . $eachValue . '"' : '<i>empty</i>'?></li>
+					<li><?=$eachParam?> → <?=$eachValue ? '"' . $eachValue . '"' : '<s>empty</s>'?></li>
 				<?php } ?>
 			</ul>
 		</div>
