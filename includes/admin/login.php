@@ -189,6 +189,9 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				}
 			} else $resultCode = 'W:Root register with database is not yet supported.';
 		
+		// else if($allowRootRegister AND isset($_['olisc']) AND empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
+		// else if($allowRootRegister AND isset($_['olisc']) AND $_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
+		
 		/** Classic Register */
 		} else {
 			if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
@@ -222,14 +225,6 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			else if(!$_Oli->isLoginLocal() AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('BANNED')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('BANNED')))) $resultCode = 'E:Sorry, the account associated with that username or email is banned and is not allowed to log in.';
 			else if(!$_Oli->isLoginLocal() AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) < $_Oli->translateUserRight('USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) < $_Oli->translateUserRight('USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not allowed to log in.';
 			
-			/** Local Login */
-			// else if($_Oli->isLoginLocal()) {
-				// $rootUserInfos = $_Oli->getLocalRootInfos();
-				// if(($_['username'] == strtolower($rootUserInfos['username']) OR $_['username'] == $rootUserInfos['email']) AND password_verify($_['password'], $rootUserInfos['password'])) $resultCode = 'S:Login Root Login successful, but not yet supported.';
-				// else $resultCode = 'E:Sorry, the password you used is wrong.';
-			// }
-			
-			/** Classic Login */
 			else if($_Oli->verifyLogin($_['username'], $_['password'])) {
 				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
 				if($authKey = $_Oli->loginAccount($_['username'], $_['password'], $loginDuration)) {
