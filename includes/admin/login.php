@@ -183,7 +183,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		}
 	
 	/** Register */
-	} else if(($_Oli->config['allow_register'] OR ($allowRootRegister AND isset($_['olisc']))) AND isset($_['email'])) {
+	} else if(($_Oli->config['allow_register'] AND isset($_['email'])) OR ($allowRootRegister AND isset($_['olisc']))) {
 		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
 		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
 		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
