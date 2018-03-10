@@ -64,13 +64,15 @@ $mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_O
 $mailHeaders .= 'MIME-Version: 1.0' . "\r\n";
 $mailHeaders .= 'Content-type: text/html; charset=utf-8';
 
-//x if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') $scriptState = 'edit-password';
-//x else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password'])) $scriptState = 'edit-password';
-// else if($_Oli->getUrlParam(2) == 'unlock') $scriptState = 'unlock';
-// else if($_Oli->config['account_activation'] AND $_Oli->getUrlParam(2) == 'activate') $scriptState = 'activate';
-// else if($_Oli->config['allow_register'] AND $_Oli->getUrlParam(2) == 'register') $scriptState = 'register';
-// else if(in_array($_Oli->getUrlParam(2), ['root-register', 'root'])) $scriptState = 'root-register';
-// else $scriptState = 'login';
+/** --- */
+
+/** Background cleanup process */
+if(!empty($_) AND !$_Oli->isLoginLocal()) {
+	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('REQUESTS') . '` WHERE expire_date < now()');
+	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('SESSIONS') . '` WHERE expire_date < now() OR (expire_date IS NULL AND update_date < date_sub(now(), INTERVAL 7 DAY))');
+}
+
+/** --- */
 
 /** Change the password from an account */
 if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password'])) {
@@ -170,16 +172,10 @@ else if($_Oli->verifyAuthKey()) {
 	else $resultCode = 'E:An error occurred while activating your account.';
 }
 
-// WIP / Need further development
-else if(!empty($_)) {
-	if($_Oli->isSetupMySQL() AND $_Oli->isAccountsManagement) {
-		$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('REQUESTS') . '` WHERE expire_date < now()');
-		$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('SESSIONS') . '` WHERE expire_date < now() OR (expire_date IS NULL AND update_date < date_sub(now(), INTERVAL 7 DAY))');
-	}
-	
-	if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') {
-		$scriptState = 'recover';
-		
+/** Recover an account */
+} else if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') {
+	$scriptState = 'recover';
+	if(!empty($_)) {
 		if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
 		else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_['email'])), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
 		else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('username' => $username, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
@@ -206,8 +202,12 @@ Also, if possible, please take time to cancel the request from your account sett
 			}
 		} else $resultCode = 'E:An error occurred while creating the change-password request.';
 	
-	} else if($_Oli->getUrlParam(2) == 'unlock') {
-		$scriptState = 'unlock';
+	}
+
+/** Unlock an account */
+} else if($_Oli->getUrlParam(2) == 'unlock') {
+	$scriptState = 'unlock';
+	if(!empty($_)) {
 		$username = trim($_['username']);
 		
 		if(empty($username)) $resultCode = 'E:Please enter your username or your email.';
@@ -242,18 +242,20 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			} else $resultCode = 'E:An error occurred while creating the unlock request.';
 		}
 	
-	/** Register */
-	} else if(($_Oli->config['allow_register'] AND isset($_['email'])) OR ($allowRootRegister AND isset($_['olisc']))) {
-		if($_Oli->config['allow_register'] AND isset($_['email'])) $scriptState = 'register';
-		else if($allowRootRegister AND isset($_['olisc'])) $scriptState = 'root-register';
-		
+/** Create a new account */
+} else if($isRegisterState = ($_Oli->config['allow_register'] AND $_Oli->getUrlParam(2) == 'register') OR $isRootRegisterState = ($allowRootRegister AND in_array($_Oli->getUrlParam(2), ['root-register', 'root']))) {
+	if($isRegisterState) $scriptState = 'register';
+	else if($isRootRegisterState) $scriptState = 'root-register';
+	
+	if(!empty($_)) {
 		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
 		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
 		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
 		
 		/** Local Root Register */
-		else if($allowRootRegister AND isset($_['olisc'])) {
+		// else if($isRegisterState AND isset($_['olisc'])) {
+		else if($isRegisterState AND isset($_['olisc'])) {
 			if(empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
 			else if($_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 			else if($_Oli->isLoginLocal()) {
@@ -273,7 +275,8 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		// else if($allowRootRegister AND isset($_['olisc']) AND $_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 		
 		/** Classic Register */
-		} else {
+		// } else if($isRootRegisterState AND isset($_['email'])) {
+		} else if($isRootRegisterState) {
 			if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
 			else if(!preg_match('/^[-_a-zA-Z0-9]+(?:\.?[-_a-zA-Z0-9]+)*@[^\s]+(?:\.[a-z]+)$/', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
 			else if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
@@ -283,10 +286,15 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				else $resultCode = 'S:Your account has been successfully created; you can now log into it.';
 				$scriptState = 'login';
 			} else $resultCode = 'E:An error occurred while creating your account.';
-		}
+		
+		/** An error occurred..? */
+		} else $resultCode = 'E:An error occurred..?';
 	
 	/** Login */
-	} else if($_Oli->isLoginLocal() OR $_Oli->config['allow_login']) {
+} else if($_Oli->isLoginLocal() OR $_Oli->config['allow_login']) {
+	$scriptState = 'root-register';
+	
+	if(!empty($_)) {
 		$scriptState = 'login';
 		
 		if($_Oli->isSetupMySQL()) $_Oli->deleteAccountLines('LOG_LIMITS', 'action = \'login\' AND last_trigger < date_sub(now(), INTERVAL 1 HOUR)');
@@ -327,14 +335,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			}
 		}
 	}
-
-/** Other script state definition */
-
-} else if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') $scriptState = 'recover';
-else if($_Oli->getUrlParam(2) == 'unlock') $scriptState = 'unlock';
-else if($_Oli->config['allow_register'] AND $_Oli->getUrlParam(2) == 'register') $scriptState = 'register';
-else if($allowRootRegister AND $_Oli->getUrlParam(2) == 'recover') $scriptState = 'root-register';
-else if($_Oli->isLoginLocal() OR $_Oli->config['allow_login']) $scriptState = 'login';
+}
 ?>
 
 <!DOCTYPE html>
