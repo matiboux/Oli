@@ -81,7 +81,7 @@ if($_Oli->getUrlParam(2) == 'change-password' AND !empty($_)) {
 		}
 	}
 }
-else if(empty($_) AND $_Oli->getUrlParam(2) == 'unlock' AND $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) {
+else if(empty($_) AND $_Oli->getUrlParam(2) == 'unlock' AND $_Oli->isSetupMySQL() AND $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) {
 	if($requestInfos['action'] != 'unlock') $resultCode = 'E:The request you triggered does not allow you to unlock your account.';
 	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
 	else {
@@ -276,42 +276,46 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
 html { position: relative; min-height: 100% }
 body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; margin: 0; color: #808080; font-size: 14px; overflow-x: hidden }
+@media (max-width: 420px) { body { font-size: 12px } }
 
-#header { margin: 50px 0; text-align: center; color: #303030; letter-spacing: 1px }
+#header { margin: 50px 30px; text-align: center; color: #303030; letter-spacing: 1px }
 #header h1 { margin: 0 0 20px; font-size: 40px; font-weight: 400 }
 #header p { font-size: 12px }
 #header p.description { font-size: 14px }
-@media (max-width: 520px) {
+#header a, .message a { color: #4080c0; text-decoration: none }
+#header h1 a { background: #4080c0; display: inline-block; padding: 5px 10px; color: #fff; font-weight: bold; border-radius: 10px }
+@media (max-width: 420px) {
+	#header { margin: 30px 10px }
 	#header h1 { font-size: 32px }
 	#header p { font-size: 10px; }
 	#header p.description { font-size: 12px; } }
-#header a { background: #4080c0; color: #fff; padding: 5px 10px; text-decoration: none; font-weight: bold; border-radius: 10px }
 
 .message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 30px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
 .message.message-info, #module { border-top-color: #4080c0 }
 .message.message-success { border-top-color: #40c040 }
 .message.message-error { border-top-color: #c04040 }
 .message .content { padding: 20px 40px }
+@media (max-width: 420px) {
+	.message .content { padding: 20px 30px } }
 .message h2 { color: #555; font-size: 16px; font-weight: 400; line-height: 1 }
-.message a { color: #4080c0; text-decoration: none }
 .message a:hover { text-decoration: underline }
 
-#module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; line-height: 30px; text-align: center }
-#module .toggle [data-fa-i2svg] { padding: 8px }
+#module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center }
+#module .toggle [data-fa-i2svg] { padding: 8px 0 }
 #module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
-#module .toggle .tooltip:before { content: ''; position: absolute; top: 5px; right: -5px; display: block; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
+#module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
 #module .form { display: none; padding: 40px }
-#module .form:first-child, #module .form:nth-child(2) { display: block }
+#module .form:first-child { display: block }
 #module form { margin: 0 }
 #module h2 { margin: 0 0 20px; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
 #module p { margin: 0 0 20px }
-#module input { outline: none; display: block; width: 100%; border: 1px solid #e0e0e0; margin: 0 0 20px; padding: 10px 15px; box-sizing: border-box; font-weight: 400; -webkit-transition: .3s ease; transition: .3s ease }
-#module .checkbox, #module .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: .3s ease; transition: .3s ease }
+#module input { display: block; width: 100%; margin: 0 0 20px; padding: 10px 15px; font-size: 14px; font-weight: 400; border: 1px solid #e0e0e0; box-sizing: border-box; outline: none; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
+#module .checkbox, #module .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
 #module .checkbox > label, #module .radio > label { cursor: pointer }
 #module .checkbox > label > input[type=checkbox],
 #module .radio > label > input[type=radio] { display: initial; width: 14px; height: 14px; margin: 0 }
 #module input:focus { border: 1px solid #4080c0; color: #303030 }
-#module button { cursor: pointer; background: #4080c0; width: 100%; border: 0; padding: 10px 15px; color: #fff; -webkit-transition: .3s ease; transition: .3s ease }
+#module button { background: #4080c0; width: 100%; padding: 10px 15px; color: #fff; font-size: 14px; cursor: pointer; border: 0; -webkit-transition: background .3s ease; -moz-transition: background .3s ease; -o-transition: background .3s ease; transition: background .3s ease }
 #module button:hover, #module button:focus { background: #306090 }
 #module .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
 #module .cta { background: #f0f0f0; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
@@ -319,12 +323,24 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module .cta a, #module .cta span { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
 #module .cta a { text-decoration: none }
 #module .cta a:hover, #module .cta a:focus { color: #303030 }
+@media (max-width: 420px) {
+	#module .toggle { width: 25px; height: 25px; font-size: 12px }
+	#module .toggle [data-fa-i2svg] { padding: 6.5px 0 }
+	#module .toggle .tooltip { top: 7px; right: 32px; padding: 4px 4px 3px; font-size: 9px }
+	#module .toggle .tooltip:before { top: 4px; right: -4px; border-width: 4px }
+	#module .form { padding: 30px }
+	#module h2 { margin: 0 0 15px; font-size: 16px }
+	#module p { margin: 0 0 15px }
+	#module input { margin: 0 0 15px; font-size: 12px }
+	#module .checkbox, #module .radio { margin: 0 0 15px }
+	#module button { padding: 10px 15px; font-size: 12px } }
 
-#footer { margin: 30px 0; text-align: center; letter-spacing: 1px }
+#footer { margin: 30px 10px; text-align: center; letter-spacing: 1px }
 #footer p { font-size: 12px }
-@media (max-width: 520px) { #footer p { font-size: 10px; } }
 #footer p .fa { color: #4080c0 }
 #footer p a { color: #4080c0; font-weight: bold; text-decoration: none }
+@media (max-width: 420px) {
+	#footer p { font-size: 10px; } }
 
 .text-info { color: #4080c0 }
 .text-success { color: #40c040 }
