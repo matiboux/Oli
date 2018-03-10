@@ -22,7 +22,6 @@
 \*/
 
 $_ = array_merge($_GET, $_POST);
-var_dump($_); echo '<br />';
 
 $config = array(
 	'maxUserIdAttempts' => 3,
@@ -296,19 +295,25 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	#header p { font-size: 10px; }
 	#header p.description { font-size: 12px; } }
 
-.message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 30px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
+.message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 20px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
 .message.message-info, #module { border-top-color: #4080c0 }
 .message.message-success { border-top-color: #40c040 }
 .message.message-error { border-top-color: #c04040 }
+.message .summary { padding: 5px; text-align: center; font-size: 14px; cursor: pointer }
+.message .summary:hover, .message .summary:focus { color: #4080c0 }
+.message .summary:before { content: '— ' }
+.message .summary:after { content: ' —' }
 .message .content { padding: 20px 40px }
+.message .summary + .content { display: none }
 .message h2 { color: #555; font-size: 16px; font-weight: 400; line-height: 1 }
+.message ul { padding-left: 20px }
 .message a:hover { text-decoration: underline }
 @media (max-width: 420px) {
 	.message, #module { margin-top: 20px; margin-bottom: 20px }
 	.message .content { padding: 20px 30px } }
 @media (max-width: 340px) { .message, #module { width: auto; margin-left: 10px; margin-right: 10px } }
 
-#module .toggle { cursor: pointer; position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center }
+#module .toggle { position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
 #module .toggle [data-fa-i2svg] { padding: 8px 0 }
 #module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
 #module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
@@ -374,6 +379,20 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			- by user id: <b><?=$userIdAttempts ?: ($_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_Oli->getUserID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIdAttempts']?>) <br />
 			- by IP address: <b><?=$userIPAttempts ?: ($_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIPAttempts']?>) <br />
 			<?php if(!empty($_['username'])) { ?>- by username (<?=$username?>): <b><?=$usernameAttempts ?: ($_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND username = \'' . $username . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUsernameAttempts']?>)<?php } ?>
+		</div>
+	</div>
+<?php } ?>
+
+<?php if(!empty($_)) { ?>
+	<div class="message <?php echo $type; ?>">
+		<div class="summary">Form data we received</div>
+		<div class="content">
+			It's better to be transparent about the data we receive from you.
+			<ul>
+				<?php foreach($_ as $eachParam => $eachValue) { ?>
+					<li><?=$eachParam?> → <?=$eachValue ? '"' . $eachValue . '"' : '<i>empty</i>'?></li>
+				<?php } ?>
+			</ul>
 		</div>
 	</div>
 <?php } ?>
@@ -551,10 +570,14 @@ var updateForm = function(setup) {
 };
 
 $(document).ready(function() { updateForm(true); });
-$('.toggle').click(function() {
+$(document).on('click', '.toggle', function() {
 	var nextIndex = updateForm();
 	$('.form:visible').animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
 	$($('.form')[nextIndex]).animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
+});
+
+$(document).on('click', '.summary', function() {
+	$(this).parent().find('.content').animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
 });
 </script>
 
