@@ -30,6 +30,11 @@ $config = array(
 	'maxUsernameAttempts' => 8
 );
 
+/** Script State Variable */
+// $scriptState values:
+// - 'logged-in'
+$scriptState = null;
+
 /** Login management is disabled by the current config */
 // if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
 
@@ -101,7 +106,7 @@ else if($_Oli->verifyAuthKey()) {
 			} else $resultCode = 'S:You have been successfully disconnected.';
 		} else $resultCode = 'E:An error occurred while disconnecting you.';
 	} else if($_Oli->getUrlParam(2) != 'change-password') {
-		if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], $_Oli->getUrlParam(1) . '/')) header('Location: ' . $_SERVER['HTTP_REFERER']);
+		if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_SERVER['HTTP_REFERER']);
 		else $resultCode = 'I:You\'re already logged in, ' . $_Oli->getAuthKeyOwner() . '.';
 	}
 }
@@ -247,9 +252,10 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 					if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
 						$url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
 						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $authKey, 'extendedDelay' => $_['rememberMe'], 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
-					} else if(!empty($_['referer']) AND !strstr($_['referer'], $_Oli->getUrlParam(1) . '/')) header('Location: ' . $_['referer']);
+					} else if(!empty($_['referer']) AND !strstr($_['referer'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_['referer']);
 					// else header('Location: ' . $_Oli->getUrlParam(0));
 					$resultCode = 'S:You are now succesfully logged in.';
+					$scriptState = 'logged-in';
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
 				if($_Oli->isSetupMySQL()) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
@@ -390,7 +396,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<div class="tooltip"></div>
 	</div>
 	
-	<?php if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'change-password' AND !$hideChangePasswordUI) OR $_Oli->verifyAuthKey()) { ?>
+	<?php if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'change-password' AND !$hideChangePasswordUI) OR $scriptState == 'logged-in' OR $_Oli->verifyAuthKey()) { ?>
 		<?php if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
 			<div class="toggle">
 				<i class="fa <?php if($_Oli->getUrlParam(2) != 'change-password') { ?>fa-unlock-alt" placeholder="fa-refresh<?php } else { ?>fa-refresh" placeholder="fa-unlock-alt<?php } ?>"></i>
@@ -404,7 +410,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<button type="submit">Recover</button>
 				</form>
 			</div>
-		<?php } else if($_Oli->verifyAuthKey()) { ?>
+		<?php } else if($scriptState == 'logged-in' OR $_Oli->verifyAuthKey()) { ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Logout from your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
@@ -413,8 +419,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</div>
 		<?php } ?>
 		
-		<?php if(!$_Oli->isLoginLocal() OR $_Oli->verifyAuthKey()) { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(((!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) != 'recover') AND !$_Oli->verifyAuthKey()) OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
+		<?php if(!$_Oli->isLoginLocal() OR $scriptState == 'logged-in' OR $_Oli->verifyAuthKey()) { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(((!$_Oli->config['allow_recover'] OR $_Oli->getUrlParam(2) != 'recover') AND $scriptState != 'logged-in' AND !$_Oli->verifyAuthKey()) OR $_Oli->getUrlParam(2) == 'change-password' OR $hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Change your pasword</h2>
 				<?php if(!$_Oli->isLoginLocal()) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
