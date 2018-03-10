@@ -506,11 +506,6 @@ var updateForm = function(setup) {
 		var nextIndex = (index+1) % length;
 		if(!setup) var futureIndex = (index+2) % length;
 		
-		console.log('a:' + index);
-		console.log('b:' + nextIndex);
-		console.log($('.form').eq(setup ? nextIndex : futureIndex).attr('data-icon'));
-		console.log('---');
-		
 		if(setup) $('#fontawesome').ready(function() { $('.toggle').children('[data-fa-i2svg]').addClass($('.form').eq(nextIndex).attr('data-icon')); }); 
 		else $('.toggle').children('[data-fa-i2svg]').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
 		$('.toggle').children('.tooltip').text($('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
