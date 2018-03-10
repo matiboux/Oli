@@ -188,8 +188,6 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
 		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
-		else if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
-		else if(!preg_match('/^[-_a-zA-Z0-9]+(?:\.?[-_a-zA-Z0-9]+)*@[^\s]+(?:\.[a-z]+)$/', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
 		
 		/** Local Root Register */
 		else if($allowRootRegister AND isset($_['olisc'])) {
@@ -199,7 +197,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:Your password couldn\'t be hashed.';
 				else {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-					fwrite($handle, json_encode(array('username' => $_['username'], 'password' => $hashedPassword, 'email' => $_['email']), JSON_FORCE_OBJECT));
+					fwrite($handle, json_encode(array('username' => $_['username'], 'password' => $hashedPassword), JSON_FORCE_OBJECT));
 					fclose($handle);
 					$resultCode = 'S:Your account has been successfully created as a root and local account.';
 					$allowRootRegister = false;
@@ -211,7 +209,9 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		
 		/** Classic Register */
 		} else {
-			if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
+			if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
+			else if(!preg_match('/^[-_a-zA-Z0-9]+(?:\.?[-_a-zA-Z0-9]+)*@[^\s]+(?:\.[a-z]+)$/', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
+			else if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
 			else if($_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['email']), false)) $resultCode = 'E:Sorry, the email you entered is already associated with an existing account.';
 			else if($_Oli->registerAccount($_['username'], $_['password'], $_['email'], array('headers' => $mailHeaders))) {
 				if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created and a mail has been sent to <b>' . $_['email'] . '</b>.';
@@ -490,7 +490,6 @@ ob_end_clean(); ?>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
 					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
-					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
 					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" />
 					<button type="submit">Register as Root</button>
 				</form>
