@@ -1996,7 +1996,13 @@ class OliCore {
 		/**  V. 7. Url Functions  */
 		/** --------------------- */
 		
-		/** Get Url Parameter */
+		/**
+		 * Get Url Parameter
+		 * 
+		 * @version BETA
+		 * @updated BETA-1.9.0
+		 * @return string|void Returns requested url param if succeeded.
+		 */
 		// $param supported values:
 		// - null 'full' => Full Url (e.g. 'http://hello.example.com/page/param')
 		// - 'protocol' => Get url protocol (e.g. 'https')
@@ -2106,7 +2112,7 @@ class OliCore {
 						else if($param == 'last') return $newFrationnedUrl[count($newFrationnedUrl) - 1];
 						else if($param == 'get') return $_GET;
 						else if(isset($newFrationnedUrl[$param])) return $newFrationnedUrl[$param];
-						else return false;
+						else return null;
 					}
 				}
 			}
