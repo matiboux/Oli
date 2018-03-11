@@ -29,6 +29,10 @@ $config = array(
 	'maxUsernameAttempts' => 8
 );
 
+/** Ignore Form Data */
+// Allow the script to prevent a form from using data from another.
+$ignoreFormData = false;
+
 /** Script State Variable */
 $scriptState = null; // Default value
 // $scriptState values:
@@ -102,17 +106,18 @@ if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $is
 	if($isLoggedIn) {
 		$scriptState = 'edit-password';
 		if(!empty($_)) {
-			if(empty($_['oldPassword'])) $resultCode = 'E:Please enter your current password.';
+			if(empty($_['password'])) $resultCode = 'E:Please enter your current password.';
 			else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
 			else {
 				$rootUserInfos = $_Oli->getLocalRootInfos();
-				if(!password_verify($_['oldPassword'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
+				if(!password_verify($_['password'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
 				else if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:The new password couldn\'t be hashed.';
 				else if($isLoginLocal) {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
 					if(fwrite($handle, json_encode($rootUserInfos, array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
 						$_Oli->logoutAccount();
 						$scriptState = 'login';
+						$ignoreFormData = true;
 						$resultCode = 'S:Your password has been successfully updated.';
 					} else $resultCode = 'E:An error occurred when updating your password.';
 					fclose($handle);
@@ -136,7 +141,9 @@ if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $is
 				
 				/** Deletes all the user sessions, change the user password and delete the request */
 				if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
-					$hideChangePasswordUI = true;
+					$scriptState = 'login';
+					$ignoreFormData = true;
+					// $hideChangePasswordUI = true;
 					$resultCode = 'S:Your password has been successfully changed!';
 				} else $resultCode = 'E:An error occurred while changing your password.';
 			}
@@ -213,7 +220,9 @@ If you didn\'t want to change your password or didn\'t ask for this request, ple
 Also, if possible, please take time to cancel the request from your account settings.');
 				
 				if(mail($email, $subject, $message, $mailHeaders)) {
-					$hideRecoverUI = true;
+					$scriptState = 'recover-password';
+					$ignoreFormData = true;
+					// $hideRecoverUI = true;
 					$resultCode = 'S:The request has been successfully created and a mail has been sent to you.';
 				} else {
 					$_Oli->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
@@ -254,8 +263,9 @@ This request will stay valid for ' . $expireDelay = $_Oli->getRequestsExpireDela
 Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activateKey . '.');
 					
 					if(mail($email, $subject, $message, $mailHeaders)) {
-						$hideUnlockUI = true;
 						$scriptState = 'unlock-submit';
+						$ignoreFormData = true;
+						// $hideUnlockUI = true;
 						$resultCode = 'S:The request has been successfully created and a mail has been sent to you.';
 					} else {
 						$_Oli->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
@@ -276,8 +286,9 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 			else {
 				/** Deletes all the account log limits and delete the request */
 				if($_Oli->deleteAccountLines('LOG_LIMITS', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
-					$hideUnlockUI = true;
 					$scriptState = 'login';
+					$ignoreFormData = true;
+					// $hideUnlockUI = true;
 					$resultCode = 'S:Your account has been successfully unlocked!';
 				} else $resultCode = 'E:An error occurred while changing your password.';
 			}
@@ -297,8 +308,8 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
 		
 		/** Local Root Register */
-		// else if($isRegisterState AND isset($_['olisc'])) {
-		else if($isRegisterState AND isset($_['olisc'])) {
+		// else if($isRootRegisterState AND isset($_['olisc'])) {
+		else if($isRootRegisterState AND isset($_['olisc'])) {
 			if(empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
 			else if($_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 			else if($isLoginLocal) {
@@ -309,6 +320,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 					fclose($handle);
 					
 					$scriptState = 'login';
+					$ignoreFormData = true;
 					$isRootRegisterAllowed = false;
 					$resultCode = 'S:Your account has been successfully created as a root and local account.';
 				}
@@ -318,16 +330,17 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		// else if($isRootRegisterAllowed AND isset($_['olisc']) AND $_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 		
 		/** Classic Register */
-		// } else if($isRootRegisterState AND isset($_['email'])) {
-		} else if($isRootRegisterState) {
+		// } else if($isRegisterState AND isset($_['email'])) {
+		} else if($isRegisterState) {
 			if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
 			else if(!preg_match('/^[-_a-zA-Z0-9]+(?:\.?[-_a-zA-Z0-9]+)*@[^\s]+(?:\.[a-z]+)$/', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
 			else if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
 			else if($_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['email']), false)) $resultCode = 'E:Sorry, the email you entered is already associated with an existing account.';
 			else if($_Oli->registerAccount($_['username'], $_['password'], $_['email'], array('headers' => $mailHeaders))) {
+				$scriptState = 'login';
+				$ignoreFormData = true;
 				if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created and a mail has been sent to <b>' . $_['email'] . '</b>.';
 				else $resultCode = 'S:Your account has been successfully created; you can now log into it.';
-				$scriptState = 'login';
 			} else $resultCode = 'E:An error occurred while creating your account.';
 		
 		/** An error occurred..? */
@@ -372,8 +385,9 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $authKey, 'extendedDelay' => $_['rememberMe'], 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
 					} else if(!empty($_['referer']) AND !strstr($_['referer'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_['referer']);
 					// else header('Location: ' . $_Oli->getUrlParam(0));
-					$resultCode = 'S:You are now succesfully logged in.';
+					
 					$scriptState = 'logged';
+					$resultCode = 'S:You are now succesfully logged in.';
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
 				if($_Oli->isSetupMySQL()) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
@@ -531,6 +545,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	</div>
 <?php } ?>
 
+<?php if($ignoreFormData) $_ = []; ?>
+
 <div id="module">
 	<div class="toggle" style="display: none">
 		<i class="fas"></i>
@@ -576,7 +592,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					
 					<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
 					<?php if($isLoggedIn) { ?>
-						<input type="password" name="oldPassword" value="<?php //=$_['oldPassword'] ?>" placeholder="Current password" />
+						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
 					<?php } else if(!$isLoginLocal) { ?>
 						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
 					<?php } else { ?>
