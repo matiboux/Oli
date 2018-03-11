@@ -2219,21 +2219,28 @@ class OliCore {
 			/**  V. 9. A. Templates  */
 			/** -------------------- */
 			
-			/** Get Template */
+			/**
+			 * Get Template
+			 * 
+			 * @version BETA-1.8.0
+			 * @updated BETA-1.9.0
+			 * @return string|void Returns template content if found, null otherwise.
+			 */
 			public function getTemplate($template, $filter = null, $regex = false) {
 				if(!empty($template)) {
-					if(file_exists(TEMPLATESPATH . $this->config['templates'][$template])) $template = file_get_contents(TEMPLATESPATH . $this->config['templates'][$template]);
-					else if(INCLUDESPATH . 'templates/' . $this->config['templates'][$template]) $template = file_get_contents(INCLUDESPATH . 'templates/' . $this->config['templates'][$template]);
+					if(file_exists(TEMPLATESPATH . strtolower($template) . '.html') $templateContent = file_get_contents(TEMPLATESPATH . strtolower($template) . '.html');
+					else if(INCLUDESPATH . 'templates/' . strtolower($template) . '.html') $templateContent = file_get_contents(INCLUDESPATH . 'templates/' . strtolower($template) . '.html');
 					
-					if(!empty($filter)) {
-						foreach(!is_array($filter) ? [$filter] : $filter as $eachPattern => $eachReplacement) {
-							if($regex) $template = preg_replace($eachPattern, $eachReplacement, $template);
-							else $template = str_replace($eachPattern, $eachReplacement, $template);
+					if(!empty($templateContent)) {
+						if(!empty($filter)) {
+							foreach(!is_array($filter) ? [$filter] : $filter as $eachPattern => $eachReplacement) {
+								if($regex) $templateContent = preg_replace($eachPattern, $eachReplacement, $templateContent);
+								else $templateContent = str_replace($eachPattern, $eachReplacement, $templateContent);
+							}
 						}
-					}
-					
-					return $template ?: false;
-				} else return false;
+						return $templateContent ?: null;
+					} else return null;
+				} else return null;
 			}
 		
 			/** --------------------- */
