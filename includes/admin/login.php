@@ -56,24 +56,24 @@ $scriptState = null; // Default value
 /** Login management is disabled by the current config */
 // if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
 
-$isLoginLocal = $_Oli->isLoginLocal();
+$isLocalLogin = $_Oli->isLocalLogin();
 $isLoggedIn = $_Oli->verifyAuthKey();
 
 /** Is Script State Allowed */
 /** EDIT PASSWORD: */
-	$isEditPasswordAllowed = $isLoggedIn OR !$isLoginLocal;
+	$isEditPasswordAllowed = $isLoggedIn OR !$isLocalLogin;
 /** LOGGED IN (independent) */
 	// $isLoggedAllowed = $isLoggedIn;
 /** ACTIVATE (will be independent) */
-	// $isActivateAllowed = $_Oli->config['account_activation'] AND !$isLoginLocal;
+	// $isActivateAllowed = $_Oli->config['account_activation'] AND !$isLocalLogin;
 /** RECOVER (explicit) */
-	// $isRecoverAllowed = !$isLoginLocal;
+	// $isRecoverAllowed = !$isLocalLogin;
 /** UNLOCK (independent) */
-	// $isUnlockAllowed = !$isLoginLocal; 
+	// $isUnlockAllowed = !$isLocalLogin; 
 /** REGISTER: */
-	$isRegisterAllowed = $_Oli->config['allow_register'] AND !$isLoginLocal;
+	$isRegisterAllowed = $_Oli->config['allow_register'] AND !$isLocalLogin;
 /** REGISTER AS ROOT: */
-	if($isLoginLocal) {
+	if($isLocalLogin) {
 		if(empty($_Oli->getLocalRootInfos())) $isRootRegisterAllowed = true;
 		else $isRootRegisterAllowed = false;
 	} else {
@@ -81,7 +81,7 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 		else $isRootRegisterAllowed = false;
 	}
 /** LOGIN: */
-	$isLoginAllowed = $isLoginLocal OR $_Oli->config['allow_login'];
+	$isLoginAllowed = $isLocalLogin OR $_Oli->config['allow_login'];
 
 /** --- */
 
@@ -92,7 +92,7 @@ $mailHeaders .= 'Content-type: text/html; charset=utf-8';
 /** --- */
 
 /** Background cleanup process */
-if(!empty($_) AND !$isLoginLocal) {
+if(!empty($_) AND !$isLocalLogin) {
 	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('REQUESTS') . '` WHERE expire_date < now()');
 	$_Oli->runQueryMySQL('DELETE FROM `' . $_Oli->translateAccountsTableCode('SESSIONS') . '` WHERE expire_date < now() OR (expire_date IS NULL AND update_date < date_sub(now(), INTERVAL 7 DAY))');
 }
@@ -112,7 +112,7 @@ if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $is
 				$rootUserInfos = $_Oli->getLocalRootInfos();
 				if(!password_verify($_['password'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
 				else if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:The new password couldn\'t be hashed.';
-				else if($isLoginLocal) {
+				else if($isLocalLogin) {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
 					if(fwrite($handle, json_encode($rootUserInfos, array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
 						$_Oli->logoutAccount();
@@ -128,7 +128,7 @@ if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $is
 		}
 	
 	/** Complete Account Recovery */
-	} else if(!$isLoginLocal) {
+	} else if(!$isLocalLogin) {
 		$scriptState = 'recover-password';
 		if(!empty($_)) {
 			if(empty($_['activateKey'])) $resultCode = 'E:The Activate Key is missing.';
@@ -182,8 +182,8 @@ else if($isLoggedIn) {
 
 /** Activate an account */
 // WIP / Add a display, update the script
-// } else if($_Oli->getUrlParam(2) == 'activate' AND $_Oli->config['account_activation'] AND !$isLoginLocal) {
-} else if($_Oli->getUrlParam(2) == 'activate' AND !empty($_Oli->getUrlParam(3)) AND $_Oli->config['account_activation'] AND !$isLoginLocal) {
+// } else if($_Oli->getUrlParam(2) == 'activate' AND $_Oli->config['account_activation'] AND !$isLocalLogin) {
+} else if($_Oli->getUrlParam(2) == 'activate' AND !empty($_Oli->getUrlParam(3)) AND $_Oli->config['account_activation'] AND !$isLocalLogin) {
 	if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
 	else if($requestInfos['action'] != 'activate') $resultCode = 'E:The request you triggered does not allow you to activate any account.';
 	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
@@ -195,13 +195,13 @@ else if($isLoggedIn) {
 /** Recover an account */
 } else if($_Oli->getUrlParam(2) == 'recover') {
 	if($isRootRegisterAllowed) $scriptState = 'root-register';
-	// else if($isLoginLocal) {
+	// else if($isLocalLogin) {
 		// $resultCode = 'I:You cannot recover a root local account. If you\'re the website owner, you can delete the <code>/content/.oliauth</code> file and create another account.';
 		// $scriptState = 'login';
 	// } else {
 	else {
 		$scriptState = 'recover';
-		if(!empty($_) AND !$isLoginLocal) {
+		if(!empty($_) AND !$isLocalLogin) {
 			if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
 			else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_['email'])), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
 			else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('username' => $username, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
@@ -233,7 +233,7 @@ Also, if possible, please take time to cancel the request from your account sett
 	}
 
 /** Unlock an account */
-} else if($_Oli->getUrlParam(2) == 'unlock' AND !$isLoginLocal) {
+} else if($_Oli->getUrlParam(2) == 'unlock' AND !$isLocalLogin) {
 	/** Ask the unlock code */
 	if(($_['unlockKey'] ?: $_Oli->getUrlParam(3)) === null) {
 		$scriptState = 'unlock';
@@ -312,7 +312,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		else if($isRootRegisterState AND isset($_['olisc'])) {
 			if(empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
 			else if($_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
-			else if($isLoginLocal) {
+			else if($isLocalLogin) {
 				if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:Your password couldn\'t be hashed.';
 				else {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
@@ -364,7 +364,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		else if($_Oli->isSetupMySQL() AND ($usernameAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND username = \'' . $_['username'] . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUsernameAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $usernameAttempts . '), this username has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . (!empty($_['username']) ? '/unlock/' . $_['username'] : '/unlock') . '">unlock your account</a>.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter your password.';
 		else {
-			if(!$isLoginLocal) {
+			if(!$isLocalLogin) {
 				$isExistByUsername = $_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false);
 				$isExistByEmail = $_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['username']), false);
 			} else {
@@ -372,10 +372,10 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				$isExistByUsername = $_['username'] == strtolower($rootUserInfos['username']) OR $_['username'] == $rootUserInfos['email'];
 			}
 			
-			if(!$isExistByUsername AND ($isLoginLocal OR !$isExistByEmail)) $resultCode = 'E:Sorry, no account is associated with the username or email you entered.';
-			else if(!$isLoginLocal AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('NEW-USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('NEW-USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not yet activated.';
-			else if(!$isLoginLocal AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('BANNED')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('BANNED')))) $resultCode = 'E:Sorry, the account associated with that username or email is banned and is not allowed to log in.';
-			else if(!$isLoginLocal AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) < $_Oli->translateUserRight('USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) < $_Oli->translateUserRight('USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not allowed to log in.';
+			if(!$isExistByUsername AND ($isLocalLogin OR !$isExistByEmail)) $resultCode = 'E:Sorry, no account is associated with the username or email you entered.';
+			else if(!$isLocalLogin AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('NEW-USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('NEW-USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not yet activated.';
+			else if(!$isLocalLogin AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('BANNED')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('BANNED')))) $resultCode = 'E:Sorry, the account associated with that username or email is banned and is not allowed to log in.';
+			else if(!$isLocalLogin AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) < $_Oli->translateUserRight('USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) < $_Oli->translateUserRight('USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not allowed to log in.';
 			
 			else if($_Oli->verifyLogin($_['username'], $_['password'])) {
 				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
@@ -503,7 +503,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 <div id="header">
 	<h1><a href="<?php echo $_Oli->getUrlParam(0); ?>"><?php echo $_Oli->getSetting('name'); ?></a></h1>
 	<p class="description"><?php echo $_Oli->getSetting('description'); ?></p>
-	<?php if($isLoginLocal) { ?><p><b>Local login</b> (restricted to the root user)</p><?php } ?>
+	<?php if($isLocalLogin) { ?><p><b>Local login</b> (restricted to the root user)</p><?php } ?>
 	<p><?php var_dump($scriptState); ?></p>
 </div>
 
@@ -521,7 +521,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	</div>
 <?php } ?>
 
-<?php if(!$isLoginLocal) { ?>
+<?php if(!$isLocalLogin) { ?>
 	<div class="message">
 		<div class="summary">Anti brute-force system</div>
 		<div class="content">
@@ -564,11 +564,11 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				</form>
 			</div>
 		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
-		<?php } else if($scriptState == 'recover' OR !$isLoginLocal) { ?>
+		<?php } else if($scriptState == 'recover' OR !$isLocalLogin) { ?>
 			<?php /*<div class="form" data-icon="fa-refresh" data-text="Logout" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
 			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Recover your account</h2>
-				<?php if(!$isLoginLocal) { ?>
+				<?php if(!$isLocalLogin) { ?>
 					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
 						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
 						<button type="submit">Recover</button>
@@ -581,19 +581,19 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php //} else if($scriptState == 'logged' OR $isLoggedIn) { ?>
 		<?php } ?>
 		
-		<?php //if(!$isLoginLocal OR $scriptState == 'logged') { ?>
+		<?php //if(!$isLocalLogin OR $scriptState == 'logged') { ?>
 			<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 		<?php if($isEditPasswordAllowed) { ?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display:<?php if(!in_array($scriptState, ['logged', 'recover'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your pasword</h2>
-				<?php if(!$isLoginLocal) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
+				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
 					<?php $username = !empty($requestInfos) ? $requestInfos['username'] : $_Oli->getLocalRootInfos('username'); ?>
 					
 					<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
 					<?php if($isLoggedIn) { ?>
 						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
-					<?php } else if(!$isLoginLocal) { ?>
+					<?php } else if(!$isLocalLogin) { ?>
 						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
 					<?php } else { ?>
 						<p>An error occurred..</p>
@@ -701,7 +701,7 @@ ob_end_clean(); ?>
 		<?php } ?>
 		
 		<?php //if($_Oli->config['allow_recover']) { ?>
-		<?php if(!$isLoginLocal) { ?>
+		<?php if(!$isLocalLogin) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/recover">Forgot your password?</a></div>
 		<?php } ?>
 		<?php if($userIdAttempts >= $config['maxUserIdAttempts'] OR $userIPAttempts >= $config['maxUserIPAttempts'] OR $usernameAttempts >= $config['maxUsernameAttempts']) { ?>
