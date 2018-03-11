@@ -65,7 +65,7 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 /** RECOVER: */
 	$isRecoverAllowed = !$isLoginLocal;
 /** UNLOCK (independent) */
-	// $isUnlockAllowed = !$isLoginLocal;
+	// $isUnlockAllowed = !$isLoginLocal; 
 /** REGISTER: */
 	$isRegisterAllowed = $_Oli->config['allow_register'] AND !$isLoginLocal;
 /** REGISTER AS ROOT: */
@@ -581,7 +581,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
 		<?php } ?>
 	<?php //} else if($_Oli->getUrlParam(2) == 'unlock' AND !$hideUnlockUI) { ?>
-	<?php } else if($scriptState == 'unlock' OR $scriptState == 'unlock-submit') { ?>
+	<?php } else if(in_array($scriptState, ['unlock', 'unlock-submit'])) { ?>
 		<div class="form" data-icon="fa-key" data-text="Generate Unlock Key" style="display:<?php if($scriptState != 'unlock-submit') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Generate an unlock key</h2>
 			<p>In order to unlock your account, an unlock key will be generated and send to you by email.</p>
@@ -599,7 +599,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		</div>
 		
 		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
-	<?php } else if($scriptState == 'login' OR $scriptState == 'register' OR $scriptState == 'root-register') { ?>
+	<?php } else if(in_array($scriptState, ['login', 'register', 'root-register'])) { ?>
 		<?php if($isLoginAllowed) { ?>
 			<?php /*<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$isRootRegisterAllowed OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if($scriptState != 'register' AND $scriptState != 'root-register') { ?>block<?php } else { ?>none<?php } ?>">
@@ -674,7 +674,7 @@ ob_end_clean(); ?>
 		<?php } ?>
 		
 		<?php //if($_Oli->config['allow_recover']) { ?>
-		<?php if($_Oli->getUrlParam(2) == 'recover' AND !$isLoginLocal) { ?>
+		<?php if($isRecoverAllowed) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/recover">Forgot your password?</a></div>
 		<?php } ?>
 		<?php if($userIdAttempts >= $config['maxUserIdAttempts'] OR $userIPAttempts >= $config['maxUserIPAttempts'] OR $usernameAttempts >= $config['maxUsernameAttempts']) { ?>
@@ -686,10 +686,10 @@ ob_end_clean(); ?>
 			<p>Either you're not allowed to do anything on this page or an error occurred. Please report it to the admin.</p>
 			<p>For debug purposes, here's the script state value: <?=!empty($scriptState) ? $scriptState : var_dump($scriptState)?></p>
 		</div>
-		<div class="form" data-icon="fa-phone" data-text="Contact" >
+		<?php /*<div class="form" data-icon="fa-phone" data-text="Contact" >
 			<h2>Contact an admin</h2>
 			<p>Later maybe.</p>
-		</div>
+		</div>*/ ?>
 	<?php } ?>
 </div>
 
