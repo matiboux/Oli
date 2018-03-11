@@ -126,7 +126,6 @@ class OliCore {
 		'oliInfos', 'addonsInfos',
 		'debugStatus', 'config',
 		'db',
-		'isAccountsManagement',
 		'fileNameParam', 'contentStatus'];
 	
 	/** Components infos */
@@ -142,7 +141,6 @@ class OliCore {
 	private $mysqlConfig = null;
 	
 	/** Accounts & Users Management */
-	private $isAccountsManagement = false; // (PUBLIC READONLY)
 	
 	/** Content Management */
 	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
@@ -1388,13 +1386,13 @@ class OliCore {
 						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
 						
 						/** Oli Login */
-						if(($fileName[0] == 'oli-login' OR (!empty($this->config['admin_param']) AND $fileName[0] == $this->config['login_alias'])) AND file_exists(OLIADMINPATH . 'login.php')) {
+						if(($fileName[0] == 'oli-login' OR (!empty($this->config['login_alias']) AND $fileName[0] == $this->config['login_alias'])) AND file_exists(OLIADMINPATH . 'login.php')) {
 							$found = OLIADMINPATH . 'login.php';
 							$this->fileNameParam = implode('/', $fileName);
 							break;
 						}
 						/** Oli Admin */
-						else if($fileName[0] == 'oli-admin' OR (!empty($this->config['admin_param']) AND $fileName[0] == $this->config['admin_param'])) {
+						else if($fileName[0] == 'oli-admin' OR (!empty($this->config['admin_alias']) AND $fileName[0] == $this->config['admin_alias'])) {
 							if(count($fileName) > 1) {
 								if(file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
 									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
@@ -3187,7 +3185,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isLocalLogin() {
-				return !$this->isSetupMySQL() OR !$this->isAccountsManagement;
+				return !$this->isSetupMySQL() OR !$this->config['allow_login'];
 			}
 			
 			/**
