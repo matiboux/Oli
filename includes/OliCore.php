@@ -328,37 +328,38 @@ class OliCore {
 		 * 
 		 * @version BETA-1.9.0
 		 * @updated BETA-1.9.0
-		 * @return string|boolean Returns the config if succeeded.
+		 * @return string|void Returns the config if found and succeeded, null otherwise.
 		 */
 		public function loadConfig() {
 			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
-			if(file_exists(CONTENTPATH . 'config.json')) {
-				$config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
-				
-				if(empty($config) OR !is_array($config)) return $defaultConfig;
-				else {
-					if($config != array_merge($defaultConfig, $config)) return $this->updateConfig(array_merge($defaultConfig, $config), true, true);
-					else return $config;
+			if(file_exists(CONTENTPATH . 'config.json')) $config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
+			
+			$loadedConfig = null;
+			if(!empty($config) AND is_array($config)) {
+				if($config != array_merge($defaultConfig, $config)) $loadedConfig = $this->updateConfig(array_merge($defaultConfig, $config), true, true);
+				else $loadedConfig = $config;
+			} else if($this->saveConfig($defaultConfig)) $loadedConfig = $defaultConfig;
+			
+			$decodedConfig = null;
+			if(!empty($loadedConfig)) {
+				foreach($loadedConfig as $eachConfig => $eachValue) {
+					$eachValue = $this->decodeConfigValues($eachValue);
+					
+					// if($eachConfig == 'constants' AND !empty($eachValue) AND is_array($eachValue)) {
+						// foreach($eachValue as $eachConstantName => $eachConstantValue) {
+							// if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
+						// }
+					// } else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+					// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
+					// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
+					// else $decodedConfig[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
+					
+					$decodedConfig[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 				}
-			} else if($this->saveConfig($defaultConfig)) return $defaultConfig;
-			else return false;
+			}
+			
+			return $decodedConfig ?: null;
 		}
-		
-		/** Load Config */
-		// public function loadConfig($config) {
-			// foreach($config as $eachConfig => $eachValue) {
-				// $eachValue = $this->decodeConfigValues($eachValue);
-				
-				// if($eachConfig == 'constants' AND !empty($eachValue) AND is_array($eachValue)) {
-					// foreach($eachValue as $eachConstantName => $eachConstantValue) {
-						// if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
-					// }
-				// } else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
-				// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
-				// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
-				// else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
-			// }
-		// }
 		
 		/** Decode config arrays */
 		public function decodeConfigArray($array, $currentConfig = null) {
