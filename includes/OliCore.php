@@ -334,8 +334,12 @@ class OliCore {
 			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
 			if(file_exists(CONTENTPATH . 'config.json')) {
 				$config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
-				if($config != array_merge($defaultConfig, $config)) return $this->updateConfig(array_merge($defaultConfig, $config), true, true);
-				else return $config;
+				
+				if(empty($config) OR !is_array($config)) return $defaultConfig;
+				else {
+					if($config != array_merge($defaultConfig, $config)) return $this->updateConfig(array_merge($defaultConfig, $config), true, true);
+					else return $config;
+				}
 			} else return $defaultConfig;
 		}
 		
