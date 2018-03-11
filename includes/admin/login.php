@@ -62,8 +62,8 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 	// $isLoggedAllowed = $isLoggedIn;
 /** ACTIVATE (will be independent) */
 	// $isActivateAllowed = $_Oli->config['account_activation'] AND !$isLoginLocal;
-/** RECOVER: */
-	$isRecoverAllowed = !$isLoginLocal;
+/** RECOVER (explicit) */
+	// $isRecoverAllowed = !$isLoginLocal;
 /** UNLOCK (independent) */
 	// $isUnlockAllowed = !$isLoginLocal; 
 /** REGISTER: */
@@ -186,17 +186,23 @@ else if($isLoggedIn) {
 	} else $resultCode = 'E:An error occurred while activating your account.';
 
 /** Recover an account */
-} else if($_Oli->getUrlParam(2) == 'recover' AND $isRecoverAllowed) {
-	$scriptState = 'recover';
-	if(!empty($_)) {
-		if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
-		else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_['email'])), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
-		else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('username' => $username, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
-		else if($activateKey = $_Oli->createRequest($username, 'change-password')) {
-			$email = $_['email'];
-			$subject = 'One more step to change your password';
-			/** This message will need to be reviewed in a future release */
-			$message = nl2br('Hi ' . $username . '!
+} else if($_Oli->getUrlParam(2) == 'recover') {
+	if($isRootRegisterAllowed) $scriptState = 'root-register';
+	// else if($isLoginLocal) {
+		// $resultCode = 'I:You cannot recover a root local account. If you\'re the website owner, you can delete the <code>/content/.oliauth</code> file and create another account.';
+		// $scriptState = 'login';
+	// } else {
+	else {
+		$scriptState = 'recover';
+		if(!empty($_) AND !$isLoginLocal) {
+			if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
+			else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_['email'])), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
+			else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('username' => $username, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
+			else if($activateKey = $_Oli->createRequest($username, 'change-password')) {
+				$email = $_['email'];
+				$subject = 'One more step to change your password';
+				/** This message will need to be reviewed in a future release */
+				$message = nl2br('Hi ' . $username . '!
 A change-password request has been created for your account.
 To set your new password, you just need to click on <a href="' . $_Oli->getShortcutLink('login') . 'change-password/' . $activateKey . '">this link</a> and follow the instructions.
 This request will stay valid for ' . $expireDelay = $_Oli->getRequestsExpireDelay() /3600 /24 . ' ' . ($expireDelay > 1 ? 'days' : 'day') . '. Once it has expired, the link will be desactivated.
@@ -205,16 +211,16 @@ If you can\'t open the link, just copy it in your browser: ' . $_Oli->getUrlPara
 
 If you didn\'t want to change your password or didn\'t ask for this request, please just ignore this mail.
 Also, if possible, please take time to cancel the request from your account settings.');
-			
-			if(mail($email, $subject, $message, $mailHeaders)) {
-				$hideRecoverUI = true;
-				$resultCode = 'S:The request has been successfully created and a mail has been sent to you.';
-			} else {
-				$_Oli->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
-				$resultCode = 'D:An error occurred while sending the mail to you.';
-			}
-		} else $resultCode = 'E:An error occurred while creating the change-password request.';
-	
+				
+				if(mail($email, $subject, $message, $mailHeaders)) {
+					$hideRecoverUI = true;
+					$resultCode = 'S:The request has been successfully created and a mail has been sent to you.';
+				} else {
+					$_Oli->deleteAccountLines('REQUESTS', array('activate_key' => $activateKey));
+					$resultCode = 'D:An error occurred while sending the mail to you.';
+				}
+			} else $resultCode = 'E:An error occurred while creating the change-password request.';
+		}
 	}
 
 /** Unlock an account */
@@ -435,18 +441,18 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
 #module .form { display: block; padding: 40px }
 #module .form ~ .form { display: none }
-#module form { margin: 0 }
-#module h2 { margin: 0 0 20px; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
-#module p { margin: 0 0 20px }
-#module input { display: block; width: 100%; margin: 0 0 20px; padding: 10px 15px; font-size: 14px; font-weight: 400; border: 1px solid #e0e0e0; box-sizing: border-box; outline: none; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
-#module .checkbox, #module .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
-#module .checkbox > label, #module .radio > label { cursor: pointer }
-#module .checkbox > label > input[type=checkbox],
-#module .radio > label > input[type=radio] { display: initial; width: 14px; height: 14px; margin: 0 }
-#module input:focus { border: 1px solid #4080c0; color: #303030 }
-#module button { background: #4080c0; width: 100%; padding: 10px 15px; color: #fff; font-size: 14px; cursor: pointer; border: 0; -webkit-transition: background .3s ease; -moz-transition: background .3s ease; -o-transition: background .3s ease; transition: background .3s ease }
-#module button:hover, #module button:focus { background: #306090 }
-#module .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
+#module .form form { margin: 0 }
+#module .form *:last-child { margin-bottom: 0 }
+#module .form h2 { margin: 0 0 20px; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
+#module .form p { margin: 0 0 20px }
+#module .form .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
+#module .form input { display: block; width: 100%; margin: 0 0 20px; padding: 10px 15px; font-size: 14px; font-weight: 400; border: 1px solid #e0e0e0; box-sizing: border-box; outline: none; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
+#module .form .checkbox, #module .form .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
+#module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
+#module .form .checkbox > label > input[type=checkbox], #module .form .radio > label > input[type=radio] { display: initial; width: 14px; height: 14px; margin: 0 }
+#module .form input:focus { border: 1px solid #4080c0; color: #303030 }
+#module .form button { background: #4080c0; width: 100%; padding: 10px 15px; color: #fff; font-size: 14px; cursor: pointer; border: 0; -webkit-transition: background .3s ease; -moz-transition: background .3s ease; -o-transition: background .3s ease; transition: background .3s ease }
+#module .form button:hover, #module button:focus { background: #306090 }
 #module .cta { background: #f0f0f0; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
 #module .cta:nth-child(odd) { background: #e8e8e8 } 
 #module .cta a, #module .cta span { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
@@ -542,14 +548,19 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				</form>
 			</div>
 		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
-		<?php } else if($isRecoverAllowed) { ?>
+		<?php } else if($scriptState == 'recover' OR !$isLoginLocal) { ?>
 			<?php /*<div class="form" data-icon="fa-refresh" data-text="Logout" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
 			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Recover your account</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
-					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
-					<button type="submit">Recover</button>
-				</form>
+				<?php if(!$isLoginLocal) { ?>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
+						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
+						<button type="submit">Recover</button>
+					</form>
+				<?php } else { ?>
+					<p>Sorry, but you <span class="text-error">can't</span> recover a local account.</p>
+					<p>If you are the owner of the website, delete the <code>/content/.oliauth</code> file and <span class="text-info">create a new local root account</span>.</p>
+				<?php } ?>
 			</div>
 		<?php //} else if($scriptState == 'logged' OR $isLoggedIn) { ?>
 		<?php } ?>
@@ -633,8 +644,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	$midHeight = $height / 2;
 	
 	$image = imagecreate($width, $height);
-	$white = imagecolorallocate($image, 255, 255, 255); 
-	$gray = imagecolorallocate($image, 128, 128, 128); 
+	$white = imagecolorallocate($image, 255, 255, 255);
+	$gray = imagecolorallocate($image, 128, 128, 128);
 	$black = imagecolorallocate($image, 0, 0, 0);
 	
 	imagestring($image, 5, strlen($captcha) /2 + 100 , $midHeight - 8, $captcha, $gray); //$black);
@@ -674,7 +685,7 @@ ob_end_clean(); ?>
 		<?php } ?>
 		
 		<?php //if($_Oli->config['allow_recover']) { ?>
-		<?php if($isRecoverAllowed) { ?>
+		<?php if(!$isLoginLocal) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/recover">Forgot your password?</a></div>
 		<?php } ?>
 		<?php if($userIdAttempts >= $config['maxUserIdAttempts'] OR $userIPAttempts >= $config['maxUserIPAttempts'] OR $usernameAttempts >= $config['maxUsernameAttempts']) { ?>
