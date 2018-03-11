@@ -2228,8 +2228,8 @@ class OliCore {
 			 */
 			public function getTemplate($template, $filter = null, $regex = false) {
 				if(!empty($template)) {
-					if(file_exists(TEMPLATESPATH . strtolower($template) . '.html') $templateContent = file_get_contents(TEMPLATESPATH . strtolower($template) . '.html');
-					else if(INCLUDESPATH . 'templates/' . strtolower($template) . '.html') $templateContent = file_get_contents(INCLUDESPATH . 'templates/' . strtolower($template) . '.html');
+					if(file_exists(TEMPLATESPATH . strtolower($template) . '.html')) $templateContent = file_get_contents(TEMPLATESPATH . strtolower($template) . '.html');
+					else if(file_exists(INCLUDESPATH . 'templates/' . strtolower($template) . '.html')) $templateContent = file_get_contents(INCLUDESPATH . 'templates/' . strtolower($template) . '.html');
 					
 					if(!empty($templateContent)) {
 						if(!empty($filter)) {
