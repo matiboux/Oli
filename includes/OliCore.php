@@ -192,11 +192,12 @@ class OliCore {
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
 		
 		/** Load Config */
-		$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
-		if(file_exists(CONTENTPATH . 'config.json')) {
-			$this->config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
-			if($this->config != array_merge($defaultConfig, $this->config)) $this->updateConfig(array_merge($defaultConfig, $this->config), true, true);
-		} else $this->config = $defaultConfig;
+		// $defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+		// if(file_exists(CONTENTPATH . 'config.json')) {
+			// $this->config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
+			// if($this->config != array_merge($defaultConfig, $this->config)) $this->updateConfig(array_merge($defaultConfig, $this->config), true, true);
+		// } else $this->config = $defaultConfig;
+		$this->config = $this->loadConfig();
 		
 		/** Define secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
@@ -297,14 +298,14 @@ class OliCore {
 		 * 
 		 * @version BETA-1.9.0
 		 * @updated BETA-1.9.0
-		 * @return array|boolean Returns the updated config if the update succeeded.
+		 * @return string Returns the updated config if succeeded.
 		 */
 		public function updateConfig($newConfig, $saveNew = false, $replaceWhole = false) {
-			if($replaceWhole) $this->config = $newConfig;
-			else $this->config = array_merge($this->config, $newConfig);
+			if($replaceWhole) $config = $newConfig;
+			else $config = array_merge($this->config, $newConfig);
 			
-			if($saveNew AND $this->saveConfig()) return $this->config;
-			else return false;
+			if($saveNew) $this->saveConfig($config);
+			return $config;
 		}
 		
 		/**
@@ -314,29 +315,45 @@ class OliCore {
 		 * @updated BETA-1.9.0
 		 * @return boolean Returns true if succeeded.
 		 */
-		public function saveConfig() {
+		public function saveConfig($config) {
 			$handle = fopen(CONTENTPATH . 'config.json', 'w');
-			$result = fwrite($handle, json_encode($this->config, JSON_FORCE_OBJECT));
+			$result = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT));
 			fclose($handle);
 			
 			return $result !== false;
 		}
 		
-		/** Load Config */
-		public function loadConfig($config) {
-			foreach($config as $eachConfig => $eachValue) {
-				$eachValue = $this->decodeConfigValues($eachValue);
-				
-				if($eachConfig == 'constants' AND !empty($eachValue) AND is_array($eachValue)) {
-					foreach($eachValue as $eachConstantName => $eachConstantValue) {
-						if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
-					}
-				} else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
-				else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
-				else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
-				else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
-			}
+		/**
+		 * Load Oli Config
+		 * 
+		 * @version BETA-1.9.0
+		 * @updated BETA-1.9.0
+		 * @return string Returns the config.
+		 */
+		public function loadConfig() {
+			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+			if(file_exists(CONTENTPATH . 'config.json')) {
+				$config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
+				if($config != array_merge($defaultConfig, $config)) return $this->updateConfig(array_merge($defaultConfig, $config), true, true);
+				else return $config;
+			} else return $defaultConfig;
 		}
+		
+		/** Load Config */
+		// public function loadConfig($config) {
+			// foreach($config as $eachConfig => $eachValue) {
+				// $eachValue = $this->decodeConfigValues($eachValue);
+				
+				// if($eachConfig == 'constants' AND !empty($eachValue) AND is_array($eachValue)) {
+					// foreach($eachValue as $eachConstantName => $eachConstantValue) {
+						// if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
+					// }
+				// } else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+				// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
+				// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
+				// else $this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
+			// }
+		// }
 		
 		/** Decode config arrays */
 		public function decodeConfigArray($array, $currentConfig = null) {
