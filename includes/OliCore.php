@@ -328,7 +328,7 @@ class OliCore {
 		 * 
 		 * @version BETA-1.9.0
 		 * @updated BETA-1.9.0
-		 * @return string Returns the config.
+		 * @return string|boolean Returns the config if succeeded.
 		 */
 		public function loadConfig() {
 			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
@@ -340,7 +340,8 @@ class OliCore {
 					if($config != array_merge($defaultConfig, $config)) return $this->updateConfig(array_merge($defaultConfig, $config), true, true);
 					else return $config;
 				}
-			} else return $defaultConfig;
+			} else if($this->saveConfig($defaultConfig)) return $defaultConfig;
+			else return false;
 		}
 		
 		/** Load Config */
