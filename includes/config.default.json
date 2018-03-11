@@ -1,5 +1,5 @@
 {
-	"init_timestamp": true,
+	"init_timestamp": null,
 	"init_setup": true,
 	
 	"mysql": null,
@@ -11,7 +11,7 @@
 		"403": "403.php"
 	},
 	
-	"admin_param": "oli-admin",
+	"admin_alias": null,
 	"login_alias": "login",
 	
 	"assets_folder": "assets/",
@@ -21,9 +21,10 @@
 	"default_charset": "utf-8",
 	
 	"cdn_url": null,
-	"templates": {},
 	
 	
+	"allow_login": true,
+	"allow_register": false,
 	"prohibited_usernames": [],
 	
 	
@@ -42,10 +43,11 @@
 	},
 	
 	
+	"custom": {},
+	
+	
 	
 "#": {
-	
-	"init_timestamp": null,
 	
 	"constants": null,
 	
