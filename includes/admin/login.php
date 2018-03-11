@@ -40,7 +40,8 @@ $scriptState = null; // Default value
 //x ... 'login' << 'root-registered' ROOT ACCOUNT CREATED (?)
 // - 'activate' ACTIVATE YOUR ACCOUNT
 //x - 'recover' RECOVER YOUR ACCOUNT
-//x - 'edit-password' CHANGE YOUR PASSWORD
+//x - 'edit-password' PASSWORD EDIT (DIRECT)
+//x - 'recover-password' PASSWORD EDIT (RECOVER)
 //x ... 'login' << 'edited-password' PASSWORD CHANGED
 //x - 'unlock' UNLOCK YOUR ACCOUNT
 // - 'unlock-submit' UNLOCK YOUR ACCOUNT
@@ -56,7 +57,7 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 
 /** Is Script State Allowed */
 /** EDIT PASSWORD: */
-	$isEditPasswordAllowed = !$isLoginLocal OR $isLoggedIn;
+	$isEditPasswordAllowed = $isLoggedIn OR !$isLoginLocal;
 /** LOGGED IN (independent) */
 	// $isLoggedAllowed = $isLoggedIn;
 /** ACTIVATE (will be independent) */
@@ -78,8 +79,7 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 /** LOGIN: */
 	$isLoginAllowed = $isLoginLocal OR $_Oli->config['allow_login'];
 
-echo 'isLoginLocal: '; var_dump($isLoginLocal); echo '<br />';
-echo 'allowRootRegister: '; var_dump($isRootRegisterAllowed); echo '<br />';
+/** --- */
 
 $mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_Oli->getUrlParam('domain') . '>' . "\r\n";
 $mailHeaders .= 'MIME-Version: 1.0' . "\r\n";
@@ -95,11 +95,36 @@ if(!empty($_) AND !$isLoginLocal) {
 
 /** --- */
 
-/** Change the password from an account */
+/** Account Password Edit */
 // WIP / Add support for direct password edit if logged in, but not local login
 if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $isEditPasswordAllowed) {
-	if(!$isLoginLocal) {
+	/** Direct Password Edit */
+	if($isLoggedIn) {
 		$scriptState = 'edit-password';
+		if(!empty($_)) {
+			if(empty($_['oldPassword'])) $resultCode = 'E:Please enter your current password.';
+			else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
+			else {
+				$rootUserInfos = $_Oli->getLocalRootInfos();
+				if(!password_verify($_['oldPassword'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
+				else if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:The new password couldn\'t be hashed.';
+				else if($isLoginLocal) {
+					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+					if(fwrite($handle, json_encode($rootUserInfos, array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
+						$_Oli->logoutAccount();
+						$scriptState = 'login';
+						$resultCode = 'S:Your password has been successfully updated.';
+					} else $resultCode = 'E:An error occurred when updating your password.';
+					fclose($handle);
+				} else {
+					$resultCode = 'E:Direct Password Edit unavailable yet for non local login.';
+				}
+			}
+		}
+	
+	/** Complete Account Recovery */
+	} else if(!$isLoginLocal) {
+		$scriptState = 'recover-password';
 		if(!empty($_)) {
 			if(empty($_['activateKey'])) $resultCode = 'E:The Activate Key is missing.';
 			else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
@@ -114,27 +139,6 @@ if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $is
 					$hideChangePasswordUI = true;
 					$resultCode = 'S:Your password has been successfully changed!';
 				} else $resultCode = 'E:An error occurred while changing your password.';
-			}
-		}
-	
-	} else if($isLoggedIn) {
-		$scriptState = 'edit-password';
-		if(!empty($_)) {
-			if(empty($_['oldPassword'])) $resultCode = 'E:Please enter your current password.';
-			else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
-			else {
-				$rootUserInfos = $_Oli->getLocalRootInfos();
-				if(!password_verify($_['oldPassword'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
-				else if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:The new password couldn\'t be hashed.';
-				else {
-					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-					if(fwrite($handle, json_encode($rootUserInfos, array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
-						$_Oli->logoutAccount();
-						$scriptState = 'login';
-						$resultCode = 'S:Your password has been successfully updated.';
-					} else $resultCode = 'E:An error occurred when updating your password.';
-					fclose($handle);
-				}
 			}
 		}
 	
@@ -528,10 +532,10 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	</div>
 	
 	<?php //if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'edit-password' AND !$hideChangePasswordUI) OR $scriptState == 'logged' OR $isLoggedIn) { ?>
-	<?php if($scriptState == 'recover' OR $scriptState == 'logged' OR $scriptState == 'edit-password') { ?>
-		<?php if($scriptState == 'logged') { ?>
+	<?php if(in_array($scriptState, ['recover', 'logged', 'edit-password', 'recover-password'])) { ?>
+		<?php if($isLoggedIn) { ?>
 			<?php /*<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
-			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Logout from your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
 					<button type="submit">Logout</button>
@@ -553,17 +557,19 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php //if(!$isLoginLocal OR $scriptState == 'logged') { ?>
 			<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 		<?php if($isEditPasswordAllowed) { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display:<?php if($scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display:<?php if(!in_array($scriptState, ['logged', 'recover'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your pasword</h2>
 				<?php if(!$isLoginLocal) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
 					<?php $username = !empty($requestInfos) ? $requestInfos['username'] : $_Oli->getLocalRootInfos('username'); ?>
 					
 					<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
-					<?php if(!$isLoginLocal) { ?>
+					<?php if($isLoggedIn) { ?>
+						<input type="password" name="oldPassword" value="<?php //=$_['oldPassword'] ?>" placeholder="Current password" />
+					<?php } else if(!$isLoginLocal) { ?>
 						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
 					<?php } else { ?>
-						<input type="password" name="oldPassword" value="<?php //=$_['oldPassword'] ?>" placeholder="Current password" />
+						<p>An error occurred..</p>
 					<?php } ?>
 					<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
 					<button type="submit">Update Password</button>
