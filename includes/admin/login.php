@@ -177,13 +177,14 @@ else if($isLoggedIn) {
 	}
 
 /** Activate an account */
-// WIP / Add a display, update the script
 // } else if($_Oli->getUrlParam(2) == 'activate' AND $_Oli->config['account_activation'] AND !$isLocalLogin) {
-} else if($_Oli->getUrlParam(2) == 'activate' AND !empty($_Oli->getUrlParam(3)) AND $_Oli->config['account_activation'] AND !$isLocalLogin) {
-	if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
+} else if($_Oli->getUrlParam(2) == 'activate' AND $isActivateAllowed) {
+	$scriptState = 'activate';
+	if(empty($_['activateKey'] ?: $_Oli->getUrlParam(3))) $resultCode = 'E:Please enter your activate key.';
+	else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'] ?: $_Oli->getUrlParam(3))))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
 	else if($requestInfos['action'] != 'activate') $resultCode = 'E:The request you triggered does not allow you to activate any account.';
 	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
-	else if($_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3)))) AND $_Oli->updateUserRight('USER', $requestInfos['username'])) {
+	else if($_Oli->updateUserRight('USER', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'] ?: $_Oli->getUrlParam(3))))) {
 		$scriptState = 'login';
 		$resultCode = 'S:Your account has been successfully activated!';
 	} else $resultCode = 'E:An error occurred while activating your account.';
@@ -622,7 +623,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		</div>
 		
 		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/login">Login to your account</a></div>
-	<?php } else if(in_array($scriptState, ['login', 'register', 'root-register'])) { ?>
+	<?php } else if(in_array($scriptState, ['login', 'register', 'activate', 'root-register'])) { ?>
 		<?php if($isLoginAllowed) { ?>
 			<?php /*<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$isRootRegisterAllowed OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if($scriptState != 'register' AND $scriptState != 'root-register') { ?>block<?php } else { ?>none<?php } ?>">
@@ -678,6 +679,15 @@ ob_end_clean(); ?>
 					<input type="text" name="captcha" placeholder="Captcha (wip)" disabled />*/ ?>
 					
 					<button type="submit">Register</button>
+				</form>
+			</div>
+		<?php } ?>
+		<?php if($isActivateAllowed) { ?>
+			<div class="form" data-icon="fa-unlock" data-text="Activate" style="display: <?php if($scriptState == 'activate') { ?>block<?php } else { ?>none<?php } ?>;">
+				<h2>Activate your account</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/activate'?>" method="post">
+					<input type="text" name="activateKey" value="<?=$_['activateKey']?>" placeholder="Activate Key" />
+					<button type="submit">Activate</button>
 				</form>
 			</div>
 		<?php } ?>
