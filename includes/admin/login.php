@@ -64,22 +64,18 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 	$isEditPasswordAllowed = $isLoggedIn OR !$isLocalLogin;
 /** LOGGED IN (independent) */
 	// $isLoggedAllowed = $isLoggedIn;
-/** ACTIVATE (will be independent) */
-	// $isActivateAllowed = $_Oli->config['account_activation'] AND !$isLocalLogin;
+/** ACTIVATE (?) */
+	$isActivateAllowed = !$isLocalLogin AND $_Oli->config['account_activation'] AND $_Oli->config['allow_register'];
 /** RECOVER (explicit) */
 	// $isRecoverAllowed = !$isLocalLogin;
 /** UNLOCK (independent) */
 	// $isUnlockAllowed = !$isLocalLogin; 
 /** REGISTER: */
-	$isRegisterAllowed = $_Oli->config['allow_register'] AND !$isLocalLogin;
+	$isRegisterAllowed = !$isLocalLogin AND $_Oli->config['allow_register'];
 /** REGISTER AS ROOT: */
-	if($isLocalLogin) {
-		if(empty($_Oli->getLocalRootInfos())) $isRootRegisterAllowed = true;
-		else $isRootRegisterAllowed = false;
-	} else {
-		if(!$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false)) $isRootRegisterAllowed = true;
-		else $isRootRegisterAllowed = false;
-	}
+	if($isLocalLogin) $isRootRegisterAllowed = empty($_Oli->getLocalRootInfos());
+	else if($_Oli->config['allow_register']) $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
+	else $isRootRegisterAllowed = false;
 /** LOGIN: */
 	$isLoginAllowed = $isLocalLogin OR $_Oli->config['allow_login'];
 
