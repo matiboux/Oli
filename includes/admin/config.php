@@ -2,6 +2,8 @@
 $_ = array_merge($_GET, $_POST);
 $result = [];
 
+if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'));
+
 ?>
 
 <html>
@@ -16,6 +18,8 @@ $result = [];
 </head>
 <body>
 
+<?php var_dump($_Oli->config); ?>
+
 <h1>Oli Config —</h1>
 <p>Update your website config.</p>
 
@@ -24,24 +28,48 @@ $result = [];
 	
 	<p>Work in progress i guess.</p>
 	
-	<div style="background: #e0e0e0; padding: 10px; margin-bottom: 10px">
-		<label>
-			input1
-			<input type="text" name="input1" value="<?=$_['input1']?>" />
-		</label>
-		<label><input type="radio" name="type" /> Integer</label>
-		<label><input type="radio" name="type" checked /> String</label>
-		<label><input type="radio" name="type" /> Array</label>
-	</div>
-	<div style="background: #e0e0e0; padding: 10px; margin-bottom: 10px">
-		<label>
-			input2
-			<input type="text" name="input2" value="<?=$_['input2']?>" />
-		</label>
-		<label><input type="radio" name="type" /> Integer</label>
-		<label><input type="radio" name="type" checked /> String</label>
-		<label><input type="radio" name="type" /> Array</label>
-	</div>
+	<?php
+	foreach($_Oli->config as $eachVar => $eachValue) { ?>
+		<?php
+		if(in_array($eachVar, ['init_timestamp'])) $disabled = true;
+		else $disabled = false;
+		
+		if(is_array($eachValue)) $type = 'assoc';
+		else if(is_array($eachValue)) $type = 'array';
+		else if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
+		else $type = 'text';
+		?>
+		
+		<div class="config" style="background: #e0e0e0; padding: 10px; margin-bottom: 10px">
+			<span><b><?=$eachVar?></b> —</span>
+			<div class="single" style="display: <?php if(in_array($type, ['number', 'text'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
+				<label><input type="<?=$type?>" name="input1" value="<?=$_[$eachVar] ?: $eachValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+			</div>
+			<div class="settings" style="display: inline-block">
+				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
+				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
+			</div>
+			<div class="multiple" style="display: <?php if(in_array($type, ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
+				<?php foreach($_[$eachVar] ?: $eachValue as $eachBVar => $eachBValue) { ?>
+					<?php
+					if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
+					else $type = 'text';
+					?>
+					
+					<div style="display: inline-block">
+						<label><input type="" name="input1" value="<?=$eachBVar?>" <?php if($disabled) { ?>disabled<?php } ?> /></label> =>
+						<label><input type="<?=$type?>" name="input1" value="<?=$eachBValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+					</div>
+					<div class="settings" style="display: inline-block">
+						<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+						<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+					</div> <br />
+				<?php } ?>
+			</div>
+		</div>
+	<?php } ?>
 	
 	<button type="submit">Submit</button>
 	
