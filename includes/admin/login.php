@@ -497,11 +497,11 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 </head>
 <body>
 
+<!-- ScriptState: <?php var_dump($scriptState); ?> -->
 <div id="header">
 	<h1><a href="<?php echo $_Oli->getUrlParam(0); ?>"><?php echo $_Oli->getSetting('name'); ?></a></h1>
 	<p class="description"><?php echo $_Oli->getSetting('description'); ?></p>
 	<?php if($isLocalLogin) { ?><p><b>Local login</b> (restricted to the root user)</p><?php } ?>
-	<p><?php var_dump($scriptState); ?></p>
 </div>
 
 <?php if(!empty($_)) { ?>
