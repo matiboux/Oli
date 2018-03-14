@@ -2,6 +2,8 @@
 $params = array_merge($_GET, $_POST);
 $result = [];
 
+if(!$_Oli->verifyAuthKey()) header('Location: ' . $_Oli->getUrlParam(0));
+
 ?>
 
 <html>
@@ -16,8 +18,11 @@ $result = [];
 </head>
 <body>
 
-<p><u><b>Go login you fuck boy</b></u></p>
-<p><i>Oh shit, inappropriate..</i></p>
+<p><u><b>Hi <?=$_Oli->getAuthKeyOwner()?>!</b></u></p>
+
+<ul>
+	<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config'?>">Edit your website config</a></li>
+</ul>
 
 </body>
 </html>
