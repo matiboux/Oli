@@ -198,6 +198,13 @@ class OliCore {
 			// if($this->config != array_merge($defaultConfig, $this->config)) $this->updateConfig(array_merge($defaultConfig, $this->config), true, true);
 		// } else $this->config = $defaultConfig;
 		$this->config = $this->loadConfig();
+		if(file_exists(ABSPATH . '.oliurl')) {
+			$oliUrl = file_get_contents(ABSPATH . '.oliurl');
+			if(!empty($oliUrl) AND preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^/]+)*\/$/i', $oliUrl) AND !empty($this->config['settings']) AND $oliUrl != $this->config['settings']['url']) {
+				$this->updateConfig(array('settings' => array_merge($this->config['settings'], array('url' => $oliUrl))), true, false);
+				$this->config['settings']['url'] = $oliUrl;
+			}
+		}
 		
 		/** Define secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
