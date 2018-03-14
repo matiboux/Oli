@@ -300,7 +300,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 	
 	if(!empty($_)) {
 		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
-		else if(!preg_match('/^[_0-9a-zA-Z]+$/', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
+		else if(!preg_match('/^[_a-z0-9]+$/i', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
 		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
 		
