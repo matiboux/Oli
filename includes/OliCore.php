@@ -2780,11 +2780,18 @@ class OliCore {
 			 * @uses OliCore::getAccountInfos() to get infos from account table
 			 * @return string|boolean Returns translated user right
 			 */
+			/**
+			 * Translate User Right
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return string|boolean Returns translated user right if succeeded.
+			 */
 			public function translateUserRight($userRight, $caseSensitive = true) {
 				if($this->isLocalLogin()) {
 					if($userRight == 'ROOT') return 1;
 					if($userRight == 1) return 'ROOT';
-					else return 0;
+					else return false;
 				} else {
 					if(!empty($userRight)) {
 						if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
@@ -2851,17 +2858,11 @@ class OliCore {
 			}
 			
 			/**
-			 * Get user right
+			 * Get User Right
 			 * 
-			 * @param string|array|void $whatVar What var(s) to return
-			 * @param string|array|void $where Where to get data from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * @param boolean|void $forceArray Return result in an array or not
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getAccountInfos() to get infos from account table
-			 * @return mixed Returns user right
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return string Returns the user right.
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
 				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return 'ROOT';
