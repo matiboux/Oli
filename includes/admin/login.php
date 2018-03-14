@@ -366,7 +366,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 				$isExistByEmail = $_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['username']), false);
 			} else {
 				if(file_exists(CONTENTPATH . '.oliauth')) $rootUserInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true);
-				$isExistByUsername = $_['username'] == strtolower($rootUserInfos['username']) OR $_['username'] == $rootUserInfos['email'];
+				$isExistByUsername = strtolower($_['username']) == strtolower($rootUserInfos['username']);
 			}
 			
 			if(!$isExistByUsername AND ($isLocalLogin OR !$isExistByEmail)) $resultCode = 'E:Sorry, no account is associated with the username or email you entered.';
@@ -552,7 +552,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	
 	<?php //if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'edit-password' AND !$hideChangePasswordUI) OR $scriptState == 'logged' OR $isLoggedIn) { ?>
 	<?php if(in_array($scriptState, ['logged', 'recover', 'edit-password', 'recover-password'])) { ?>
-		<?php if($isLoggedIn) { ?>
+		<?php if($scriptState == 'logged' OR $isLoggedIn) { ?>
 			<?php /*<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Logout from your account</h2>
