@@ -2781,13 +2781,19 @@ class OliCore {
 			 * @return string|boolean Returns translated user right
 			 */
 			public function translateUserRight($userRight, $caseSensitive = true) {
-				if(!empty($userRight)) {
-					if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
-					else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
-					else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
+				if($this->isLocalLogin()) {
+					if($userRight == 'ROOT') return 1;
+					if($userRight == 1) return 'ROOT';
+					else return 0;
+				} else {
+					if(!empty($userRight)) {
+						if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
+						else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
+						else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
+						else return false;
+					}
 					else return false;
 				}
-				else return false;
 			}
 			
 			/** DEPRECATED Get Right Level */
@@ -2858,13 +2864,16 @@ class OliCore {
 			 * @return mixed Returns user right
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
-				if(empty($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
-					else return false;
+				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return 'ROOT';
+				else {
+					if(empty($where)) {
+						if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+						else return false;
+					}
+					else if(!is_array($where)) $where = array('username' => $where);
+					
+					return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
 				}
-				else if(!is_array($where)) $where = array('username' => $where);
-				
-				return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
 			}
 			
 			/**
