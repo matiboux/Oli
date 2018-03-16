@@ -2,6 +2,7 @@
 	"init_timestamp": null,
 	"init_setup": true,
 	
+	"allow_mysql": false,
 	"mysql": null,
 	"settings": null,
 	
