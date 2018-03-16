@@ -524,7 +524,7 @@ class OliCore {
 		 * MySQL Connection Setup
 		 * 
 		 * @version BETA
-		 * @updated BETA-1.8.0
+		 * @updated BETA-1.9.0
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
