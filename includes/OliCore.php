@@ -1425,10 +1425,12 @@ class OliCore {
 								if(file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
 									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
 									$this->fileNameParam = implode('/', $fileName);
-								} else if(file_exists(OLIADMINPATH . '404.php')) {
-									$found = OLIADMINPATH . '404.php';
-									$this->contentStatus = '404';
-								} else $found = null;
+								} else if(empty($found)) {
+									if(file_exists(OLIADMINPATH . '404.php')) {
+										$found = OLIADMINPATH . '404.php';
+										$this->contentStatus = '404';
+									} else $found = null;
+								}
 							} else if(file_exists(OLIADMINPATH . 'index.php')) {
 								$found = OLIADMINPATH . 'index.php';
 								$this->fileNameParam = implode('/', $fileName);
