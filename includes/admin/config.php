@@ -50,22 +50,26 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 			if(in_array($tree[0] ?: $eachVar, ['mysql'])) $hidden = true;
 			else $hidden = false;
 			
-			if(is_array($eachValue)) $type = 'assoc';
+			if(is_assoc($eachValue)) $type = 'assoc';
 			else if(is_array($eachValue)) $type = 'array';
+			else if(is_bool($eachValue)) $type = 'checkbox';
 			else if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
 			else $type = 'text';
+			
+			$name = !empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar;
 			?>
 			
 			<div class="config">
 				<span><b><?=$eachVar?></b> —</span>
-				<div class="single" style="display: <?php if(in_array($type, ['number', 'text'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-		<label><input type="<?=$type?>" name="<?=!empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /></label>
+				<div class="single" style="display: <?php if(in_array($type, ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
+		<label><input type="<?=$type?>" name="<?=$name?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /> <?php if($type == 'checkbox') { ?>Yes/No<?php } ?></label> —
 				</div>
 				<div class="settings" style="display: inline-block">
-					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
-					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
-					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
-					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
+					<label><input type="radio" class="type" name="type[<?=$name?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+					<label><input type="radio" class="type" name="type[<?=$name?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+					<label><input type="radio" class="type" name="type[<?=$name?>]" <?php if($type == 'checkbox') { ?>checked<?php } ?> /> Boolean</label>
+					<label><input type="radio" class="type" name="type[<?=$name?>]" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
+					<label><input type="radio" class="type" name="type[<?=$name?>]" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
 				</div>
 				<div class="multiple" style="display: <?php if(in_array($type, ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
 					<?php /*foreach($_[$eachVar] ?: $eachValue as $eachBVar => $eachBValue) { ?>
