@@ -16,11 +16,16 @@ if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Locat
 <title>Oli Admin: Config</title>
 
 <style>
-form > .config { background: #e0e0e0; padding: 10px }
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
+html { position: relative; min-height: 100% }
+body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; margin: 0; color: #202020; font-size: 14px; overflow-x: hidden }
+@media (max-width: 420px) { body { font-size: 12px } }
+
+form .config { background: #e0e0e0; padding: 10px; border: 1px solid #d0d0d0 }
 form .config + .config { margin-top: 10px }
 form > .config .multiple { margin-top: 10px }
-form > .config > .multiple > .config { background: #d0d0d0; padding: 10px }
-form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0; padding: 10px }
+form > .config > .multiple > .config { background: #d0d0d0; border-color: #c0c0c0 }
+form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0; border-color: #b0b0b0 }
 </style>
 
 </head>
