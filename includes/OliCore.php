@@ -528,7 +528,7 @@ class OliCore {
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
-			if(!empty($database)) {
+			if($this-config['allow_mysql'] AND !empty($database)) {
 				try {
 					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . $hostname . ';charset=' . $charset, $username, $password);
 					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
