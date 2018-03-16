@@ -45,8 +45,10 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 	function parseConfig($config, $tree = []) {
 		foreach($config as $eachVar => $eachValue) { ?>
 			<?php
-			if(in_array($eachVar, ['init_timestamp'])) $disabled = true;
+			if(in_array($tree[0] ?: $eachVar, ['init_timestamp', 'settings'])) $disabled = true;
 			else $disabled = false;
+			if(in_array($tree[0] ?: $eachVar, ['mysql'])) $hidden = true;
+			else $hidden = false;
 			
 			if(is_array($eachValue)) $type = 'assoc';
 			else if(is_array($eachValue)) $type = 'array';
@@ -57,7 +59,7 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 			<div class="config">
 				<span><b><?=$eachVar?></b> —</span>
 				<div class="single" style="display: <?php if(in_array($type, ['number', 'text'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-		<label><input type="<?=$type?>" name="<?=!empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar?>" value="<?=$_[$eachVar] ?: $eachValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+		<label><input type="<?=$type?>" name="<?=!empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /></label>
 				</div>
 				<div class="settings" style="display: inline-block">
 					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
