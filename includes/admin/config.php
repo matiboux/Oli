@@ -42,7 +42,7 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 	<p>Work in progress i guess.</p>
 	
 	<?php
-	function parseConfig($config) {
+	function parseConfig($config, $tree = []) {
 		foreach($config as $eachVar => $eachValue) { ?>
 			<?php
 			if(in_array($eachVar, ['init_timestamp'])) $disabled = true;
@@ -57,7 +57,7 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 			<div class="config">
 				<span><b><?=$eachVar?></b> —</span>
 				<div class="single" style="display: <?php if(in_array($type, ['number', 'text'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-					<label><input type="<?=$type?>" name="input1" value="<?=$_[$eachVar] ?: $eachValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+		<label><input type="<?=$type?>" name="<?=!empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar?>" value="<?=$_[$eachVar] ?: $eachValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
 				</div>
 				<div class="settings" style="display: inline-block">
 					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
@@ -80,7 +80,7 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 							<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
 							<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
 						</div> <br />
-					<?php }*/ if(in_array($type, ['array', 'assoc'])) parseConfig($_[$eachVar] ?: $eachValue); ?>
+					<?php }*/ if(in_array($type, ['array', 'assoc'])) parseConfig($_[$eachVar] ?: $eachValue, array_merge($tree, [$eachVar])); ?>
 				</div>
 			</div>
 		<?php }
