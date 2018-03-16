@@ -15,6 +15,14 @@ if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Locat
 
 <title>Oli Admin: Config</title>
 
+<style>
+form > .config { background: #e0e0e0; padding: 10px }
+form .config + .config { margin-top: 10px }
+form > .config .multiple { margin-top: 10px }
+form > .config > .multiple > .config { background: #d0d0d0; padding: 10px }
+form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0; padding: 10px }
+</style>
+
 </head>
 <body>
 
@@ -29,47 +37,49 @@ if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Locat
 	<p>Work in progress i guess.</p>
 	
 	<?php
-	foreach($_Oli->config as $eachVar => $eachValue) { ?>
-		<?php
-		if(in_array($eachVar, ['init_timestamp'])) $disabled = true;
-		else $disabled = false;
-		
-		if(is_array($eachValue)) $type = 'assoc';
-		else if(is_array($eachValue)) $type = 'array';
-		else if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
-		else $type = 'text';
-		?>
-		
-		<div class="config" style="background: #e0e0e0; padding: 10px; margin-bottom: 10px">
-			<span><b><?=$eachVar?></b> —</span>
-			<div class="single" style="display: <?php if(in_array($type, ['number', 'text'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-				<label><input type="<?=$type?>" name="input1" value="<?=$_[$eachVar] ?: $eachValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+	function parseConfig($config) {
+		foreach($config as $eachVar => $eachValue) { ?>
+			<?php
+			if(in_array($eachVar, ['init_timestamp'])) $disabled = true;
+			else $disabled = false;
+			
+			if(is_array($eachValue)) $type = 'assoc';
+			else if(is_array($eachValue)) $type = 'array';
+			else if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
+			else $type = 'text';
+			?>
+			
+			<div class="config">
+				<span><b><?=$eachVar?></b> —</span>
+				<div class="single" style="display: <?php if(in_array($type, ['number', 'text'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
+					<label><input type="<?=$type?>" name="input1" value="<?=$_[$eachVar] ?: $eachValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+				</div>
+				<div class="settings" style="display: inline-block">
+					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
+					<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
+				</div>
+				<div class="multiple" style="display: <?php if(in_array($type, ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
+					<?php /*foreach($_[$eachVar] ?: $eachValue as $eachBVar => $eachBValue) { ?>
+						<?php
+						if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
+						else $type = 'text';
+						?>
+						
+						<div style="display: inline-block">
+							<label><input type="" name="input1" value="<?=$eachBVar?>" <?php if($disabled) { ?>disabled<?php } ?> /></label> =>
+							<label><input type="<?=$type?>" name="input1" value="<?=$eachBValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+						</div>
+						<div class="settings" style="display: inline-block">
+							<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+							<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+						</div> <br />
+					<?php }*/ if(in_array($type, ['array', 'assoc'])) parseConfig($_[$eachVar] ?: $eachValue); ?>
+				</div>
 			</div>
-			<div class="settings" style="display: inline-block">
-				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
-				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
-				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
-				<label><input type="radio" class="type" name="type[<?=$eachVar?>]" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
-			</div>
-			<div class="multiple" style="display: <?php if(in_array($type, ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
-				<?php foreach($_[$eachVar] ?: $eachValue as $eachBVar => $eachBValue) { ?>
-					<?php
-					if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
-					else $type = 'text';
-					?>
-					
-					<div style="display: inline-block">
-						<label><input type="" name="input1" value="<?=$eachBVar?>" <?php if($disabled) { ?>disabled<?php } ?> /></label> =>
-						<label><input type="<?=$type?>" name="input1" value="<?=$eachBValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
-					</div>
-					<div class="settings" style="display: inline-block">
-						<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
-						<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
-					</div> <br />
-				<?php } ?>
-			</div>
-		</div>
-	<?php } ?>
+		<?php }
+	} parseConfig($_Oli->config); ?>
 	
 	<button type="submit">Submit</button>
 	
