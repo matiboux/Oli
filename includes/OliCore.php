@@ -206,6 +206,9 @@ class OliCore {
 			}
 		}
 		
+		/** Setup MySQL */
+		if($this->config['allow_mysql'] AND !empty($this->config['mysql'])) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+		
 		/** Define secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
 		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
@@ -352,14 +355,16 @@ class OliCore {
 				foreach($loadedConfig as $eachConfig => $eachValue) {
 					$eachValue = $this->decodeConfigValues($eachValue);
 					
-					if($eachConfig == 'constants' AND !empty($eachValue) AND is_array($eachValue)) {
+					if($eachConfig == 'constants' AND !empty($eachValue) AND is_assoc($eachValue)) {
 						foreach($eachValue as $eachConstantName => $eachConstantValue) {
 							if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
 						}
-					} else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+					}
+					// else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 					// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
 					// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
-					else $decodedConfig[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
+					
+					$decodedConfig[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 				}
 			}
 			
