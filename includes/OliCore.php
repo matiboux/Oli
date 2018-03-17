@@ -317,14 +317,16 @@ class OliCore {
 		 * 
 		 * @version BETA-1.9.0
 		 * @updated BETA-1.9.0
-		 * @return string Returns the updated config if succeeded.
+		 * @return boolean Returns true if the config is updated.
 		 */
 		public function updateConfig($newConfig, $saveNew = false, $replaceWhole = false) {
 			if($replaceWhole) $config = $newConfig;
 			else $config = array_merge($this->config, $newConfig);
 			
-			if($saveNew) $this->saveConfig($config);
-			return $config;
+			if(!$saveNew OR $this->saveConfig($config)) {
+				$this->config = $config;
+				return true;
+			} else return false;
 		}
 		
 		/**
@@ -355,7 +357,7 @@ class OliCore {
 			
 			$loadedConfig = null;
 			if(!empty($config) AND is_array($config)) {
-				if($config != array_merge($defaultConfig, $config)) $loadedConfig = $this->updateConfig(array_merge($defaultConfig, $config), true, true);
+				if($config != array_merge($defaultConfig, $config)) $loadedConfig = $this->saveConfig(array_merge($defaultConfig, $config));
 				else $loadedConfig = $config;
 			} else if($this->saveConfig($defaultConfig)) $loadedConfig = $defaultConfig;
 			
