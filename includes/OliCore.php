@@ -141,6 +141,15 @@ class OliCore {
 	private $mysqlConfig = null;
 	
 	/** Accounts & Users Management */
+	private $accountsTables = array(
+		'ACCOUNTS' => 'accounts',
+		'INFOS' => 'accounts_infos',
+		'SESSIONS' => 'accounts_sessions',
+		'REQUESTS' => 'accounts_requests',
+		'LOG_LIMITS' => 'accounts_log_limits',
+		'RIGHTS' => 'accounts_rights',
+		'PERMISSIONS' => 'accounts_permissions'
+	);
 	
 	/** Content Management */
 	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
@@ -359,10 +368,18 @@ class OliCore {
 						foreach($eachValue as $eachConstantName => $eachConstantValue) {
 							if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
 						}
-					}
-					// else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+					} //else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 					// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
 					// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
+					else if($eachConfig == 'accounts_tables' AND !empty($eachValue) AND is_assoc($eachValue)) {
+						if(!empty($eachValue['accounts'])) $this->accountsTables['ACCOUNTS'] = $eachValue['accounts'];
+						if(!empty($eachValue['infos'])) $this->accountsTables['INFOS'] = $eachValue['infos'];
+						if(!empty($eachValue['sessions'])) $this->accountsTables['SESSIONS'] = $eachValue['sessions'];
+						if(!empty($eachValue['requests'])) $this->accountsTables['REQUESTS'] = $eachValue['requests'];
+						if(!empty($eachValue['log_limits'])) $this->accountsTables['LOG_LIMITS'] = $eachValue['log_limits'];
+						if(!empty($eachValue['rights'])) $this->accountsTables['RIGHTS'] = $eachValue['rights'];
+						if(!empty($eachValue['permissions'])) $this->accountsTables['PERMISSIONS'] = $eachValue['permissions'];
+					}
 					
 					$decodedConfig[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 				}
@@ -2485,34 +2502,26 @@ class OliCore {
 			/** ----------------------- */
 			
 			/**
-			 * Translate accounts table codes
+			 * Translate Accounts Table Codes
 			 * 
-			 * - ACCOUNTS: Accounts list and main informations (password, email...)
+			 * - ACCOUNTS - Accounts list and main informations (password, email...)
 			 * - INFOS - Accounts other informations
-			 * - PERMISSIONS - Accounts personnal permissions
-			 * - RIGHTS - Accounts rights list (permissions groups) 
 			 * - SESSIONS - Accounts login sessions
 			 * - REQUESTS - Accounts requests
+			 * - LOG_LIMITS - ///
+			 * - RIGHTS - Accounts rights list (permissions groups) 
+			 * - PERMISSIONS - Accounts personnal permissions
 			 * 
 			 * @param string $tableCode Table code to translate
 			 * 
-			 * @uses OliCore::$accountsTable to get main account table
-			 * @uses OliCore::$accountsInfosTable to get account infos table
-			 * @uses OliCore::$accountsSessionsTable to get account sessions table
-			 * @uses OliCore::$accountsRequestsTable to get account requests table
-			 * @uses OliCore::$accountsPermissionsTable to get account permissions table
-			 * @uses OliCore::$accountsRightsTable to get account rights table
-			 * @return boolean Returns translated table name
+			 * @uses OliCore::$accountsTables To get account tables names
+			 *
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return string|void Returns account table name if succeeded, null otherwise.
 			 */
 			public function translateAccountsTableCode($tableCode) {
-				if($tableCode == 'ACCOUNTS') return $this->config['accounts_tables']['accounts'];
-				else if($tableCode == 'INFOS') return $this->config['accounts_tables']['infos'];
-				else if($tableCode == 'SESSIONS') return $this->config['accounts_tables']['sessions'];
-				else if($tableCode == 'LOG_LIMITS') return $this->config['accounts_tables']['log_limits'];
-				else if($tableCode == 'REQUESTS') return $this->config['accounts_tables']['requests'];
-				else if($tableCode == 'PERMISSIONS') return $this->config['accounts_tables']['permissions'];
-				else if($tableCode == 'RIGHTS') return $this->config['accounts_tables']['rights'];
-				else return false;
+				return !empty($this->accountsTables[$tableCode]) ? $this->accountsTables[$tableCode] : null;
 			}
 		
 			/** ------------------------------- */
@@ -3243,6 +3252,21 @@ class OliCore {
 			/** ----------------- */
 			
 			/**
+			 * Check if the database is ready for user management
+			 * 
+			 * @version BETA-1.9.0
+			 * @updated BETA-1.9.0
+			 * @return boolean Returns true if local.
+			 */
+			public function isUserManagementReady() {
+				$status = [];
+				foreach($this->accountsTables as $eachTable) {
+					if(!$status[] = $_Oli->isExistTableMySQL($eachTable)) break;
+				}
+				return in_array($status, false, true);
+			}
+			
+			/**
 			 * Check if the login process is considered to be local
 			 * 
 			 * @version BETA-1.9.0
@@ -3250,7 +3274,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isLocalLogin() {
-				return !$this->isSetupMySQL() OR !$this->config['allow_login'];
+				return !$this->isSetupMySQL() OR !$this->config['allow_login'] OR !$this->isUserManagementReady();
 			}
 			
 			/**

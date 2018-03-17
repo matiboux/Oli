@@ -27,7 +27,15 @@
 	"allow_login": true,
 	"allow_register": false,
 	"prohibited_usernames": [],
-	
+	"accounts_tables": {
+		"accounts": "accounts",
+		"infos": "accounts_infos",
+		"sessions": "accounts_sessions",
+		"requests": "accounts_requests",
+		"log_limits": "accounts_log_limits",
+		"rights": "accounts_rights",
+		"permissions": "accounts_permissions"
+	},
 	
 	"auth_key_length": 32,
 	"auth_key_cookie": {
