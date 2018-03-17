@@ -1717,7 +1717,7 @@ class OliCore {
 					if($force) $this->contentTypeBeenForced = true;
 					
 					if(isset($contentType)) $contentType = strtolower($contentType);
-					else if($contentType == 'default') $contentType = strtolower($this->config['default_content_type'] ?: 'utf-8');
+					if($contentType == 'default') $contentType = strtolower($this->config['default_content_type'] ?: 'plain');
 					
 					if($contentType == 'html') $newContentType = 'text/html';
 					else if($contentType == 'css') $newContentType = 'text/css';
