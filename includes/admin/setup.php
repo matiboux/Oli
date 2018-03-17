@@ -11,12 +11,12 @@ if(!empty($params)) {
 	if(empty($params['olisc'])) $result = array('error' => 'Error: The "olisc" parameter is missing');
 	else if($params['olisc'] != $_Oli->getOliSecurityCode()) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
 	else {
-		if($params['confirm'] == 'yes') {
+		if(!empty($params['confirm']) AND $params['confirm'] == 'yes') {
 			$newConfig = array('init_setup' => false);
 			if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, '_POST' => $_POST);
 			else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
 		} else if(empty($params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
-		else if(!preg_match('/^[a-zA-Z0-9-.]{3,}\.[a-z]+\/[a-zA-Z0-9-@:%_\+.~#?&\/=]*$/', $params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
+		else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
 		else if(empty($params['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
 		else {
 			$newConfig = array(
