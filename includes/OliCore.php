@@ -535,7 +535,6 @@ class OliCore {
 		public function setupMySQL($database, $username = null, $password = null, $hostname = null, $charset = null) {
 			if($this->config['allow_mysql'] AND !empty($database)) {
 				try {
-					echo 'mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8');
 					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
 					// $this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
 				} catch(PDOException $e) {
