@@ -207,7 +207,7 @@ class OliCore {
 		}
 		
 		/** Setup MySQL */
-		if($this->config['allow_mysql'] AND !empty($this->config['mysql'])) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+		if($this->config['allow_mysql'] AND !empty($this->config['mysql'])) $this->setupMySQL(!empty($this->config['mysql']['database']) ? $this->config['mysql']['database'] : null, !empty($this->config['mysql']['username']) ? $this->config['mysql']['username'] : null, !empty($this->config['mysql']['password']) ? $this->config['mysql']['password'] : null, !empty($this->config['mysql']['hostname']) ? $this->config['mysql']['hostname'] : null, !empty($this->config['mysql']['charset']) ? $this->config['mysql']['charset'] : null);
 		
 		/** Define secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
@@ -532,11 +532,12 @@ class OliCore {
 		 * @updated BETA-1.9.0
 		 * @return boolean Returns true if succeeded.
 		 */
-		public function setupMySQL($database, $username = 'root', $password = '', $hostname = 'localhost', $charset = 'utf-8') {
-			if($this-config['allow_mysql'] AND !empty($database)) {
+		public function setupMySQL($database, $username = null, $password = null, $hostname = null, $charset = null) {
+			if($this->config['allow_mysql'] AND !empty($database)) {
 				try {
-					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . $hostname . ';charset=' . $charset, $username, $password);
-					$this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
+					echo 'mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8');
+					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
+					// $this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
 				} catch(PDOException $e) {
 					trigger_error($e->getMessage(), E_USER_ERROR);
 				}
