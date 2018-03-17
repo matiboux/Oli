@@ -1249,6 +1249,19 @@ class OliCore {
 		}
 		
 		/**
+		 * Is Exist MySQL Table
+		 * 
+		 * @version BETA-1.9.0
+		 * @updated BETA-1.9.0
+		 * @return boolean Returns true if it exists.
+		 */
+		public function isExistTableMySQL($table) {
+			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+			$query = $this->db->prepare('SELECT 1 FROM ' . $table);
+			return $query->execute() !== false;
+		}
+		
+		/**
 		 * Clear table data
 		 * 
 		 * Delete everything in the table but not the table itself
