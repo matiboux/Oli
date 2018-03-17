@@ -61,7 +61,6 @@ if(!empty($params)) {
 	<form action="#" method="post" id="form">
 		<div class="step" step="1">
 			<h2>Step 1/4 — Verify your identity</h2>
-			<p><i>Security code previously generated in <code>/.olisc</code>.</i></p>
 			<?php if($_Oli->refreshOliSecurityCode()) { ?>
 				<p><i>New security code generated in <code>/.olisc</code>.</i></p>
 			<?php } else { ?>
