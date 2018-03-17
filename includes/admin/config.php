@@ -45,7 +45,7 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 	function parseConfig($config, $tree = []) {
 		foreach($config as $eachVar => $eachValue) { ?>
 			<?php
-			if(in_array($tree[0] ?: $eachVar, ['init_timestamp', 'settings'])) $disabled = true;
+			if(in_array($tree[0] ?: $eachVar, ['init_timestamp', 'allow_mysql', 'settings'])) $disabled = true;
 			else $disabled = false;
 			if(in_array($tree[0] ?: $eachVar, ['mysql'])) $hidden = true;
 			else $hidden = false;
