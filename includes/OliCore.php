@@ -1651,23 +1651,38 @@ class OliCore {
 		/**  V. 3. Website Settings  */
 		/** ------------------------ */
 		
-		/** Get Settings Tables */
+		/**
+		 * Get Settings Tables
+		 * 
+		 * @version BETA
+		 * @updated BETA-1.9.0
+		 * @return array Returns the settings tables.
+		 */
 		public function getSettingsTables() { return $this->config['settings_tables']; }
 		
-		/** Get Setting */
+		/**
+		 * Get Setting
+		 * 
+		 * @version BETA
+		 * @updated BETA-1.9.0
+		 * @return string|boolean Returns the requested setting if succeeded.
+		 */
 		public function getSetting($setting, $depth = 0) {
 			if(isset($this->db) AND !empty($this->config['settings_tables'])) {
-				foreach(($depth > 0 AND count($this->config['settings_tables']) >= $depth + 1) ? array_slice($this->config['settings_tables'], $depth) : $this->config['settings_tables'] as $eachTable) {
-					if(isset($setting)) {
-						$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
-						if(!empty($optionResult)) {
-							if($optionResult == 'null') return '';
-							else return $optionResult;
-						}
-					} else false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
+				foreach(($depth > 0 AND count($this->config['settings_tables']) > $depth) ? array_slice($this->config['settings_tables'], $depth) : $this->config['settings_tables'] as $eachTable) {
+					if($this->isExistTableMySQL($eachTable)) {
+						if(isset($setting)) {
+							$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
+							if(!empty($optionResult)) {
+								if($optionResult == 'null') return '';
+								else return $optionResult;
+							}
+						} else return false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
+					}
 				}
 			} else return $this->config['settings'][$setting];
 		}
+		/** * @alias OliCore::getSetting() */
 		public function getOption($setting, $depth = 0) { return $this->getSetting($setting, $depth); }
 		
 		/** [WIP] Get All Settings */
