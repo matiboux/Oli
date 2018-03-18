@@ -6,6 +6,21 @@ $result = [];
 
 if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'));
 
+else if($_Oli->getUrlParam(2) == 'enable') {
+	if($_Oli->updateConfig(array('allow_mysql' => true), true, false)) $result = array('error' => false, 'database' => $_['database']);
+	else $result = array('error' => 'Error: Could not enable the MySQL management.');
+} else if($_Oli->getUrlParam(2) == 'disable') {
+	if($_Oli->updateConfig(array('allow_mysql' => false), true, false)) $result = array('error' => false, 'database' => $_['database']);
+	else $result = array('error' => 'Error: Could not disable the MySQL management.');
+} else if(!empty($_)) {
+	if(empty($_['database'])) $result = array('error' => 'Error: The database is missing.');
+	else {
+		$status = $_Oli->updateConfig(array('mysql' => array('database' => $_['database'], 'username' => isset($_['username']) ? $_['username'] : null, 'password' => isset($_['password']) ? $_['password'] : null, 'hostname' => isset($_['hostname']) ? $_['hostname'] : null, 'charset' => isset($_['charset']) ? $_['charset'] : null)), true, false);
+		
+		if($status) $result = array('error' => false, 'database' => $_['database']);
+		else $result = array('error' => 'Error: An error occurred.');
+	}
+}
 ?>
 
 <html>
@@ -33,10 +48,25 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 </head>
 <body>
 
+<?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
+
 <?php var_dump($_Oli->db); ?>
 
 <h1>Oli Config: MySQL —</h1>
 <p>Update your website mysql settings.</p>
+
+<?php if(!$_Oli->config['allow_mysql']) { ?>
+	<p>
+		<b>MySQL management is disabled</b> on your website.
+		<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/enable" class="btn btn-primary">Enable MySQL</a>
+	</p>
+<?php } else { ?>
+	<p>
+		<b>MySQL management is enabled</b> on your website.
+		<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/disable" class="btn btn-danger">Disable MySQL</a>
+	</p>
+<?php } ?>
+
 <?php if(!$_Oli->isSetupMySQL()) { ?>
 	<p>
 		Your website <b>is not connected</b> to any mysql database.
@@ -44,11 +74,6 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 <?php } else { ?>
 	<p>
 		Your website <b>is connected</b> to the "<?=$_Oli->config['mysql']['database']?>" database.
-		<?php if(!$_Oli->config['allow_mysql']) { ?>
-			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/enable" class="btn btn-primary">Enable MySQL</a>
-		<?php } else { ?>
-			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/disable" class="btn btn-danger">Disable MySQL</a>
-		<?php } ?>
 	</p>
 	
 	<?php /*if( ! settings ) { ?>

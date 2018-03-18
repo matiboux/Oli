@@ -556,7 +556,8 @@ class OliCore {
 				try {
 					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
 				} catch(\PDOException $e) {
-					trigger_error($e->getMessage(), E_USER_ERROR);
+					return false;
+					// trigger_error($e->getMessage(), E_USER_ERROR);
 				}
 			} else return false;
 		}
