@@ -22,6 +22,7 @@ if(!$_Oli->verifyAuthKey()) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli
 
 <ul>
 	<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config'?>">Edit your website config</a></li>
+	<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/mysql'?>">Edit your mysql config</a></li>
 </ul>
 
 </body>
