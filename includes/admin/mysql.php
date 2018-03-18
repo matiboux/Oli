@@ -70,6 +70,12 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 <?php if(!$_Oli->isSetupMySQL()) { ?>
 	<p>
 		Your website <b>is not connected</b> to any mysql database.
+		<?php if(!empty($_Oli->dbError)) { ?> <br />
+			An error occurred while connecting to the "<?=$_Oli->config['mysql']['database']?>" database: <br />
+			<?=$_Oli->dbError?>
+		<?php } else if(!empty($_Oli->config['mysql'])) { ?> <br />
+			However, your website is already configured to connect to the "<?=$_Oli->config['mysql']['database']?>" database.
+		<?php } ?>
 	</p>
 <?php } else { ?>
 	<p>
