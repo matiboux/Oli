@@ -61,24 +61,23 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 
 /** Is Script State Allowed */
 /** EDIT PASSWORD: */
-	$isEditPasswordAllowed = $isLoggedIn OR !$isLocalLogin;
+	$isEditPasswordAllowed = ($isLoggedIn OR !$isLocalLogin);
 /** LOGGED IN (independent) */
 	// $isLoggedAllowed = $isLoggedIn;
 /** ACTIVATE (?) */
-	$isActivateAllowed = !$isLocalLogin AND $_Oli->config['account_activation'] AND $_Oli->config['allow_register'];
+	$isActivateAllowed = (!$isLocalLogin AND $_Oli->config['account_activation'] AND $_Oli->config['allow_register']);
 /** RECOVER (explicit) */
 	// $isRecoverAllowed = !$isLocalLogin;
 /** UNLOCK (independent) */
 	// $isUnlockAllowed = !$isLocalLogin; 
 /** REGISTER: */
-	$isRegisterAllowed = !$isLocalLogin AND $_Oli->config['allow_register'];
+	$isRegisterAllowed = (!$isLocalLogin AND $_Oli->config['allow_register']);
 /** REGISTER AS ROOT: */
 	if($isLocalLogin) $isRootRegisterAllowed = empty($_Oli->getLocalRootInfos());
 	else if($_Oli->config['allow_register']) $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
 	else $isRootRegisterAllowed = false;
 /** LOGIN: */
-	$isLoginAllowed = $isLocalLogin OR $_Oli->config['allow_login'];
-
+	$isLoginAllowed = ($isLocalLogin OR $_Oli->config['allow_login']);
 /** --- */
 
 $mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_Oli->getUrlParam('domain') . '>' . "\r\n";
