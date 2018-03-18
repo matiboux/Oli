@@ -2827,7 +2827,7 @@ class OliCore {
 					if($userRight == 'ROOT') return 1;
 					if($userRight == 1) return 'ROOT';
 					else return false;
-				} else if($this->isUserManagementReady() AND !empty($userRight)) {
+				} else if($this->isAccountsManagementReady() AND !empty($userRight)) {
 					if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
 					else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
 					else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
@@ -3262,7 +3262,7 @@ class OliCore {
 			 * @updated BETA-1.9.0
 			 * @return boolean Returns true if local.
 			 */
-			public function isUserManagementReady() {
+			public function isAccountsManagementReady() {
 				if($this->isSetupMySQL()) {
 					$status = [];
 					foreach($this->accountsTables as $eachTable) {
@@ -3280,7 +3280,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isLocalLogin() {
-				return !$this->isUserManagementReady() OR !$this->config['allow_login'];
+				return !$this->isAccountsManagementReady() OR !$this->config['allow_login'];
 			}
 			
 			/**

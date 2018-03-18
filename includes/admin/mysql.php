@@ -93,27 +93,22 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 		<p>
 			---
 			
-			<?php if(!$_Oli->config['allow_user_management']) { ?>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/settings/enable" class="btn btn-primary">Enable Settings</a>
-			<?php } else { ?>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/settings/disable" class="btn btn-danger">Disable Settings</a>
-			<?php } ?>
 		</p>
 	<?php }*/ ?>
 	
-	<?php if(!$_Oli->isUserManagementReady()) { ?>
+	<?php if(!$_Oli->isAccountsManagementReady()) { ?>
 		<p>
-			Your database does not allow your website to allow general user management.
-			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/user_management" class="btn btn-danger">Add User Management</a>
+			Your database does not allow your website to allow accounts management.
+			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/accounts_management" class="btn btn-danger">Add Accounts Management</a>
 		</p>
 	<?php } else { ?>
 		<p>
-			Your database allows general user management.
+			Your database allows accounts management.
 			
-			<?php if(!$_Oli->config['allow_user_management']) { ?>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/user_management/enable" class="btn btn-primary">Enable User Management</a>
+			<?php if(!$_Oli->config['allow_accounts_management']) { ?>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/accounts_management/enable" class="btn btn-primary">Enable Accounts Management</a>
 			<?php } else { ?>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/user_management/disable" class="btn btn-danger">Disable User Management</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/accounts_management/disable" class="btn btn-danger">Disable Accounts Management</a>
 			<?php } ?>
 		</p>
 	<?php } ?>
