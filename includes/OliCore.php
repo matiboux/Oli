@@ -555,8 +555,7 @@ class OliCore {
 			if($this->config['allow_mysql'] AND !empty($database)) {
 				try {
 					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
-					// $this->mysqlConfig = array('database' => $database, 'username' => $username, 'password' => $password, 'hostname' => $hostname, 'charset' => $charset);
-				} catch(PDOException $e) {
+				} catch(\PDOException $e) {
 					trigger_error($e->getMessage(), E_USER_ERROR);
 				}
 			} else return false;
