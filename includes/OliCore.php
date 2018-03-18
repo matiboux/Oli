@@ -240,7 +240,7 @@ class OliCore {
 	 * OliCore Class Destruct function
 	 * 
 	 * @version BETA
-	 * @updated BETA-1.8.0
+	 * @updated BETA-1.9.0
 	 * @return boolean Returns true if succeeded.
 	 */
 	public function __destruct() {
@@ -3292,7 +3292,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isAccountsManagementReady() {
-				if($this->isSetupMySQL() /*AND $this->config['user_management']*/) {
+				if($this->isSetupMySQL()) {
 					$status = [];
 					foreach($this->accountsTables as $eachTable) {
 						if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
