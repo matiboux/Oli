@@ -125,7 +125,7 @@ class OliCore {
 	private $readOnlyVars = [
 		'oliInfos', 'addonsInfos',
 		'debugStatus', 'config',
-		'db',
+		'db', 'dbError',
 		'fileNameParam', 'contentStatus'];
 	
 	/** Components infos */
@@ -138,7 +138,7 @@ class OliCore {
 	
 	/** Database Management */
 	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
-	private $mysqlConfig = null;
+	private $dbError = null; // MySQL PDO Error (PUBLIC READONLY)
 	
 	/** Accounts & Users Management */
 	private $accountsTables = array(
@@ -557,7 +557,7 @@ class OliCore {
 					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
 				} catch(\PDOException $e) {
 					return false;
-					// trigger_error($e->getMessage(), E_USER_ERROR);
+					$this->dbError = $e->getMessage();
 				}
 			} else return false;
 		}
@@ -566,12 +566,12 @@ class OliCore {
 		 * MySQL Connection Reset
 		 * 
 		 * @version BETA-1.8.0
-		 * @updated BETA-1.8.0
+		 * @updated BETA-1.9.0
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function resetMySQL() {
 			$this->db = null;
-			$this->mysqlConfig = null;
+			$this->dbError = null;
 		}
 	
 		/** ----------------- */
