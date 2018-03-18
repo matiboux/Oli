@@ -3263,11 +3263,13 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isUserManagementReady() {
-				$status = [];
-				foreach($this->accountsTables as $eachTable) {
-					if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
-				}
-				return !in_array(false, $status, true);
+				if($this->isSetupMySQL()) {
+					$status = [];
+					foreach($this->accountsTables as $eachTable) {
+						if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
+					}
+					return !in_array(false, $status, true);
+				} else return false;
 			}
 			
 			/**
@@ -3278,7 +3280,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isLocalLogin() {
-				return !$this->isSetupMySQL() OR !$this->config['allow_login'] OR !$this->isUserManagementReady();
+				return !$this->isUserManagementReady() OR !$this->config['allow_login'];
 			}
 			
 			/**
