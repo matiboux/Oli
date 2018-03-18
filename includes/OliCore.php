@@ -260,6 +260,19 @@ class OliCore {
 		else return null;
     }
 	
+	/**
+	 * OliCore Class Is Set variables management
+	 * → Fix the empty() false negative issue on inaccessible variables.
+	 * 
+	 * @version BETA
+	 * @updated BETA-1.9.0
+	 * @return boolean Returns true if succeeded.
+	 */
+    public function __isset($whatVar) {
+        if(in_array($whatVar, $this->readOnlyVars)) return empty($this->$whatVar) === false;
+        else return null;
+    }
+	
 	/** __toString() function:
 		See the section V. 1. */
 	
