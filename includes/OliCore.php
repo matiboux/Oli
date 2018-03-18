@@ -719,12 +719,19 @@ class OliCore {
 		/**  IV. 2. Read Functions  */
 		/** ----------------------- */
 		
-		/** Run a raw MySQL query */
-		public function runQueryMySQL($queryText, $fetchStyle = true) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare($queryText);
-			if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
-			else return $query->errorInfo();
+		/**
+		 * Run a raw MySQL Query
+		 * 
+		 * @version BETA-1.8.0
+		 * @updated BETA-1.9.0
+		 * @return boolean Returns true or the query returned content if succeeded.
+		 */
+		public function runQueryMySQL($query, $fetchAll = false, $fetchStyle = true) {
+			if($this->isSetupMySQL()) {
+				$query = $this->db->prepare($query);
+				if($query->execute()) return !$fetchAll ? true : $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
+				else return !$fetchAll ? false : $query->errorInfo();
+			} else return null;
 		}
 		
 		/** Get Data from table */
