@@ -2,8 +2,6 @@
 $_ = array_merge($_GET, $_POST);
 $result = [];
 
-// var_dump($_Oli->isExistTableMySQL('settings'));
-
 if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'));
 
 else if($_Oli->getUrlParam(2) == 'enable') {

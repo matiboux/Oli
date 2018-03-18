@@ -2,7 +2,7 @@
 $params = array_merge($_GET, $_POST);
 $result = [];
 
-if(!$_Oli->verifyAuthKey()) header('Location: ' . $_Oli->getUrlParam(0));
+if(!$_Oli->verifyAuthKey()) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'));
 
 ?>
 
