@@ -74,8 +74,9 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 	$isRegisterAllowed = (!$isLocalLogin AND $_Oli->config['allow_register']);
 /** REGISTER AS ROOT: */
 	if($isLocalLogin) $isRootRegisterAllowed = empty($_Oli->getLocalRootInfos());
-	else if($_Oli->config['allow_register']) $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
-	else $isRootRegisterAllowed = false;
+	else $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
+	// else if($_Oli->config['allow_register']) $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
+	// else $isRootRegisterAllowed = false;
 /** LOGIN: */
 	$isLoginAllowed = ($isLocalLogin OR $_Oli->config['allow_login']);
 /** --- */
