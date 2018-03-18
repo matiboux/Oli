@@ -1668,9 +1668,12 @@ class OliCore {
 		 * @return string|boolean Returns the requested setting if succeeded.
 		 */
 		public function getSetting($setting, $depth = 0) {
-			if(isset($this->db) AND !empty($this->config['settings_tables'])) {
+			$isExist = [];
+			if($this->isSetupMySQL() AND !empty($this->config['settings_tables'])) {
+				
 				foreach(($depth > 0 AND count($this->config['settings_tables']) > $depth) ? array_slice($this->config['settings_tables'], $depth) : $this->config['settings_tables'] as $eachTable) {
 					if($this->isExistTableMySQL($eachTable)) {
+						$isExist[] = true;
 						if(isset($setting)) {
 							$optionResult = $this->getInfosMySQL($eachTable, 'value', array('name' => $setting));
 							if(!empty($optionResult)) {
@@ -1678,9 +1681,10 @@ class OliCore {
 								else return $optionResult;
 							}
 						} else return false; //$this->getInfosMySQL($eachTable, ['name', 'value']);
-					}
+					} else $isExist[] = false;
 				}
-			} else return $this->config['settings'][$setting];
+			}
+			if(!in_array(true, $isExist, true)) return $this->config['settings'][$setting];
 		}
 		/** * @alias OliCore::getSetting() */
 		public function getOption($setting, $depth = 0) { return $this->getSetting($setting, $depth); }
