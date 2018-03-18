@@ -245,7 +245,7 @@ class OliCore {
 	 */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
-		if($this->config['user_management']) $this->updateUserSession();
+		if($this->isAccountsManagementReady()) $this->updateUserSession();
 	}
 	
 	/**
@@ -1450,7 +1450,7 @@ class OliCore {
 		 * @return string|void Returns the path to the file to include.
 		 */
 		public function loadContent() {
-			if($this->config['user_management']) {
+			if($this->isAccountsManagementReady()) {
 				if(!empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 				$this->initUserSession();
 			}
@@ -1628,7 +1628,7 @@ class OliCore {
 				if(!empty($fileName) AND !empty($accessRules[$fileName])) {
 					if(in_array($accessRules[$fileName]['DENY'], ['*', 'all'])) $result = false;
 					else if(in_array($accessRules[$fileName]['ALLOW'], ['*', 'all'])) $result = true;
-					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
+					else if($this->isAccountsManagementReady() AND $userRight = $this->getUserRightLevel()) {
 						if(!empty($accessRules[$fileName]['DENY']) AND ((empty($accessRules[$fileName]['DENY']['from']) OR (!empty($accessRules[$fileName]['DENY']['from']) AND $accessRules[$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['DENY']['to']) OR (!empty($accessRules[$fileName]['DENY']['to']) AND $accessRules[$fileName]['DENY']['to'] >= $userRight)))) $result = false;
 						else if(!empty($accessRules[$fileName]['ALLOW']) AND ((empty($accessRules[$fileName]['ALLOW']['from']) OR (!empty($accessRules[$fileName]['ALLOW']['from']) AND $accessRules[$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['ALLOW']['to']) OR (!empty($accessRules[$fileName]['ALLOW']['to']) AND $accessRules[$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
 					}
@@ -1637,7 +1637,7 @@ class OliCore {
 				if(!isset($result) AND !empty($accessRules['*'])) {
 					if(in_array($accessRules['*']['DENY'], ['*', 'all'])) $result = false;
 					else if(in_array($accessRules['*']['ALLOW'], ['*', 'all'])) $result = true;
-					else if($this->config['user_management'] AND $userRight = $this->getUserRightLevel()) {
+					else if($this->isAccountsManagementReady() AND $userRight = $this->getUserRightLevel()) {
 						if(!empty($accessRules['*']['DENY']) AND ((empty($accessRules['*']['DENY']['from']) OR (!empty($accessRules['*']['DENY']['from']) AND $accessRules['*']['DENY']['from'] <= $userRight)) XOR (!empty($accessRules['*']['DENY']['to']) OR (!empty($accessRules['*']['DENY']['to']) AND $accessRules['*']['DENY']['to'] >= $userRight)))) $result = false;
 						else if(!empty($accessRules['*']['ALLOW']) AND ((empty($accessRules['*']['ALLOW']['from']) OR (!empty($accessRules['*']['ALLOW']['from']) AND $accessRules['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules['*']['ALLOW']['to']) OR (!empty($accessRules['*']['ALLOW']['to']) AND $accessRules['*']['ALLOW']['to'] >= $userRight)))) $result = true;
 						else $result = $defaultResult;
@@ -2534,7 +2534,7 @@ class OliCore {
 		 * @return boolean Accounts management status
 		 */
 		public function getAccountsManagementStatus() {
-			return $this->config['user_management'];
+			return $this->isAccountsManagementReady();
 		}
 		
 		/** ----------------- */
@@ -3076,14 +3076,14 @@ class OliCore {
 			
 			/** Set Auth Key cookie */
 			public function setAuthKeyCookie($authKey, $expireDelay) {
-				// if(!$this->config['user_management']) echo 'DEBUG; setAuthKeyCookie; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; setAuthKeyCookie; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
 				return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
 			/** Delete Auth Key cookie */
 			public function deleteAuthKeyCookie() {
-				// if(!$this->config['user_management']) echo 'DEBUG; deleteAuthKeyCookie; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; deleteAuthKeyCookie; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
 				return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
@@ -3102,7 +3102,7 @@ class OliCore {
 			
 			/** Verify Auth Key validity */
 			public function verifyAuthKey($authKey = null, $userID = null) {
-				// if(!$this->config['user_management']) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
 				if(!empty($authKey = hash('sha512', $authKey ?: $this->getAuthKey()))) {
 					if($this->isLocalLogin()) $sessionInfos = $this->getLocalRootInfos();
@@ -3114,7 +3114,7 @@ class OliCore {
 			
 			/** Get Auth Key Owner */
 			public function getAuthKeyOwner($authKey = null, $userID = null) {
-				// if(!$this->config['user_management']) echo 'DEBUG; getAuthKeyOwner; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; getAuthKeyOwner; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
 				if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) {
 					if($this->isLocalLogin()) return $this->getLocalRootInfos()['username'];
@@ -3138,7 +3138,7 @@ class OliCore {
 			 * @return string|void Returns Oli Security Code if it was updated, false otherwise.
 			 */
 			public function initUserSession($setUserIDCookie = true) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if(!$this->isLocalLogin()) {
 					if(empty($userID = $this->getUserID() ?: null) OR !$this->isExistAccountInfos('SESSIONS', array('user_id' => $userID)) OR (!empty($authKey = $this->getAuthKey()) AND $this->getAccountInfos('SESSIONS', 'auth_key', array('user_id' => $userID)) != hash('sha512', $authKey))) {
 						$userID = $this->getAccountInfos('SESSIONS', 'user_id', array('auth_key' => hash('sha512', $authKey ?: $this->getAuthKey())));
@@ -3152,7 +3152,7 @@ class OliCore {
 			
 			/** Update User Session */
 			public function updateUserSession() {
-				// if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
 				return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
 			}
@@ -3163,13 +3163,13 @@ class OliCore {
 			
 			/** Set User ID cookie */
 			public function setUserIDCookie($authKey, $expireDelay = null) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
 			}
 			
 			/** Delete User ID cookie */
 			public function deleteUserIDCookie() {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
 			}
 			
@@ -3199,7 +3199,7 @@ class OliCore {
 			
 			/** Create a new request */
 			public function createRequest($username, $action, &$requestTime = null) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else {
 					$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
 					$requestsMatches['username'] = $username;
@@ -3225,7 +3225,7 @@ class OliCore {
 			/** Register a new account */
 			// $mailInfos = [ $subject, $message, $headers ]
 			public function registerAccount($username, $password, $email, ...$mailInfos) {
-				if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else if(!$this->config['allow_register']) trigger_error('Sorry, the registering has been disabled.', E_USER_ERROR);
 				else if(!empty($username) AND !empty($password) AND !empty($email)) {
 					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false))) $this->deleteFullAccount(array('username' => $username));
@@ -3292,7 +3292,7 @@ class OliCore {
 			 * @return boolean Returns true if local.
 			 */
 			public function isAccountsManagementReady() {
-				if($this->isSetupMySQL()) {
+				if($this->isSetupMySQL() /*AND $this->config['user_management']*/) {
 					$status = [];
 					foreach($this->accountsTables as $eachTable) {
 						if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
@@ -3339,7 +3339,7 @@ class OliCore {
 					$rootUserInfos = $this->getLocalRootInfos();
 					return strtolower($username) == strtolower($rootUserInfos['username']) AND password_verify($password, $rootUserInfos['password']);
 				} else {
-					// if(!$this->config['user_management']) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+					// if(!$this->isAccountsManagementReady()) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 					// else 
 					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
 					else return false;
@@ -3354,7 +3354,7 @@ class OliCore {
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
-				// if(!$this->config['user_management']) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else if(!$this->config['allow_login']) echo 'DEBUG; loginAccount; login management disabled. <br />';// trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
 				// else
 				if($this->verifyLogin($username, $password)) {
@@ -3393,7 +3393,7 @@ class OliCore {
 			
 			/** Logout account */
 			public function logoutAccount() {
-				// if(!$this->config['user_management']) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
 				if(!empty($authKey = $this->getAuthKey())) {
 					if($this->isLocalLogin()) {
