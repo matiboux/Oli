@@ -372,7 +372,7 @@ class OliCore {
 			if(!empty($config) AND is_array($config)) {
 				if($config != array_merge($defaultConfig, $config)) $this->saveConfig($loadedConfig = array_merge($defaultConfig, $config));
 				else $loadedConfig = $config;
-			} else if($this->saveConfig($defaultConfig)) $loadedConfig = $defaultConfig;
+			} else $this->saveConfig($loadedConfig = $defaultConfig);
 			
 			$decodedConfig = null;
 			if(!empty($loadedConfig)) {
