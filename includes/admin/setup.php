@@ -47,7 +47,7 @@ if(!empty($params)) {
 </head>
 <body>
 
-<p><u><b>Script logs</b>:</u> <code><?=json_encode(!empty($result) ? $result : array('error' => 'Unknown script result.'), JSON_FORCE_OBJECT)?></code></p>
+<?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
 
 <?php if(!empty($result) AND $result['error'] !== false) { ?>
 	<h1>Oli Initial Setup —</h1>
