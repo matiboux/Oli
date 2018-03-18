@@ -724,13 +724,16 @@ class OliCore {
 		 * 
 		 * @version BETA-1.8.0
 		 * @updated BETA-1.9.0
-		 * @return boolean Returns true or the query returned content if succeeded.
+		 * @return boolean Returns the query result content or true if succeeded.
 		 */
-		public function runQueryMySQL($query, $fetchAll = false, $fetchStyle = true) {
+		public function runQueryMySQL($query, $fetchStyle = true) {
 			if($this->isSetupMySQL()) {
 				$query = $this->db->prepare($query);
-				if($query->execute()) return !$fetchAll ? true : $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
-				else return !$fetchAll ? false : $query->errorInfo();
+				if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null)) ?: true;
+				else {
+					$this->dbError = $query->errorInfo();
+					return false;
+				}
 			} else return null;
 		}
 		
