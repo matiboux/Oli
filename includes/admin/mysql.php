@@ -4,7 +4,24 @@ $result = [];
 
 if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'));
 
-else if($_Oli->getUrlParam(2) == 'enable') {
+else if($_Oli->getUrlParam(2) == 'basics') {
+	if($_Oli->isExistTableMySQL('settings')) $result = array('error' => 'Error: The "settings" table already exists.');
+	if($_Oli->isExistTableMySQL('shortcut_links')) $result = array('error' => 'Error: The "shortcut_links" table already exists.');
+	else {
+		if($_Oli->runQueryMySQL(file_get_contents(INCLUDESPATH . 'admin/basics.default.sql'))) $result = array('error' => false);
+		else $result = array('error' => 'Error: Could not install the basic mysql config.', 'db_error' => $_Oli->dbError);
+	}
+} else if($_Oli->getUrlParam(2) == 'accounts_management') {
+	if($_Oli->getUrlParam(2) == 'enable') {
+		// if($_Oli->updateConfig(array('allow_accounts_management' => true), true, false)) $result = array('error' => false, 'database' => $_['database']);
+		// else $result = array('error' => 'Error: Could not enable the MySQL management.');
+	} else if($_Oli->getUrlParam(2) == 'disable') {
+		// if($_Oli->updateConfig(array('allow_accounts_management' => false), true, false)) $result = array('error' => false, 'database' => $_['database']);
+		// else $result = array('error' => 'Error: Could not disable the MySQL management.');
+	} else if(!$this->isAccountsManagementReady()) {
+		
+	}
+} else if($_Oli->getUrlParam(2) == 'enable') {
 	if($_Oli->updateConfig(array('allow_mysql' => true), true, false)) $result = array('error' => false, 'database' => $_['database']);
 	else $result = array('error' => 'Error: Could not enable the MySQL management.');
 } else if($_Oli->getUrlParam(2) == 'disable') {
@@ -48,7 +65,7 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 
 <?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
 
-<?php var_dump($_Oli->db); ?>
+<?php var_dump($_Oli->getSetting('url')); ?>
 
 <h1>Oli Config: MySQL —</h1>
 <p>Update your website mysql settings.</p>
@@ -84,17 +101,12 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 		Your website <b>is connected</b> to the "<?=$_Oli->config['mysql']['database']?>" database.
 	</p>
 	
-	<?php /*if( ! settings ) { ?>
+	<?php if(!$_Oli->isExistTableMySQL('settings') OR !$_Oli->isExistTableMySQL('shortcut_links')) { ?>
 		<p>
-			Your database cannot store your website settings.
-			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/settings" class="btn btn-danger">Add Settings</a>
+			Your database does not have the basic tables.
+			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/basics" class="btn btn-danger">Add the Basics</a>
 		</p>
-	<?php } else { ?>
-		<p>
-			---
-			
-		</p>
-	<?php }*/ ?>
+	<?php } ?>
 	
 	<?php if(!$_Oli->isAccountsManagementReady()) { ?>
 		<p>
