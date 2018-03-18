@@ -2816,15 +2816,6 @@ class OliCore {
 			}
 			
 			/**
-			 * Translate user right
-			 * 
-			 * @param string $userRight User right to translate
-			 * @param boolean|void $caseSensitive Translate is case sensitive or not
-			 * 
-			 * @uses OliCore::getAccountInfos() to get infos from account table
-			 * @return string|boolean Returns translated user right
-			 */
-			/**
 			 * Translate User Right
 			 * 
 			 * @version BETA
@@ -2836,15 +2827,12 @@ class OliCore {
 					if($userRight == 'ROOT') return 1;
 					if($userRight == 1) return 'ROOT';
 					else return false;
-				} else {
-					if(!empty($userRight)) {
-						if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
-						else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
-						else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
-						else return false;
-					}
+				} else if($this->isUserManagementReady() AND !empty($userRight)) {
+					if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
+					else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
+					else if($returnValue = $this->getAccountInfos('RIGHTS', 'id', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
 					else return false;
-				}
+				} else return false;
 			}
 			
 			/** DEPRECATED Get Right Level */
@@ -2909,7 +2897,7 @@ class OliCore {
 			 * @return string Returns the user right.
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
-				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return 'ROOT';
+				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->verifyAuthKey() ? 'ROOT' : 'USER';
 				else {
 					if(empty($where)) {
 						if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
@@ -2917,7 +2905,8 @@ class OliCore {
 					}
 					else if(!is_array($where)) $where = array('username' => $where);
 					
-					return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
+					if(!empty($where)) return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
+					else return false;
 				}
 			}
 			
@@ -3276,9 +3265,9 @@ class OliCore {
 			public function isUserManagementReady() {
 				$status = [];
 				foreach($this->accountsTables as $eachTable) {
-					if(!$status[] = $_Oli->isExistTableMySQL($eachTable)) break;
+					if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
 				}
-				return in_array($status, false, true);
+				return !in_array(false, $status, true);
 			}
 			
 			/**
