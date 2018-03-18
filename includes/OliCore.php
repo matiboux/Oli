@@ -762,7 +762,7 @@ class OliCore {
 		 */
 		public function getFirstInfoMySQL($table, $whatVar, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table);
-			if(!empty($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
 			else return false;
 		}
 		
@@ -777,7 +777,7 @@ class OliCore {
 		 */
 		public function getFirstLineMySQL($table, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table);
-			if(!empty($dataMySQL)) {
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL[0] as $eachKey => $eachValue) {
 					$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
 				}
@@ -797,7 +797,7 @@ class OliCore {
 		 */
 		public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
-			if(!empty($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
 			else return false;
 		}
 		
@@ -812,7 +812,7 @@ class OliCore {
 		 */
 		public function getLastLineMySQL($table, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
-			if(!empty($dataMySQL)) {
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL[0] as $eachKey => $eachValue) {
 					$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
 				}
@@ -853,7 +853,7 @@ class OliCore {
 			$valueArray = [];
 			$status = [];
 			$countRows = 0;
-			if(!empty($dataMySQL)) {
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL as $eachLineKey => $eachLine) {
 					if($eachLine['id'] < $startFromId) continue;
 					
@@ -970,7 +970,7 @@ class OliCore {
 			$valueArray = [];
 			$status = [];
 			$countRows = 0;
-			if(!empty($dataMySQL)) {
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL as $eachLineKey => $eachLine) {
 					if($eachLine['id'] < $startFromId) continue;
 					
@@ -1115,7 +1115,7 @@ class OliCore {
 			$dataMySQL = $this->getDataMySQL($table);
 			$valueArray = [];
 			$status = [];
-			if(!empty($dataMySQL)) {
+			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL as $eachLineKey => $eachLine) {
 					$status[$eachLineKey] = [];
 					if(!empty($where)) {
