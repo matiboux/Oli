@@ -4,6 +4,8 @@
 	
 	"allow_mysql": false,
 	"mysql": null,
+	
+	"settings_tables": ["settings"],
 	"settings": null,
 	
 	"index_file": "index.php",
@@ -24,9 +26,6 @@
 	"cdn_url": null,
 	
 	
-	"allow_login": true,
-	"allow_register": false,
-	"prohibited_usernames": [],
 	"accounts_tables": {
 		"accounts": "accounts",
 		"infos": "accounts_infos",
@@ -35,6 +34,25 @@
 		"log_limits": "accounts_log_limits",
 		"rights": "accounts_rights",
 		"permissions": "accounts_permissions"
+	},
+	
+	"allow_login": true,
+	"allow_register": false,
+	"default_user_right": "USER",
+	"prohibited_usernames": [],
+	
+	"request_expire_delay": "Time:2 days",
+	"default_session_duration": "Time:1 day",
+	"extended_session_duration": "Time:7 days",
+		
+	"associated_websites": [],
+	
+	"user_id_length": 16,
+	"user_id_cookie": {
+		"name": "OliUserID",
+		"domain": "UrlParam:fulldomain",
+		"secure": false,
+		"http_only": false
 	},
 	
 	"auth_key_length": 32,
