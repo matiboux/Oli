@@ -38,7 +38,7 @@
 	
 	"allow_login": true,
 	"allow_register": false,
-	"default_user_right": "USER",
+	"account_activation": false,
 	"prohibited_usernames": [],
 	
 	"request_expire_delay": "Time:2 days",

@@ -3225,61 +3225,92 @@ class OliCore {
 			public function isRegisterVerificationEnabled() { return $this->config['account_activation']; }
 			public function getRegisterVerificationStatus() { return $this->config['account_activation']; }
 			
-			/** Register a new account */
-			// $mailInfos = [ $subject, $message, $headers ]
-			public function registerAccount($username, $password, $email, ...$mailInfos) {
-				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!$this->config['allow_register']) trigger_error('Sorry, the registering has been disabled.', E_USER_ERROR);
-				else if(!empty($username) AND !empty($password) AND !empty($email)) {
-					if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false))) $this->deleteFullAccount(array('username' => $username));
-					else if($this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false) AND $this->getUserRightLevel(array('email' => $email)) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $email))), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $email))))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $email))), false))) $this->deleteFullAccount(array('email' => $email));
+			/**
+			 * Register a new Account
+			 * 
+			 * $mailInfos syntax: (array) [ subject, message, headers ]
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return string|boolean Returns the activate key or true if succeeded, false otherwise.
+			 */
+			public function registerAccount($username, $password, $email, $oliSC = null, $mailInfos = []) {
+				if(!empty($username) AND !empty($password)) {
+					if(is_array($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 					
-					if(!$this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false)
-					AND !$this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false)) {
-						if($this->isExistAccountInfos('REQUESTS', $username, false) OR $this->isExistAccountInfos('REQUESTS', $username, false) OR $this->isExistAccountInfos('REQUESTS', $username, false)) $this->deleteAccountLines('REQUESTS', array('username' => $this->getAccountInfos('INFOS', $username, false)));
-						
-						$this->insertAccountLine('ACCOUNTS', array('id' => $this->getLastAccountInfo('ACCOUNTS', 'id') + 1, 'username' => $username, 'password' => $this->hashPassword($password), 'email' => $email, 'register_date' => date('Y-m-d H:i:s'), 'user_right' => $this->config['default_user_right']));
-						$this->insertAccountLine('INFOS', array('id' => $this->getLastAccountInfo('INFOS', 'id') + 1, 'username' => $username));
-						
-						if($this->config['account_activation']) $activateKey = $this->createRequest($username, 'activate');
-						
-						$subject = (is_array($mailInfos[0]) ? $mailInfos[0]['subject'] : $mailInfos[0]) ?: 'Your account has been created!';
-						$message = (is_array($mailInfos[0]) ? $mailInfos[0]['message'] : $mailInfos[1]) ?: null;
-						if(!isset($message)) {
-							$message .= '<p>Congratulations, <b>your account has been successfully created</b>! ♫</p>';
-							if(!empty($activateKey)) {
-								$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
-								$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . ($days = floor($this->config['request_expire_delay'] /3600 /24)) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same username or email you used.</p>';
-							} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->getUrlParam(0) . 'login/">our login page</a>, using your username or email, and – of course – your password.</p>';
-							if(!empty($this->config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
+					if(!empty($oliSC) AND $oliSC == $this->getOliSecurityCode()) $isRootRegister = true;
+					else if(!$this->isAccountsManagementReady() AND !$this->config['allow_register']) $isRootRegister = false;
+					else $isRootRegister = null;
+					
+					if($isRootRegister !== null) {
+						if($this->isLocalLogin()) {
+							if($isRootRegister AND empty($this->getOliSecurityCode()) AND !empty($hashedPassword = $this->hashPassword($password))) {
+								$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+								$result = fwrite($handle, json_encode(array('username' => $username, 'password' => $hashedPassword), JSON_FORCE_OBJECT));
+								fclose($handle);
+								
+								return $result ? true : false;
+							} else return false;
+						} else if(!empty($email) AND $this->isAccountsManagementReady() AND ($this->config['allow_register'] OR $isRootRegister)) {
+							if($this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND $this->getUserRightLevel($username) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $username), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $username))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $username), false))) $this->deleteFullAccount(array('username' => $username));
+							else if($this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false) AND $this->getUserRightLevel(array('email' => $email)) == $this->translateUserRight('NEW-USER') AND (($this->isExistAccountInfos('REQUESTS', array('username' => $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $email))), false) AND strtotime($this->getAccountInfos('REQUESTS', 'expire_date', array('username' => $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $email))))) < time()) OR !$this->isExistAccountInfos('REQUESTS', array('username' => $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $email))), false))) $this->deleteFullAccount(array('email' => $email));
 							
-							$message .= '<p>Your username: <i>' . $username . '</i> <br />';
-							$message .= 'Your email: <i>' . $email . '</i> <br />';
-							$message .= 'Your rights: <i>' . $this->config['default_user_right'] . '</i></p>';
-							$message .= '<p>Your password is kept secret and stored hashed in our database. <b>Do not give your password to anyone</b>, including our staff.</p> <hr />';
-							
-							$message .= '<p>Go on our website – <a href="' . $this->getUrlParam(0) . '">' . $this->getUrlParam(0) . '</a> <br />';
-							$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/">' . $this->getUrlParam(0) . 'login/</a> <br />';
-							if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover">' . $this->getUrlParam(0) . 'login/recover</a></p>';
-						}
-						
-						$headers = (is_array($mailInfos[0]) ? $mailInfos[0]['headers'] : $mailInfos[2]) ?: [
-							'MIME-Version: 1.0',
-							'Content-type: text/html; charset=UTF-8',
-							'From: noreply@' . $this->getUrlParam('domain'),
-							'X-Mailer: PHP/' . phpversion()
-						];
-						if(is_array($headers)) implode("\r\n", $headers);
-						
-						$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
-						
-						if($mailResult) return true;
-						else {
-							$this->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $activateKey)));
-							$this->deleteFullAccount($username);
-							return false;
-						}
-					} else return false; 
+							if(!$this->isExistAccountInfos('ACCOUNTS', array('username' => $username), false) AND !$this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false) AND (!$isRootRegister OR !$this->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false)) AND !empty($hashedPassword = $this->hashPassword($_['password']))) {
+								// what??
+								// if($this->isExistAccountInfos('REQUESTS', $username, false) OR $this->isExistAccountInfos('REQUESTS', $username, false) OR $this->isExistAccountInfos('REQUESTS', $username, false)) $this->deleteAccountLines('REQUESTS', array('username' => $this->getAccountInfos('INFOS', $username, false)));
+								
+								/** Delete all data associated with this username */
+								// → Not any data should exist, as the username doesn't in the "ACCOUNTS" table.
+								$this->deleteFullAccount($username);
+								
+								/** Set User Right */
+								$userRight = $isRootRegister ? 'ROOT' : (!$this->config['account_activation'] ? 'USER' : 'NEW-USER');
+								
+								/** Register Account */
+								$this->insertAccountLine('ACCOUNTS', array('username' => $username, 'password' => $hashedPassword, 'email' => $email, 'register_date' => date('Y-m-d H:i:s'), 'user_right' => $userRight));
+								$this->insertAccountLine('INFOS', array('username' => $username));
+								
+								/** Generate Activate Key (if activation needed) */
+								if($this->config['account_activation']) $activateKey = $this->createRequest($username, 'activate');
+								
+								$subject = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['subject'] : 'Your account has been created!';
+								$message = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['message'] : null;
+								if(!isset($message)) {
+									$message .= '<p><b>Welcome ' . $username . '</b>, your account has been successfully created! ♫</p>';
+									if(!empty($activateKey)) {
+										$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
+										$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . ($days = floor($this->config['request_expire_delay'] /3600 /24)) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same username or email you used.</p>';
+									} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->getUrlParam(0) . 'login/">our login page</a>, using your username or email, and – of course – your password.</p>';
+									if(!empty($this->config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
+									
+									$message .= '<p>Your username: <i>' . $username . '</i> <br />';
+									$message .= 'Your hashed password (what we keep stored): <i>' . $hashedPassword . '</i> <br />';
+									$message .= 'Your email: <i>' . $email . '</i> <br />';
+									$message .= 'Your right level: <i>' . $userRight . '</i></p>';
+									$message .= '<p>Your password is kept secret and stored hashed in our database. <b>Do not give your password to anyone</b>, including our staff.</p> <hr />';
+									
+									$message .= '<p>Go on our website – <a href="' . $this->getUrlParam(0) . '">' . $this->getUrlParam(0) . '</a> <br />';
+									$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/">' . $this->getUrlParam(0) . 'login/</a> <br />';
+									if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover">' . $this->getUrlParam(0) . 'login/recover</a></p>';
+								}
+								$headers = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['headers'] : [
+									'MIME-Version: 1.0',
+									'Content-type: text/html; charset=utf-8',
+									'From: noreply@' . $this->getUrlParam('domain'),
+									'X-Mailer: PHP/' . phpversion()
+								];
+								if(is_array($headers)) $headers = implode("\r\n", $headers);
+								
+								$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
+								
+								if($mailResult) return !empty($activateKey) ? $activateKey : true;
+								else { echo 'xxx';
+									$this->deleteFullAccount($username);
+									return false;
+								}
+							} else return false; 
+						} else return false;
+					} else return false;
 				} else return false;
 			}
 			

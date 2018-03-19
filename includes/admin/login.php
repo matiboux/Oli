@@ -74,16 +74,11 @@ $isLoggedIn = $_Oli->verifyAuthKey();
 	$isRegisterAllowed = (!$isLocalLogin AND $_Oli->config['allow_register']);
 /** REGISTER AS ROOT: */
 	if($isLocalLogin) $isRootRegisterAllowed = empty($_Oli->getLocalRootInfos());
-	else $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
+	else $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false);
 	// else if($_Oli->config['allow_register']) $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
 	// else $isRootRegisterAllowed = false;
 /** LOGIN: */
 	$isLoginAllowed = ($isLocalLogin OR $_Oli->config['allow_login']);
-/** --- */
-
-$mailHeaders = 'From: Noreply ' . $_Oli->getSetting('name') . ' <noreply@' . $_Oli->getUrlParam('domain') . '>' . "\r\n";
-$mailHeaders .= 'MIME-Version: 1.0' . "\r\n";
-$mailHeaders .= 'Content-type: text/html; charset=utf-8';
 
 /** --- */
 
@@ -304,44 +299,28 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
 		
-		/** Local Root Register */
-		// else if($isRootRegisterState AND isset($_['olisc'])) {
-		else if($isRootRegisterState AND isset($_['olisc'])) {
-			if(empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
-			else if($_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
-			else if($isLocalLogin) {
-				if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:Your password couldn\'t be hashed.';
-				else {
-					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-					fwrite($handle, json_encode(array('username' => $_['username'], 'password' => $hashedPassword), JSON_FORCE_OBJECT));
-					fclose($handle);
-					
-					$scriptState = 'login';
-					$ignoreFormData = true;
-					$isRootRegisterAllowed = false;
-					$resultCode = 'S:Your account has been successfully created as a root and local account.';
-				}
-			} else $resultCode = 'W:Root register with database is not yet supported.';
+		/** Root Register Checks */
+		if($isRootRegisterState AND empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
+		else if($isRootRegisterState AND $_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 		
-		// else if($isRootRegisterAllowed AND isset($_['olisc']) AND empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
-		// else if($isRootRegisterAllowed AND isset($_['olisc']) AND $_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
+		/** Not Local Login Checks */
+		else if(!$isLocalLogin AND empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
+		else if(!$isLocalLogin AND !preg_match('/^[-_a-z0-9]+(?:\.?[-_a-z0-9]+)*@[^\s]+(?:\.[a-z]+)$/i', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
+		else if(!$isLocalLogin AND $_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, this username is already associated with an existing account.';
+		else if(!$isLocalLogin AND $_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['email']), false)) $resultCode = 'E:Sorry, this email is already associated with an existing account.';
+		else if(!$isLocalLogin AND $isRootRegisterState AND $_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false)) $resultCode = 'E:Sorry, there is already an existing root account.';
 		
-		/** Classic Register */
-		// } else if($isRegisterState AND isset($_['email'])) {
-		} else if($isRegisterState) {
-			if(empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
-			else if(!preg_match('/^[-_a-z0-9]+(?:\.?[-_a-z0-9]+)*@[^\s]+(?:\.[a-z]+)$/i', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
-			else if($_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, the username you choose is already associated with an existing account.';
-			else if($_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['email']), false)) $resultCode = 'E:Sorry, the email you entered is already associated with an existing account.';
-			else if($_Oli->registerAccount($_['username'], $_['password'], $_['email'], array('headers' => $mailHeaders))) {
-				$scriptState = 'login';
-				$ignoreFormData = true;
-				if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created and a mail has been sent to <b>' . $_['email'] . '</b>.';
-				else $resultCode = 'S:Your account has been successfully created; you can now log into it.';
-			} else $resultCode = 'E:An error occurred while creating your account.';
-		
-		/** An error occurred..? */
-		} else $resultCode = 'E:An error occurred..?';
+		/** Global Register */
+		else if($_Oli->registerAccount($_['username'], $_['password'], !$isLocalLogin ? $_['email'] : null, $isRootRegisterState ? $_['olisc'] : null)) {
+			$scriptState = 'login';
+			$ignoreFormData = true;
+			
+			if($isRootRegisterState) {
+				$isRootRegisterAllowed = false;
+				$resultCode = 'S:Your account has been successfully created as a root account.';
+			} else if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created. You received an email to activate your account.';
+			else $resultCode = 'S:Your account has been successfully created. You can now log in.';
+		} else $resultCode = 'E:An error occurred while creating your account..';
 	}
 
 /** Login */
@@ -700,6 +679,7 @@ ob_end_clean(); ?>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
 					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" /><?php } ?>
 					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" />
 					<button type="submit">Register as Root</button>
 				</form>
