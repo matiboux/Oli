@@ -273,8 +273,16 @@ class OliCore {
         else return null;
     }
 	
-	/** __toString() function:
-		See the section V. 1. */
+	/**
+	 * OliCore Class to String function
+	 * 
+	 * @version BETA
+	 * @updated BETA-1.9.0
+	 * @return string Returns a short description of Oli.
+	 */
+	public function __toString() {
+		return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (v. ' . $this->oliInfos['version'] . ')';
+	}
 	
 	/** *** *** *** */
 	
@@ -1414,11 +1422,6 @@ class OliCore {
 		/** ------------------------ */
 		/**  V. 1. Oli Informations  */
 		/** ------------------------ */
-		
-		/** Magic __toString function */
-		public function __toString() {
-			return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (v. ' . $this->oliInfos['version'] . ')';
-		}
 		
 		/** Get Oli Infos */
 		public function getOliInfos($whatInfo = null) {
