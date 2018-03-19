@@ -1417,7 +1417,7 @@ class OliCore {
 		
 		/** Magic __toString function */
 		public function __toString() {
-			return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (' . $this->oliInfos['url'] . ') — Running version ' . $this->oliInfos['version'];
+			return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (v. ' . $this->oliInfos['version'] . ')';
 		}
 		
 		/** Get Oli Infos */

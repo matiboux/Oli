@@ -727,7 +727,7 @@ ob_end_clean(); ?>
 </div>
 
 <div id="footer">
-	<p>Powered by <a href="https://github.com/OliFramework/Oli">Oli</a>, an open source PHP framework</p>
+	<p><?=$_Oli?></p>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
