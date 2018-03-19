@@ -193,9 +193,9 @@ class OliCore {
 	public function __construct($initTimestamp = null) {
 		/** Define primary constants */
 		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.'); // Defined in load.php
-		if(!defined('INCLUDESPATH')) die('Oli Error: INCLUDESPATH is not defined.'); // Defined in load.php
 		if(!defined('ADDONSPATH')) die('Oli Error: ADDONSPATH is not defined.'); // Defined in load.php
-		if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
+		if(!defined('INCLUDESPATH')) die('Oli Error: INCLUDESPATH is not defined.'); // Defined in load.php
+		if(!defined('CONTENTPATH')) die('Oli Error: CONTENTPATH is not defined.'); // Defined in load.php
 		
 		/** Load Oli Infos */
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);

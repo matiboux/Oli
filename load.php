@@ -46,8 +46,9 @@ if($oliPath == null) { ?>
 if(!defined('OLIPATH')) define('OLIPATH', $oliPath ?: ABSPATH);
 unset($oliPath);
 
-if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
 if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
+if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
+if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 
 /** Get Website Config */
 // if(!file_exists(INCLUDESPATH . 'config/config.json') OR filemtime(ABSPATH . 'config.json') > filemtime(INCLUDESPATH . 'config/config.json')) {
