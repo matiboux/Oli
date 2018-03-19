@@ -862,8 +862,9 @@ class OliCore {
 			$status = [];
 			$countRows = 0;
 			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+				$id = 0;
 				foreach($dataMySQL as $eachLineKey => $eachLine) {
-					if($eachLine['id'] < $startFromId) continue;
+					if((!empty($eachLine['id']) ? $id = $eachLine['id'] : ++$id) < $startFromId) continue;
 					
 					$status[$eachLineKey] = [];
 					if(!empty($where) AND is_array($where)) {
@@ -979,8 +980,9 @@ class OliCore {
 			$status = [];
 			$countRows = 0;
 			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+				$id = 0;
 				foreach($dataMySQL as $eachLineKey => $eachLine) {
-					if($eachLine['id'] < $startFromId) continue;
+					if((!empty($eachLine['id']) ? $id = $eachLine['id'] : ++$id) < $startFromId) continue;
 					
 					$status[$eachLineKey] = [];
 					if(isset($where) AND is_array($where)) {
