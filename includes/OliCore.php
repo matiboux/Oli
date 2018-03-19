@@ -188,7 +188,7 @@ class OliCore {
 	 * 
 	 * @version BETA
 	 * @updated BETA-1.9.0
-	 * @return boolean Returns true if succeeded.
+	 * @return void
 	 */
 	public function __construct($initTimestamp = null) {
 		/** Define primary constants */
@@ -241,7 +241,7 @@ class OliCore {
 	 * 
 	 * @version BETA
 	 * @updated BETA-1.9.0
-	 * @return boolean Returns true if succeeded.
+	 * @return void
 	 */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
@@ -253,7 +253,7 @@ class OliCore {
 	 * 
 	 * @version BETA
 	 * @updated BETA-1.9.0
-	 * @return boolean Returns true if succeeded.
+	 * @return mixed Returns the requested variable value if is allowed to read, null otherwise.
 	 */
 	public function __get($whatVar) {
 		if(in_array($whatVar, $this->readOnlyVars)) return $this->$whatVar;
@@ -266,7 +266,7 @@ class OliCore {
 	 * 
 	 * @version BETA
 	 * @updated BETA-1.9.0
-	 * @return boolean Returns true if succeeded.
+	 * @return mixed Returns true if the requested variable isn't empty and if is allowed to read, null otherwise.
 	 */
     public function __isset($whatVar) {
         if(in_array($whatVar, $this->readOnlyVars)) return empty($this->$whatVar) === false;
