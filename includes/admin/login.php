@@ -1,4 +1,7 @@
 <?php
+var_dump($_Oli->getUserID());
+var_dump($_Oli->getAuthKey());
+var_dump($_Oli->isLoggedIn());
 /*\
 |*|  ----------------------------
 |*|  --- [  Oli Login page  ] ---
@@ -363,10 +366,11 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 					// else header('Location: ' . $_Oli->getUrlParam(0));
 					
 					$scriptState = 'logged';
+					$isLoggedIn = true;
 					$resultCode = 'S:You are now succesfully logged in.';
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
-				if(!$isLocalLogin) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
+				// if(!$isLocalLogin) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
 				$resultCode = 'E:Sorry, the password you used is wrong.';
 			}
 		}
