@@ -2,7 +2,7 @@
 	"name": "Oli",
 	"alt_names": ["Oli Framework", "Oli PHP Framework"],
 	"short_description": "an open source PHP framework",
-	"description": "Oli is an open source PHP framework made to help web developers creating their website",
+	"description": "Oli is an open source PHP framework made to help you create your website.",
 	"version": "beta-2.0.0",
 	
 	"url": "https://github.com/OliFramework/Oli/",
