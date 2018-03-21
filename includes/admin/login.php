@@ -539,6 +539,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<?php /*<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Logout from your account</h2>
+				<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?><p><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/')?>">Access the Oli Admin panel</a>.</p><?php } ?>
+				<p><a href="<?=$_Oli->getUrlParam(0)?>">Access the website</a>.</p>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
 					<button type="submit">Logout</button>
 				</form>
