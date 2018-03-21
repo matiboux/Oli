@@ -173,10 +173,6 @@ class OliCore {
 	private $cache = [];
 	
 	
-	/** DEPRECATED – For backward compatibility only */
-	private $userID = null; // User ID
-	
-	
 	/** *** *** *** */
 	
 	/** ------------------- */
@@ -245,7 +241,7 @@ class OliCore {
 	 */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
-		if($this->isAccountsManagementReady()) $this->updateUserSession();
+		// if($this->isAccountsManagementReady()) $this->updateUserSession();
 	}
 	
 	/**
@@ -2294,7 +2290,7 @@ class OliCore {
 			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
 			
 			if(!isset($where)) {
-				if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+				if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 				else return false;
 			}
 			else if(!is_array($where)) $where = array('username' => $where);
@@ -2317,7 +2313,7 @@ class OliCore {
 		 */
 		public function getUserLanguage($where = null, $caseSensitive = true) {
 			if(!isset($where)) {
-				if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+				if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 				else return false;
 			}
 			else if(!is_array($where)) $where = array('username' => $where);
@@ -2651,7 +2647,7 @@ class OliCore {
 			 */
 			public function getAccountLines($tableCode, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
@@ -2675,7 +2671,7 @@ class OliCore {
 			 */
 			public function getAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
@@ -2698,7 +2694,7 @@ class OliCore {
 			 */
 			public function getSummedAccountInfos($tableCode, $whatVar, $where = null, $caseSensitive = true) {
 				if(!isset($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
@@ -2720,7 +2716,7 @@ class OliCore {
 			 */
 			public function isEmptyAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
 				if(!isset($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
@@ -2740,7 +2736,7 @@ class OliCore {
 			 */
 			public function isExistAccountInfos($tableCode, $where = null, $caseSensitive = true) {
 				if(!isset($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
@@ -2778,7 +2774,7 @@ class OliCore {
 			 */
 			public function updateAccountInfos($tableCode, $what, $where = null) {
 				if(!isset($where)) {
-					if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
@@ -2931,10 +2927,10 @@ class OliCore {
 			 * @return string Returns the user right.
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
-				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->verifyAuthKey() ? 'ROOT' : 'USER';
+				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'USER';
 				else {
 					if(empty($where)) {
-						if($this->verifyAuthKey()) $where = array('username' => $this->getAuthKeyOwner());
+						if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 						else return false;
 					}
 					else if(!is_array($where)) $where = array('username' => $where);
@@ -3101,11 +3097,20 @@ class OliCore {
 			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
 			
 			/** Auth Key cookie content */
-			public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookie($this->config['auth_key_cookie']['name']); }
+			// public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookie($this->config['auth_key_cookie']['name']); }
 			public function isExistAuthKey() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
 			public function isEmptyAuthKey() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 			
-			/** Verify Auth Key validity */
+			/**
+			 * Get Auth Key
+			 * 
+			 * @version BETA-1.8.0
+			 * @updated BETA-1.9.0
+			 * @return string Returns the User ID.
+			 */
+			public function getAuthKey() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[1]; }
+			
+			/** Verify Auth Key validity *//*
 			public function verifyAuthKey($authKey = null, $userID = null) {
 				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
@@ -3115,15 +3120,77 @@ class OliCore {
 					
 					return $sessionInfos['auth_key'] == $authKey AND $sessionInfos['ip_address'] == $this->getUserIP() AND strtotime($sessionInfos['expire_date']) >= time();
 				} else return false;
+			}*//*
+			public function verifyAuthKey($userID = null) {
+				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; verifyAuthKey; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+				// else
+				if(!empty($userID ?: $this->getUserID())) {
+					if($this->isLocalLogin()) $sessionInfos = $this->getLocalRootInfos();
+					else $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID));
+					
+					return !empty($sessionInfos['username']) AND strtotime($sessionInfos['expire_date']) >= time();
+				} else return false;
+			}*/
+			
+			/**
+			 * Verify Auth Key
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @alias OliCore::isLoggedIn()
+			 */
+			public function verifyAuthKey($authKey = null, $userID = null) { return $this->isLoggedIn($userID, $authKey); }
+			
+			/**
+			 * Is User Logged In?
+			 * 
+			 * @version BETA-1.9.0
+			 * @updated BETA-1.9.0
+			 * @return boolean Returns true if logged out successfully, false otherwise.
+			 */
+			public function isLoggedIn($userID = null, $authKey = null) {
+				if(empty($userID)) $userID = $this->getUserID();
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				
+				if(!empty($userID) AND !empty($authKey)) {
+					
+					// $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID)) OR !password_verify($authKey, $sessionInfos['authKey']);
+					
+					if($this->isLocalLogin()) $sessionInfos = $this->getLocalRootInfos();
+					else $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID));
+					
+					// var_dump(!empty($sessionInfos['username'])); echo '<br />';
+					// var_dump($sessionInfos['user_id'] = $userID); echo '<br />';
+					// var_dump(password_verify($authKey, $sessionInfos['auth_key'])); echo '<br />';
+					// var_dump(strtotime($sessionInfos['expire_date']) >= time()); echo '<br />';
+					
+					return !empty($sessionInfos['username']) AND $sessionInfos['user_id'] = $userID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
+				} else return false;
 			}
 			
-			/** Get Auth Key Owner */
-			public function getAuthKeyOwner($authKey = null, $userID = null) {
-				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; getAuthKeyOwner; user management disabled. <br />';//trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				// else
-				if($this->verifyAuthKey($authKey = $authKey ?: $this->getAuthKey(), $userID ?: $this->cache['userID'])) {
+			/**
+			 * Get Auth Key Owner
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @alias OliCore::getLoggedUsername()
+			 */
+			public function getAuthKeyOwner($userID = null, $authKey = null) { return $this->getLoggedUsername($userID, $authKey); }
+			
+			/**
+			 * Get Logged Username
+			 * 
+			 * @version BETA-1.9.0
+			 * @updated BETA-1.9.0
+			 * @return string|boolean Returns the username if logged in, false otherwise.
+			 */
+			public function getLoggedUsername($userID = null, $authKey = null) {
+				if(empty($userID)) $userID = $this->getUserID();
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				
+				if($this->isLoggedIn($userID, $authKey)) {
 					if($this->isLocalLogin()) return $this->getLocalRootInfos()['username'];
-					else return $this->getAccountInfos('SESSIONS', 'username', array('auth_key' => hash('sha512', $authKey)));
+					else return $this->getAccountInfos('SESSIONS', 'username', array('user_id' => $userID));
 				} else return false;
 			}
 		
@@ -3143,23 +3210,43 @@ class OliCore {
 			 * @return string|void Returns Oli Security Code if it was updated, false otherwise.
 			 */
 			public function initUserSession($setUserIDCookie = true) {
-				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else if(!$this->isLocalLogin()) {
-					if(empty($userID = $this->getUserID() ?: null) OR !$this->isExistAccountInfos('SESSIONS', array('user_id' => $userID)) OR (!empty($authKey = $this->getAuthKey()) AND $this->getAccountInfos('SESSIONS', 'auth_key', array('user_id' => $userID)) != hash('sha512', $authKey))) {
-						$userID = $this->getAccountInfos('SESSIONS', 'user_id', array('auth_key' => hash('sha512', $authKey ?: $this->getAuthKey())));
-						if(empty($userID)) $this->insertAccountLine('SESSIONS', array('id' => $this->getLastAccountInfo('SESSIONS', 'id') + 1, 'user_id' => $userID = $this->keygen($this->config['user_id_length'])));
-					}
+				if(!$this->isLocalLogin()) {
+					$userID = $this->getUserID() ?: null;
+					$authKey = $this->getAuthKey() ?: null;
+					$now = time();
 					
-					if($setUserIDCookie) $this->setUserIDCookie($userID, null);
+					$commonInfos = array(
+						'ip_address' => $this->getUserIP(),
+						'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+						'update_date' => date('Y-m-d H:i:s', $now),
+						'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))
+					);
+					
+					if(empty($userID) OR empty($authKey) OR !$sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID)) OR !password_verify($authKey, $sessionInfos['auth_key'])) {
+						$userID = $this->keygen($this->config['user_id_length'] ?: 16);
+						$authKey = $this->keygen($this->config['auth_key_length'] ?: 32);
+						
+						$this->insertAccountLine('SESSIONS', array_merge(array(
+							'user_id' => $userID,
+							'auth_key' => $this->hashPassword($authKey),
+							'creation_date' => date('Y-m-d H:i:s', $now),
+						), $commonInfos));
+					} else {
+						$this->updateAccountInfos('SESSIONS', $commonInfos, array('user_id' => $userID));
+					}
+						
+					// }
+					
+					if($setUserIDCookie) $this->setUserIDCookie($userID . '::' . $authKey, null);
 					return $userID;
-				}
+				} else return false;
 			}
 			
 			/** Update User Session */
 			public function updateUserSession() {
 				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; verifyLogin; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else
-				return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
+				// return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
 			}
 			
 			/** ------------------- */
@@ -3186,9 +3273,18 @@ class OliCore {
 			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
 			
 			/** User ID cookie content */
-			public function getUserID($refresh = false) { return (!empty($this->cache['userID']) AND !$refresh) ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
+			// public function getUserID($refresh = false) { return (!empty($this->cache['userID']) AND !$refresh) ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
 			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
 			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
+			
+			/**
+			 * Get User ID
+			 * 
+			 * @version BETA-1.8.0
+			 * @updated BETA-1.9.0
+			 * @return string Returns the User ID.
+			 */
+			public function getUserID() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0]; }
 		
 		/** ---------------- */
 		/**  Login Requests  */
@@ -3393,6 +3489,7 @@ class OliCore {
 				// if(!$this->isAccountsManagementReady()) echo 'DEBUG; loginAccount; user management disabled. <br />';// trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				// else if(!$this->config['allow_login']) echo 'DEBUG; loginAccount; login management disabled. <br />';// trigger_error('Sorry, the logging in has been disabled.', E_USER_ERROR);
 				// else
+				
 				if($this->verifyLogin($username, $password)) {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
@@ -3405,20 +3502,21 @@ class OliCore {
 					}
 					
 					if($this->isLocalLogin() OR $this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
-						$newAuthKey = $this->keygen($this->config['auth_key_length']);
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'] ?: 2*3600;
 						
 						if($this->isLocalLogin()) {
 							$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-							$isError = !fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_key' => hash('sha512', $newAuthKey), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
+							$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('user_id' => $this->getUserID(), 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
 							fclose($handle);
-						} else $isError = !$this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => hash('sha512', $newAuthKey), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)), array('user_id' => $this->cache['userID']));
+						} else $result = $this->updateAccountInfos('SESSIONS', array(
+							'username' => $username,
+							'login_date' => date('Y-m-d H:i:s', $now),
+							'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
+						), array('user_id' => $this->getUserID()));
 						
-						if(!$isError) {
-							if($setAuthKeyCookie) $this->setAuthKeyCookie($newAuthKey, $expireDelay);
-							return $newAuthKey;
-						} else return false;
+						if($result) return true;
+						else return false;
 					} else return false;
 				} else return false;
 			}
@@ -3427,20 +3525,23 @@ class OliCore {
 			/**  Logout Functions  */
 			/** ------------------ */
 			
-			/** Logout account */
-			public function logoutAccount() {
-				// if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				// else
-				if(!empty($authKey = $this->getAuthKey())) {
+			/**
+			 * Log out an Account
+			 * 
+			 * @version BETA
+			 * @updated BETA-1.9.0
+			 * @return boolean Returns true if logged out successfully, false otherwise.
+			 */
+			public function logoutAccount($userID = null, $authKey = null) {
+				if($this->isLoggedIn($userID, $authKey)) {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
 						$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-						$result[] = fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_key' => null, 'ip_address' => null, 'login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
+						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
 						fclose($handle);
-					} else $result[] = $this->updateAccountInfos('SESSIONS', array('username' => $username, 'auth_key' => null, 'login_date' => null, 'expire_date' => null), array('auth_key' => hash('sha512', $authKey)));
+					} else $result = $this->updateAccountInfos('SESSIONS', array('username' => null, 'login_date' => null, 'expire_date' => null), array('user_id' => $userID ?: $this->getUserID()));
 					
-					$result[] = $this->deleteAuthKeyCookie();
-					return in_array(true, $result);
+					return $result ? true : false;
 				} else return false;
 			}
 			
