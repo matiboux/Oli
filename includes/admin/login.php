@@ -165,10 +165,11 @@ else if($isLoggedIn) {
 	
 	} else {
 		/** Redirect the user */
-		if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_SERVER['HTTP_REFERER']);
+		// if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_SERVER['HTTP_REFERER']);
 		
 		/** Notice the user */
-		else $resultCode = 'I:You\'re already logged in, ' . $_Oli->getAuthKeyOwner() . '.';
+		// else
+		$resultCode = 'I:You\'re already logged in, ' . $_Oli->getAuthKeyOwner() . '.';
 	}
 
 /** Activate an account */
