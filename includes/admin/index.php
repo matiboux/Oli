@@ -18,9 +18,11 @@ if(!$_Oli->verifyAuthKey()) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli
 </head>
 <body>
 
-<p><u><b>Hi <?=$_Oli->getAuthKeyOwner()?>!</b></u></p>
+<h1>Oli Admin —</h1>
+<p>Welcome on the Oli Admin, <?=$_Oli->getLoggedUsername()?>!</p>
 
 <ul>
+	<li><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/')?>">Update my account infos (Login page)</a></li> <br />
 	<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config'?>">Edit your website config</a></li>
 	<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/mysql'?>">Edit your mysql config</a></li>
 </ul>
