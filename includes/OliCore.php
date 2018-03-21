@@ -247,8 +247,12 @@ class OliCore {
 	 * @return mixed Returns the requested variable value if is allowed to read, null otherwise.
 	 */
 	public function __get($whatVar) {
-		if(in_array($whatVar, $this->readOnlyVars)) return $this->$whatVar;
-		else return null;
+		if(in_array($whatVar, $this->readOnlyVars)) {
+			// $returnValue = $this->$whatVar;
+			// if($whatVar == 'config') unset($this->$whatVar['mysql']);
+			// return $returnValue;
+			return $this->$whatVar;
+		} else return null;
     }
 	
 	/**
