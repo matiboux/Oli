@@ -183,7 +183,7 @@ class OliCore {
 	 * OliCore Class Contruct function
 	 * 
 	 * @version BETA
-	 * @updated BETA-1.9.0
+	 * @updated BETA-2.0.0
 	 * @return void
 	 */
 	public function __construct($initTimestamp = null) {
@@ -236,7 +236,7 @@ class OliCore {
 	 * OliCore Class Destruct function
 	 * 
 	 * @version BETA
-	 * @updated BETA-1.9.0
+	 * @updated BETA-2.0.0
 	 * @return void
 	 */
 	public function __destruct() {
@@ -248,7 +248,7 @@ class OliCore {
 	 * OliCore Class Read-only variables management
 	 * 
 	 * @version BETA
-	 * @updated BETA-1.9.0
+	 * @updated BETA-2.0.0
 	 * @return mixed Returns the requested variable value if is allowed to read, null otherwise.
 	 */
 	public function __get($whatVar) {
@@ -261,7 +261,7 @@ class OliCore {
 	 * → Fix the empty() false negative issue on inaccessible variables.
 	 * 
 	 * @version BETA
-	 * @updated BETA-1.9.0
+	 * @updated BETA-2.0.0
 	 * @return mixed Returns true if the requested variable isn't empty and if is allowed to read, null otherwise.
 	 */
     public function __isset($whatVar) {
@@ -273,7 +273,7 @@ class OliCore {
 	 * OliCore Class to String function
 	 * 
 	 * @version BETA
-	 * @updated BETA-1.9.0
+	 * @updated BETA-2.0.0
 	 * @return string Returns a short description of Oli.
 	 */
 	public function __toString() {
@@ -293,8 +293,8 @@ class OliCore {
 		/**
 		 * Get Oli Security Code
 		 * 
-		 * @version BETA-1.9.0
-		 * @updated BETA-1.9.0
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
 		 * @return string Returns Oli Security Code.
 		 */
 		public function getOliSecurityCode() {
@@ -306,8 +306,8 @@ class OliCore {
 		/**
 		 * Refresh Oli Security Code
 		 * 
-		 * @version BETA-1.9.0
-		 * @updated BETA-1.9.0
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
 		 * @return string|boolean Returns Oli Security Code if it was updated, false otherwise.
 		 */
 		public function refreshOliSecurityCode() {
@@ -332,8 +332,8 @@ class OliCore {
 		 * @param array $saveNew Whether or not to save the new config in the config file using OliCore::saveConfig().
 		 * @param boolean $replaceWhole Whether or not to force the new config to replace completely the old config.
 		 * 
-		 * @version BETA-1.9.0
-		 * @updated BETA-1.9.0
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if the config is updated.
 		 */
 		public function updateConfig($newConfig, $saveNew = false, $replaceWhole = false) {
@@ -349,8 +349,8 @@ class OliCore {
 		/**
 		 * Save Oli Config
 		 * 
-		 * @version BETA-1.9.0
-		 * @updated BETA-1.9.0
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function saveConfig($config) {
@@ -364,8 +364,8 @@ class OliCore {
 		/**
 		 * Load Oli Config
 		 * 
-		 * @version BETA-1.9.0
-		 * @updated BETA-1.9.0
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
 		 * @return string|void Returns the config if found and succeeded, null otherwise.
 		 */
 		public function loadConfig() {
@@ -565,7 +565,7 @@ class OliCore {
 		 * MySQL Connection Setup
 		 * 
 		 * @version BETA
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function setupMySQL($database, $username = null, $password = null, $hostname = null, $charset = null) {
@@ -583,7 +583,7 @@ class OliCore {
 		 * MySQL Connection Reset
 		 * 
 		 * @version BETA-1.8.0
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function resetMySQL() {
@@ -727,7 +727,7 @@ class OliCore {
 		 * Run a raw MySQL Query
 		 * 
 		 * @version BETA-1.8.0
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return boolean Returns the query result content or true if succeeded.
 		 */
 		public function runQueryMySQL($query, $fetchStyle = true) {
@@ -1299,8 +1299,8 @@ class OliCore {
 		/**
 		 * Is Exist MySQL Table
 		 * 
-		 * @version BETA-1.9.0
-		 * @updated BETA-1.9.0
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if it exists.
 		 */
 		public function isExistTableMySQL($table) {
@@ -1447,7 +1447,7 @@ class OliCore {
 		 * Load page content
 		 * 
 		 * @version BETA
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return string|void Returns the path to the file to include.
 		 */
 		public function loadContent() {
@@ -1656,7 +1656,7 @@ class OliCore {
 		 * Get Settings Tables
 		 * 
 		 * @version BETA
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return array Returns the settings tables.
 		 */
 		public function getSettingsTables() { return $this->config['settings_tables']; }
@@ -1665,7 +1665,7 @@ class OliCore {
 		 * Get Setting
 		 * 
 		 * @version BETA
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return string|boolean Returns the requested setting if succeeded.
 		 */
 		public function getSetting($setting, $depth = 0) {
@@ -2108,7 +2108,7 @@ class OliCore {
 		 * Get Url Parameter
 		 * 
 		 * @version BETA
-		 * @updated BETA-1.9.0
+		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
 		// $param supported values:
@@ -2333,7 +2333,7 @@ class OliCore {
 			 * Get Template
 			 * 
 			 * @version BETA-1.8.0
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string|void Returns template content if found, null otherwise.
 			 */
 			public function getTemplate($template, $filter = null, $regex = false) {
@@ -2562,7 +2562,7 @@ class OliCore {
 			 * @uses OliCore::$accountsTables To get account tables names
 			 *
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string|void Returns account table name if succeeded, null otherwise.
 			 */
 			public function translateAccountsTableCode($tableCode) {
@@ -2849,7 +2849,7 @@ class OliCore {
 			 * Translate User Right
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns translated user right if succeeded.
 			 */
 			public function translateUserRight($userRight, $caseSensitive = true) {
@@ -2923,7 +2923,7 @@ class OliCore {
 			 * Get User Right
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string Returns the user right.
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
@@ -3105,7 +3105,7 @@ class OliCore {
 			 * Get Auth Key
 			 * 
 			 * @version BETA-1.8.0
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string Returns the User ID.
 			 */
 			public function getAuthKey() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[1]; }
@@ -3136,7 +3136,7 @@ class OliCore {
 			 * Verify Auth Key
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @alias OliCore::isLoggedIn()
 			 */
 			public function verifyAuthKey($authKey = null, $userID = null) { return $this->isLoggedIn($userID, $authKey); }
@@ -3144,8 +3144,8 @@ class OliCore {
 			/**
 			 * Is User Logged In?
 			 * 
-			 * @version BETA-1.9.0
-			 * @updated BETA-1.9.0
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if logged out successfully, false otherwise.
 			 */
 			public function isLoggedIn($userID = null, $authKey = null) {
@@ -3172,7 +3172,7 @@ class OliCore {
 			 * Get Auth Key Owner
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @alias OliCore::getLoggedUsername()
 			 */
 			public function getAuthKeyOwner($userID = null, $authKey = null) { return $this->getLoggedUsername($userID, $authKey); }
@@ -3180,8 +3180,8 @@ class OliCore {
 			/**
 			 * Get Logged Username
 			 * 
-			 * @version BETA-1.9.0
-			 * @updated BETA-1.9.0
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the username if logged in, false otherwise.
 			 */
 			public function getLoggedUsername($userID = null, $authKey = null) {
@@ -3206,7 +3206,7 @@ class OliCore {
 			 * Initialize User Session
 			 * 
 			 * @version BETA-1.8.0
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string|void Returns Oli Security Code if it was updated, false otherwise.
 			 */
 			public function initUserSession($setUserIDCookie = true) {
@@ -3281,7 +3281,7 @@ class OliCore {
 			 * Get User ID
 			 * 
 			 * @version BETA-1.8.0
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string Returns the User ID.
 			 */
 			public function getUserID() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0]; }
@@ -3329,7 +3329,7 @@ class OliCore {
 			 * $mailInfos syntax: (array) [ subject, message, headers ]
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the activate key or true if succeeded, false otherwise.
 			 */
 			public function registerAccount($username, $password, $email, $oliSC = null, $mailInfos = []) {
@@ -3419,8 +3419,8 @@ class OliCore {
 			/**
 			 * Check if the database is ready for user management
 			 * 
-			 * @version BETA-1.9.0
-			 * @updated BETA-1.9.0
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if local.
 			 */
 			public function isAccountsManagementReady() {
@@ -3436,8 +3436,8 @@ class OliCore {
 			/**
 			 * Check if the login process is considered to be local
 			 * 
-			 * @version BETA-1.9.0
-			 * @updated BETA-1.9.0
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if local.
 			 */
 			public function isLocalLogin() {
@@ -3447,8 +3447,8 @@ class OliCore {
 			/**
 			 * Get Local Root User informations
 			 * 
-			 * @version BETA-1.9.0
-			 * @updated BETA-1.9.0
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
 			 * @return array|boolean Returns Local Root User informations if they exist, false otherwise.
 			 */
 			public function getLocalRootInfos($whatVar = null) {
@@ -3462,7 +3462,7 @@ class OliCore {
 			 * Verify login informations
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if local.
 			 */
 			public function verifyLogin($username, $password) {
@@ -3482,7 +3482,7 @@ class OliCore {
 			 * Handle the login process
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
 			public function loginAccount($username, $password, $expireDelay = null, $setAuthKeyCookie = true) {
@@ -3529,7 +3529,7 @@ class OliCore {
 			 * Log out an Account
 			 * 
 			 * @version BETA
-			 * @updated BETA-1.9.0
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if logged out successfully, false otherwise.
 			 */
 			public function logoutAccount($userID = null, $authKey = null) {
