@@ -3351,7 +3351,7 @@ class OliCore {
 					if(is_array($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 					
 					if(!empty($oliSC) AND $oliSC == $this->getOliSecurityCode()) $isRootRegister = true;
-					else if(!$this->isAccountsManagementReady() AND !$this->config['allow_register']) $isRootRegister = false;
+					else if($this->isAccountsManagementReady() AND $this->config['allow_register']) $isRootRegister = false;
 					else $isRootRegister = null;
 					
 					if($isRootRegister !== null) {
@@ -3413,7 +3413,7 @@ class OliCore {
 								$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
 								
 								if($mailResult) return !empty($activateKey) ? $activateKey : true;
-								else { echo 'xxx';
+								else {
 									$this->deleteFullAccount($username);
 									return false;
 								}
