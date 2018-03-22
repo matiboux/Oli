@@ -52,6 +52,7 @@
 	"user_id_cookie": {
 		"name": "OliUserID",
 		"domain": "UrlParam:fulldomain",
+		"expire_delay": "Time:7 days",
 		"secure": false,
 		"http_only": false
 	},
