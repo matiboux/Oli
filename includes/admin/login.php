@@ -435,8 +435,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module .form ~ .form { display: none }
 #module .form form { margin: 0 }
 #module .form *:last-child { margin-bottom: 0 }
-#module .form h2 { margin: 0 0 20px; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
-#module .form p { margin: 0 0 20px }
+#module .form h2, #module .form p, #module .form ul, #module .form button { margin: 0 0 20px }
+#module .form h2 { color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
+#module .form ul { padding-left: 20px }
 #module .form .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
 #module .form input { display: block; width: 100%; margin: 0 0 20px; padding: 10px 15px; font-size: 14px; font-weight: 400; border: 1px solid #e0e0e0; box-sizing: border-box; outline: none; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
 #module .form .checkbox, #module .form .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
@@ -522,11 +523,17 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php if($scriptState == 'logged' OR $isLoggedIn) { ?>
 			<?php /*<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Logout from your account</h2>
-				<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?><p><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/')?>">Access the Oli Admin panel</a>.</p><?php } ?>
-				<p><a href="<?=$_Oli->getUrlParam(0)?>">Access the website</a>.</p>
+				<h2>You are logged in</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
+					<p>You can tap on the top-right icon to change your password. You can also click on one of those links to navigate on the website.</p>
+					<ul>
+						<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?><li><a href="<?=$_SERVER['HTTP_REFERER']?>">&laquo; Go back</a> (<?=$_SERVER['HTTP_REFERER']?>).</li><?php } ?>
+						<li><a href="<?=$_Oli->getUrlParam(0)?>">Access the website home page</a>.</li>
+						<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?><li><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/')?>">Access the Oli Admin panel</a>.</li><?php } ?>
+					</ul>
 					<button type="submit">Logout</button>
+					
+					<p>By using this website, you agree that we're using a cookie to keep you logged in.</p>
 				</form>
 			</div>
 		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
@@ -696,6 +703,7 @@ ob_end_clean(); ?>
 </div>
 
 <div id="footer">
+	<?php /*<p>About Oli</p>*/ ?>
 	<p><?=$_Oli?></p>
 </div>
 
