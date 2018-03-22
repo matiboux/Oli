@@ -485,20 +485,6 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	<?php if($isLocalLogin) { ?><p><b>Local login</b> (restricted to the root user)</p><?php } ?>
 </div>
 
-<?php if(!empty($_)) { ?>
-	<div class="message">
-		<div class="summary">Form data we received</div>
-		<div class="content">
-			It's better to be transparent about the data we receive from you.
-			<ul>
-				<?php foreach($_ as $eachParam => $eachValue) { ?>
-					<li><?=$eachParam?> → <?=$eachValue ? '"' . $eachValue . '"' : '<i><s>empty</s></i>'?></li>
-				<?php } ?>
-			</ul>
-		</div>
-	</div>
-<?php } ?>
-
 <?php if(!$isLocalLogin) { ?>
 	<div class="message">
 		<div class="summary">Anti brute-force system</div>
