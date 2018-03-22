@@ -2546,9 +2546,9 @@ class OliCore {
 	/**  VII. Accounts  */
 	/** --------------- */
 	
-		/** -------------------------------------- */
-		/**  Enable / Disable Accounts Management  */
-		/** -------------------------------------- */
+		/** --------------- */
+		/**  VII. 1. Status */
+		/** --------------- */
 		
 		/**
 		 * Enable accounts management
@@ -2571,6 +2571,23 @@ class OliCore {
 		 */
 		public function getAccountsManagementStatus() {
 			return $this->isAccountsManagementReady();
+		}
+			
+		/**
+		 * Check if the database is ready for user management
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if local.
+		 */
+		public function isAccountsManagementReady() {
+			if($this->isSetupMySQL()) {
+				$status = [];
+				foreach($this->accountsTables as $eachTable) {
+					if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
+				}
+				return !in_array(false, $status, true);
+			} else return false;
 		}
 		
 		/** ----------------- */
@@ -3409,23 +3426,6 @@ class OliCore {
 			/** ----------------- */
 			/**  Login Functions  */
 			/** ----------------- */
-			
-			/**
-			 * Check if the database is ready for user management
-			 * 
-			 * @version BETA-2.0.0
-			 * @updated BETA-2.0.0
-			 * @return boolean Returns true if local.
-			 */
-			public function isAccountsManagementReady() {
-				if($this->isSetupMySQL()) {
-					$status = [];
-					foreach($this->accountsTables as $eachTable) {
-						if(!$status[] = $this->isExistTableMySQL($eachTable)) break;
-					}
-					return !in_array(false, $status, true);
-				} else return false;
-			}
 			
 			/**
 			 * Check if the login process is considered to be local
