@@ -121,10 +121,31 @@
 |*|  │   ├ C. Date & Time
 |*|  │   └ D. Client Infos
 |*|  │
-|*|  ├ VII. Accounts
-|*|  
-|*|  
-|*|  [...]
+|*|  └ VII. Accounts
+|*|    ├ 1. Status
+|*|    ├ 2. MySQL
+|*|    │ ├ A. Read
+|*|    │ ├ B. Read
+|*|    │ ├ C. Write
+|*|    │ └ D. Client Infos
+|*|    ├ 3. User Rights & Permissions
+|*|    │ ├ A. User Rights
+|*|    │ └ B. User Permissions
+|*|    │   ├ a. General
+|*|    │   ├ b. Rights Permissions
+|*|    │   ├ c. User Permissions
+|*|    │   ├ a. General
+|*|    │   └ b. Write Functions
+|*|    ├ -. Auth Key Cookie //*!
+|*|    │ ├ A. Create & Delete
+|*|    │ └ B. Infos
+|*|    ├ 5. User Sessions
+|*|    │ ├ A. General
+|*|    │ ├ B. Cookie
+|*|    │ │ ├ a. Management
+|*|    │ │ └ b. Infos
+|*|    │ └ B. Infos
+|*|    └ 6. Hash Password
 \*/
 
 namespace Oli {
@@ -2546,9 +2567,9 @@ class OliCore {
 	/**  VII. Accounts  */
 	/** --------------- */
 	
-		/** --------------- */
-		/**  VII. 1. Status */
-		/** --------------- */
+		/** ---------------- */
+		/**  VII. 1. Status  */
+		/** ---------------- */
 		
 		/**
 		 * Enable accounts management
@@ -2590,13 +2611,13 @@ class OliCore {
 			} else return false;
 		}
 		
-		/** ----------------- */
-		/**  MySQL Functions  */
-		/** ----------------- */
+		/** --------------- */
+		/**  VII. 2. MySQL  */
+		/** --------------- */
 	
-			/** ----------------------- */
-			/**  Translate Table Codes  */
-			/** ----------------------- */
+			/** ------------------------ */
+			/**  VII. 2. A. Table Codes  */
+			/** ------------------------ */
 			
 			/**
 			 * Translate Accounts Table Codes
@@ -2621,9 +2642,9 @@ class OliCore {
 				return !empty($this->accountsTables[$tableCode]) ? $this->accountsTables[$tableCode] : null;
 			}
 		
-			/** ------------------------------- */
-			/**  Read Accounts Infos Functions  */
-			/** ------------------------------- */
+			/** ----------------- */
+			/**  VII. 2. B. Read  */
+			/** ----------------- */
 		
 			/**
 			 * Get first info from account table
@@ -2794,10 +2815,10 @@ class OliCore {
 				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
-		
-			/** -------------------------------- */
-			/**  Write Accounts Infos Functions  */
-			/** -------------------------------- */
+			
+			/** ------------------ */
+			/**  VII. 2. C. Write  */
+			/** ------------------ */
 			
 			/**
 			 * Insert line in account table
@@ -2879,9 +2900,13 @@ class OliCore {
 				else return false;
 			}
 			
-			/** ---------------------- */
-			/**  User Right Functions  */
-			/** ---------------------- */
+		/** ----------------------------------- */
+		/**  VII. 3. User Rights & Permissions  */
+		/** ----------------------------------- */
+			
+			/** ------------------------ */
+			/**  VII. 3. A. User Rights  */
+			/** ------------------------ */
 			
 			/**
 			 * Verify user right syntax
@@ -3036,9 +3061,9 @@ class OliCore {
 				else return false;
 			}
 		
-			/** ---------------------------- */
-			/**  User Permissions Functions  */
-			/** ---------------------------- */
+			/** ----------------------------- */
+			/**  VII. 3. B. User Permissions  */
+			/** ----------------------------- */
 		
 				/*\
 				|*|      -[ WORK IN PROGRESS ]-
@@ -3047,9 +3072,9 @@ class OliCore {
 				|*|     (SCHEDULED FOR BETA 1.8)
 				\*/
 				
-				/** --------- */
-				/**  General  */
-				/** --------- */
+				/** ----------------------- */
+				/**  VII. 3. B. a. General  */
+				/** ----------------------- */
 				
 				/** Get user own permissions */
 				public function getUserOwnPermissions($permission) {
@@ -3066,9 +3091,9 @@ class OliCore {
 					
 				}
 		
-				/** -------------------- */
-				/**  Rights Permissions  */
-				/** -------------------- */
+				/** ---------------------------------- */
+				/**  VII. 3. B. b. Rights Permissions  */
+				/** ---------------------------------- */
 				
 				/** Set Right Permissions */
 				public function setRightPermissions($permissions, $userRight) {
@@ -3095,9 +3120,9 @@ class OliCore {
 					
 				}
 		
-				/** ------------------ */
-				/**  User Permissions  */
-				/** ------------------ */
+				/** -------------------------------- */
+				/**  VII. 3. B. c. User Permissions  */
+				/** -------------------------------- */
 				
 				/** Set User Permissions */
 				public function setUserPermissions($permissions, $userRight) {
@@ -3119,13 +3144,13 @@ class OliCore {
 					
 				}
 		
-		/** ---------------------------- */
-		/**  Auth Key Cookie Management  */
-		/** ---------------------------- */
+		/** ------------------------- */
+		/**  VII. -. Auth Key Cookie  */
+		/** ------------------------- */
 		
-			/** ------------------- */
-			/**  Create and Delete  */
-			/** ------------------- */
+			/** ---------------------------- */
+			/**  VII. -. A. Create & Delete  */
+			/** ---------------------------- */
 			
 			/** Set Auth Key cookie */
 			public function setAuthKeyCookie($authKey, $expireDelay) {
@@ -3137,9 +3162,9 @@ class OliCore {
 				return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 			}
 			
-			/** -------------------- */
-			/**  Get Auth Key Infos  */
-			/** -------------------- */
+			/** ------------------------------- */
+			/**  VII. -. B. Get Auth Key Infos  */
+			/** ------------------------------- */
 			
 			/** Get Auth Key cookie name */
 			public function getAuthKeyCookieName() { return $this->config['auth_key_cookie']['name']; }
@@ -3159,15 +3184,6 @@ class OliCore {
 			public function getAuthKey() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[1]; }
 			
 			/**
-			 * Verify Auth Key
-			 * 
-			 * @version BETA
-			 * @updated BETA-2.0.0
-			 * @alias OliCore::isLoggedIn()
-			 */
-			public function verifyAuthKey($authKey = null, $userID = null) { return $this->isLoggedIn($userID, $authKey); }
-			
-			/**
 			 * Is User Logged In?
 			 * 
 			 * @version BETA-2.0.0
@@ -3185,15 +3201,14 @@ class OliCore {
 					return !empty($sessionInfos['username']) AND $sessionInfos['user_id'] = $userID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
 				} else return false;
 			}
-			
 			/**
-			 * Get Auth Key Owner
+			 * Verify Auth Key
 			 * 
 			 * @version BETA
 			 * @updated BETA-2.0.0
-			 * @alias OliCore::getLoggedUsername()
+			 * @alias OliCore::isLoggedIn()
 			 */
-			public function getAuthKeyOwner($userID = null, $authKey = null) { return $this->getLoggedUsername($userID, $authKey); }
+			public function verifyAuthKey($authKey = null, $userID = null) { return $this->isLoggedIn($userID, $authKey); }
 			
 			/**
 			 * Get Logged Username
@@ -3211,14 +3226,22 @@ class OliCore {
 					else return $this->getAccountInfos('SESSIONS', 'username', array('user_id' => $userID));
 				} else return false;
 			}
+			/**
+			 * Get Auth Key Owner
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @alias OliCore::getLoggedUsername()
+			 */
+			public function getAuthKeyOwner($userID = null, $authKey = null) { return $this->getLoggedUsername($userID, $authKey); }
 		
-		/** --------------- */
-		/**  User Sessions  */
-		/** --------------- */
+		/** ----------------------- */
+		/**  VII. 5. User Sessions  */
+		/** ----------------------- */
 		
-			/** --------- */
-			/**  General  */
-			/** --------- */
+			/** -------------------- */
+			/**  VII. 5. A. General  */
+			/** -------------------- */
 			
 			/**
 			 * Initialize User Session
@@ -3253,7 +3276,7 @@ class OliCore {
 						$this->updateAccountInfos('SESSIONS', $commonInfos, array('user_id' => $userID));
 					}
 					
-					if($setUserIDCookie) $this->setUserIDCookie($userID . '::' . $authKey, null);
+					if($setUserIDCookie) $this->setUserIDCookie($userID . '::' . $authKey, $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
 					return $userID;
 				} else return false;
 			}
@@ -3264,49 +3287,53 @@ class OliCore {
 			}
 			
 			/** ------------------- */
-			/**  Cookie Management  */
+			/**  VII. 5. B. Cookie  */
 			/** ------------------- */
 			
-			/** Set User ID cookie */
-			public function setUserIDCookie($authKey, $expireDelay = null) {
-				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
-			}
-			
-			/** Delete User ID cookie */
-			public function deleteUserIDCookie() {
-				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-				else return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
-			}
-			
-			/** -------------- */
-			/**  Cookie Infos  */
-			/** -------------- */
-			
-			/** Get User ID cookie name */
-			public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
-			
-			/** User ID cookie content */
-			// public function getUserID($refresh = false) { return (!empty($this->cache['userID']) AND !$refresh) ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
-			public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
-			public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
-			
-			/**
-			 * Get User ID
-			 * 
-			 * @version BETA-1.8.0
-			 * @updated BETA-2.0.0
-			 * @return string Returns the User ID.
-			 */
-			public function getUserID() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0]; }
+				/** -------------------------- */
+				/**  VII. 5. B. a. Management  */
+				/** -------------------------- */
+				
+				/** Set User ID cookie */
+				public function setUserIDCookie($authKey, $expireDelay = null) {
+					if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+					else return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+				}
+				
+				/** Delete User ID cookie */
+				public function deleteUserIDCookie() {
+					if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+					else return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+				}
+				
+				/** --------------------- */
+				/**  VII. 5. B. a. Infos  */
+				/** --------------------- */
+				
+				/** Get User ID cookie name */
+				public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
+				
+				/** User ID cookie content */
+				// public function getUserID($refresh = false) { return (!empty($this->cache['userID']) AND !$refresh) ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
+				public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
+				public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
+				
+				/**
+				 * Get User ID
+				 * 
+				 * @version BETA-1.8.0
+				 * @updated BETA-2.0.0
+				 * @return string Returns the User ID.
+				 */
+				public function getUserID() { return explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0]; }
 		
-		/** ---------------- */
-		/**  Login Requests  */
-		/** ---------------- */
+		/** ----------------------- */
+		/**  VII. 6. User Accounts  */
+		/** ----------------------- */
 		
-			/** ------------------------------- */
-			/**  Requests Management Functions  */
-			/** ------------------------------- */
+			/** --------------------- */
+			/**  VII. 5. A. Requests  */
+			/** --------------------- */
 			
 			/** Get the requests expire delay */
 			// -- Deprecated --
@@ -3328,9 +3355,9 @@ class OliCore {
 				}
 			}
 			
-			/** -------------------- */
-			/**  Register Functions  */
-			/** -------------------- */
+			/** --------------------- */
+			/**  VII. 5. B. Register  */
+			/** --------------------- */
 			
 			/** Is register verification enabled */
 			// -- Deprecated --
@@ -3423,9 +3450,9 @@ class OliCore {
 				} else return false;
 			}
 			
-			/** ----------------- */
-			/**  Login Functions  */
-			/** ----------------- */
+			/** ------------------ */
+			/**  VII. 5. C. Login  */
+			/** ------------------ */
 			
 			/**
 			 * Check if the login process is considered to be local
@@ -3507,9 +3534,9 @@ class OliCore {
 				} else return false;
 			}
 			
-			/** ------------------ */
-			/**  Logout Functions  */
-			/** ------------------ */
+			/** ------------------- */
+			/**  VII. 5. D. Logout  */
+			/** ------------------- */
 			
 			/**
 			 * Log out an Account
@@ -3531,9 +3558,9 @@ class OliCore {
 				} else return false;
 			}
 			
-			/** -------------------- */
-			/**  Users Restrictions  */
-			/** -------------------- */
+			/** ---------------------------------- */
+			/**  VII. 5. E. Accounts Restrictions  */
+			/** ---------------------------------- */
 			
 			/** Get prohibited usernames */
 			public function getProhibitedUsernames() {
@@ -3555,9 +3582,9 @@ class OliCore {
 				}
 			}
 		
-		/** --------------- */
-		/**  Hash Password  */
-		/** --------------- */
+		/** ----------------------- */
+		/**  VII. 6. Hash Password  */
+		/** ----------------------- */
 		
 		/** Hash Password */
 		public function hashPassword($password) {
