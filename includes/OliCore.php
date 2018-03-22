@@ -2932,7 +2932,9 @@ class OliCore {
 			public function translateUserRight($userRight, $caseSensitive = true) {
 				if($this->isLocalLogin()) {
 					if($userRight == 'ROOT') return 1;
-					if($userRight == 1) return 'ROOT';
+					else if($userRight == 1) return 'ROOT';
+					else if($userRight == 'VISITOR') return 0;
+					else if($userRight == 0) return 'VISITOR';
 					else return false;
 				} else if($this->isAccountsManagementReady() AND !empty($userRight)) {
 					if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('id' => $userRight), $caseSensitive)) return $returnValue;
@@ -3004,7 +3006,7 @@ class OliCore {
 			 * @return string Returns the user right.
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
-				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'USER';
+				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
 				else {
 					if(empty($where)) {
 						if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
@@ -3027,7 +3029,8 @@ class OliCore {
 			 * @return integer Returns user right level
 			 */
 			public function getUserRightLevel($where = null, $caseSensitive = true) {
-				return $this->translateUserRight($this->getUserRight($where, $caseSensitive));
+				if($userRight = $this->getUserRight($where, $caseSensitive)) return $this->translateUserRight($userRight);
+				else return false;
 			}
 			
 			/**
