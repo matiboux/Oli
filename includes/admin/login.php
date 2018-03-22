@@ -719,6 +719,7 @@ var updateForm = function(setup) {
 		
 		if(setup) $('#fontawesome').ready(function() { $('.toggle').children('[data-fa-i2svg]').addClass($('.form').eq(nextIndex).attr('data-icon')); }); 
 		else $('.toggle').children('[data-fa-i2svg]').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
+		// $('.toggle').children('.tooltip').text((index +1) + "/" + length + " — " + $('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
 		$('.toggle').children('.tooltip').text($('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
 		return nextIndex;
 	}
