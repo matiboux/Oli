@@ -567,10 +567,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display:<?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your pasword</h2>
 				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
+				
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
-					<?php $username = !empty($requestInfos) ? $requestInfos['username'] : $_Oli->getLocalRootInfos('username'); ?>
-					
-					<input type="text" name="username" value="<?=$username?>" placeholder="Username" disabled />
+					<input type="text" name="username" value="<?=!empty($requestInfos) ? $requestInfos['username'] : ($_Oli->getLoggedUsername ?: $_Oli->getLocalRootInfos('username'))?>" placeholder="Username" disabled />
 					<?php if($isLoggedIn) { ?>
 						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
 					<?php } else if(!$isLocalLogin) { ?>
