@@ -31,8 +31,6 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 </head>
 <body>
 
-<?php var_dump($_Oli->config); ?>
-
 <h1>Oli Config —</h1>
 <p>Update your website config.</p>
 
