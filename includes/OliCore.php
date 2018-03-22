@@ -66,50 +66,64 @@
 \*/
 
 /*\
-|*|  Table of Content:
+|*|  ╒════════════════════════╕
+|*|  │ :: TABLE OF CONTENT :: │
+|*|  ╞════════════════════════╛
+|*|  │
+|*|  ├ I. Variables
+|*|  ├ II. Magic Methods
+|*|  ├ III. Oli
+|*|  │ ├ 1. Oli Infos
+|*|  │ ├ 2. Oli Security Code
+|*|  │ └ 3. Tools
+|*|  │
+|*|  ├ IV. Configuration
+|*|  │ ├ 1. Load Config
+|*|  │ ├ -. (Convert File Size) //!*
+|*|  │ ├ 2. MySQL
+|*|  │ ├ 3. General 
+|*|  │ └ 4. Addons
+|*|  │   ├ A. Management
+|*|  │   └ B. Infos
+|*|  │
+|*|  ├ V. MySQL
+|*|  │ ├ 1. Status
+|*|  │ ├ 2. Read
+|*|  │ ├ 3. Write
+|*|  │ └ 4. Database Edits
+|*|  │   ├ A. Tables
+|*|  │   └ B. Columns
+|*|  │
+|*|  ├ VI. General
+|*|  │ ├ 1. Load Website
+|*|  │ ├ 2. Settings
+|*|  │ ├ 3. Custom Content
+|*|  │ ├ 4. Translations & Text
+|*|  │ │ ├ A. Read
+|*|  │ │ ├ B. Write
+|*|  │ │ └ C. Print
+|*|  │ ├ 6. HTTP Tools
+|*|  │ │ ├ A. Content Type
+|*|  │ │ ├ B. Cookie Management
+|*|  │ │ │ ├ a. Read Functions
+|*|  │ │ │ └ b. Write Functions
+|*|  │ │ └ C. _POST vars
+|*|  │ │   ├ a. Read Functions
+|*|  │ │   └ b. Write Functions
+|*|  │ ├ 6. HTML Tools
+|*|  │ │ ├ A. File Loaders
+|*|  │ │ └ B. File Minimizers
+|*|  │ ├ 7. Url Functions
+|*|  │ ├ 8. User Language
+|*|  │ └ 9. Utility Tools
+|*|  │   ├ A. Templates
+|*|  │   ├ B. Generators
+|*|  │   ├ C. Date & Time
+|*|  │   └ D. Client Infos
+|*|  │
+|*|  ├ VII. Accounts
 |*|  
-|*|  I. Variables
-|*|  II. Magic Methods
-|*|  III. Configuration
-|*|    1. Basic Security
-|*|    2. Loader
-|*|    3. MySQL
-|*|    4. General 
-|*|    5. Addons
-|*|      A. Management
-|*|      B. Infos
-|*|  IV. MySQL Functions
-|*|    1. Status Functions
-|*|    2. Read Functions
-|*|    3. Write Functions
-|*|    4. Database Functions
-|*|  V. General Functions
-|*|    1. Oli Informations
-|*|    2. Website Content
-|*|    3. Website Settings
-|*|    4. Website Tools
-|*|    5. Translations & Text
-|*|      A. Read Functions
-|*|      B. Write Functions
-|*|      C. Print Functions
-|*|    6. HTTP Tools
-|*|      A. Content Type
-|*|      B. Cookie Management
-|*|        a. Read Functions
-|*|        b. Write Functions
-|*|      C. _POST vars
-|*|        a. Read Functions
-|*|        b. Write Functions
-|*|    6. HTML Tools
-|*|      A. File Loaders
-|*|      B. File Minimizers
-|*|    7. Url Functions
-|*|    8. User Language
-|*|    9. Utility Tools
-|*|      A. Templates
-|*|      B. Generators
-|*|      C. Date & Time
-|*|      D. Client Infos
+|*|  
 |*|  [...]
 \*/
 
@@ -173,7 +187,7 @@ class OliCore {
 	private $cache = [];
 	
 	
-	/** *** *** *** */
+	/** *** *** */
 	
 	/** ------------------- */
 	/**  II. Magic Methods  */
@@ -279,15 +293,38 @@ class OliCore {
 		return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (v. ' . $this->oliInfos['version'] . ')';
 	}
 	
-	/** *** *** *** */
+	/** *** *** */
 	
-	/** -------------------- */
-	/**  III. Configuration  */
-	/** -------------------- */
+	/** ---------- */
+	/**  III. Oli  */
+	/** ---------- */
 	
-		/** ------------------------ */
-		/**  III. 1. Basic Security  */
-		/** ------------------------ */
+		/** ------------------- */
+		/**  III. 1. Oli Infos  */
+		/** ------------------- */
+		
+		/** Get Oli Infos */
+		// - Deprecated
+		public function getOliInfos($whatInfo = null) {
+			if(!empty($whatInfo)) return $this->oliInfos[$whatInfo];
+			else return $this->oliInfos;
+		}
+		
+		/** Get Team Infos */
+		public function getTeamInfos($who = null, $whatInfo = null) {
+			if(!empty($who)) {
+				foreach($this->oliInfos['team'] as $eachMember) {
+					if($eachMember['name'] == $who OR in_array($who, !is_array($eachMember['nicknames']) ? [$eachMember['nicknames']] : $eachMember['nicknames'])) {
+						if(!empty($whatInfo)) return $eachMember[$whatInfo];
+						else return $eachMember;
+					}
+				}
+			} else return $this->oliInfos['team'];
+		}
+	
+		/** --------------------------- */
+		/**  III. 2. Oli Security Code  */
+		/** --------------------------- */
 		
 		/**
 		 * Get Oli Security Code
@@ -320,9 +357,27 @@ class OliCore {
 		/** * @alias OliCore::refreshOliSecurityCode() */
 		public function refreshOliSC() { return $this->refreshOliSecurityCode(); }
 		
-		/** ---------------- */
-		/**  III. 2. Loader  */
-		/** ---------------- */
+		/** -------------- */
+		/**  III. 3. Tools  */
+		/** -------------- */
+		
+		/** Get Execution Time */
+		public function getExecutionTime($fromRequest = false) {
+			if($fromRequest) return microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+			else return microtime(true) - $this->config['init_timestamp'];
+		}
+		public function getExecutionDelay($fromRequest = false) { return $this->getExecutionTime($fromRequest); }
+		public function getExecuteDelay($fromRequest = false) { return $this->getExecutionTime($fromRequest); }
+	
+	/** *** *** */
+	
+	/** ------------------- */
+	/**  IV. Configuration  */
+	/** ------------------- */
+		
+		/** -------------------- */
+		/**  IV. 1. Load Config  */
+		/** -------------------- */
 		
 		/**
 		 * Update Oli Config
@@ -461,7 +516,7 @@ class OliCore {
 			} else return $values;
 		}
 		
-		/** Convert File Size */
+		/** Convert File Size */ //!*
 		public function convertNumber($value, $toUnit = null, $precision = null) {
 			if(preg_match('/^([\d.]+)\s?(\S*)$/i', $value, $matches)) {
 				list($result, $unit) = [floatval($matches[1]), $matches[2]];
@@ -556,9 +611,9 @@ class OliCore {
 			} else return $size;
 		}
 		
-		/** --------------- */
-		/**  III. 3. MySQL  */
-		/** --------------- */
+		/** -------------- */
+		/**  IV. 2. MySQL  */
+		/** -------------- */
 		
 		/**
 		 * MySQL Connection Setup
@@ -590,9 +645,9 @@ class OliCore {
 			$this->dbError = null;
 		}
 	
-		/** ----------------- */
-		/**  III. 4. General  */
-		/** ----------------- */
+		/** ---------------- */
+		/**  IV. 4. General  */
+		/** ---------------- */
 	
 		/** Set Settings Tables */
 		public function setSettingsTables($tables) {
@@ -626,13 +681,13 @@ class OliCore {
 			}
 		}
 		
-		/** ---------------- */
-		/**  III. 5. Addons  */
-		/** ---------------- */
+		/** --------------- */
+		/**  IV. 5. Addons  */
+		/** --------------- */
 		
-			/** ----------------------- */
-			/**  III. 5. A. Management  */
-			/** ----------------------- */
+			/** ---------------------- */
+			/**  IV. 5. A. Management  */
+			/** ---------------------- */
 			
 			/** Add Addon */
 			public function addAddon($id, $varname) { $this->addonsInfos[$id]['varname'] = $varname; }
@@ -653,9 +708,9 @@ class OliCore {
 				} else return false;
 			}
 			
-			/** ------------------ */
-			/**  III. 5. B. Infos  */
-			/** ------------------ */
+			/** ----------------- */
+			/**  IV. 5. B. Infos  */
+			/** ----------------- */
 			
 			/** Add Addon Infos */
 			public function addAddonInfos($id, $infos) {
@@ -684,15 +739,15 @@ class OliCore {
 			}
 			// public function getAddonName($varname) {}
 	
-	/** *** *** *** */
+	/** *** *** */
 	
-	/** --------------------- */
-	/**  IV. MySQL Functions  */
-	/** --------------------- */
+	/** ---------- */
+	/**  V. MySQL  */
+	/** ---------- */
 	
-		/** ------------------------ */
-		/**  IV. 1. Status Function  */
-		/** ------------------------ */
+		/** -------------- */
+		/**  V. 1. Status  */
+		/** -------------- */
 		
 		/**
 		 * Is setup MySQL connection
@@ -718,9 +773,9 @@ class OliCore {
 			// return $this->db;
 		// }
 	
-		/** ----------------------- */
-		/**  IV. 2. Read Functions  */
-		/** ----------------------- */
+		/** ------------ */
+		/**  V. 2. Read  */
+		/** ------------ */
 		
 		/**
 		 * Run a raw MySQL Query
@@ -1187,9 +1242,9 @@ class OliCore {
 			else return false;
 		}
 	
-		/** ------------------------ */
-		/**  IV. 3. Write Functions  */
-		/** ------------------------ */
+		/** ------------- */
+		/**  V. 3. Write  */
+		/** ------------- */
 		
 		/**
 		 * Insert line in table
@@ -1272,175 +1327,161 @@ class OliCore {
 			return $query->execute($matches) ?: $query->errorInfo();
 		}
 	
-		/** --------------------------- */
-		/**  IV. 4. Database Functions  */
-		/** --------------------------- */
+		/** ---------------------- */
+		/**  V. 4. Database Edits  */
+		/** ---------------------- */
 		
-		/**
-		 * Create new table
-		 * 
-		 * @param string $table Table to insert data into
-		 * @param array $columns Columns to insert into the table
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function createTableMySQL($table, $columns) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			foreach($columns as $matchName => $matchOption) {
-				$queryData[] = $matchName . ' ' . $matchOption;
-			}
-			$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
-			return $query->execute() ?: $query->errorInfo();
-		}
+			/** ----------------- */
+			/**  V. 4. A. Tables  */
+			/** ----------------- */
 		
-		/**
-		 * Is Exist MySQL Table
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if it exists.
-		 */
-		public function isExistTableMySQL($table) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('SELECT 1 FROM ' . $table);
-			return $query->execute() !== false;
-		}
-		
-		/**
-		 * Clear table data
-		 * 
-		 * Delete everything in the table but not the table itself
-		 * 
-		 * @param string $table Table to delete data from
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function clearTableMySQL($table) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
-			return $query->execute() ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Delete table
-		 * 
-		 * @param string $table Table to delete
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function deleteTableMySQL($table) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('DROP TABLE ' . $table);
-			return $query->execute() ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Add column to table
-		 * 
-		 * @param string $table Table to insert column into
-		 * @param string $column Column to insert into the table
-		 * @param string $type Type to set for the column
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function addColumnTableMySQL($table, $column, $type) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
-			return $query->execute() ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Update column from table
-		 * 
-		 * @param string $table Table to update column from
-		 * @param string $column Column to update from the table
-		 * @param string $type Type to set for the column
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @todo Add PostgreSQL support
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function updateColumnTableMySQL($table, $column, $type) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
-			return $query->execute() ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Rename column from table
-		 * 
-		 * @param string $table Table to rename column from
-		 * @param array $oldColumn Row to rename from the table
-		 * @param string $newColumn New column name
-		 * @param string|void $type Type to set for the column
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
-			return $query->execute() ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Delete column from table
-		 * 
-		 * @param string $table Table to delete column from
-		 * @param array $column Column to delete from the table
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @todo Add PostgreSQL support
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function deleteColumnTableMySQL($table, $column) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
-			return $query->execute() ?: $query->errorInfo();
-		}
-	
-	/** *** *** *** */
-	
-	/** ---------------------- */
-	/**  V. General Functions  */
-	/** ---------------------- */
-	
-		/** ------------------------ */
-		/**  V. 1. Oli Informations  */
-		/** ------------------------ */
-		
-		/** Get Oli Infos */
-		public function getOliInfos($whatInfo = null) {
-			if(!empty($whatInfo)) return $this->oliInfos[$whatInfo];
-			else return $this->oliInfos;
-		}
-		
-		/** Get Team Infos */
-		public function getTeamInfos($who = null, $whatInfo = null) {
-			if(!empty($who)) {
-				foreach($this->oliInfos['team'] as $eachMember) {
-					if($eachMember['name'] == $who OR in_array($who, !is_array($eachMember['nicknames']) ? [$eachMember['nicknames']] : $eachMember['nicknames'])) {
-						if(!empty($whatInfo)) return $eachMember[$whatInfo];
-						else return $eachMember;
-					}
+			/**
+			 * Create new table
+			 * 
+			 * @param string $table Table to insert data into
+			 * @param array $columns Columns to insert into the table
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function createTableMySQL($table, $columns) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				foreach($columns as $matchName => $matchOption) {
+					$queryData[] = $matchName . ' ' . $matchOption;
 				}
-			} else return $this->oliInfos['team'];
-		}
+				$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
+				return $query->execute() ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Is Exist MySQL Table
+			 * 
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
+			 * @return boolean Returns true if it exists.
+			 */
+			public function isExistTableMySQL($table) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('SELECT 1 FROM ' . $table);
+				return $query->execute() !== false;
+			}
+			
+			/**
+			 * Clear table data
+			 * 
+			 * Delete everything in the table but not the table itself
+			 * 
+			 * @param string $table Table to delete data from
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function clearTableMySQL($table) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
+				return $query->execute() ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Delete table
+			 * 
+			 * @param string $table Table to delete
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function deleteTableMySQL($table) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('DROP TABLE ' . $table);
+				return $query->execute() ?: $query->errorInfo();
+			}
+			
+			/** ------------------ */
+			/**  V. 4. A. Columns  */
+			/** ------------------ */
+			
+			/**
+			 * Add column to table
+			 * 
+			 * @param string $table Table to insert column into
+			 * @param string $column Column to insert into the table
+			 * @param string $type Type to set for the column
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function addColumnTableMySQL($table, $column, $type) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
+				return $query->execute() ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Update column from table
+			 * 
+			 * @param string $table Table to update column from
+			 * @param string $column Column to update from the table
+			 * @param string $type Type to set for the column
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @todo Add PostgreSQL support
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function updateColumnTableMySQL($table, $column, $type) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
+				return $query->execute() ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Rename column from table
+			 * 
+			 * @param string $table Table to rename column from
+			 * @param array $oldColumn Row to rename from the table
+			 * @param string $newColumn New column name
+			 * @param string|void $type Type to set for the column
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
+				return $query->execute() ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Delete column from table
+			 * 
+			 * @param string $table Table to delete column from
+			 * @param array $column Column to delete from the table
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @todo Add PostgreSQL support
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function deleteColumnTableMySQL($table, $column) {
+				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
+				return $query->execute() ?: $query->errorInfo();
+			}
+	
+	/** *** *** */
+	
+	/** ------------- */
+	/**  VI. General  */
+	/** ------------- */
 		
-		/** ----------------------- */
-		/**  V. 2. Website Content  */
-		/** ----------------------- */
+		/** --------------------- */
+		/**  VI. 1. Load Website  */
+		/** --------------------- */
 		
 		/**
 		 * Load page content
@@ -1647,15 +1688,16 @@ class OliCore {
 			}
 		}
 		
-		/** ------------------------ */
-		/**  V. 3. Website Settings  */
-		/** ------------------------ */
+		/** ----------------- */
+		/**  VI. 2. Settings  */
+		/** ----------------- */
 		
 		/**
 		 * Get Settings Tables
 		 * 
 		 * @version BETA
 		 * @updated BETA-2.0.0
+		 * @deprecated Directly accessible with OliCore::$config
 		 * @return array Returns the settings tables.
 		 */
 		public function getSettingsTables() { return $this->config['settings_tables']; }
@@ -1692,31 +1734,23 @@ class OliCore {
 		/** [WIP] Get All Settings */
 		// public function getAllSettings() { return $this->getSetting(null); }
 		
+		/** ----------------------- */
+		/**  VI. 3. Custom Content  */
+		/** ----------------------- */
+		
 		/** Get Shortcut Link */
 		public function getShortcutLink($shortcut, $caseSensitive = false) {
 			if(isset($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut), $caseSensitive);
 			else return false;
 		}
 		
-		/** --------------------- */
-		/**  V. 4. Website Tools  */
-		/** --------------------- */
+		/** ---------------------------- */
+		/**  VI. 4. Translations & Text  */
+		/** ---------------------------- */
 		
-		/** Get Execution Time */
-		public function getExecutionTime($fromRequest = false) {
-			if($fromRequest) return microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-			else return microtime(true) - $this->config['init_timestamp'];
-		}
-		public function getExecutionDelay($fromRequest = false) { return $this->getExecutionTime($fromRequest); }
-		public function getExecuteDelay($fromRequest = false) { return $this->getExecutionTime($fromRequest); }
-		
-		/** --------------------------- */
-		/**  V. 5. Translations & Text  */
-		/** --------------------------- */
-		
-			/** ------------------------- */
-			/**  V. 5. A. Read Functions  */
-			/** ------------------------- */
+			/** ---------------- */
+			/**  VI. 4. A. Read  */
+			/** ---------------- */
 			
 			/** Get translations lines */
 			public function getTranslationLines($where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
@@ -1733,9 +1767,9 @@ class OliCore {
 				return $this->isExistInfosMySQL($this->config['translations_table'], $where, $caseSensitive);
 			}
 			
-			/** -------------------------- */
-			/**  V. 5. B. Write Functions  */
-			/** -------------------------- */
+			/** ----------------- */
+			/**  VI. 4. B. Write  */
+			/** ----------------- */
 			
 			/** Add translations */
 			public function addTranslations($translations) {
@@ -1752,9 +1786,9 @@ class OliCore {
 				return $this->deleteLinesMySQL($this->config['translations_table'], $where);
 			}
 			
-			/** -------------------------- */
-			/**  V. 5. C. Print Functions  */
-			/** -------------------------- */
+			/** ----------------- */
+			/**  VI. 4. C. Print  */
+			/** ----------------- */
 			
 			/** Echo translated text */
 			public function __($text, $text_plural = '', $count = 0) {
@@ -1764,13 +1798,13 @@ class OliCore {
 				else echo $text;
 			}
 		
-		/** ------------------ */
-		/**  V. 6. HTTP Tools  */
-		/** ------------------ */
+		/** ------------------- */
+		/**  VI. 5. HTTP Tools  */
+		/** ------------------- */
 		
-			/** ----------------------- */
-			/**  V. 6. A. Content Type  */
-			/** ----------------------- */
+			/** ------------------------ */
+			/**  VI. 5. A. Content Type  */
+			/** ------------------------ */
 			
 			/** Set Content Type */
 			public function setContentType($contentType = null, $charset = null, $force = false) {
@@ -1811,13 +1845,13 @@ class OliCore {
 			/** Get Charset */
 			public function getCharset() { return $this->charset; }
 			
-			/** ---------------------------- */
-			/**  V. 6. B. Cookie Management  */
-			/** ---------------------------- */
+			/** ----------------------------- */
+			/**  VI. 5. B. Cookie Management  */
+			/** ----------------------------- */
 			
-				/** ---------------------------- */
-				/**  V. 6. B. a. Read Functions  */
-				/** ---------------------------- */
+				/** ----------------------------- */
+				/**  VI. 5. B. a. Read Functions  */
+				/** ----------------------------- */
 				
 				/** Get cookie content */
 				public function getCookie($name, $rawResult = false) {
@@ -1831,9 +1865,9 @@ class OliCore {
 				/** Is empty cookie */
 				public function isEmptyCookie($name) { return empty($_COOKIE[$name]); }
 				
-				/** ----------------------------- */
-				/**  V. 6. B. b. Write Functions  */
-				/** ----------------------------- */
+				/** ------------------------------ */
+				/**  VI. 5. B. b. Write Functions  */
+				/** ------------------------------ */
 				
 				/** Set cookie */
 				public function setCookie($name, $value, $expireDelay, $path, $domains, $secure = false, $httpOnly = false) {
@@ -1861,13 +1895,13 @@ class OliCore {
 					return !$cookieError ? true : false;
 				}
 			
-			/** --------------------- */
-			/**  V. 6. C. _POST vars  */
-			/** --------------------- */
+			/** ---------------------- */
+			/**  VI. 5. C. _POST vars  */
+			/** ---------------------- */
 			
-				/** ---------------------------- */
-				/**  V. 6. C. a. Read Functions  */
-				/** ---------------------------- */
+				/** ----------------------------- */
+				/**  VI. 5. C. a. Read Functions  */
+				/** ----------------------------- */
 				
 				/** Get post vars cookie name */
 				public function getPostVarsCookieName() { return $this->config['post_vars_cookie']['name']; }
@@ -1891,9 +1925,9 @@ class OliCore {
 				/** Is protected post vars */
 				public function isProtectedPostVarsCookie() { return $this->postVarsProtection; }
 				
-				/** ----------------------------- */
-				/**  V. 6. C. b. Write Functions  */
-				/** ----------------------------- */
+				/** ------------------------------ */
+				/**  VI. 5. C. b. Write Functions  */
+				/** ------------------------------ */
 				
 				/** Set post vars cookie */
 				public function setPostVarsCookie($postVars) {
@@ -1913,13 +1947,13 @@ class OliCore {
 					return $this->setCookie($this->config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 				}
 		
-		/** ------------------ */
-		/**  V. 7. HTML Tools  */
-		/** ------------------ */
+		/** ------------------- */
+		/**  VI. 6. HTML Tools  */
+		/** ------------------- */
 		
-			/** ----------------------- */
-			/**  V. 7. A. File Loaders  */
-			/** ----------------------- */
+			/** ------------------------ */
+			/**  VI. 6. A. File Loaders  */
+			/** ------------------------ */
 			
 			/**
 			 * Load CSS stylesheet
@@ -2062,9 +2096,9 @@ class OliCore {
 				}
 			}
 		
-			/** -------------------------- */
-			/**  V. 7. B. File Minimizers  */
-			/** -------------------------- */
+			/** --------------------------- */
+			/**  VI. 6. B. File Minimizers  */
+			/** --------------------------- */
 			
 			/**
 			 * Minimize stylesheet
@@ -2099,9 +2133,9 @@ class OliCore {
 				return $scriptCode;
 			}
 		
-		/** --------------------- */
-		/**  V. 7. Url Functions  */
-		/** --------------------- */
+		/** ---------------------- */
+		/**  VI. 6. Url Functions  */
+		/** ---------------------- */
 		
 		/**
 		 * Get Url Parameter
@@ -2242,9 +2276,9 @@ class OliCore {
 		/** Get CDN Url */
 		public function getCdnUrl() { return $this->config['cdn_url']; }
 		
-		/** --------------------- */
-		/**  V. 8. User Language  */
-		/** --------------------- */
+		/** ---------------------- */
+		/**  VI. 7. User Language  */
+		/** ---------------------- */
 		
 		/**
 		 * Get default language
@@ -2320,13 +2354,13 @@ class OliCore {
 			return $this->getAccountInfos('ACCOUNTS', 'language', $where, $caseSensitive);
 		}
 		
-		/** --------------------- */
-		/**  V. 9. Utility Tools  */
-		/** --------------------- */
+		/** ---------------------- */
+		/**  VI. 8. Utility Tools  */
+		/** ---------------------- */
 		
-			/** -------------------- */
-			/**  V. 9. A. Templates  */
-			/** -------------------- */
+			/** --------------------- */
+			/**  VI. 8. A. Templates  */
+			/** --------------------- */
 			
 			/**
 			 * Get Template
@@ -2352,9 +2386,9 @@ class OliCore {
 				} else return null;
 			}
 		
-			/** --------------------- */
-			/**  V. 9. B. Generators  */
-			/** --------------------- */
+			/** ---------------------- */
+			/**  VI. 8. B. Generators  */
+			/** ---------------------- */
 			
 			/** Random Number generator */
 			public function rand($min = 1, $max = 100) {
@@ -2388,9 +2422,9 @@ class OliCore {
 				}
 			}
 			
-			/** ---------------------- */
-			/**  V. 9. C. Date & Time  */
-			/** ---------------------- */
+			/** ----------------------- */
+			/**  VI. 8. C. Date & Time  */
+			/** ----------------------- */
 			
 			/**
 			 * Get difference between two dates
@@ -2470,9 +2504,9 @@ class OliCore {
 				}
 			}
 			
-			/** ----------------------- */
-			/**  V. 9. D. Client Infos  */
-			/** ----------------------- */
+			/** ------------------------ */
+			/**  VI. 8. D. Client Infos  */
+			/** ------------------------ */
 			
 			/** Get User IP address */
 			public function getUserIP() {
@@ -2506,9 +2540,11 @@ class OliCore {
 				return $client_ip;
 			}
 	
-	/** -------------------- */
-	/**  Accounts Functions  */
-	/** -------------------- */
+	/** *** *** */
+	
+	/** --------------- */
+	/**  VII. Accounts  */
+	/** --------------- */
 	
 		/** -------------------------------------- */
 		/**  Enable / Disable Accounts Management  */
