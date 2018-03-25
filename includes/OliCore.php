@@ -1757,9 +1757,15 @@ class OliCore {
 		/**  VI. 3. Custom Content  */
 		/** ----------------------- */
 		
-		/** Get Shortcut Link */
+		/**
+		 * Get Shortcut Link
+		 * 
+		 * @version BETA
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if succeeded.
+		 */
 		public function getShortcutLink($shortcut, $caseSensitive = false) {
-			if(isset($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut), $caseSensitive);
+			if(!empty($this->config['shortcut_links_table']) AND $this->isExistTableMySQL($this->config['shortcut_links_table'])) return $this->getInfosMySQL($this->config['shortcut_links_table'], 'url', array('name' => $shortcut), $caseSensitive);
 			else return false;
 		}
 		
