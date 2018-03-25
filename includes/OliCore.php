@@ -822,6 +822,7 @@ class OliCore {
 			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
 			$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
+			$queryParams = null;
 			if(!empty($params)) {
 				foreach($params as $eachKey => $eachParam) {
 					if(!empty($eachParam)) $queryParams .= ' ' . $eachParam;
@@ -1029,8 +1030,10 @@ class OliCore {
 		 * @return mixed Returns infos from specified table
 		 */
 		public function getInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-			if(!is_array($whatVar)) $whatVar = [$whatVar];
-			else $whatVarArray = true;
+			if(!is_array($whatVar)) {
+				$whatVar = [$whatVar];
+				$whatVarArray = false;
+			} else $whatVarArray = true;
 			
 			if(!is_array($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
