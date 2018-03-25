@@ -65,8 +65,6 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 
 <?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
 
-<?php var_dump($_Oli->getSetting('url')); ?>
-
 <h1>Oli Config: MySQL —</h1>
 <p>Update your website mysql settings.</p>
 
