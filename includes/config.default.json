@@ -7,6 +7,9 @@
 	
 	"settings_tables": ["settings"],
 	"settings": null,
+	"shortcut_links_table": null,
+	"translations_table": null,
+	
 	
 	"index_file": "index.php",
 	"http_errors": {
@@ -65,7 +68,6 @@
 	
 	
 	"custom": {},
-	
 	
 	
 "#": {
@@ -130,7 +132,7 @@
 	"request_expire_delay": "Time:2 days",
 	"default_session_duration": "Time:1 day",
 	"extended_session_duration": "Time:7 days",
-		
+	
 	"associated_websites": [],
 	
 	"user_id_length": 16,
