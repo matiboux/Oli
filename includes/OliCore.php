@@ -3385,9 +3385,9 @@ class OliCore {
 					
 					if($isRootRegister !== null) {
 						if($this->isLocalLogin()) {
-							if($isRootRegister AND empty($this->getOliSecurityCode()) AND !empty($hashedPassword = $this->hashPassword($password))) {
+							if($isRootRegister AND !empty($hashedPassword = $this->hashPassword($password))) {
 								$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-								$result = fwrite($handle, json_encode(array('username' => $username, 'password' => $hashedPassword), JSON_FORCE_OBJECT));
+								$result = fwrite($handle, json_encode(array('username' => $username, 'password' => $hashedPassword, 'email' => $email ?: null), JSON_FORCE_OBJECT));
 								fclose($handle);
 								
 								return $result ? true : false;
