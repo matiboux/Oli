@@ -159,7 +159,7 @@ class OliCore {
 	/** Read-only variables */
 	private $readOnlyVars = [
 		'oliInfos', 'addonsInfos',
-		'debugStatus', 'config',
+		'debugStatus', 'rawConfig', 'config',
 		'db', 'dbError',
 		'fileNameParam', 'contentStatus'];
 	
@@ -169,6 +169,7 @@ class OliCore {
 	
 	/** Oli Config */
 	private $debugStatus = false; // (PUBLIC READONLY)
+	private $rawConfig = null; // (PUBLIC READONLY)
 	private $config = null; // (PUBLIC READONLY)
 	
 	/** Database Management */
@@ -232,7 +233,7 @@ class OliCore {
 		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
 		
 		/** Load Config */
-		$this->config = $this->loadConfig();
+		$this->loadConfig();
 		if(file_exists(ABSPATH . '.oliurl')) {
 			$oliUrl = file_get_contents(ABSPATH . '.oliurl');
 			if(!empty($oliUrl) AND preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^/]+)*\/$/i', $oliUrl) AND !empty($this->config['settings']) AND $oliUrl != $this->config['settings']['url']) {
@@ -242,7 +243,7 @@ class OliCore {
 		}
 		
 		/** Setup MySQL */
-		if($this->config['allow_mysql'] AND !empty($this->config['mysql'])) $this->setupMySQL(!empty($this->config['mysql']['database']) ? $this->config['mysql']['database'] : null, !empty($this->config['mysql']['username']) ? $this->config['mysql']['username'] : null, !empty($this->config['mysql']['password']) ? $this->config['mysql']['password'] : null, !empty($this->config['mysql']['hostname']) ? $this->config['mysql']['hostname'] : null, !empty($this->config['mysql']['charset']) ? $this->config['mysql']['charset'] : null);
+		// if($this->config['allow_mysql'] AND !empty($this->config['mysql'])) $this->setupMySQL(!empty($this->config['mysql']['database']) ? $this->config['mysql']['database'] : null, !empty($this->config['mysql']['username']) ? $this->config['mysql']['username'] : null, !empty($this->config['mysql']['password']) ? $this->config['mysql']['password'] : null, !empty($this->config['mysql']['hostname']) ? $this->config['mysql']['hostname'] : null, !empty($this->config['mysql']['charset']) ? $this->config['mysql']['charset'] : null);
 		
 		/** Define secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
@@ -441,7 +442,7 @@ class OliCore {
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
-		 * @return string|void Returns the config if found and succeeded, null otherwise.
+		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
 		 */
 		public function loadConfig() {
 			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
@@ -452,8 +453,8 @@ class OliCore {
 				if($config != array_merge($defaultConfig, $config)) $this->saveConfig($loadedConfig = array_merge($defaultConfig, $config));
 				else $loadedConfig = $config;
 			} else $this->saveConfig($loadedConfig = $defaultConfig);
+			$this->rawConfig = $loadedConfig;
 			
-			$decodedConfig = null;
 			if(!empty($loadedConfig)) {
 				foreach($loadedConfig as $eachConfig => $eachValue) {
 					$eachValue = $this->decodeConfigValues($eachValue);
@@ -462,7 +463,7 @@ class OliCore {
 						foreach($eachValue as $eachConstantName => $eachConstantValue) {
 							if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
 						}
-					} //else if($eachConfig == 'mysql' AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+					} else if($eachConfig == 'mysql' AND $this->config['allow_mysql'] AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 					// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
 					// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
 					else if($eachConfig == 'accounts_tables' AND !empty($eachValue) AND is_assoc($eachValue)) {
@@ -475,11 +476,11 @@ class OliCore {
 						if(!empty($eachValue['permissions'])) $this->accountsTables['PERMISSIONS'] = $eachValue['permissions'];
 					}
 					
-					$decodedConfig[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
+					$this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 				}
 			}
 			
-			return $decodedConfig ?: null;
+			return !empty($this->config);
 		}
 		
 		/** Decode config arrays */
