@@ -2169,26 +2169,27 @@ class OliCore {
 		/**
 		 * Get Url Parameter
 		 * 
+		 * $param supported values:
+		 * - null 'full' => Full Url (e.g. 'http://hello.example.com/page/param')
+		 * - 'protocol' => Get url protocol (e.g. 'https')
+		 * - 'base' => Get base url (e.g. 'http://hello.example.com/')
+		 * - 'allbases' => Get all bases urls (e.g. ['http://hello.example.com/', 'http://example.com/'])
+		 * - 'alldomains' => Get all domains (e.g. ['hello.example.com', 'example.com'])
+		 * - 'fulldomain' => Get domain (e.g. 'hello.example.com')
+		 * - 'domain' => Get main domain (e.g. 'example.com')
+		 * - 'subdomain' => Get subdomains (e.g. 'hello')
+		 * - 'all' => All url fragments
+		 * - 'params' => All parameters fragments
+		 * - 0 => Url without any parameters (same as base url)
+		 * - 1 => First parameter: file name parameter (e.g. 'page')
+		 * - # => Other parameters (e.g. 2 => 'param')
+		 * - 'last' => Get the last parameters fragment
+		 * - 'get' => Get $_GET
+		 * 
 		 * @version BETA
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
-		// $param supported values:
-		// - null 'full' => Full Url (e.g. 'http://hello.example.com/page/param')
-		// - 'protocol' => Get url protocol (e.g. 'https')
-		// - 'base' => Get base url (e.g. 'http://hello.example.com/')
-		// - 'allbases' => Get all bases urls (e.g. ['http://hello.example.com/', 'http://example.com/'])
-		// - 'alldomains' => Get all domains (e.g. ['hello.example.com', 'example.com'])
-		// - 'fulldomain' => Get domain (e.g. 'hello.example.com')
-		// - 'domain' => Get main domain (e.g. 'example.com')
-		// - 'subdomain' => Get subdomains (e.g. 'hello')
-		// - 'all' => All url fragments
-		// - 'params' => All parameters fragments
-		// - 0 => Url without any parameters (same as base url)
-		// - 1 => First parameter: file name parameter (e.g. 'page')
-		// - # => Other parameters (e.g. 2 => 'param')
-		// - 'last' => Get the last parameters fragment
-		// - 'get' => Get $_GET
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
 			$urlPrefix = $protocol . '://';
@@ -2297,6 +2298,24 @@ class OliCore {
 		
 		/** Get Media Url */
 		public function getMediaUrl() { return $this->getUrlParam(0) . $this->config['media_path']; }
+		
+		/**
+		 * Get Oli Admin Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns requested url param if succeeded.
+		 */
+		public function getAdminUrl() { return $this->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'); }
+		
+		/**
+		 * Get Login Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns requested url param if succeeded.
+		 */
+		public function getLoginUrl() { return $this->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'); }
 		
 		/** Get Common Files Url */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
