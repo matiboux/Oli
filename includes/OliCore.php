@@ -2163,7 +2163,7 @@ class OliCore {
 			}
 		
 		/** ---------------------- */
-		/**  VI. 6. Url Functions  */
+		/**  VI. 7. Url Functions  */
 		/** ---------------------- */
 		
 		/**
@@ -2306,7 +2306,7 @@ class OliCore {
 		public function getCdnUrl() { return $this->config['cdn_url']; }
 		
 		/** ---------------------- */
-		/**  VI. 7. User Language  */
+		/**  VI. 8. User Language  */
 		/** ---------------------- */
 		
 		/**
@@ -2384,11 +2384,11 @@ class OliCore {
 		}
 		
 		/** ---------------------- */
-		/**  VI. 8. Utility Tools  */
+		/**  VI. 9. Utility Tools  */
 		/** ---------------------- */
 		
 			/** --------------------- */
-			/**  VI. 8. A. Templates  */
+			/**  VI. 9. A. Templates  */
 			/** --------------------- */
 			
 			/**
@@ -2416,7 +2416,7 @@ class OliCore {
 			}
 		
 			/** ---------------------- */
-			/**  VI. 8. B. Generators  */
+			/**  VI. 9. B. Generators  */
 			/** ---------------------- */
 			
 			/** Random Number generator */
@@ -2452,7 +2452,7 @@ class OliCore {
 			}
 			
 			/** ----------------------- */
-			/**  VI. 8. C. Date & Time  */
+			/**  VI. 9. C. Date & Time  */
 			/** ----------------------- */
 			
 			/**
@@ -2534,7 +2534,7 @@ class OliCore {
 			}
 			
 			/** ------------------------ */
-			/**  VI. 8. D. Client Infos  */
+			/**  VI. 9. D. Client Infos  */
 			/** ------------------------ */
 			
 			/** Get User IP address */
