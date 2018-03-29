@@ -2315,7 +2315,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
-		public function getLoginUrl() { return preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?(\S+)$/i', $this->config['external_login_url']) ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'); }
+		public function getLoginUrl() { return $this->isExternalLogin() ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'); }
 		
 		/** Get Common Files Url */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
@@ -3227,7 +3227,7 @@ class OliCore {
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
 				if(!empty($userID) AND !empty($authKey)) {
-					if($this->isLocalLogin()) $sessionInfos = $this->getLocalRootInfos();
+					if($this->isLocalLogin() AND !$this->isExternalLogin()) $sessionInfos = $this->getLocalRootInfos();
 					else $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID));
 					
 					return !empty($sessionInfos['username']) AND $sessionInfos['user_id'] = $userID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
@@ -3515,6 +3515,17 @@ class OliCore {
 			 */
 			public function isLocalLogin() {
 				return !$this->isAccountsManagementReady() OR !$this->config['allow_login'];
+			}
+			
+			/**
+			 * Check if the login process is handled by an external login page
+			 * 
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
+			 * @return boolean Returns true if external.
+			 */
+			public function isExternalLogin() {
+				return preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?(\S+)$/i', $this->config['external_login_url']);
 			}
 			
 			/**
