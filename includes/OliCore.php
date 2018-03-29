@@ -2315,7 +2315,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
-		public function getLoginUrl() { return preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?(\S+)$/i', $this->config['external_login_url']) ?  : $this->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'); }
+		public function getLoginUrl() { return preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?(\S+)$/i', $this->config['external_login_url']) ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'); }
 		
 		/** Get Common Files Url */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
