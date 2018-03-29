@@ -39,6 +39,7 @@
 		"permissions": "accounts_permissions"
 	},
 	
+	"external_login_url": null,
 	"allow_login": true,
 	"allow_register": false,
 	"account_activation": false,
