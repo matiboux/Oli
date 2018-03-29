@@ -405,7 +405,7 @@ class OliCore {
 		 * Update Oli Config
 		 * 
 		 * @param array $newConfig New config fragment to complete or replace the old config.
-		 * @param array $saveNew Whether or not to save the new config in the config file using OliCore::saveConfig().
+		 * @param boolean $saveNew Whether or not to save the new config in the config file using OliCore::saveConfig().
 		 * @param boolean $replaceWhole Whether or not to force the new config to replace completely the old config.
 		 * 
 		 * @version BETA-2.0.0
@@ -414,7 +414,7 @@ class OliCore {
 		 */
 		public function updateConfig($newConfig, $saveNew = false, $replaceWhole = false) {
 			if($replaceWhole) $config = $newConfig;
-			else $config = array_merge($this->config, $newConfig);
+			else $config = array_merge($this->rawConfig, $newConfig);
 			
 			if(!$saveNew OR $this->saveConfig($config)) {
 				$this->config = $config;
