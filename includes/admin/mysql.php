@@ -2,7 +2,8 @@
 $_ = array_merge($_GET, $_POST);
 $result = [];
 
-if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'));
+if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
+else if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getAdminUrl());
 
 else if($_Oli->getUrlParam(2) == 'basics') {
 	if($_Oli->isExistTableMySQL('settings')) $result = array('error' => 'Error: The "settings" table already exists.');

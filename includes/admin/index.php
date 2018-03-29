@@ -2,7 +2,7 @@
 $params = array_merge($_GET, $_POST);
 $result = [];
 
-if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'));
+if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 
 ?>
 
