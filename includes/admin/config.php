@@ -2,7 +2,18 @@
 $_ = array_merge($_GET, $_POST);
 $result = [];
 
-if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'));
+if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
+else if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getAdminUrl());
+
+else if(!empty($_)) {
+	if(empty($_['database'])) $result = array('error' => 'Error: The database is missing.');
+	else {
+		$status = $_Oli->updateConfig(array('mysql' => array('database' => $_['database'], 'username' => isset($_['username']) ? $_['username'] : null, 'password' => isset($_['password']) ? $_['password'] : null, 'hostname' => isset($_['hostname']) ? $_['hostname'] : null, 'charset' => isset($_['charset']) ? $_['charset'] : null)), true, false);
+		
+		if($status) $result = array('error' => false, 'database' => $_['database']);
+		else $result = array('error' => 'Error: An error occurred.');
+	}
+}
 
 ?>
 
@@ -30,6 +41,8 @@ form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0
 
 </head>
 <body>
+
+<?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
 
 <h1>Oli Config —</h1>
 <p>Update your website config.</p>
