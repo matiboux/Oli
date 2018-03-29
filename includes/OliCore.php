@@ -2306,7 +2306,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
-		public function getAdminUrl() { return $this->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/'); }
+		public function getAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin/'); }
 		
 		/**
 		 * Get Login Url
@@ -2315,7 +2315,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
-		public function getLoginUrl() { return $this->isExternalLogin() ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/'); }
+		public function getLoginUrl() { return $this->isExternalLogin() ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($this->config['login_alias'] ?: 'oli-login/'); }
 		
 		/** Get Common Files Url */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
