@@ -50,27 +50,6 @@ if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
 if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 
-/** Get Website Config */
-// if(!file_exists(INCLUDESPATH . 'config/config.json') OR filemtime(ABSPATH . 'config.json') > filemtime(INCLUDESPATH . 'config/config.json')) {
-	// if(!isset($userConfig)) $userConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
-	
-	// if(!file_exists(INCLUDESPATH . 'config.default.json')) die('File config.default.json not found (in ' . INCLUDESPATH . 'config/)');
-	// $config = json_decode(file_get_contents(INCLUDESPATH . 'config/config.default.json'), true);
-	// $config['user-config'] = $userConfig;
-	
-	// if(!file_exists(INCLUDESPATH . 'config/')) mkdir(INCLUDESPATH . 'config/');
-	// $handle = fopen(INCLUDESPATH . 'config/config.json', 'w');
-	// fwrite($handle, json_encode($config, JSON_FORCE_OBJECT));
-	// fclose($handle);
-// } else $config = json_decode(file_get_contents(INCLUDESPATH . 'config/config.json'), true);
-
-/** Define Additional Constants */
-// if(!empty($config['user-config']['constants']) AND is_array($config['user-config']['constants'])) {
-	// foreach($config['user-config']['constants'] as $eachName => $eachValue) {
-		// if(!defined($eachName)) define($eachName, $eachValue);
-	// }
-// }
-
 /** Include OliCore & Addons */
 if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';
 else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (in "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
@@ -96,20 +75,6 @@ if(!empty($_Oli->config['addons'])) {
 	}
 }
 
-/** Clean used variables */
-unset($config['user-config']['source_path']);
-unset($config['user-config']['constants']);
-unset($config['user-config']['addons']);
-
-/** Load Configs */
-// if(!empty($config['user-config'])) {
-	// foreach($config['user-config'] as $eachKey => $eachConfig) {
-		// if($eachKey == 'Oli') {
-			// if(file_exists(ABSPATH . 'mysql.json')) $_Oli->loadConfig(array('mysql' => json_decode(file_get_contents(ABSPATH . 'mysql.json'), true)));
-			// $_Oli->loadConfig($eachConfig);
-		// }
-		// else ${$_Oli->getAddonVar($eachKey)}->loadConfig($eachConfig);
-	// }
-// }
-// if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
+/** Load Config Script */
+if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
 ?>
