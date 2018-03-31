@@ -56,8 +56,9 @@ $scriptState = null; // Default value
 /** Login management is disabled by the current config */
 // if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
 
+$isExternalLogin = $_Oli->isExternalLogin();
 $isLocalLogin = $_Oli->isLocalLogin();
-$isLoggedIn = $_Oli->verifyAuthKey();
+$isLoggedIn = $_Oli->isLoggedIn();
 
 /** Is Script State Allowed */
 /** EDIT PASSWORD: */
@@ -90,9 +91,12 @@ if(!empty($_) AND !$isLocalLogin) {
 
 /** --- */
 
+/** Login handled by an external website */
+if($isExternalLogin) header('Location: ' . $_Oli->getLoginUrl());
+
 /** Account Password Edit */
 // WIP / Add support for direct password edit if logged in, but not local login
-if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $isEditPasswordAllowed) {
+else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $isEditPasswordAllowed) {
 	/** Direct Password Edit */
 	if($isLoggedIn) {
 		$scriptState = 'edit-password';
