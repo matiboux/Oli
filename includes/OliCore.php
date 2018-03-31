@@ -237,7 +237,7 @@ class OliCore {
 		if(file_exists(ABSPATH . '.oliurl')) {
 			$oliUrl = file_get_contents(ABSPATH . '.oliurl');
 			if(!empty($oliUrl) AND preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^/]+)*\/$/i', $oliUrl) AND !empty($this->config['settings']) AND $oliUrl != $this->config['settings']['url']) {
-				$this->updateConfig(array('settings' => array_merge($this->config['settings'], array('url' => $oliUrl))), true, false);
+				$this->updateConfig(array('settings' => array_merge($this->config['settings'], array('url' => $oliUrl))), true);
 				$this->config['settings']['url'] = $oliUrl;
 			}
 		}
@@ -431,7 +431,7 @@ class OliCore {
 		 */
 		public function saveConfig($config) {
 			$handle = fopen(CONTENTPATH . 'config.json', 'w');
-			$result = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT));
+			$result = fwrite($handle, json_encode($config));
 			fclose($handle);
 			
 			return $result !== false;
