@@ -804,7 +804,7 @@ class OliCore {
 		 * 
 		 * @version BETA-1.8.0
 		 * @updated BETA-2.0.0
-		 * @return boolean Returns the query result content or true if succeeded.
+		 * @return array|boolean Returns the query result content or true if succeeded.
 		 */
 		public function runQueryMySQL($query, $fetchStyle = true) {
 			if($this->isSetupMySQL()) {
@@ -817,18 +817,27 @@ class OliCore {
 			} else return null;
 		}
 		
-		/** Get Data from table */
+		/**
+		 * Get data from MySQL
+		 * 
+		 * @version BETA
+		 * @updated BETA-2.0.0
+		 * @return array|boolean Returns data from the requested table if succeeded.
+		 */
 		public function getDataMySQL($table, ...$params) {
-			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
-			$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
-			$queryParams = null;
-			if(!empty($params)) {
-				foreach($params as $eachKey => $eachParam) {
-					if(!empty($eachParam)) $queryParams .= ' ' . $eachParam;
+			if($this->isSetupMySQL()) {
+				$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
+				$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
+				
+				$queryParams = null;
+				if(!empty($params)) {
+					foreach($params as $eachKey => $eachParam) {
+						if(!empty($eachParam)) $queryParams .= ' ' . $eachParam;
+					}
 				}
-			}
-			return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
+				
+				return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
+			} else return null;
 		}
 		
 		/**
