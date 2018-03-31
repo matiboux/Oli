@@ -59,7 +59,7 @@ $_Oli = new \Oli\OliCore(INITTIME);
 
 /** Load Addons */
 if(!empty($_Oli->config['addons'])) {
-	foreach($_Oli->config['addons'] as $eachAddonInfosName => $eachAddonInfosInfos) {
+	foreach($_Oli->config['addons'] as $eachAddonInfosName => $eachAddonInfos) {
 		if(!empty($eachAddonInfosName) AND !empty($eachAddonInfos['var']) AND !empty($eachAddonInfos['class']) AND !isset(${$eachAddonInfos['var']})) {
 			$className = (!empty($eachAddonInfos['namespace']) ? str_replace('/', '\\', $eachAddonInfos['namespace']) . '\\' : '\\') . $eachAddonInfos['class'];
 			${$eachAddonInfos['var']} = new $className;
