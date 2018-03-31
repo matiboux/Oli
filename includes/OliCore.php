@@ -819,7 +819,7 @@ class OliCore {
 		
 		/** Get Data from table */
 		public function getDataMySQL($table, ...$params) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
 			$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
 			$queryParams = null;
@@ -1282,7 +1282,7 @@ class OliCore {
 		 * @return boolean Return true if the request succeeded, false otherwise
 		 */
 		public function insertLineMySQL($table, $matches) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			foreach($matches as $matchKey => $matchValue) {
 				$queryVars[] = $matchKey;
 				$queryValues[] = ':' . $matchKey;
@@ -1306,7 +1306,7 @@ class OliCore {
 		 * @return boolean Return true if the request succeeded, false otherwise
 		 */
 		public function updateInfosMySQL($table, $what, $where) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			$matches = [];
 			foreach($what as $whatVar => $whatValue) {
 				$queryWhat[] = $whatVar . ' = :what_' . $whatVar;
@@ -1337,7 +1337,7 @@ class OliCore {
 		 * @return boolean Return true if the request succeeded, false otherwise
 		 */
 		public function deleteLinesMySQL($table, $where) {
-			if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 			if(is_array($where)) {
 				$matches = [];
 				foreach($where as $whereVar => $whereValue) {
@@ -1371,7 +1371,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function createTableMySQL($table, $columns) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				foreach($columns as $matchName => $matchOption) {
 					$queryData[] = $matchName . ' ' . $matchOption;
 				}
@@ -1387,7 +1387,7 @@ class OliCore {
 			 * @return boolean Returns true if it exists.
 			 */
 			public function isExistTableMySQL($table) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('SELECT 1 FROM ' . $table);
 				return $query->execute() !== false;
 			}
@@ -1404,7 +1404,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function clearTableMySQL($table) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
 				return $query->execute() ?: $query->errorInfo();
 			}
@@ -1419,7 +1419,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function deleteTableMySQL($table) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('DROP TABLE ' . $table);
 				return $query->execute() ?: $query->errorInfo();
 			}
@@ -1440,7 +1440,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function addColumnTableMySQL($table, $column, $type) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
 				return $query->execute() ?: $query->errorInfo();
 			}
@@ -1458,7 +1458,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function updateColumnTableMySQL($table, $column, $type) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
 				return $query->execute() ?: $query->errorInfo();
 			}
@@ -1476,7 +1476,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
 				return $query->execute() ?: $query->errorInfo();
 			}
@@ -1493,7 +1493,7 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function deleteColumnTableMySQL($table, $column) {
-				if(!$this->db) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
 				$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
 				return $query->execute() ?: $query->errorInfo();
 			}
