@@ -2,6 +2,9 @@
 	"init_timestamp": null,
 	"init_setup": true,
 	
+	"constants": {},
+	"addons": {},
+	
 	"allow_mysql": false,
 	"mysql": null,
 	
