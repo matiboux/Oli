@@ -80,16 +80,16 @@ $_Oli = new \Oli\OliCore(INITTIME);
 
 /** Load Addons */
 if(!empty($_Oli->config['addons'])) {
-	foreach($_Oli->config['addons'] as $eachAddon) {
-		if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {
-			$className = (!empty($eachAddon['namespace']) ? str_replace('/', '\\', $eachAddon['namespace']) . '\\' : '\\') . $eachAddon['class'];
-			${$eachAddon['var']} = new $className;
-			$_Oli->addAddon($eachAddon['name'], $eachAddon['var']);
-			$_Oli->addAddonInfos($eachAddon['name'], $eachAddon);
+	foreach($_Oli->config['addons'] as $eachAddonInfosName => $eachAddonInfosInfos) {
+		if(!empty($eachAddonInfosName) AND !empty($eachAddonInfos['var']) AND !empty($eachAddonInfos['class']) AND !isset(${$eachAddonInfos['var']})) {
+			$className = (!empty($eachAddonInfos['namespace']) ? str_replace('/', '\\', $eachAddonInfos['namespace']) . '\\' : '\\') . $eachAddonInfos['class'];
+			${$eachAddonInfos['var']} = new $className;
+			$_Oli->addAddon($eachAddonInfosName, $eachAddonInfos['var']);
+			$_Oli->addAddonInfos($eachAddonInfosName, $eachAddonInfos);
 			
-			if(file_exists(CONTENTPATH . $eachAddon['name'] . '.json')) ${$eachAddon['var']}->loadConfig(json_decode(file_get_contents(CONTENTPATH . $eachAddon['name'] . '.json'), true));
+			if(file_exists(CONTENTPATH . $eachAddonInfosName . '.json')) ${$eachAddonInfos['var']}->loadConfig(json_decode(file_get_contents(CONTENTPATH . $eachAddonInfosName . '.json'), true));
 			else {
-				$handle = fopen(CONTENTPATH . $eachAddon['name'] . '.json', 'w');
+				$handle = fopen(CONTENTPATH . $eachAddonInfosName . '.json', 'w');
 				fclose($handle);
 			}
 		}
