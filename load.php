@@ -75,15 +75,23 @@ if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';
 else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (in "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
 
-/** Load OliCore & Addons */
+/** Load OliCore */
 $_Oli = new \Oli\OliCore(INITTIME);
-if(!empty($config['addons'])) {
-	foreach($config['addons'] as $eachAddon) {
+
+/** Load Addons */
+if(!empty($_Oli->config['addons'])) {
+	foreach($_Oli->config['addons'] as $eachAddon) {
 		if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {
 			$className = (!empty($eachAddon['namespace']) ? str_replace('/', '\\', $eachAddon['namespace']) . '\\' : '\\') . $eachAddon['class'];
 			${$eachAddon['var']} = new $className;
 			$_Oli->addAddon($eachAddon['name'], $eachAddon['var']);
 			$_Oli->addAddonInfos($eachAddon['name'], $eachAddon);
+			
+			if(file_exists(CONTENTPATH . $eachAddon['name'] . '.json')) ${$eachAddon['var']}->loadConfig(json_decode(file_get_contents(CONTENTPATH . $eachAddon['name'] . '.json'), true));
+			else {
+				$handle = fopen(CONTENTPATH . $eachAddon['name'] . '.json', 'w');
+				fclose($handle);
+			}
 		}
 	}
 }
