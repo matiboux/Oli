@@ -95,7 +95,6 @@ if(!empty($_) AND !$isLocalLogin) {
 if($isExternalLogin) header('Location: ' . $_Oli->getLoginUrl());
 
 /** Account Password Edit */
-// WIP / Add support for direct password edit if logged in, but not local login
 else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $isEditPasswordAllowed) {
 	/** Direct Password Edit */
 	if($isLoggedIn) {
@@ -104,21 +103,19 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			if(empty($_['password'])) $resultCode = 'E:Please enter your current password.';
 			else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
 			else {
-				$rootUserInfos = $_Oli->getLocalRootInfos();
-				if(!password_verify($_['password'], $rootUserInfos['password'])) $resultCode = 'E:The current password is incorrect.';
-				else if(empty($hashedPassword = $_Oli->hashPassword($_['password']))) $resultCode = 'E:The new password couldn\'t be hashed.';
+				if(!$_Oli->verifyLogin($_Oli->getLoggedUsername(), $_['password'])) $resultCode = 'E:The current password is incorrect.';
+				else if(empty($hashedPassword = $_Oli->hashPassword($_['newPassword']))) $resultCode = 'E:The new password couldn\'t be hashed.';
 				else if($isLocalLogin) {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-					if(fwrite($handle, json_encode($rootUserInfos, array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
+					if(fwrite($handle, json_encode($_Oli->getLocalRootInfos(), array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
 						$_Oli->logoutAccount();
 						$scriptState = 'login';
 						$ignoreFormData = true;
 						$resultCode = 'S:Your password has been successfully updated.';
 					} else $resultCode = 'E:An error occurred when updating your password.';
 					fclose($handle);
-				} else {
-					$resultCode = 'E:Direct Password Edit unavailable yet for non local login.';
-				}
+				} else if($_Oli->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_Oli->getLoggedUsername())) $resultCode = 'S:Your password has been successfully updated.';
+				else $resultCode = 'E:An error occurred when updating your password.';
 			}
 		}
 	
