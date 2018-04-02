@@ -29,11 +29,6 @@ $config = array(
 	'maxUsernameAttempts' => 8
 );
 
-$mailHeaders = 'MIME-Version: 1.0' . "\r\n" .
-	'Content-type: text/html; charset=utf-8' . "\r\n" .
-	'From: noreply@' . $_Oli->getUrlParam('domain') . "\r\n" .
-	'X-Mailer: PHP/' . phpversion();
-
 /** Ignore Form Data */
 // Allow the script to prevent a form from using data from another.
 $ignoreFormData = false;
@@ -213,7 +208,7 @@ else if($isLoggedIn) {
 				$message .= '<p>If you can\'t open the link, just copy this in your browser: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/change-password/' . $activateKey . '.</p>';
 				$message .= '<p>If you didn\'t want to change your password or didn\'t ask for this request, please just ignore this mail.</p>';
 				
-				if(mail($_['email'], $subject, $_Oli->getTemplate('mail', array('__URL__' => $_Oli->getUrlParam(0), '__NAME__' => $_Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $mailHeaders)) {
+				if(mail($_['email'], $subject, $_Oli->getTemplate('mail', array('__URL__' => $_Oli->getUrlParam(0), '__NAME__' => $_Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $_Oli->getDefaultMailHeaders(true))) {
 					$scriptState = 'recover-password';
 					$ignoreFormData = true;
 					$resultCode = 'S:The request has been successfully created and a mail has been sent to you.';
@@ -252,7 +247,7 @@ else if($isLoggedIn) {
 					$message .= 'This request will expire after ' . floor($expireDelay = $_Oli->getRequestsExpireDelay() /3600 /24) . ' ' . ($expireDelay > 1 ? 'days' : 'day') . '. After that, the link will be desactivated and the request deleted.</p>';
 					$message .= '<p>If you can\'t open the link, just copy this in your browser: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activateKey . '.</p>';
 					
-					if(mail($email ?: $_Oli->getAccountInfos('ACCOUNTS', 'email', $username, false), $subject, $_Oli->getTemplate('mail', array('__URL__' => $_Oli->getUrlParam(0), '__NAME__' => $_Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $mailHeaders)) {
+					if(mail($email ?: $_Oli->getAccountInfos('ACCOUNTS', 'email', $username, false), $subject, $_Oli->getTemplate('mail', array('__URL__' => $_Oli->getUrlParam(0), '__NAME__' => $_Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $_Oli->getDefaultMailHeaders(true))) {
 						$scriptState = 'unlock-submit';
 						$ignoreFormData = true;
 						$resultCode = 'S:The request has been successfully created and a mail has been sent to you.';
