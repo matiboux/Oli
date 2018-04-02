@@ -302,7 +302,7 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
 		
 		/** Root Register Checks */
-		if($isRootRegisterState AND empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
+		else if($isRootRegisterState AND empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
 		else if($isRootRegisterState AND $_['olisc'] != $_Oli->getOliSecurityCode()) $resultCode = 'E:The Oli Security Code is incorrect.';
 		
 		/** Not Local Login Checks */
