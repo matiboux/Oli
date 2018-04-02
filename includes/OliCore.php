@@ -5,7 +5,7 @@
 |*|  --- [  Version BETA: 2.0.0  ] ---
 |*|  ---------------------------------
 |*|  
-|*|  Oli is an open source PHP framework made to help you create your website.
+|*|  Oli is an open source PHP framework designed to help you create your website.
 |*|  Oli Github repository: https://github.com/OliFramework/Oli/
 |*|  
 |*|  Creator & Developer: Matiboux (Mathieu Guérin)
