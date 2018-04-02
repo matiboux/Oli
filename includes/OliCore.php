@@ -102,14 +102,15 @@
 |*|  │ │ ├ A. Read
 |*|  │ │ ├ B. Write
 |*|  │ │ └ C. Print
-|*|  │ ├ 6. HTTP Tools
+|*|  │ ├ 5. HTTP Tools
 |*|  │ │ ├ A. Content Type
 |*|  │ │ ├ B. Cookie Management
 |*|  │ │ │ ├ a. Read Functions
 |*|  │ │ │ └ b. Write Functions
-|*|  │ │ └ C. _POST vars
-|*|  │ │   ├ a. Read Functions
-|*|  │ │   └ b. Write Functions
+|*|  │ │ ├ C. _POST vars
+|*|  │ │ │ ├ a. Read Functions
+|*|  │ │ │ └ b. Write Functions
+|*|  │ │ └ D. Mail Management
 |*|  │ ├ 6. HTML Tools
 |*|  │ │ ├ A. File Loaders
 |*|  │ │ └ B. File Minimizers
@@ -1984,6 +1985,29 @@ class OliCore {
 					$this->postVarsProtection = true;
 					return $this->setCookie($this->config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', $this->config['post_vars_cookie']['domain'], $this->config['post_vars_cookie']['secure'], $this->config['post_vars_cookie']['http_only']);
 				}
+			
+			/** --------------------------- */
+			/**  VI. 5. D. Mail Management  */
+			/** --------------------------- */
+			
+			/**
+			 * Get default mail headers
+			 * 
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
+			 * @return array Returns the default mail headers.
+			 */
+			public function getDefaultMailHeaders($toString = false) {
+				$mailHeaders = [
+					'Reply-To: ' . $_Oli->getUrlParam('name') . ' <contact@' . $_Oli->getUrlParam('domain') . '>',
+					'From: ' . $_Oli->getUrlParam('name') . ' <noreply@' . $_Oli->getUrlParam('domain') . '>',
+					'MIME-Version: 1.0',
+					'Content-type: text/html; charset=utf-8',
+					'X-Mailer: PHP/' . phpversion()
+				];
+				if(!$toString) return implode("\r\n", $mailHeaders);
+				else return $mailHeaders;
+			}
 		
 		/** ------------------- */
 		/**  VI. 6. HTML Tools  */
@@ -3495,12 +3519,7 @@ class OliCore {
 									$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/">' . $this->getUrlParam(0) . 'login/</a> <br />';
 									if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover">' . $this->getUrlParam(0) . 'login/recover</a></p>';
 								}
-								$headers = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['headers'] : [
-									'MIME-Version: 1.0',
-									'Content-type: text/html; charset=utf-8',
-									'From: noreply@' . $this->getUrlParam('domain'),
-									'X-Mailer: PHP/' . phpversion()
-								];
+								$headers = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['headers'] : $this->getDefaultMailHeaders();
 								if(is_array($headers)) $headers = implode("\r\n", $headers);
 								
 								$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
