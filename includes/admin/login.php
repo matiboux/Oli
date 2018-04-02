@@ -296,6 +296,10 @@ Link: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/unlock/' . $activat
 	else if($isRootRegisterState) $scriptState = 'root-register';
 	
 	if(!empty($_)) {
+		/** Database Cleanup Processes */
+		if(!$isLocalLogin AND ($username = $_Oli->getAccountInfos('ACCOUNTS', 'username', $_['username'], false) OR $username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => $_['username']), false)) AND (!$expireDate = $_Oli->getAccountInfos('REQUESTS', 'expire_date', array('username' => $user, 'action' => 'activate'), false) OR strtotime($expireDate) < time())) $_Oli->deleteFullAccount($_['username']);
+		
+		/** Regular Form Checks */
 		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
 		else if(!preg_match('/^[_a-z0-9]+$/i', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
 		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
