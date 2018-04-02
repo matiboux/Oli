@@ -3400,19 +3400,24 @@ class OliCore {
 			// -- Deprecated --
 			public function getRequestsExpireDelay() { return $this->config['request_expire_delay']; }
 			
-			/** Create a new request */
+			/**
+			 * Create a new request
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return string|boolean Returns the request activate key.
+			 */
 			public function createRequest($username, $action, &$requestTime = null) {
 				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else {
-					$requestsMatches['id'] = $this->getLastAccountInfo('REQUESTS', 'id') + 1;
-					$requestsMatches['username'] = $username;
 					$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, false, true, true));
+					$requestsMatches['username'] = $username;
 					$requestsMatches['action'] = $action;
 					$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
 					$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->config['request_expire_delay']);
-					$this->insertAccountLine('REQUESTS', $requestsMatches);
 					
-					return $activateKey;
+					if($this->insertAccountLine('REQUESTS', $requestsMatches)) return $activateKey;
+					else return false;
 				}
 			}
 			
