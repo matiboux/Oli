@@ -269,18 +269,17 @@ else if($isLoggedIn) {
 		$scriptState = 'unlock-submit';
 		
 		if(empty($_['unlockKey'] ?: $_Oli->getUrlParam(3))) $resultCode = 'E:Please enter the unlock key.';
-		else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3))))) {
-			if($requestInfos['action'] != 'unlock') $resultCode = 'E:The request you triggered does not allow you to unlock your account.';
-			else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
-			else {
-				/** Deletes all the account log limits and delete the request */
-				if($_Oli->deleteAccountLines('LOG_LIMITS', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
-					$scriptState = 'login';
-					$ignoreFormData = true;
-					// $hideUnlockUI = true;
-					$resultCode = 'S:Your account has been successfully unlocked!';
-				} else $resultCode = 'E:An error occurred while changing your password.';
-			}
+		else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['unlockKey'] ?: $_Oli->getUrlParam(3))))) $resultCode = 'E:No request with this unlock key has been found.';
+		else if($requestInfos['action'] != 'unlock') $resultCode = 'E:The request you triggered does not allow you to unlock your account.';
+		else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
+		else {
+			/** Deletes all the account log limits and delete the request */
+			if($_Oli->deleteAccountLines('LOG_LIMITS', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['unlockKey'] ?: $_Oli->getUrlParam(3))))) {
+				$scriptState = 'login';
+				$ignoreFormData = true;
+				// $hideUnlockUI = true;
+				$resultCode = 'S:Your account has been successfully unlocked!';
+			} else $resultCode = 'E:An error occurred while changing your password.';
 		}
 	}
 	
