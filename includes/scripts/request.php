@@ -3,18 +3,16 @@ $_ = array_merge($_GET, $_POST);
 $result = [];
 
 if(!empty($_)) {
-	if($_['action'] == 'setLoginInfos') {
+	if($_['action'] == 'setUserID' OR $_['action'] == 'setLoginInfos') {
 		if(!$_Oli->config['user_management']) $result = array('error' => 'Error: User Management is disabled');
 		else if(empty($_['authKey'])) $result = array('error' => 'Error: "authKey" parameter is missing');
 		else if(empty($_['userID'])) $result = array('error' => 'Error: "userID" parameter is missing');
 		else if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot overwrite a valid authKey');
 		else {
-			$_Oli->setUserIDCookie($_['userID'], null);
-			$_Oli->setAuthKeyCookie($_['authKey'], $expireDelay = $_['extendedDelay'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration']);
-			
+			$_Oli->setUserIDCookie($_['userID'] . '::' . $_['authKey'], $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
 			$result = array('error' => false, 'authKey' => $_['authKey'], 'userID' => $_['userID'], 'expireDelay' => $expireDelay);
 		}
-	} else if($_['action'] == 'removeLoginInfos') {
+	} else if($_['action'] == 'removeLoginInfos') { /* Deprecated */
 		if(!$_Oli->config['user_management']) $result = array('error' => 'Error: User Management is disabled');
 		
 		if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot remove valid login infos');
