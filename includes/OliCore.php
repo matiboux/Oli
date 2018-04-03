@@ -854,20 +854,21 @@ class OliCore {
 			/**
 			 * Get first line from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns first line from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return array|null Returns first line from specified table.
 			 */
 			public function getFirstLineMySQL($table, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table);
+				$dataMySQL = $this->getDataMySQL($table, 'LIMIT 1');
 				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					foreach($dataMySQL[0] as $eachKey => $eachValue) {
-						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+					$dataMySQL = count($dataMySQL) > 1 ? $dataMySQL : $dataMySQL[0];
+					if(!rawResult) {
+						foreach($dataMySQL as $eachKey => $eachValue) {
+							if(!is_array($eachValue) AND is_array($decodedValue = json_decode($eachValue, true))) $dataMySQL[$eachKey] = $decodedValue;
+						}
 					}
-					return $dataMySQL[0];
-				} else return false;
+					return $dataMySQL;
+				} else return null;
 			}
 			
 			/**
