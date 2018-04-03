@@ -1527,7 +1527,7 @@ class OliCore {
 		 */
 		public function loadContent() {
 			if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
-			if(!$this->isLocalLogin()) $this->initUserSession();
+			if(!$this->isLocalLogin() OR $this->isExternalLogin()) $this->initUserSession();
 			
 			if($this->config['init_setup'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
@@ -3287,7 +3287,7 @@ class OliCore {
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
 				if($this->isLoggedIn($userID, $authKey)) {
-					if($this->isLocalLogin()) return $this->getLocalRootInfos()['username'];
+					if($this->isLocalLogin() AND !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
 					else return $this->getAccountInfos('SESSIONS', 'username', array('user_id' => $userID));
 				} else return false;
 			}
@@ -3319,7 +3319,7 @@ class OliCore {
 				$userID = $this->getUserID() ?: $this->keygen($this->config['user_id_length'] ?: 16);
 				$authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
 				if(!empty($userID) AND !empty($authKey)) {
-					if(!$this->isLocalLogin()) {
+					if(!$this->isLocalLogin() OR $this->isExternalLogin()) {
 						/** Cleanup Process */
 						$this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
 						
