@@ -846,6 +846,25 @@ class OliCore {
 			}
 			
 			/**
+			 * Get first line from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return array|boolean Returns first line from specified table
+			 */
+			public function getFirstLineMySQL($table, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table);
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+					foreach($dataMySQL[0] as $eachKey => $eachValue) {
+						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+					}
+					return $dataMySQL[0];
+				} else return false;
+			}
+			
+			/**
 			 * Get first info from table
 			 * 
 			 * @param string $table Table to get data from
@@ -859,19 +878,23 @@ class OliCore {
 				$dataMySQL = $this->getDataMySQL($table);
 				if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
 				else return false;
+				
+				// $dataMySQL = $this->getDataMySQL($table, !is_array($whatVar) ? [$whatVar] : $whatVar);
+				// if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
+				// else return false;
 			}
 			
 			/**
-			 * Get first line from table
+			 * Get last line from table
 			 * 
 			 * @param string $table Table to get data from
 			 * @param boolean|void $rawResult Return raw result or not
 			 * 
 			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns first line from specified table
+			 * @return array|boolean Returns last line from specified table
 			 */
-			public function getFirstLineMySQL($table, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table);
+			public function getLastLineMySQL($table, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
 				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 					foreach($dataMySQL[0] as $eachKey => $eachValue) {
 						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
@@ -894,25 +917,6 @@ class OliCore {
 				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
 				if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
 				else return false;
-			}
-			
-			/**
-			 * Get last line from table
-			 * 
-			 * @param string $table Table to get data from
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns last line from specified table
-			 */
-			public function getLastLineMySQL($table, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					foreach($dataMySQL[0] as $eachKey => $eachValue) {
-						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
-					}
-					return $dataMySQL[0];
-				} else return false;
 			}
 			
 			/**
