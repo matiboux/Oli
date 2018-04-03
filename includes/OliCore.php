@@ -119,8 +119,9 @@
 |*|  │ └ 9. Utility Tools
 |*|  │   ├ A. Templates
 |*|  │   ├ B. Generators
-|*|  │   ├ C. Date & Time
-|*|  │   └ D. Client Infos
+|*|  │   ├ C. Data Conversion
+|*|  │   ├ D. Date & Time
+|*|  │   └ E. Client Infos
 |*|  │
 |*|  └ VII. Accounts
 |*|    ├ 1. Status
@@ -537,101 +538,6 @@ class OliCore {
 				}
 				return (!is_array($values) AND count($output) == 1) ? $output[0] : $output;
 			} else return $values;
-		}
-		
-		/** Convert File Size */ //!*
-		public function convertNumber($value, $toUnit = null, $precision = null) {
-			if(preg_match('/^([\d.]+)\s?(\S*)$/i', $value, $matches)) {
-				list($result, $unit) = [floatval($matches[1]), $matches[2]];
-				if($unit != $toUnit) {
-					$unitsTable = array(
-						'Yi' => 1024 ** 8,
-						'Zi' => 1024 ** 7,
-						'Ei' => 1024 ** 6,
-						'Pi' => 1024 ** 5,
-						'Ti' => 1024 ** 4,
-						'Gi' => 1024 ** 3,
-						'Mi' => 1024 ** 2,
-						'Ki' => 1024,
-						'Y' => 1000 ** 8,
-						'Z' => 1000 ** 7,
-						'E' => 1000 ** 6,
-						'P' => 1000 ** 5,
-						'T' => 1000 ** 4,
-						'G' => 1000 ** 3,
-						'M' => 1000 ** 2,
-						'K' => 1000
-					);
-					
-					if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
-					if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
-				}
-				return isset($precision) ? round($result, $precision) : $result;
-			} else return $value;
-		}
-		public function convertFileSize($size, $toUnit = null, $precision = null) {
-			if(preg_match('/^([\d.]+)\s?(\S*)$/i', $size, $matches)) {
-				list($result, $unit) = [floatval($matches[1]), $matches[2]];
-				if($unit != $toUnit) {
-					$unitsTable = array(
-						'YiB' => 1024 ** 8,
-						'ZiB' => 1024 ** 7,
-						'EiB' => 1024 ** 6,
-						'PiB' => 1024 ** 5,
-						'TiB' => 1024 ** 4,
-						'GiB' => 1024 ** 3,
-						'MiB' => 1024 ** 2,
-						'KiB' => 1024,
-						'YB' => 1000 ** 8,
-						'ZB' => 1000 ** 7,
-						'EB' => 1000 ** 6,
-						'PB' => 1000 ** 5,
-						'TB' => 1000 ** 4,
-						'GB' => 1000 ** 3,
-						'MB' => 1000 ** 2,
-						'KB' => 1000,
-						
-						'Yio' => 1024 ** 8,
-						'Zio' => 1024 ** 7,
-						'Eio' => 1024 ** 6,
-						'Pio' => 1024 ** 5,
-						'Tio' => 1024 ** 4,
-						'Gio' => 1024 ** 3,
-						'Mio' => 1024 ** 2,
-						'Kio' => 1024,
-						'Yo' => 1000 ** 8,
-						'Zo' => 1000 ** 7,
-						'Eo' => 1000 ** 6,
-						'Po' => 1000 ** 5,
-						'To' => 1000 ** 4,
-						'Go' => 1000 ** 3,
-						'Mo' => 1000 ** 2,
-						'Ko' => 1000,
-						
-						'Yib' => 1024 ** 8 / 8,
-						'Zib' => 1024 ** 7 / 8,
-						'Eib' => 1024 ** 6 / 8,
-						'Pib' => 1024 ** 5 / 8,
-						'Tib' => 1024 ** 4 / 8,
-						'Gib' => 1024 ** 3 / 8,
-						'Mib' => 1024 ** 2 / 8,
-						'Kib' => 1024 / 8,
-						'Yb' => 1000 ** 8 / 8,
-						'Zb' => 1000 ** 7 / 8,
-						'Eb' => 1000 ** 6 / 8,
-						'Pb' => 1000 ** 5 / 8,
-						'Tb' => 1000 ** 4 / 8,
-						'Gb' => 1000 ** 3 / 8,
-						'Mb' => 1000 ** 2 / 8,
-						'Kb' => 1000 / 8,
-						'b' => 1 / 8,
-					);
-					
-					if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
-					if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
-				}
-				return isset($precision) ? round($result, $precision) : $result;
-			} else return $size;
 		}
 		
 		/** -------------- */
@@ -2500,8 +2406,109 @@ class OliCore {
 				}
 			}
 			
+			/** --------------------------- */
+			/**  VI. 9. C. Data Conversion  */
+			/** --------------------------- */
+		
+			/** Convert Number */
+			public function convertNumber($value, $toUnit = null, $precision = null) {
+				if(preg_match('/^([\d.]+)\s?(\S*)$/i', $value, $matches)) {
+					list($result, $unit) = [floatval($matches[1]), $matches[2]];
+					if($unit != $toUnit) {
+						$unitsTable = array(
+							'Yi' => 1024 ** 8,
+							'Zi' => 1024 ** 7,
+							'Ei' => 1024 ** 6,
+							'Pi' => 1024 ** 5,
+							'Ti' => 1024 ** 4,
+							'Gi' => 1024 ** 3,
+							'Mi' => 1024 ** 2,
+							'Ki' => 1024,
+							'Y' => 1000 ** 8,
+							'Z' => 1000 ** 7,
+							'E' => 1000 ** 6,
+							'P' => 1000 ** 5,
+							'T' => 1000 ** 4,
+							'G' => 1000 ** 3,
+							'M' => 1000 ** 2,
+							'K' => 1000
+						);
+						
+						if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
+						if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
+					}
+					return isset($precision) ? round($result, $precision) : $result;
+				} else return $value;
+			}
+			
+			/** Convert File Size */
+			public function convertFileSize($size, $toUnit = null, $precision = null) {
+				if(preg_match('/^([\d.]+)\s?(\S*)$/i', $size, $matches)) {
+					list($result, $unit) = [floatval($matches[1]), $matches[2]];
+					if($unit != $toUnit) {
+						$unitsTable = array(
+							'YiB' => 1024 ** 8,
+							'ZiB' => 1024 ** 7,
+							'EiB' => 1024 ** 6,
+							'PiB' => 1024 ** 5,
+							'TiB' => 1024 ** 4,
+							'GiB' => 1024 ** 3,
+							'MiB' => 1024 ** 2,
+							'KiB' => 1024,
+							'YB' => 1000 ** 8,
+							'ZB' => 1000 ** 7,
+							'EB' => 1000 ** 6,
+							'PB' => 1000 ** 5,
+							'TB' => 1000 ** 4,
+							'GB' => 1000 ** 3,
+							'MB' => 1000 ** 2,
+							'KB' => 1000,
+							
+							'Yio' => 1024 ** 8,
+							'Zio' => 1024 ** 7,
+							'Eio' => 1024 ** 6,
+							'Pio' => 1024 ** 5,
+							'Tio' => 1024 ** 4,
+							'Gio' => 1024 ** 3,
+							'Mio' => 1024 ** 2,
+							'Kio' => 1024,
+							'Yo' => 1000 ** 8,
+							'Zo' => 1000 ** 7,
+							'Eo' => 1000 ** 6,
+							'Po' => 1000 ** 5,
+							'To' => 1000 ** 4,
+							'Go' => 1000 ** 3,
+							'Mo' => 1000 ** 2,
+							'Ko' => 1000,
+							
+							'Yib' => 1024 ** 8 / 8,
+							'Zib' => 1024 ** 7 / 8,
+							'Eib' => 1024 ** 6 / 8,
+							'Pib' => 1024 ** 5 / 8,
+							'Tib' => 1024 ** 4 / 8,
+							'Gib' => 1024 ** 3 / 8,
+							'Mib' => 1024 ** 2 / 8,
+							'Kib' => 1024 / 8,
+							'Yb' => 1000 ** 8 / 8,
+							'Zb' => 1000 ** 7 / 8,
+							'Eb' => 1000 ** 6 / 8,
+							'Pb' => 1000 ** 5 / 8,
+							'Tb' => 1000 ** 4 / 8,
+							'Gb' => 1000 ** 3 / 8,
+							'Mb' => 1000 ** 2 / 8,
+							'Kb' => 1000 / 8,
+							'b' => 1 / 8,
+						);
+						
+						if(!empty($unit) AND !empty($unitsTable[$unit])) $result *= $unitsTable[$unit];
+						if(!empty($toUnit) AND !empty($unitsTable[$toUnit])) $result /= $unitsTable[$toUnit];
+					}
+					return isset($precision) ? round($result, $precision) : $result;
+				} else return $size;
+			}
+			
 			/** ----------------------- */
-			/**  VI. 9. C. Date & Time  */
+			/**  VI. 9. D. Date & Time  */
 			/** ----------------------- */
 			
 			/**
@@ -2583,7 +2590,7 @@ class OliCore {
 			}
 			
 			/** ------------------------ */
-			/**  VI. 9. D. Client Infos  */
+			/**  VI. 9. E. Client Infos  */
 			/** ------------------------ */
 			
 			/** Get User IP address */
