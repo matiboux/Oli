@@ -3320,6 +3320,9 @@ class OliCore {
 				$authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
 				if(!empty($userID) AND !empty($authKey)) {
 					if(!$this->isLocalLogin()) {
+						/** Cleanup Process */
+						$this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
+						
 						$now = time();
 						$commonInfos = array(
 							'ip_address' => $this->getUserIP(),
