@@ -1358,7 +1358,7 @@ class OliCore {
 				}
 			}
 			$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
-			(is_array($where) ? implode(' AND ', $queryWhere) : ($where != 'all' ? $where : '*')));
+			(is_array($where) ? implode(' AND ', $queryWhere) : ($where !== 'all' ? $where : '*')));
 			return $query->execute($matches) ?: $query->errorInfo();
 		}
 	
