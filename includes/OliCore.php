@@ -827,12 +827,18 @@ class OliCore {
 			 * 
 			 * @version BETA
 			 * @updated BETA-2.0.0
-			 * @return array|boolean Returns data from the requested table if succeeded.
+			 * @return array|boolean|void Returns data from the requested table if succeeded.
 			 */
 			public function getDataMySQL($table, ...$params) {
 				if($this->isSetupMySQL()) {
-					$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
-					$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
+					if(!empty($params[0])) {
+						if(is_array($params[0]) AND preg_grep("/^\S+$/", $params[0]) == $params[0]) $select = implode(', ', array_shift($params));
+						else if(strpos($params[0], ' ') === false) $select = array_shift($params);
+					}
+					if(empty($select)) $select = '*';
+					
+					if(!empty($params[count($params) - 1]) AND is_integer($params[count($params) - 1])) $fetchStyle = implode(', ', array_pop($params));
+					else $fetchStyle = true;
 					
 					$queryParams = null;
 					if(!empty($params)) {
