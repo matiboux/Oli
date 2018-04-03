@@ -1337,14 +1337,11 @@ class OliCore {
 		}
 		
 		/**
-		 * Delete lines from table
+		 * Delete lines from a table
 		 * 
-		 * @param string $table Table to delete data from
-		 * @param string|array $where Where to delete data
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
+		 * @version BETA
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if the request succeeded, false otherwise.
 		 */
 		public function deleteLinesMySQL($table, $where) {
 			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
@@ -2931,17 +2928,14 @@ class OliCore {
 			}
 			
 			/**
-			 * Delete lines from account table
+			 * Delete lines from an account table
 			 * 
-			 * @param string $tableCode Table code of the table to delete lines from
-			 * @param string|array $where Where to delete data
-			 * 
-			 * @uses OliCore::deleteLinesMySQL() to delete lines from table
-			 * @uses OliCore::translateAccountsTableCode() to translate account table code
-			 * @return boolean Returns true if the request succeeded, false otherwise
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return boolean Returns true if the request succeeded, false otherwise.
 			 */
 			public function deleteAccountLines($tableCode, $where) {
-				if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				if(!is_array($where) AND $where !== 'all' AND strpos($where, ' ') === false) $where = array('username' => $where);
 				return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where);
 			}
 			
