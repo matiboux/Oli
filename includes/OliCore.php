@@ -781,8 +781,9 @@ class OliCore {
 			/**
 			 * Is setup MySQL connection
 			 * 
-			 * @uses OliCore::$db to check the MySQL connection status
-			 * @return boolean|void Returns the MySQL connection status
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return boolean Returns the MySQL connection status
 			 */
 			public function isSetupMySQL() {
 				if(isset($this->db)) return true;
@@ -792,15 +793,12 @@ class OliCore {
 			/**
 			 * Get raw MySQL PDO Object
 			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to return PDO object
-			 * @deprecated OliCore::$db can be directly accessed
+			 * @version BETA
+			 * @deprecated BETA OliCore::$db can be directly accessed
+			 * @updated BETA-1.8.0
+			 * @removed BETA-1.8.0
 			 * @return object Returns current MySQL PDO object
-			 */
-			// public function getRawMySQL() {
-				// $this->isSetupMySQL();
-				// return $this->db;
-			// }
+			 */ // public function getRawMySQL() {}
 		
 			/** --------------- */
 			/**  V. 2. B. Read  */
