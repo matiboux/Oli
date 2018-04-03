@@ -87,12 +87,14 @@
 |*|  │   └ B. Infos
 |*|  │
 |*|  ├ V. MySQL
-|*|  │ ├ 1. Status
-|*|  │ ├ 2. Read
-|*|  │ ├ 3. Write
-|*|  │ └ 4. Database Edits
-|*|  │   ├ A. Tables
-|*|  │   └ B. Columns
+|*|  │ ├ 1. Regular MySQL Functions
+|*|  │ │ ├ A. Status
+|*|  │ │ ├ B. Read
+|*|  │ │ ├ C. Write
+|*|  │ │ └ D. Database Edits
+|*|  │ │   ├ a. Tables
+|*|  │ │   └ b. Columns
+|*|  │ └ 2. Legacy (Read) MySQL Functions
 |*|  │
 |*|  ├ VI. General
 |*|  │ ├ 1. Load Website
@@ -768,38 +770,751 @@ class OliCore {
 	/**  V. MySQL  */
 	/** ---------- */
 	
-		/** -------------- */
-		/**  V. 1. Status  */
-		/** -------------- */
-		
-		/**
-		 * Is setup MySQL connection
-		 * 
-		 * @uses OliCore::$db to check the MySQL connection status
-		 * @return boolean|void Returns the MySQL connection status
-		 */
-		public function isSetupMySQL() {
-			if(isset($this->db)) return true;
-			else return false;
-		}
-		
-		/**
-		 * Get raw MySQL PDO Object
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to return PDO object
-		 * @deprecated OliCore::$db can be directly accessed
-		 * @return object Returns current MySQL PDO object
-		 */
-		// public function getRawMySQL() {
-			// $this->isSetupMySQL();
-			// return $this->db;
-		// }
+		/** ------------------------------- */
+		/**  V. 1. Regular MySQL Functions  */
+		/** ------------------------------- */
 	
-		/** ------------ */
-		/**  V. 2. Read  */
-		/** ------------ */
+			/** ----------------- */
+			/**  V. 1. A. Status  */
+			/** ----------------- */
+			
+			/**
+			 * Is setup MySQL connection
+			 * 
+			 * @uses OliCore::$db to check the MySQL connection status
+			 * @return boolean|void Returns the MySQL connection status
+			 */
+			public function isSetupMySQL() {
+				if(isset($this->db)) return true;
+				else return false;
+			}
+			
+			/**
+			 * Get raw MySQL PDO Object
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to return PDO object
+			 * @deprecated OliCore::$db can be directly accessed
+			 * @return object Returns current MySQL PDO object
+			 */
+			// public function getRawMySQL() {
+				// $this->isSetupMySQL();
+				// return $this->db;
+			// }
 		
+			/** --------------- */
+			/**  V. 2. B. Read  */
+			/** --------------- */
+			
+			/**
+			 * Run a raw MySQL Query
+			 * 
+			 * @version BETA-1.8.0
+			 * @updated BETA-2.0.0
+			 * @return array|boolean Returns the query result content or true if succeeded.
+			 */
+			public function runQueryMySQL($query, $fetchStyle = true) {
+				if($this->isSetupMySQL()) {
+					$query = $this->db->prepare($query);
+					if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null)) ?: true;
+					else {
+						$this->dbError = $query->errorInfo();
+						return false;
+					}
+				} else return null;
+			}
+			
+			/**
+			 * Get data from MySQL
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return array|boolean Returns data from the requested table if succeeded.
+			 */
+			public function getDataMySQL($table, ...$params) {
+				if($this->isSetupMySQL()) {
+					$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
+					$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
+					
+					$queryParams = null;
+					if(!empty($params)) {
+						foreach($params as $eachKey => $eachParam) {
+							if(!empty($eachParam)) $queryParams .= ' ' . $eachParam;
+						}
+					}
+					
+					return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
+				} else return null;
+			}
+			
+			/**
+			 * Get first info from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param string $whatVar Variable to get
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return array|boolean Returns first info from specified table
+			 */
+			public function getFirstInfoMySQL($table, $whatVar, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table);
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
+				else return false;
+			}
+			
+			/**
+			 * Get first line from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return array|boolean Returns first line from specified table
+			 */
+			public function getFirstLineMySQL($table, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table);
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+					foreach($dataMySQL[0] as $eachKey => $eachValue) {
+						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+					}
+					return $dataMySQL[0];
+				} else return false;
+			}
+			
+			/**
+			 * Get last info from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param string $whatVar Variable to get
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return array|boolean Returns last info from specified table
+			 */
+			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
+				else return false;
+			}
+			
+			/**
+			 * Get last line from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return array|boolean Returns last line from specified table
+			 */
+			public function getLastLineMySQL($table, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+					foreach($dataMySQL[0] as $eachKey => $eachValue) {
+						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+					}
+					return $dataMySQL[0];
+				} else return false;
+			}
+			
+			/**
+			 * Get lines from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param array|void $where Where to get data from
+			 * @param array|void $settings Data returning settings
+			 * @param boolean|void $caseSensitive Where is case sensitive or not
+			 * @param boolean|void $forceArray Return result in an array or not
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return array|boolean Returns lines from specified table
+			 */
+			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+				if(!is_array($settings)) {
+					$rawResult = isset($rawResult) ? $rawResult : $forceArray;
+					$forceArray = $caseSensitive;
+					$caseSensitive = $settings;
+					$settings = null;
+				}
+				if(!isset($caseSensitive)) $caseSensitive = true;
+				if(!isset($forceArray)) $forceArray = false;
+				if(!isset($rawResult)) $rawResult = false;
+				
+				$orderByParam = (isset($settings['order_by'])) ? 'ORDER BY ' . $settings['order_by'] : null;
+				$startFrom = (isset($settings['from']) AND $settings['from'] > 0) ? $settings['from'] : 1;
+				$startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
+				$rowLimit = (isset($settings['limit']) AND $settings['limit'] > 0) ? $settings['limit'] : null;
+				
+				$dataMySQL = $this->getDataMySQL($table, $orderByParam);
+				$valueArray = [];
+				$status = [];
+				$countRows = 0;
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+					$id = 0;
+					foreach($dataMySQL as $eachLineKey => $eachLine) {
+						if((!empty($eachLine['id']) ? $id = $eachLine['id'] : ++$id) < $startFromId) continue;
+						
+						$status[$eachLineKey] = [];
+						if(!empty($where) AND is_array($where)) {
+							$whereLineID = 0;
+							foreach($where as $whereVar => $whereValue) {
+								$whereLineID++;
+								if($whereVar == '*') {
+									foreach($eachLine as $eachKey => $eachValue) {
+										if(is_array($whereValue)) {
+											$eachValue = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+											
+											$status[$eachLineKey][$whereLineID] = $eachKey;
+											foreach($whereValue as $eachWhereKey => $eachWhereValue) {
+												$toCompare = (!$caseSensitive) ? strtolower($eachValue[$eachWhereKey]) : $eachValue[$eachWhereKey];
+												$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
+												
+												if($toCompare != $compareWith) {
+													$status[$eachLineKey][$whereLineID] = false;
+													break;
+												}
+											}
+											
+											if($status[$eachLineKey][$whereLineID] == $eachKey) break;
+										} else {
+											$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
+											$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
+											
+											if($toCompare == $compareWith) {
+												$status[$eachLineKey][$whereLineID] = $eachKey;
+												break;
+											} else $status[$eachLineKey][$whereLineID] = false;
+										}
+									}
+								} else {
+									if(is_array($whereValue)) {
+										$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
+										
+										$status[$eachLineKey][$whereLineID] = $whereVar;
+										foreach($whereValue as $eachWhereKey => $eachWhereValue) {
+											$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar][$eachWhereKey]) : $eachLine[$whereVar][$eachWhereKey];
+											$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
+											
+											if($toCompare != $compareWith) {
+												$status[$eachLineKey][$whereLineID] = false;
+												break;
+											}
+										}
+									} else {
+										$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
+										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
+										
+										if($toCompare == $compareWith) $status[$eachLineKey][$whereLineID] = $whereVar;
+										else $status[$eachLineKey][$whereLineID] = false;
+									}
+								}
+							}
+						}
+						
+						if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where) OR !is_array($where)) {
+							$countRows++;
+							if($countRows < $startFrom) continue;
+							else if(isset($rowLimit) AND $countRows >= $startFrom + $rowLimit) break;
+							
+							foreach($eachLine as $eachKey => $eachValue) {
+								$eachLine[$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+							}
+							
+							$valueArray[] = $eachLine;
+						}
+					}
+				} else return false;
+				
+				if($forceArray OR count($valueArray) > 1) return $valueArray;
+				else if(count($valueArray) == 1) return $valueArray[0];
+				else return false;
+			}
+			
+			/**
+			 * Get infos from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param string|array $whatVar What var(s) to return
+			 * @param array|void $where Where to get data from
+			 * @param array|void $settings Data returning settings
+			 * @param boolean|void $caseSensitive Where is case sensitive or not
+			 * @param boolean|void $forceArray Return result in an array or not
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getDataMySQL() to get data from table
+			 * @return mixed Returns infos from specified table
+			 */
+			public function getInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+				if(!is_array($whatVar)) {
+					$whatVar = [$whatVar];
+					$whatVarArray = false;
+				} else $whatVarArray = true;
+				
+				if(!is_array($settings)) {
+					$rawResult = isset($rawResult) ? $rawResult : $forceArray;
+					$forceArray = $caseSensitive;
+					$caseSensitive = $settings;
+					$settings = null;
+				}
+				if(!isset($caseSensitive)) $caseSensitive = true;
+				if(!isset($forceArray)) $forceArray = false;
+				if(!isset($rawResult)) $rawResult = false;
+				
+				$orderByParam = (isset($settings['order_by'])) ? 'ORDER BY ' . $settings['order_by'] : null;
+				$startFrom = (isset($settings['from']) AND $settings['from'] > 0) ? $settings['from'] : 1;
+				$startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
+				$rowLimit = (isset($settings['limit']) AND $settings['limit'] > 0) ? $settings['limit'] : null;
+				
+				$dataMySQL = $this->getDataMySQL($table, $orderByParam);
+				$valueArray = [];
+				$status = [];
+				$countRows = 0;
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+					$id = 0;
+					foreach($dataMySQL as $eachLineKey => $eachLine) {
+						if((!empty($eachLine['id']) ? $id = $eachLine['id'] : ++$id) < $startFromId) continue;
+						
+						$status[$eachLineKey] = [];
+						if(isset($where) AND is_array($where)) {
+							$whereLineID = 0;
+							foreach($where as $whereVar => $whereValue) {
+								$whereLineID++;
+								if($whereVar == '*') {
+									foreach($eachLine as $eachKey => $eachValue) {
+										if(is_array($whereValue)) {
+											$eachValue = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+											
+											$status[$eachLineKey][$whereLineID] = $eachKey;
+											foreach($whereValue as $eachWhereKey => $eachWhereValue) {
+												$toCompare = (!$caseSensitive) ? strtolower($eachValue[$eachWhereKey]) : $eachValue[$eachWhereKey];
+												$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
+												
+												if($toCompare != $compareWith) {
+													$status[$eachLineKey][$whereLineID] = false;
+													break;
+												}
+											}
+											
+											if($status[$eachLineKey][$whereLineID] == $eachKey) break;
+										} else {
+											$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
+											$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
+											
+											if($toCompare == $compareWith) {
+												$status[$eachLineKey][$whereLineID] = $eachKey;
+												break;
+											}
+											else $status[$eachLineKey][$whereLineID] = false;
+										}
+									}
+								}
+								else {
+									if(is_array($whereValue)) {
+										$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
+										
+										$status[$eachLineKey][$whereLineID] = $whereVar;
+										foreach($whereValue as $eachWhereKey => $eachWhereValue) {
+											$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar][$eachWhereKey]) : $eachLine[$whereVar][$eachWhereKey];
+											$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
+											
+											if($toCompare != $compareWith) {
+												$status[$eachLineKey][$whereLineID] = false;
+												break;
+											}
+										}
+									} else {
+										$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
+										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
+										
+										if($toCompare == $compareWith) $status[$eachLineKey][$whereLineID] = $whereVar;
+										else $status[$eachLineKey][$whereLineID] = false;
+									}
+								}
+							}
+						}
+						
+						if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where) OR !is_array($where)) {
+							$countRows++;
+							if($countRows < $startFrom) continue;
+							else if(isset($rowLimit) AND $countRows >= $startFrom + $rowLimit) break;
+							
+							$lineResult = null;
+							foreach($whatVar as $eachVar) {
+								if(isset($eachLine[$eachVar])) {
+									$eachLine[$eachVar] = (!is_array($eachLine[$eachVar]) AND is_array(json_decode($eachLine[$eachVar], true)) AND !$rawResult) ? json_decode($eachLine[$eachVar], true) : $eachLine[$eachVar];
+									$lineResult[$eachVar] = $eachLine[$eachVar];
+								}
+							}
+							$valueArray[] = (!isset($lineResult) OR $whatVarArray OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
+						}
+					}
+				} else return false;
+				
+				if($forceArray OR count($valueArray) > 1) return $valueArray;
+				else if(count($valueArray) == 1) return $valueArray[0];
+				else return false;
+			}
+			
+			/**
+			 * Get summed infos from table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param string|array $whatVar What var(s) to return
+			 * @param array|void $where Where to get data from
+			 * @param array|void $settings Data returning settings
+			 * @param boolean|void $caseSensitive Where is case sensitive or not
+			 * @param boolean|void $rawResult Return raw result or not
+			 * 
+			 * @uses OliCore::getInfosMySQL() to get infos from table
+			 * @return mixed Returns summed infos from specified table
+			 */
+			public function getSummedInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $rawResult = null) {
+				if(!is_array($settings)) {
+					$rawResult = isset($rawResult) ? $rawResult : $caseSensitive;
+					$caseSensitive = isset($rawResult) ? $caseSensitive : $settings;
+					$settings = null;
+				}
+				if(!isset($caseSensitive)) $caseSensitive = true;
+				if(!isset($rawResult)) $rawResult = false;
+				
+				$summedInfos = null;
+				foreach($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true) as $eachInfo) {
+					$eachInfo = (!is_array($eachInfo) AND is_array(json_decode($eachInfo, true))) ? json_decode($eachInfo, true) : $eachInfo;
+					$summedInfos += $eachInfo;
+				}
+				return (is_array($summedInfos) AND $rawResult) ? json_encode($summedInfos, JSON_FORCE_OBJECT) : $summedInfos;
+			}
+			
+			/**
+			 * Is empty infos in table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param string|array $whatVar What var(s) to return
+			 * @param array|void $where Where to get data from
+			 * @param array|void $settings Data returning settings
+			 * @param boolean|void $caseSensitive Where is case sensitive or not
+			 * 
+			 * @uses OliCore::getInfosMySQL() to get infos from table
+			 * @return boolean Returns true if infos are empty, false otherwise
+			 */
+			public function isEmptyInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
+				return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
+			}
+			
+			/**
+			 * Is exist infos in table
+			 * 
+			 * @param string $table Table to get data from
+			 * @param array|void $where Where to get data from
+			 * @param boolean|void $caseSensitive Where is case sensitive or not
+			 * 
+			 * @uses OliCore::getInfosMySQL() to get infos from table
+			 * @return boolean Returns true if infos exists, false otherwise
+			 */
+			public function isExistInfosMySQL($table, $where = null, $caseSensitive = true) {
+				$dataMySQL = $this->getDataMySQL($table);
+				$valueArray = [];
+				$status = [];
+				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+					foreach($dataMySQL as $eachLineKey => $eachLine) {
+						$status[$eachLineKey] = [];
+						if(!empty($where)) {
+							$whereLineID = 0;
+							foreach($where as $whereVar => $whereValue) {
+								$whereLineID++;
+								if($whereVar == '*') {
+									foreach($eachLine as $eachKey => $eachValue) {
+										if(is_array($whereValue)) {
+											$eachValue = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
+											
+											$status[$eachLineKey][$whereLineID] = $eachKey;
+											foreach($whereValue as $eachWhereKey => $eachWhereValue) {
+												$toCompare = (!$caseSensitive) ? strtolower($eachValue[$eachWhereKey]) : $eachValue[$eachWhereKey];
+												$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
+												
+												if($toCompare != $compareWith) {
+													$status[$eachLineKey][$whereLineID] = false;
+													break;
+												}
+											}
+											
+											if($status[$eachLineKey][$whereLineID] == $eachKey) break;
+										} else {
+											$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
+											$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
+											
+											if($toCompare == $compareWith) {
+												$status[$eachLineKey][$whereLineID] = $eachKey;
+												break;
+											} else $status[$eachLineKey][$whereLineID] = false;
+										}
+									}
+								} else {
+									if(is_array($whereValue)) {
+										$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
+										
+										$status[$eachLineKey][$whereLineID] = $whereVar;
+										foreach($whereValue as $eachWhereKey => $eachWhereValue) {
+											$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar][$eachWhereKey]) : $eachLine[$whereVar][$eachWhereKey];
+											$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
+											
+											if($toCompare != $compareWith) {
+												$status[$eachLineKey][$whereLineID] = false;
+												break;
+											}
+										}
+									} else {
+										$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
+										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
+										
+										if($toCompare == $compareWith) $status[$eachLineKey][$whereLineID] = $whereVar;
+										else $status[$eachLineKey][$whereLineID] = false;
+									}
+								}
+							}
+						}
+						
+						if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where)) $valueArray[] = true;
+					}
+				} else return false;
+				
+				if(count($valueArray) >= 1) return count($valueArray);
+				else return false;
+			}
+			
+			/** ---------------- */
+			/**  V. 1. C. Write  */
+			/** ---------------- */
+			
+			/**
+			 * Insert line in table
+			 * 
+			 * @param string $table Table to insert line into
+			 * @param array $matches Data to insert into the table
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function insertLineMySQL($table, $matches) {
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				foreach($matches as $matchKey => $matchValue) {
+					$queryVars[] = $matchKey;
+					$queryValues[] = ':' . $matchKey;
+					
+					$matchValue = (is_array($matchValue)) ? json_encode($matchValue, JSON_FORCE_OBJECT) : $matchValue;
+					$matches[$matchKey] = $matchValue;
+				}
+				$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
+				return $query->execute($matches) ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Update infos from table
+			 * 
+			 * @param string $table Table to update infos from
+			 * @param array $what What to replace data with
+			 * @param string|array $where Where to update data
+			 * 
+			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+			 * @uses OliCore::$db to execute SQL requests
+			 * @return boolean Return true if the request succeeded, false otherwise
+			 */
+			public function updateInfosMySQL($table, $what, $where) {
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				$matches = [];
+				foreach($what as $whatVar => $whatValue) {
+					$queryWhat[] = $whatVar . ' = :what_' . $whatVar;
+					
+					$whatValue = (is_array($whatValue)) ? json_encode($whatValue, JSON_FORCE_OBJECT) : $whatValue;
+					$matches['what_' . $whatVar] = $whatValue;
+				}
+				if($where != 'all') {
+					foreach($where as $whereVar => $whereValue) {
+						$queryWhere[] = $whereVar . ' = :where_' . $whereVar;
+						
+						$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
+						$matches['where_' . $whereVar] = $whereValue;
+					}
+				}
+				$query = $this->db->prepare('UPDATE ' . $table . ' SET '  . implode(', ', $queryWhat) . ($where != 'all' ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
+				return $query->execute($matches) ?: $query->errorInfo();
+			}
+			
+			/**
+			 * Delete lines from a table
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return boolean Returns true if the request succeeded, false otherwise.
+			 */
+			public function deleteLinesMySQL($table, $where) {
+				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+				if(is_array($where)) {
+					$matches = [];
+					foreach($where as $whereVar => $whereValue) {
+						$queryWhere[] = $whereVar . ' = :' . $whereVar;
+						
+						$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
+						$matches[$whereVar] = $whereValue;
+					}
+				}
+				$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
+				(is_array($where) ? implode(' AND ', $queryWhere) : ($where !== 'all' ? $where : '*')));
+				return $query->execute($matches) ?: $query->errorInfo();
+			}
+			
+			/** ------------------------- */
+			/**  V. 1. D. Database Edits  */
+			/** ------------------------- */
+			
+				/** -------------------- */
+				/**  V. 1. D. a. Tables  */
+				/** -------------------- */
+			
+				/**
+				 * Create new table
+				 * 
+				 * @param string $table Table to insert data into
+				 * @param array $columns Columns to insert into the table
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function createTableMySQL($table, $columns) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					foreach($columns as $matchName => $matchOption) {
+						$queryData[] = $matchName . ' ' . $matchOption;
+					}
+					$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
+					return $query->execute() ?: $query->errorInfo();
+				}
+				
+				/**
+				 * Is Exist MySQL Table
+				 * 
+				 * @version BETA-2.0.0
+				 * @updated BETA-2.0.0
+				 * @return boolean Returns true if it exists.
+				 */
+				public function isExistTableMySQL($table) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('SELECT 1 FROM ' . $table);
+					return $query->execute() !== false;
+				}
+				
+				/**
+				 * Clear table data
+				 * 
+				 * Delete everything in the table but not the table itself
+				 * 
+				 * @param string $table Table to delete data from
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function clearTableMySQL($table) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
+					return $query->execute() ?: $query->errorInfo();
+				}
+				
+				/**
+				 * Delete table
+				 * 
+				 * @param string $table Table to delete
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function deleteTableMySQL($table) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('DROP TABLE ' . $table);
+					return $query->execute() ?: $query->errorInfo();
+				}
+				
+				/** --------------------- */
+				/**  V. 1. D. b. Columns  */
+				/** --------------------- */
+				
+				/**
+				 * Add column to table
+				 * 
+				 * @param string $table Table to insert column into
+				 * @param string $column Column to insert into the table
+				 * @param string $type Type to set for the column
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function addColumnTableMySQL($table, $column, $type) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
+					return $query->execute() ?: $query->errorInfo();
+				}
+				
+				/**
+				 * Update column from table
+				 * 
+				 * @param string $table Table to update column from
+				 * @param string $column Column to update from the table
+				 * @param string $type Type to set for the column
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @todo Add PostgreSQL support
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function updateColumnTableMySQL($table, $column, $type) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
+					return $query->execute() ?: $query->errorInfo();
+				}
+				
+				/**
+				 * Rename column from table
+				 * 
+				 * @param string $table Table to rename column from
+				 * @param array $oldColumn Row to rename from the table
+				 * @param string $newColumn New column name
+				 * @param string|void $type Type to set for the column
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
+					return $query->execute() ?: $query->errorInfo();
+				}
+				
+				/**
+				 * Delete column from table
+				 * 
+				 * @param string $table Table to delete column from
+				 * @param array $column Column to delete from the table
+				 * 
+				 * @uses OliCore::isSetupMySQL() to check the MySQL connection
+				 * @uses OliCore::$db to execute SQL requests
+				 * @todo Add PostgreSQL support
+				 * @return boolean Return true if the request succeeded, false otherwise
+				 */
+				public function deleteColumnTableMySQL($table, $column) {
+					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
+					$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
+					return $query->execute() ?: $query->errorInfo();
+				}
+	
+		/** ------------------------------------- */
+		/**  V. 2. Legacy (Read) MySQL Functions  */
+		/** ------------------------------------- */
+			
 		/**
 		 * Run a raw MySQL Query
 		 * 
@@ -807,7 +1522,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return array|boolean Returns the query result content or true if succeeded.
 		 */
-		public function runQueryMySQL($query, $fetchStyle = true) {
+		public function runQueryLegacyMySQL($query, $fetchStyle = true) {
 			if($this->isSetupMySQL()) {
 				$query = $this->db->prepare($query);
 				if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null)) ?: true;
@@ -825,7 +1540,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return array|boolean Returns data from the requested table if succeeded.
 		 */
-		public function getDataMySQL($table, ...$params) {
+		public function getDataLegacyMySQL($table, ...$params) {
 			if($this->isSetupMySQL()) {
 				$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
 				$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
@@ -851,7 +1566,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return array|boolean Returns first info from specified table
 		 */
-		public function getFirstInfoMySQL($table, $whatVar, $rawResult = false) {
+		public function getFirstInfoLegacyMySQL($table, $whatVar, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table);
 			if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
 			else return false;
@@ -866,7 +1581,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return array|boolean Returns first line from specified table
 		 */
-		public function getFirstLineMySQL($table, $rawResult = false) {
+		public function getFirstLineLegacyMySQL($table, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table);
 			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL[0] as $eachKey => $eachValue) {
@@ -886,7 +1601,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return array|boolean Returns last info from specified table
 		 */
-		public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
+		public function getLastInfoLegacyMySQL($table, $whatVar, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
 			if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
 			else return false;
@@ -901,7 +1616,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return array|boolean Returns last line from specified table
 		 */
-		public function getLastLineMySQL($table, $rawResult = false) {
+		public function getLastLineLegacyMySQL($table, $rawResult = false) {
 			$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
 			if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 				foreach($dataMySQL[0] as $eachKey => $eachValue) {
@@ -924,7 +1639,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return array|boolean Returns lines from specified table
 		 */
-		public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+		public function getLinesLegacyMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 			if(!is_array($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $forceArray;
 				$forceArray = $caseSensitive;
@@ -1039,7 +1754,7 @@ class OliCore {
 		 * @uses OliCore::getDataMySQL() to get data from table
 		 * @return mixed Returns infos from specified table
 		 */
-		public function getInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+		public function getInfosLegacyMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 			if(!is_array($whatVar)) {
 				$whatVar = [$whatVar];
 				$whatVarArray = false;
@@ -1163,7 +1878,7 @@ class OliCore {
 		 * @uses OliCore::getInfosMySQL() to get infos from table
 		 * @return mixed Returns summed infos from specified table
 		 */
-		public function getSummedInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $rawResult = null) {
+		public function getSummedInfosLegacyMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $rawResult = null) {
 			if(!is_array($settings)) {
 				$rawResult = isset($rawResult) ? $rawResult : $caseSensitive;
 				$caseSensitive = isset($rawResult) ? $caseSensitive : $settings;
@@ -1192,7 +1907,7 @@ class OliCore {
 		 * @uses OliCore::getInfosMySQL() to get infos from table
 		 * @return boolean Returns true if infos are empty, false otherwise
 		 */
-		public function isEmptyInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
+		public function isEmptyInfosLegacyMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
 			return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
 		}
 		
@@ -1206,7 +1921,7 @@ class OliCore {
 		 * @uses OliCore::getInfosMySQL() to get infos from table
 		 * @return boolean Returns true if infos exists, false otherwise
 		 */
-		public function isExistInfosMySQL($table, $where = null, $caseSensitive = true) {
+		public function isExistInfosLegacyMySQL($table, $where = null, $caseSensitive = true) {
 			$dataMySQL = $this->getDataMySQL($table);
 			$valueArray = [];
 			$status = [];
@@ -1276,234 +1991,6 @@ class OliCore {
 			if(count($valueArray) >= 1) return count($valueArray);
 			else return false;
 		}
-	
-		/** ------------- */
-		/**  V. 3. Write  */
-		/** ------------- */
-		
-		/**
-		 * Insert line in table
-		 * 
-		 * @param string $table Table to insert line into
-		 * @param array $matches Data to insert into the table
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function insertLineMySQL($table, $matches) {
-			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			foreach($matches as $matchKey => $matchValue) {
-				$queryVars[] = $matchKey;
-				$queryValues[] = ':' . $matchKey;
-				
-				$matchValue = (is_array($matchValue)) ? json_encode($matchValue, JSON_FORCE_OBJECT) : $matchValue;
-				$matches[$matchKey] = $matchValue;
-			}
-			$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
-			return $query->execute($matches) ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Update infos from table
-		 * 
-		 * @param string $table Table to update infos from
-		 * @param array $what What to replace data with
-		 * @param string|array $where Where to update data
-		 * 
-		 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-		 * @uses OliCore::$db to execute SQL requests
-		 * @return boolean Return true if the request succeeded, false otherwise
-		 */
-		public function updateInfosMySQL($table, $what, $where) {
-			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			$matches = [];
-			foreach($what as $whatVar => $whatValue) {
-				$queryWhat[] = $whatVar . ' = :what_' . $whatVar;
-				
-				$whatValue = (is_array($whatValue)) ? json_encode($whatValue, JSON_FORCE_OBJECT) : $whatValue;
-				$matches['what_' . $whatVar] = $whatValue;
-			}
-			if($where != 'all') {
-				foreach($where as $whereVar => $whereValue) {
-					$queryWhere[] = $whereVar . ' = :where_' . $whereVar;
-					
-					$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
-					$matches['where_' . $whereVar] = $whereValue;
-				}
-			}
-			$query = $this->db->prepare('UPDATE ' . $table . ' SET '  . implode(', ', $queryWhat) . ($where != 'all' ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
-			return $query->execute($matches) ?: $query->errorInfo();
-		}
-		
-		/**
-		 * Delete lines from a table
-		 * 
-		 * @version BETA
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if the request succeeded, false otherwise.
-		 */
-		public function deleteLinesMySQL($table, $where) {
-			if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-			if(is_array($where)) {
-				$matches = [];
-				foreach($where as $whereVar => $whereValue) {
-					$queryWhere[] = $whereVar . ' = :' . $whereVar;
-					
-					$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
-					$matches[$whereVar] = $whereValue;
-				}
-			}
-			$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
-			(is_array($where) ? implode(' AND ', $queryWhere) : ($where !== 'all' ? $where : '*')));
-			return $query->execute($matches) ?: $query->errorInfo();
-		}
-	
-		/** ---------------------- */
-		/**  V. 4. Database Edits  */
-		/** ---------------------- */
-		
-			/** ----------------- */
-			/**  V. 4. A. Tables  */
-			/** ----------------- */
-		
-			/**
-			 * Create new table
-			 * 
-			 * @param string $table Table to insert data into
-			 * @param array $columns Columns to insert into the table
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function createTableMySQL($table, $columns) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				foreach($columns as $matchName => $matchOption) {
-					$queryData[] = $matchName . ' ' . $matchOption;
-				}
-				$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
-				return $query->execute() ?: $query->errorInfo();
-			}
-			
-			/**
-			 * Is Exist MySQL Table
-			 * 
-			 * @version BETA-2.0.0
-			 * @updated BETA-2.0.0
-			 * @return boolean Returns true if it exists.
-			 */
-			public function isExistTableMySQL($table) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('SELECT 1 FROM ' . $table);
-				return $query->execute() !== false;
-			}
-			
-			/**
-			 * Clear table data
-			 * 
-			 * Delete everything in the table but not the table itself
-			 * 
-			 * @param string $table Table to delete data from
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function clearTableMySQL($table) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
-				return $query->execute() ?: $query->errorInfo();
-			}
-			
-			/**
-			 * Delete table
-			 * 
-			 * @param string $table Table to delete
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function deleteTableMySQL($table) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('DROP TABLE ' . $table);
-				return $query->execute() ?: $query->errorInfo();
-			}
-			
-			/** ------------------ */
-			/**  V. 4. A. Columns  */
-			/** ------------------ */
-			
-			/**
-			 * Add column to table
-			 * 
-			 * @param string $table Table to insert column into
-			 * @param string $column Column to insert into the table
-			 * @param string $type Type to set for the column
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function addColumnTableMySQL($table, $column, $type) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
-				return $query->execute() ?: $query->errorInfo();
-			}
-			
-			/**
-			 * Update column from table
-			 * 
-			 * @param string $table Table to update column from
-			 * @param string $column Column to update from the table
-			 * @param string $type Type to set for the column
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @todo Add PostgreSQL support
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function updateColumnTableMySQL($table, $column, $type) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
-				return $query->execute() ?: $query->errorInfo();
-			}
-			
-			/**
-			 * Rename column from table
-			 * 
-			 * @param string $table Table to rename column from
-			 * @param array $oldColumn Row to rename from the table
-			 * @param string $newColumn New column name
-			 * @param string|void $type Type to set for the column
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
-				return $query->execute() ?: $query->errorInfo();
-			}
-			
-			/**
-			 * Delete column from table
-			 * 
-			 * @param string $table Table to delete column from
-			 * @param array $column Column to delete from the table
-			 * 
-			 * @uses OliCore::isSetupMySQL() to check the MySQL connection
-			 * @uses OliCore::$db to execute SQL requests
-			 * @todo Add PostgreSQL support
-			 * @return boolean Return true if the request succeeded, false otherwise
-			 */
-			public function deleteColumnTableMySQL($table, $column) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
-				return $query->execute() ?: $query->errorInfo();
-			}
 	
 	/** *** *** */
 	
