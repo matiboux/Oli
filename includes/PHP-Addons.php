@@ -26,7 +26,7 @@ if(!function_exists('is_assoc')) {
  * 
  * Like array_pop() or array_shift(), but for a specific key.
  * 
- * @version BETA
+ * @version BETA-1.8.1
  * @updated BETA-2.0.0
  * @return mixed Returns the requested element if found, null otherwise.
  */
