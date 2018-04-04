@@ -908,18 +908,6 @@ class OliCore {
 			}
 			
 			/**
-			 * Get lines from table
-			 * 
-			 * @version BETA
-			 * @updated BETA-2.0.0
-			 * @related OliCore::getInfosMySQL()
-			 * @return array|null Returns lines from specified table.
-			 */
-			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
-			}
-			
-			/**
 			 * Get infos from table
 			 * 
 			 * @version BETA
@@ -968,6 +956,17 @@ class OliCore {
 						return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : $dataMySQL[0];
 					} else return null;
 				} else return null;
+			}
+			/**
+			 * Get lines from table
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return array|null Returns lines from specified table.
+			 */
+			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+				return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
 			/**
