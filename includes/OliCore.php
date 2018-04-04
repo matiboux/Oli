@@ -861,8 +861,8 @@ class OliCore {
 			public function getFirstInfoMySQL($table, $whatVar = null, $sortBy = null, $rawResult = false) {
 				$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
 				if(!empty($dataMySQL)) {
-					if(!$rawResult) array_map(function($value) {
-						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+					if(!$rawResult) $where = array_map(function($value) {
+						return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
 					}, $dataMySQL);
 					return $dataMySQL;
 				} else return null;
@@ -889,8 +889,8 @@ class OliCore {
 			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
 				$dataMySQL = array_reverse($this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null))[0];
 				if(!empty($dataMySQL)) {
-					if(!$rawResult) array_map(function($value) {
-						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+					if(!$rawResult) $where = array_map(function($value) {
+						return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
 					}, $dataMySQL);
 					return $dataMySQL;
 				} else return null;
