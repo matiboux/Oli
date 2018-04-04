@@ -910,139 +910,26 @@ class OliCore {
 			/**
 			 * Get lines from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param array|void $where Where to get data from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * @param boolean|void $forceArray Return result in an array or not
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns lines from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return array|null Returns lines from specified table.
 			 */
 			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(!is_array($settings)) {
-					$rawResult = isset($rawResult) ? $rawResult : $forceArray;
-					$forceArray = $caseSensitive;
-					$caseSensitive = $settings;
-					$settings = null;
-				}
-				if(!isset($caseSensitive)) $caseSensitive = true;
-				if(!isset($forceArray)) $forceArray = false;
-				if(!isset($rawResult)) $rawResult = false;
-				
-				$orderByParam = (isset($settings['order_by'])) ? 'ORDER BY ' . $settings['order_by'] : null;
-				$startFrom = (isset($settings['from']) AND $settings['from'] > 0) ? $settings['from'] : 1;
-				$startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
-				$rowLimit = (isset($settings['limit']) AND $settings['limit'] > 0) ? $settings['limit'] : null;
-				
-				$dataMySQL = $this->getDataMySQL($table, $orderByParam);
-				$valueArray = [];
-				$status = [];
-				$countRows = 0;
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					$id = 0;
-					foreach($dataMySQL as $eachLineKey => $eachLine) {
-						if((!empty($eachLine['id']) ? $id = $eachLine['id'] : ++$id) < $startFromId) continue;
-						
-						$status[$eachLineKey] = [];
-						if(!empty($where) AND is_array($where)) {
-							$whereLineID = 0;
-							foreach($where as $whereVar => $whereValue) {
-								$whereLineID++;
-								if($whereVar == '*') {
-									foreach($eachLine as $eachKey => $eachValue) {
-										if(is_array($whereValue)) {
-											$eachValue = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
-											
-											$status[$eachLineKey][$whereLineID] = $eachKey;
-											foreach($whereValue as $eachWhereKey => $eachWhereValue) {
-												$toCompare = (!$caseSensitive) ? strtolower($eachValue[$eachWhereKey]) : $eachValue[$eachWhereKey];
-												$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
-												
-												if($toCompare != $compareWith) {
-													$status[$eachLineKey][$whereLineID] = false;
-													break;
-												}
-											}
-											
-											if($status[$eachLineKey][$whereLineID] == $eachKey) break;
-										} else {
-											$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
-											$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
-											
-											if($toCompare == $compareWith) {
-												$status[$eachLineKey][$whereLineID] = $eachKey;
-												break;
-											} else $status[$eachLineKey][$whereLineID] = false;
-										}
-									}
-								} else {
-									if(is_array($whereValue)) {
-										$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
-										
-										$status[$eachLineKey][$whereLineID] = $whereVar;
-										foreach($whereValue as $eachWhereKey => $eachWhereValue) {
-											$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar][$eachWhereKey]) : $eachLine[$whereVar][$eachWhereKey];
-											$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
-											
-											if($toCompare != $compareWith) {
-												$status[$eachLineKey][$whereLineID] = false;
-												break;
-											}
-										}
-									} else {
-										$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
-										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
-										
-										if($toCompare == $compareWith) $status[$eachLineKey][$whereLineID] = $whereVar;
-										else $status[$eachLineKey][$whereLineID] = false;
-									}
-								}
-							}
-						}
-						
-						if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where) OR !is_array($where)) {
-							$countRows++;
-							if($countRows < $startFrom) continue;
-							else if(isset($rowLimit) AND $countRows >= $startFrom + $rowLimit) break;
-							
-							foreach($eachLine as $eachKey => $eachValue) {
-								$eachLine[$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
-							}
-							
-							$valueArray[] = $eachLine;
-						}
-					}
-				} else return false;
-				
-				if($forceArray OR count($valueArray) > 1) return $valueArray;
-				else if(count($valueArray) == 1) return $valueArray[0];
-				else return false;
+				return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
 			/**
 			 * Get infos from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param string|array $whatVar What var(s) to return
-			 * @param array|void $where Where to get data from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * @param boolean|void $forceArray Return result in an array or not
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return mixed Returns infos from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return array|null Returns infos from specified table.
 			 */
-			public function getInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(!is_array($whatVar)) {
-					$whatVar = [$whatVar];
-					$whatVarArray = false;
-				} else $whatVarArray = true;
-				
-				if(!is_array($settings)) {
-					$rawResult = isset($rawResult) ? $rawResult : $forceArray;
+			public function getInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+				/** Parameters Management */
+				if(is_bool($settings)) {
+					$rawResult = $forceArray;
 					$forceArray = $caseSensitive;
 					$caseSensitive = $settings;
 					$settings = null;
@@ -1051,99 +938,36 @@ class OliCore {
 				if(!isset($forceArray)) $forceArray = false;
 				if(!isset($rawResult)) $rawResult = false;
 				
-				$orderByParam = (isset($settings['order_by'])) ? 'ORDER BY ' . $settings['order_by'] : null;
-				$startFrom = (isset($settings['from']) AND $settings['from'] > 0) ? $settings['from'] : 1;
-				$startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
-				$rowLimit = (isset($settings['limit']) AND $settings['limit'] > 0) ? $settings['limit'] : null;
+				/** Where Condition */
+				if(in_array($where, [null, 'all', '*'], true)) $where = '1';
+				else if(is_assoc($where)) $where = array_map(function($key, $value) {
+					if(!$caseSensitive) return 'LOWER(`' . $key . '`) = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
+					else return '`' . $key . '` = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
+				}, array_keys($where), array_values($where));
 				
-				$dataMySQL = $this->getDataMySQL($table, $orderByParam);
-				$valueArray = [];
-				$status = [];
-				$countRows = 0;
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					$id = 0;
-					foreach($dataMySQL as $eachLineKey => $eachLine) {
-						if((!empty($eachLine['id']) ? $id = $eachLine['id'] : ++$id) < $startFromId) continue;
-						
-						$status[$eachLineKey] = [];
-						if(isset($where) AND is_array($where)) {
-							$whereLineID = 0;
-							foreach($where as $whereVar => $whereValue) {
-								$whereLineID++;
-								if($whereVar == '*') {
-									foreach($eachLine as $eachKey => $eachValue) {
-										if(is_array($whereValue)) {
-											$eachValue = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
-											
-											$status[$eachLineKey][$whereLineID] = $eachKey;
-											foreach($whereValue as $eachWhereKey => $eachWhereValue) {
-												$toCompare = (!$caseSensitive) ? strtolower($eachValue[$eachWhereKey]) : $eachValue[$eachWhereKey];
-												$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
-												
-												if($toCompare != $compareWith) {
-													$status[$eachLineKey][$whereLineID] = false;
-													break;
-												}
-											}
-											
-											if($status[$eachLineKey][$whereLineID] == $eachKey) break;
-										} else {
-											$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
-											$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
-											
-											if($toCompare == $compareWith) {
-												$status[$eachLineKey][$whereLineID] = $eachKey;
-												break;
-											}
-											else $status[$eachLineKey][$whereLineID] = false;
-										}
-									}
-								}
-								else {
-									if(is_array($whereValue)) {
-										$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
-										
-										$status[$eachLineKey][$whereLineID] = $whereVar;
-										foreach($whereValue as $eachWhereKey => $eachWhereValue) {
-											$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar][$eachWhereKey]) : $eachLine[$whereVar][$eachWhereKey];
-											$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
-											
-											if($toCompare != $compareWith) {
-												$status[$eachLineKey][$whereLineID] = false;
-												break;
-											}
-										}
-									} else {
-										$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
-										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
-										
-										if($toCompare == $compareWith) $status[$eachLineKey][$whereLineID] = $whereVar;
-										else $status[$eachLineKey][$whereLineID] = false;
-									}
-								}
+				if(!empty($where)) {
+					/** Additional Settings */
+					if(!empty($settings)) {
+						$settings = array_filter($settings);
+						if(is_assoc($settings)) {
+							if(isset($settings['order_by'])) $settings[] = 'ORDER BY ' . array_pull($settings, 'order_by');
+							if(isset($settings['limit'])) {
+								if(isset($settings['from'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'from');
+								else if(isset($settings['offset'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'offset');
+								else $settings[] = 'LIMIT ' . array_pull($settings, 'limit');
 							}
-						}
-						
-						if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where) OR !is_array($where)) {
-							$countRows++;
-							if($countRows < $startFrom) continue;
-							else if(isset($rowLimit) AND $countRows >= $startFrom + $rowLimit) break;
-							
-							$lineResult = null;
-							foreach($whatVar as $eachVar) {
-								if(isset($eachLine[$eachVar])) {
-									$eachLine[$eachVar] = (!is_array($eachLine[$eachVar]) AND is_array(json_decode($eachLine[$eachVar], true)) AND !$rawResult) ? json_decode($eachLine[$eachVar], true) : $eachLine[$eachVar];
-									$lineResult[$eachVar] = $eachLine[$eachVar];
-								}
-							}
-							$valueArray[] = (!isset($lineResult) OR $whatVarArray OR count($lineResult) > 1) ? $lineResult : array_values($lineResult)[0];
-						}
+							// $startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
+						} else if(!is_array($settings)) $settings = [$settings];
 					}
-				} else return false;
-				
-				if($forceArray OR count($valueArray) > 1) return $valueArray;
-				else if(count($valueArray) == 1) return $valueArray[0];
-				else return false;
+					
+					$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode(' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
+					if(!empty($dataMySQL)) {
+						if(!$rawResult) $where = array_map(function($value) {
+							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+						}, $dataMySQL); var_dump($dataMySQL);
+						return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : $dataMySQL[0];
+					} else return null;
+				} else return null;
 			}
 			
 			/**
