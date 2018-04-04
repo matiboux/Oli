@@ -852,17 +852,6 @@ class OliCore {
 			}
 			
 			/**
-			 * Get first line from table
-			 * 
-			 * @version BETA
-			 * @updated BETA-2.0.0
-			 * @return array|null Returns first line from specified table.
-			 */
-			public function getFirstLineMySQL($table, $sortBy = null, $rawResult = false) {
-				return $this->getFirstInfoMySQL($table, null, $sortBy, $rawResult);
-			}
-			
-			/**
 			 * Get first info from table
 			 * 
 			 * @version BETA
@@ -878,16 +867,16 @@ class OliCore {
 					return $dataMySQL;
 				} else return null;
 			}
-			
 			/**
-			 * Get last line from table
+			 * Get first line from table
 			 * 
 			 * @version BETA
 			 * @updated BETA-2.0.0
-			 * @return array|null Returns last line from specified table.
+			 * @related OliCore::getFirstInfoMySQL()
+			 * @return array|null Returns first line from specified table.
 			 */
-			public function getLastLineMySQL($table, $rawResult = false) {
-				return $this->getLastInfoMySQL($table, null, $sortBy, $rawResult);
+			public function getFirstLineMySQL($table, $sortBy = null, $rawResult = false) {
+				return $this->getFirstInfoMySQL($table, null, $sortBy, $rawResult);
 			}
 			
 			/**
@@ -905,6 +894,17 @@ class OliCore {
 					}, $dataMySQL);
 					return $dataMySQL;
 				} else return null;
+			}
+			/**
+			 * Get last line from table
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getLastInfoMySQL()
+			 * @return array|null Returns last line from specified table.
+			 */
+			public function getLastLineMySQL($table, $rawResult = false) {
+				return $this->getLastInfoMySQL($table, null, $sortBy, $rawResult);
 			}
 			
 			/**
