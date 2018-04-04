@@ -1002,16 +1002,12 @@ class OliCore {
 			/**
 			 * Is empty infos in table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param string|array $whatVar What var(s) to return
-			 * @param array|void $where Where to get data from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * 
-			 * @uses OliCore::getInfosMySQL() to get infos from table
-			 * @return boolean Returns true if infos are empty, false otherwise
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return array|null Returns true if infos are empty, false otherwise.
 			 */
-			public function isEmptyInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
+			public function isEmptyInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
 				return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
 			}
 			
