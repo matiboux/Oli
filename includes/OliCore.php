@@ -858,15 +858,8 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|null Returns first line from specified table.
 			 */
-			public function getFirstLineMySQL($table, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table, 'LIMIT 1');
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					$dataMySQL = count($dataMySQL) > 1 ? $dataMySQL : $dataMySQL[0];
-					if(!$rawResult) array_map(function($value) {
-						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
-					}, $dataMySQL);
-					return $dataMySQL;
-				} else return null;
+			public function getFirstLineMySQL($table, $sortBy = null, $rawResult = false) {
+				return $this->getFirstInfoMySQL($table, null, $sortBy, $rawResult);
 			}
 			
 			/**
@@ -876,8 +869,8 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|null Returns first info from specified table.
 			 */
-			public function getFirstInfoMySQL($table, $whatVar = null, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table, $whatVar, 'LIMIT 1')[0];
+			public function getFirstInfoMySQL($table, $whatVar = null, $sortBy = null, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
 				if(!empty($dataMySQL)) {
 					if(!$rawResult) array_map(function($value) {
 						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
