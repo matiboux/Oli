@@ -23,18 +23,13 @@ if(!function_exists('is_assoc')) {
 
 /** Array Pull */
 // Like an array_pop or array_shift, but for a specific key
-// Inspirated by http://php.net/manual/fr/function.array-slice.php#81973 (user note){
 if(!function_exists('array_pull')) {
-	function array_pull(&$array, $key){
-		$holding = [];
-		foreach($array as $eachKey => $eachValue) {
-			if($eachKey == $key) {
-				$holding[$eachKey] = $eachValue;
-				break;
-			}
-		}
-		$array = array_diff_assoc($array, $holding);
-		return $holding[$key];
+	function array_pull(&$array, $key) {
+		if(array_key_exists($key, $array)) {
+			$value = $array[$key];
+			unset($array[$key]);
+			return $value;
+		} else return null;
 	}
 }
 
