@@ -21,8 +21,15 @@ if(!function_exists('is_assoc')) {
 	}
 }
 
-/** Array Pull */
-// Like an array_pop or array_shift, but for a specific key
+/**
+ * Pulls an element off an array
+ * 
+ * Like array_pop() or array_shift(), but for a specific key.
+ * 
+ * @version BETA
+ * @updated BETA-2.0.0
+ * @return mixed Returns the requested element if found, null otherwise.
+ */
 if(!function_exists('array_pull')) {
 	function array_pull(&$array, $key) {
 		if(array_key_exists($key, $array)) {
