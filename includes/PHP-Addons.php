@@ -13,11 +13,18 @@
 
 namespace {
 
-/** Is Array Associative? */
-// Inspirated by http://stackoverflow.com/a/173479/5255556
+/**
+ * Finds whether a variable is an associative array
+ * 
+ * Inspirated by http://stackoverflow.com/a/173479/5255556
+ * 
+ * @version BETA-1.7.0
+ * @updated BETA-2.0.0
+ * @return mixed Returns true if the variable is an associative array, false otherwise.
+ */
 if(!function_exists('is_assoc')) {
 	function is_assoc($array) {
-		return is_array($array) ? !empty($array) AND array_keys($array) !== range(0, count($array) - 1) : false;
+		return !empty($array) AND is_array($array) AND array_keys($array) !== range(0, count($array) - 1);
 	}
 }
 
