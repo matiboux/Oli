@@ -872,21 +872,18 @@ class OliCore {
 			/**
 			 * Get first info from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param string $whatVar Variable to get
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns first info from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return array|null Returns first info from specified table.
 			 */
-			public function getFirstInfoMySQL($table, $whatVar, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table);
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
-				else return false;
-				
-				// $dataMySQL = $this->getDataMySQL($table, !is_array($whatVar) ? [$whatVar] : $whatVar);
-				// if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
-				// else return false;
+			public function getFirstInfoMySQL($table, $whatVar = null, $rawResult = false) {
+				$dataMySQL = $this->getDataMySQL($table, $whatVar, 'LIMIT 1')[0];
+				if(!empty($dataMySQL)) {
+					if(!$rawResult) array_map(function($value) {
+						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+					}, $dataMySQL);
+					return $dataMySQL;
+				} else return null;
 			}
 			
 			/**
