@@ -882,36 +882,29 @@ class OliCore {
 			/**
 			 * Get last line from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns last line from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return array|null Returns last line from specified table.
 			 */
 			public function getLastLineMySQL($table, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					foreach($dataMySQL[0] as $eachKey => $eachValue) {
-						$dataMySQL[0][$eachKey] = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
-					}
-					return $dataMySQL[0];
-				} else return false;
+				return $this->getLastInfoMySQL($table, null, $sortBy, $rawResult);
 			}
 			
 			/**
-			 * Get last info from table
+			 * Get first info from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param string $whatVar Variable to get
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getDataMySQL() to get data from table
-			 * @return array|boolean Returns last info from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return array|null Returns last info from specified table.
 			 */
 			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table, 'ORDER BY id DESC');
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) return (!is_array($dataMySQL[0][$whatVar]) AND is_array(json_decode($dataMySQL[0][$whatVar], true)) AND !$rawResult) ? json_decode($dataMySQL[0][$whatVar], true) : $dataMySQL[0][$whatVar];
-				else return false;
+				$dataMySQL = array_reverse($this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null))[0];
+				if(!empty($dataMySQL)) {
+					if(!$rawResult) array_map(function($value) {
+						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+					}, $dataMySQL);
+					return $dataMySQL;
+				} else return null;
 			}
 			
 			/**
