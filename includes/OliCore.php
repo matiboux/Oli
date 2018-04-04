@@ -968,6 +968,17 @@ class OliCore {
 			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
+			/**
+			 * Is empty infos in table
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return array|null Returns true if infos are empty, false otherwise.
+			 */
+			public function isEmptyInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
+				return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
+			}
 			
 			/**
 			 * Get summed infos from table
@@ -997,18 +1008,6 @@ class OliCore {
 					$summedInfos += $eachInfo;
 				}
 				return (is_array($summedInfos) AND $rawResult) ? json_encode($summedInfos, JSON_FORCE_OBJECT) : $summedInfos;
-			}
-			
-			/**
-			 * Is empty infos in table
-			 * 
-			 * @version BETA
-			 * @updated BETA-2.0.0
-			 * @related OliCore::getInfosMySQL()
-			 * @return array|null Returns true if infos are empty, false otherwise.
-			 */
-			public function isEmptyInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
-				return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
 			}
 			
 			/**
