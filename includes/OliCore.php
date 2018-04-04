@@ -862,11 +862,9 @@ class OliCore {
 				$dataMySQL = $this->getDataMySQL($table, 'LIMIT 1');
 				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 					$dataMySQL = count($dataMySQL) > 1 ? $dataMySQL : $dataMySQL[0];
-					if(!rawResult) {
-						foreach($dataMySQL as $eachKey => $eachValue) {
-							if(!is_array($eachValue) AND is_array($decodedValue = json_decode($eachValue, true))) $dataMySQL[$eachKey] = $decodedValue;
-						}
-					}
+					if(!$rawResult) array_map(function($value) {
+						return (!is_array($eachValue) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+					}, $dataMySQL);
 					return $dataMySQL;
 				} else return null;
 			}
