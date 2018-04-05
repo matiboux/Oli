@@ -1014,7 +1014,7 @@ class OliCore {
 			 * @return integer|boolean Returns the number of infos found, false if none found.
 			 */
 			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
-				return (int) array_values($this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive))[0] ?: false;
+				return (int) $this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive) ?: false;
 			}
 			
 			/**
