@@ -983,31 +983,20 @@ class OliCore {
 			/**
 			 * Get summed infos from table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param string|array $whatVar What var(s) to return
-			 * @param array|void $where Where to get data from
-			 * @param array|void $settings Data returning settings
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * @param boolean|void $rawResult Return raw result or not
-			 * 
-			 * @uses OliCore::getInfosMySQL() to get infos from table
-			 * @return mixed Returns summed infos from specified table
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return numeric|boolean|null Returns summed infos if numeric values are found, false otherwise. Returns null if no MySQL infos is found.
 			 */
-			public function getSummedInfosMySQL($table, $whatVar, $where = null, $settings = null, $caseSensitive = null, $rawResult = null) {
-				if(!is_array($settings)) {
-					$rawResult = isset($rawResult) ? $rawResult : $caseSensitive;
-					$caseSensitive = isset($rawResult) ? $caseSensitive : $settings;
-					$settings = null;
-				}
-				if(!isset($caseSensitive)) $caseSensitive = true;
-				if(!isset($rawResult)) $rawResult = false;
-				
-				$summedInfos = null;
-				foreach($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true) as $eachInfo) {
-					$eachInfo = (!is_array($eachInfo) AND is_array(json_decode($eachInfo, true))) ? json_decode($eachInfo, true) : $eachInfo;
-					$summedInfos += $eachInfo;
-				}
-				return (is_array($summedInfos) AND $rawResult) ? json_encode($summedInfos, JSON_FORCE_OBJECT) : $summedInfos;
+			public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
+				$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
+				if(!empty($infosMySQL)) {
+					$summedInfos = null;
+					foreach($infosMySQL as $eachValue) {
+						if(is_numeric($eachValue)) $summedInfos += $eachInfo;
+					}
+				} else $summedInfos = false;
+				return $summedInfos;
 			}
 			
 			/**
