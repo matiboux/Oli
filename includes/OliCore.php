@@ -1002,82 +1002,13 @@ class OliCore {
 			/**
 			 * Is exist infos in table
 			 * 
-			 * @param string $table Table to get data from
-			 * @param array|void $where Where to get data from
-			 * @param boolean|void $caseSensitive Where is case sensitive or not
-			 * 
-			 * @uses OliCore::getInfosMySQL() to get infos from table
-			 * @return boolean Returns true if infos exists, false otherwise
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return integer|boolean Returns the number of infos found, false if none found.
 			 */
-			public function isExistInfosMySQL($table, $where = null, $caseSensitive = true) {
-				$dataMySQL = $this->getDataMySQL($table);
-				$valueArray = [];
-				$status = [];
-				if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-					foreach($dataMySQL as $eachLineKey => $eachLine) {
-						$status[$eachLineKey] = [];
-						if(!empty($where)) {
-							$whereLineID = 0;
-							foreach($where as $whereVar => $whereValue) {
-								$whereLineID++;
-								if($whereVar == '*') {
-									foreach($eachLine as $eachKey => $eachValue) {
-										if(is_array($whereValue)) {
-											$eachValue = (!is_array($eachValue) AND is_array(json_decode($eachValue, true)) AND !$rawResult) ? json_decode($eachValue, true) : $eachValue;
-											
-											$status[$eachLineKey][$whereLineID] = $eachKey;
-											foreach($whereValue as $eachWhereKey => $eachWhereValue) {
-												$toCompare = (!$caseSensitive) ? strtolower($eachValue[$eachWhereKey]) : $eachValue[$eachWhereKey];
-												$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
-												
-												if($toCompare != $compareWith) {
-													$status[$eachLineKey][$whereLineID] = false;
-													break;
-												}
-											}
-											
-											if($status[$eachLineKey][$whereLineID] == $eachKey) break;
-										} else {
-											$toCompare = (!$caseSensitive) ? strtolower($eachValue) : $eachValue;
-											$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
-											
-											if($toCompare == $compareWith) {
-												$status[$eachLineKey][$whereLineID] = $eachKey;
-												break;
-											} else $status[$eachLineKey][$whereLineID] = false;
-										}
-									}
-								} else {
-									if(is_array($whereValue)) {
-										$eachLine[$whereVar] = (!is_array($eachLine[$whereVar]) AND is_array(json_decode($eachLine[$whereVar], true)) AND !$rawResult) ? json_decode($eachLine[$whereVar], true) : $eachLine[$whereVar];
-										
-										$status[$eachLineKey][$whereLineID] = $whereVar;
-										foreach($whereValue as $eachWhereKey => $eachWhereValue) {
-											$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar][$eachWhereKey]) : $eachLine[$whereVar][$eachWhereKey];
-											$compareWith = (!$caseSensitive) ? strtolower($eachWhereValue) : $eachWhereValue;
-											
-											if($toCompare != $compareWith) {
-												$status[$eachLineKey][$whereLineID] = false;
-												break;
-											}
-										}
-									} else {
-										$toCompare = (!$caseSensitive) ? strtolower($eachLine[$whereVar]) : $eachLine[$whereVar];
-										$compareWith = (!$caseSensitive) ? strtolower($whereValue) : $whereValue;
-										
-										if($toCompare == $compareWith) $status[$eachLineKey][$whereLineID] = $whereVar;
-										else $status[$eachLineKey][$whereLineID] = false;
-									}
-								}
-							}
-						}
-						
-						if((!in_array(false, $status[$eachLineKey]) AND !empty($status[$eachLineKey])) OR empty($where)) $valueArray[] = true;
-					}
-				} else return false;
-				
-				if(count($valueArray) >= 1) return count($valueArray);
-				else return false;
+			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
+				return (int) array_values($this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive))[0] ?: false;
 			}
 			
 			/** ---------------- */
