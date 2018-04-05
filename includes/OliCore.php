@@ -979,6 +979,25 @@ class OliCore {
 			}
 			
 			/**
+			 * Get summed infos from table
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return numeric|boolean|null Returns summed infos if numeric values are found, false otherwise. Returns null if no MySQL infos is found.
+			 */
+			public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
+				$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
+				if(!empty($infosMySQL)) {
+					$summedInfos = null;
+					foreach($infosMySQL as $eachValue) {
+						if(is_numeric($eachValue)) $summedInfos += $eachInfo;
+					}
+				} else $summedInfos = false;
+				return $summedInfos;
+			}
+			
+			/**
 			 * Is exist infos in table
 			 * 
 			 * @version BETA
@@ -1000,25 +1019,6 @@ class OliCore {
 			 */
 			public function isEmptyInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
 				return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
-			}
-			
-			/**
-			 * Get summed infos from table
-			 * 
-			 * @version BETA
-			 * @updated BETA-2.0.0
-			 * @related OliCore::getInfosMySQL()
-			 * @return numeric|boolean|null Returns summed infos if numeric values are found, false otherwise. Returns null if no MySQL infos is found.
-			 */
-			public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
-				$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
-				if(!empty($infosMySQL)) {
-					$summedInfos = null;
-					foreach($infosMySQL as $eachValue) {
-						if(is_numeric($eachValue)) $summedInfos += $eachInfo;
-					}
-				} else $summedInfos = false;
-				return $summedInfos;
 			}
 			
 			/** ---------------- */
