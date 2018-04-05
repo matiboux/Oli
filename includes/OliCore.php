@@ -859,12 +859,14 @@ class OliCore {
 			 * @return array|null Returns first info from specified table.
 			 */
 			public function getFirstInfoMySQL($table, $whatVar = null, $sortBy = null, $rawResult = false) {
-				$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
-				if(!empty($dataMySQL)) {
-					if(!$rawResult) $where = array_map(function($value) {
-						return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
-					}, $dataMySQL);
-					return $dataMySQL;
+				if($this->isSetupMySQL()) {
+					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
+					if(!empty($dataMySQL)) {
+						if(!$rawResult) $where = array_map(function($value) {
+							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+						}, $dataMySQL);
+						return $dataMySQL;
+					} else return null;
 				} else return null;
 			}
 			/**
@@ -887,12 +889,14 @@ class OliCore {
 			 * @return array|null Returns last info from specified table.
 			 */
 			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
-				$dataMySQL = array_reverse($this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null))[0];
-				if(!empty($dataMySQL)) {
-					if(!$rawResult) $where = array_map(function($value) {
-						return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
-					}, $dataMySQL);
-					return $dataMySQL;
+				if($this->isSetupMySQL()) {
+					$dataMySQL = array_reverse($this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null))[0];
+					if(!empty($dataMySQL)) {
+						if(!$rawResult) $where = array_map(function($value) {
+							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+						}, $dataMySQL);
+						return $dataMySQL;
+					} else return null;
 				} else return null;
 			}
 			/**
@@ -915,53 +919,55 @@ class OliCore {
 			 * @return array|null Returns infos from specified table.
 			 */
 			public function getInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				/** Parameters Management */
-				if(is_bool($settings)) {
-					$rawResult = $forceArray;
-					$forceArray = $caseSensitive;
-					$caseSensitive = $settings;
-					$settings = null;
-				}
-				if(!isset($caseSensitive)) $caseSensitive = true;
-				if(!isset($forceArray)) $forceArray = false;
-				if(!isset($rawResult)) $rawResult = false;
-				
-				/** Where Condition */
-				if(in_array($where, [null, 'all', '*'], true)) $where = '1';
-				else if(is_assoc($where)) $where = array_map(function($key, $value) {
-					if(!$caseSensitive) return 'LOWER(`' . $key . '`) = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
-					else return '`' . $key . '` = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
-				}, array_keys($where), array_values($where));
-				
-				if(!empty($where)) {
-					/** Additional Settings */
-					if(!empty($settings)) {
-						$settings = array_filter($settings);
-						if(is_assoc($settings)) {
-							if(isset($settings['order_by'])) $settings[] = 'ORDER BY ' . array_pull($settings, 'order_by');
-							if(isset($settings['limit'])) {
-								if(isset($settings['from'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'from');
-								else if(isset($settings['offset'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'offset');
-								else $settings[] = 'LIMIT ' . array_pull($settings, 'limit');
-							}
-							// $startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
-						} else if(!is_array($settings)) $settings = [$settings];
+				if($this->isSetupMySQL()) {
+					/** Parameters Management */
+					if(is_bool($settings)) {
+						$rawResult = $forceArray;
+						$forceArray = $caseSensitive;
+						$caseSensitive = $settings;
+						$settings = null;
 					}
+					if(!isset($caseSensitive)) $caseSensitive = true;
+					if(!isset($forceArray)) $forceArray = false;
+					if(!isset($rawResult)) $rawResult = false;
 					
-					$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode(' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
-					if(!empty($dataMySQL)) {
-						if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
-						if(!$rawResult) $dataMySQL = array_map(function($value) {
-							if(is_array($value)) {
-								if(count($value) == 1) $value = $value[0];
-								else $value = array_map(function($value) {
-									if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
-									else return $value;
-								}, $value);
-							} else if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
-							else return $value;
-						}, $dataMySQL);
-						return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
+					/** Where Condition */
+					if(in_array($where, [null, 'all', '*'], true)) $where = '1';
+					else if(is_assoc($where)) $where = array_map(function($key, $value) {
+						if(!$caseSensitive) return 'LOWER(`' . $key . '`) = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
+						else return '`' . $key . '` = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
+					}, array_keys($where), array_values($where));
+					
+					if(!empty($where)) {
+						/** Additional Settings */
+						if(!empty($settings)) {
+							$settings = array_filter($settings);
+							if(is_assoc($settings)) {
+								if(isset($settings['order_by'])) $settings[] = 'ORDER BY ' . array_pull($settings, 'order_by');
+								if(isset($settings['limit'])) {
+									if(isset($settings['from'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'from');
+									else if(isset($settings['offset'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'offset');
+									else $settings[] = 'LIMIT ' . array_pull($settings, 'limit');
+								}
+								// $startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
+							} else if(!is_array($settings)) $settings = [$settings];
+						}
+						
+						$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode(' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
+						if(!empty($dataMySQL)) {
+							if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
+							if(!$rawResult) $dataMySQL = array_map(function($value) {
+								if(is_array($value)) {
+									if(count($value) == 1) $value = $value[0];
+									else $value = array_map(function($value) {
+										if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
+										else return $value;
+									}, $value);
+								} else if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
+								else return $value;
+							}, $dataMySQL);
+							return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
+						} else return null;
 					} else return null;
 				} else return null;
 			}
@@ -987,14 +993,16 @@ class OliCore {
 			 * @return numeric|boolean|null Returns summed infos if numeric values are found, false otherwise. Returns null if no MySQL infos is found.
 			 */
 			public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
-				$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
-				if(!empty($infosMySQL)) {
-					$summedInfos = null;
-					foreach($infosMySQL as $eachValue) {
-						if(is_numeric($eachValue)) $summedInfos += $eachInfo;
-					}
-				} else $summedInfos = false;
-				return $summedInfos;
+				if($this->isSetupMySQL()) {
+					$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
+					if(!empty($infosMySQL)) {
+						$summedInfos = null;
+						foreach($infosMySQL as $eachValue) {
+							if(is_numeric($eachValue)) $summedInfos += $eachInfo;
+						}
+					} else $summedInfos = false;
+					return $summedInfos;
+				} else return null;
 			}
 			
 			/**
