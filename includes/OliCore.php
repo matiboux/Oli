@@ -831,15 +831,18 @@ class OliCore {
 			 */
 			public function getDataMySQL($table, ...$params) {
 				if($this->isSetupMySQL()) {
+					/** Select rows */
 					if(!empty($params[0])) {
 						if(is_array($params[0]) AND preg_grep("/^\S+$/", $params[0]) == $params[0]) $select = implode(', ', array_shift($params));
 						else if(strpos($params[0], ' ') === false) $select = array_shift($params);
 					}
 					if(empty($select)) $select = '*';
 					
+					/** Fetch Style */
 					if(!empty($params[count($params) - 1]) AND is_integer($params[count($params) - 1])) $fetchStyle = implode(', ', array_pop($params));
 					else $fetchStyle = true;
 					
+					/** Custom parameters */
 					$queryParams = null;
 					if(!empty($params)) {
 						foreach($params as $eachKey => $eachParam) {
