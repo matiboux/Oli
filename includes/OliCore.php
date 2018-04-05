@@ -950,10 +950,18 @@ class OliCore {
 					
 					$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode(' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
 					if(!empty($dataMySQL)) {
-						if(!$rawResult) $where = array_map(function($value) {
-							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+						if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
+						if(!$rawResult) $dataMySQL = array_map(function($value) {
+							if(is_array($value)) {
+								if(count($value) == 1) $value = $value[0];
+								else $value = array_map(function($value) {
+									if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
+									else return $value;
+								}, $value);
+							} else if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
+							else return $value;
 						}, $dataMySQL);
-						return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : $dataMySQL[0];
+						return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
 					} else return null;
 				} else return null;
 			}
