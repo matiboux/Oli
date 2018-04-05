@@ -952,7 +952,7 @@ class OliCore {
 					if(!empty($dataMySQL)) {
 						if(!$rawResult) $where = array_map(function($value) {
 							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
-						}, $dataMySQL); var_dump($dataMySQL);
+						}, $dataMySQL);
 						return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : $dataMySQL[0];
 					} else return null;
 				} else return null;
