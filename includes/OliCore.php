@@ -957,6 +957,7 @@ class OliCore {
 					} else return null;
 				} else return null;
 			}
+			
 			/**
 			 * Get lines from table
 			 * 
@@ -968,6 +969,19 @@ class OliCore {
 			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
+			
+			/**
+			 * Is exist infos in table
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @related OliCore::getInfosMySQL()
+			 * @return integer|boolean Returns the number of infos found, false if none found.
+			 */
+			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
+				return (int) array_values($this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive))[0] ?: false;
+			}
+			
 			/**
 			 * Is empty infos in table
 			 * 
@@ -997,18 +1011,6 @@ class OliCore {
 					}
 				} else $summedInfos = false;
 				return $summedInfos;
-			}
-			
-			/**
-			 * Is exist infos in table
-			 * 
-			 * @version BETA
-			 * @updated BETA-2.0.0
-			 * @related OliCore::getInfosMySQL()
-			 * @return integer|boolean Returns the number of infos found, false if none found.
-			 */
-			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
-				return (int) array_values($this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive))[0] ?: false;
 			}
 			
 			/** ---------------- */
