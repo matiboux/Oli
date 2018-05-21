@@ -3249,8 +3249,8 @@ class OliCore {
 					else if($userRight == 0) return 'VISITOR';
 					else return false;
 				} else if($this->isAccountsManagementReady() AND !empty($userRight)) {
-					if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('level' => $userRight), $caseSensitive)) return $returnValue;
-					else if($returnValue = $this->getAccountInfos('RIGHTS', 'level', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
+					if($returnValue = $this->getAccountInfos('RIGHTS', 'level', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
+					else if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('level' => $userRight), $caseSensitive)) return $returnValue;
 					else return false;
 				} else return false;
 			}
