@@ -13,28 +13,37 @@
 
 namespace {
 
-/** Is Array Associative? */
-// Inspirated by http://stackoverflow.com/a/173479/5255556
+/**
+ * Finds whether a variable is an associative array
+ * 
+ * Inspirated by http://stackoverflow.com/a/173479/5255556
+ * 
+ * @version BETA-1.7.0
+ * @updated BETA-2.0.0
+ * @return mixed Returns true if the variable is an associative array, false otherwise.
+ */
 if(!function_exists('is_assoc')) {
 	function is_assoc($array) {
-		return is_array($array) ? !empty($array) AND array_keys($array) !== range(0, count($array) - 1) : false;
+		return !empty($array) AND is_array($array) AND array_keys($array) !== range(0, count($array) - 1);
 	}
 }
 
-/** Array Pull */
-// Like an array_pop or array_shift, but for a specific key
-// Inspirated by http://php.net/manual/fr/function.array-slice.php#81973 (user note){
+/**
+ * Pulls an element off an array
+ * 
+ * Like array_pop() or array_shift(), but for a specific key.
+ * 
+ * @version BETA-1.8.1
+ * @updated BETA-2.0.0
+ * @return mixed Returns the requested element if found, null otherwise.
+ */
 if(!function_exists('array_pull')) {
-	function array_pull(&$array, $key){
-		$holding = [];
-		foreach($array as $eachKey => $eachValue) {
-			if($eachKey == $key) {
-				$holding[$eachKey] = $eachValue;
-				break;
-			}
-		}
-		$array = array_diff_assoc($array, $holding);
-		return $holding[$key];
+	function array_pull(&$array, $key) {
+		if(array_key_exists($key, $array)) {
+			$value = $array[$key];
+			unset($array[$key]);
+			return $value;
+		} else return null;
 	}
 }
 
