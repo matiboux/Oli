@@ -850,8 +850,8 @@ class OliCore {
 					if(!empty($where)) {
 						/** Additional Settings */
 						if(!empty($settings)) {
-							$settings = array_filter($settings);
 							if(is_assoc($settings)) {
+								$settings = array_filter($settings);
 								if(isset($settings['order_by'])) $settings[] = 'ORDER BY ' . array_pull($settings, 'order_by');
 								if(isset($settings['limit'])) {
 									if(isset($settings['from'])) $settings[] = 'LIMIT ' . array_pull($settings, 'limit') . ' OFFSET ' . array_pull($settings, 'from');
@@ -863,9 +863,8 @@ class OliCore {
 						}
 						
 						$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode(' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
-						if(!empty($dataMySQL)) {
-							if(is_array($dataMySQL) AND count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
-							if(!$rawResult AND is_array($dataMySQL)) $dataMySQL = array_map(function($value) {
+						if(!empty($dataMySQL) AND is_array($dataMySQL)) {							if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
+							if(!$rawResult) $dataMySQL = array_map(function($value) {
 								if(is_array($value) AND count($value) == 1) $value = array_values($value)[0];
 								if(is_array($value)) return array_map(function($value) {
 										if(!is_array($value) AND is_array($decodedValue = json_decode($value, true))) return $decodedValue;
@@ -874,7 +873,7 @@ class OliCore {
 								else if(is_array($decodedValue = json_decode($value, true))) return $decodedValue;
 								else return $value;
 							}, $dataMySQL);
-							return ($forceArray OR !is_array($dataMySQL) OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
+							return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
 						} else return null;
 					} else return null;
 				} else return null;
@@ -3063,8 +3062,7 @@ class OliCore {
 				if(!isset($where)) {
 					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 					else return false;
-				}
-				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				} else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);				
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -3324,8 +3322,7 @@ class OliCore {
 					if(empty($where)) {
 						if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
 						else return false;
-					}
-					else if(!is_array($where)) $where = array('username' => $where);
+					} else if(!is_array($where)) $where = array('username' => $where);
 					
 					if(!empty($where)) return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
 					else return false;
