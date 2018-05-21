@@ -720,7 +720,7 @@ class OliCore {
 			public function runQueryMySQL($query, $fetchStyle = true) {
 				if($this->isSetupMySQL()) {
 					$query = $this->db->prepare($query);
-					if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null)) ?: true;
+					if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
 					else {
 						$this->dbError = $query->errorInfo();
 						return false;
