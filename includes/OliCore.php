@@ -2137,8 +2137,8 @@ class OliCore {
 			 */
 			public function getDefaultMailHeaders($toString = false) {
 				$mailHeaders = [
-					'Reply-To: ' . $_Oli->getUrlParam('name') . ' <contact@' . $_Oli->getUrlParam('domain') . '>',
-					'From: ' . $_Oli->getUrlParam('name') . ' <noreply@' . $_Oli->getUrlParam('domain') . '>',
+					'Reply-To: ' . $this->getUrlParam('name') . ' <contact@' . $this->getUrlParam('domain') . '>',
+					'From: ' . $this->getUrlParam('name') . ' <noreply@' . $this->getUrlParam('domain') . '>',
 					'MIME-Version: 1.0',
 					'Content-type: text/html; charset=utf-8',
 					'X-Mailer: PHP/' . phpversion()
