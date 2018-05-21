@@ -936,7 +936,7 @@ class OliCore {
 					
 					/** Where Condition */
 					if(in_array($where, [null, 'all', '*'], true)) $where = '1';
-					else if(is_assoc($where)) $where = array_map(function($key, $value) {
+					else if(is_assoc($where)) $where = array_map(function($key, $value) use ($caseSensitive) {
 						if(!$caseSensitive) return 'LOWER(`' . $key . '`) = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
 						else return '`' . $key . '` = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
 					}, array_keys($where), array_values($where));
@@ -968,7 +968,7 @@ class OliCore {
 								else if(is_array($decodedValue = json_decode($value, true))) return $decodedValue;
 								else return $value;
 							}, $dataMySQL);
-							return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
+							return ($forceArray OR !is_array($dataMySQL) OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
 						} else return null;
 					} else return null;
 				} else return null;
