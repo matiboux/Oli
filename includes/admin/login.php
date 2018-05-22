@@ -285,14 +285,9 @@ else if($isLoggedIn) {
 	else if($isRootRegisterState) $scriptState = 'root-register';
 	
 	if(!empty($_)) {
-		/** Database Cleanup Processes */
-		if(!$isLocalLogin AND ($username = $_Oli->getAccountInfos('ACCOUNTS', 'username', $_['username'], false) OR $username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => $_['username']), false)) AND (!$expireDate = $_Oli->getAccountInfos('REQUESTS', 'expire_date', array('username' => $user, 'action' => 'activate'), false) OR strtotime($expireDate) < time())) $_Oli->deleteFullAccount($_['username']);
-		
-		/** Regular Form Checks */
-		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter an username.';
-		else if(!preg_match('/^[_a-z0-9]+$/i', $_['username'])) $resultCode = 'E:The username is incorrect. Please only use letters, numbers and underscores.';
-		else if($_Oli->isProhibitedUsername($_['username'])) $resultCode = 'E:Sorry, you\'re not allowed to use that username.';
-		else if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
+		/** Password Checks */
+		if(empty($_['password'])) $resultCode = 'E:Please enter a password.';
+		else if(strlen($_['password']) < 6) $resultCode = 'E:Your password must be at least 6 characters long.';
 		
 		/** Root Register Checks */
 		else if($isRootRegisterState AND empty($_['olisc'])) $resultCode = 'E:Please enter the Oli Security Code.';
@@ -301,12 +296,11 @@ else if($isLoggedIn) {
 		/** Not Local Login Checks */
 		else if(!$isLocalLogin AND empty($_['email'] = strtolower(trim($_['email'])))) $resultCode = 'E:Please enter your email.';
 		else if(!$isLocalLogin AND !preg_match('/^[-_a-z0-9]+(?:\.?[-_a-z0-9]+)*@[^\s]+(?:\.[a-z]+)$/i', $_['email'])) $resultCode = 'E:The email is incorrect. Make sure you only use letters, numbers, hyphens, underscores or periods.';
-		else if(!$isLocalLogin AND $_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false)) $resultCode = 'E:Sorry, this username is already associated with an existing account.';
 		else if(!$isLocalLogin AND $_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['email']), false)) $resultCode = 'E:Sorry, this email is already associated with an existing account.';
 		else if(!$isLocalLogin AND $isRootRegisterState AND $_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false)) $resultCode = 'E:Sorry, there is already an existing root account.';
 		
 		/** Global Register */
-		else if($_Oli->registerAccount($_['username'], $_['password'], !$isLocalLogin ? $_['email'] : null, $isRootRegisterState ? $_['olisc'] : null)) {
+		else if($_Oli->registerAccount(!$isLocalLogin ? $_['email'] : null, $_['password'], $isRootRegisterState ? $_['olisc'] : null)) {
 			$scriptState = 'login';
 			$ignoreFormData = true;
 			
