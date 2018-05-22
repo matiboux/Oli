@@ -602,7 +602,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 						<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
 					<?php } ?>
 					
-					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
+					<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
+					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Login ID" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>
@@ -616,9 +617,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($scriptState == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
-					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					
 <?php /*<?php function captcha($captcha) {
 	$width = strlen($captcha) * 10 + 200;
@@ -667,9 +667,9 @@ ob_end_clean(); ?>
 				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
 				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshOliSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
-					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" />
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<?php /*<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" /> */ ?>
 					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" /><?php } ?>
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" />
 					<button type="submit">Register as Root</button>
 				</form>
