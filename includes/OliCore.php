@@ -2947,7 +2947,6 @@ class OliCore {
 			 * - PERMISSIONS - Accounts personnal permissions
 			 * 
 			 * @param string $tableCode Table code to translate
-			 * 
 			 * @uses OliCore::$accountsTables To get account tables names
 			 *
 			 * @version BETA
@@ -3032,14 +3031,16 @@ class OliCore {
 			 * 
 			 * @uses OliCore::getLinesMySQL() to get lines from table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table codes
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return array|boolean Returns lines from specified table
 			 */
 			public function getAccountLines($tableCode, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getAuthKeyOwner());
 					else return false;
-				}
-				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -3056,13 +3057,16 @@ class OliCore {
 			 * 
 			 * @uses OliCore::getInfosMySQL() to get infos from table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return mixed Returns infos from specified table
 			 */
 			public function getAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getAuthKeyOwner());
 					else return false;
-				} else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);				
+				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);		
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -3078,14 +3082,16 @@ class OliCore {
 			 * 
 			 * @uses OliCore::getSummedInfosMySQL() to get summed infos from table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return mixed Returns summed infos from specified table
 			 */
 			public function getSummedAccountInfos($tableCode, $whatVar, $where = null, $caseSensitive = true) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getAuthKeyOwner());
 					else return false;
-				}
-				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -3100,14 +3106,16 @@ class OliCore {
 			 * 
 			 * @uses OliCore::isEmptyInfosMySQL() to get if infos are empty in table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if infos are empty, false otherwise
 			 */
 			public function isEmptyAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getAuthKeyOwner());
 					else return false;
-				}
-				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 			}
 			
@@ -3120,14 +3128,16 @@ class OliCore {
 			 * 
 			 * @uses OliCore::isExistInfosMySQL() to get if infos exists in table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if infos exists, false otherwise
 			 */
 			public function isExistAccountInfos($tableCode, $where = null, $caseSensitive = true) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getAuthKeyOwner());
 					else return false;
-				}
-				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
 			
@@ -3158,14 +3168,17 @@ class OliCore {
 			 * 
 			 * @uses OliCore::updateInfosMySQL() to update infos in table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function updateAccountInfos($tableCode, $what, $where = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('username' => $this->getAuthKeyOwner());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getAuthKeyOwner());
 					else return false;
 				}
-				else if(!is_array($where) AND $where != 'all') $where = array('username' => $where);
+				else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				
 				return $this->updateInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where);
 			}
@@ -3193,7 +3206,7 @@ class OliCore {
 			 * @return boolean Returns true if the request succeeded, false otherwise.
 			 */
 			public function deleteAccountLines($tableCode, $where) {
-				if(!is_array($where) AND $where !== 'all' AND strpos($where, ' ') === false) $where = array('username' => $where);
+				if(!is_array($where) AND $where !== 'all' AND strpos($where, ' ') === false) $where = array('uid' => $where);
 				return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where);
 			}
 			
@@ -3204,11 +3217,18 @@ class OliCore {
 			 * 
 			 * @uses OliCore::deleteLinesMySQL() to delete lines from table
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
+			 *
+			 * @version BETA
+			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if the requests succeeded, false otherwise
 			 */
 			public function deleteFullAccount($where) {
-				if($this->deleteAccountLines('ACCOUNTS', $where) AND $this->deleteAccountLines('INFOS', $where) AND $this->deleteAccountLines('SESSIONS', $where) AND $this->deleteAccountLines('REQUESTS', $where))
-					return true;
+				$result = [];
+				$result[] = $this->deleteAccountLines('ACCOUNTS', $where);
+				$result[] = $this->deleteAccountLines('INFOS', $where);
+				$result[] = $this->deleteAccountLines('SESSIONS', $where);
+				$result[] = $this->deleteAccountLines('REQUESTS', $where);
+				if(in_array(false, $result, true)) return true;
 				else return false;
 			}
 			
@@ -3685,11 +3705,11 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the request activate key.
 			 */
-			public function createRequest($username, $action, &$requestTime = null) {
+			public function createRequest($uid, $action, &$requestTime = null) {
 				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else {
 					$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, false, true, true));
-					$requestsMatches['username'] = $username;
+					$requestsMatches['uid'] = $uid;
 					$requestsMatches['action'] = $action;
 					$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
 					$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + $this->config['request_expire_delay']);
