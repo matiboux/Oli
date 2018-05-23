@@ -3574,9 +3574,11 @@ class OliCore {
 			 * @return string|boolean Returns the username if logged in, false otherwise.
 			 */
 			public function getLoggedUsername($userID = null, $authKey = null) {
-				return $this->getAccountInfos('SESSIONS', 'username', $this->getLoggedUser($userID, $authKey));
+				if($this->isLoggedIn($userID, $authKey)) {
+					if($this->isLocalLogin()) return 'root';
+					else return $this->getAccountInfos('SESSIONS', 'username', $this->getLoggedUser($userID, $authKey));
+				} else return false;
 			}
-			
 			/**
 			 * Get Auth Key Owner
 			 * 
