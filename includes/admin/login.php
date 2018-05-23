@@ -323,28 +323,24 @@ else if($isLoggedIn) {
 	else if(!empty($_)) {
 		if(!$isLocalLogin) $_Oli->deleteAccountLines('LOG_LIMITS', 'action = \'login\' AND last_trigger < date_sub(now(), INTERVAL 1 HOUR)');
 		
-		if(empty($_['username'] = trim($_['username']))) $resultCode = 'E:Please enter your username or your email.';
+		if(empty($_['logid'] = trim($_['logid']))) $resultCode = 'E:Please enter your login ID.';
 		else if(!$isLocalLogin AND ($userIdAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_Oli->getUserID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIdAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIdAttempts . '), your user ID has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
 		else if(!$isLocalLogin AND ($userIPAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIPAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIPAttempts . '), your IP address has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
-		else if(!$isLocalLogin AND ($usernameAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND username = \'' . $_['username'] . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUsernameAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $usernameAttempts . '), this username has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter your password.';
 		else {
-			if(!$isLocalLogin) {
-				$isExistByUsername = $_Oli->isExistAccountInfos('ACCOUNTS', $_['username'], false);
-				$isExistByEmail = $_Oli->isExistAccountInfos('ACCOUNTS', array('email' => $_['username']), false);
-			} else {
-				if(file_exists(CONTENTPATH . '.oliauth')) $rootUserInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true);
-				$isExistByUsername = strtolower($_['username']) == strtolower($rootUserInfos['username']);
-			}
+			if(!$isLocalLogin) $uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', 'uid = "' . $_['logid'] . '" OR username = "' . $_['logid'] . '" OR email = "' . $_['logid'] . '"', false);
+			else if(file_exists(CONTENTPATH . '.oliauth') AND !empty(json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true))) $localRoot = true;
 			
-			if(!$isExistByUsername AND ($isLocalLogin OR !$isExistByEmail)) $resultCode = 'E:Sorry, no account is associated with the username or email you entered.';
-			else if(!$isLocalLogin AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('NEW-USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('NEW-USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not yet activated.';
-			else if(!$isLocalLogin AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) == $_Oli->translateUserRight('BANNED')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) == $_Oli->translateUserRight('BANNED')))) $resultCode = 'E:Sorry, the account associated with that username or email is banned and is not allowed to log in.';
-			else if(!$isLocalLogin AND (($isExistByUsername AND $_Oli->getUserRightLevel($_['username'], false) < $_Oli->translateUserRight('USER')) OR ($isExistByEmail AND $_Oli->getUserRightLevel(array('email' => $_['username']), false) < $_Oli->translateUserRight('USER')))) $resultCode = 'E:Sorry, the account associated with that username or email is not allowed to log in.';
+			if(!$uid AND !$localRoot) $resultCode = 'E:Sorry, no account is associated with the login ID you used.';
+			else if(!$isLocalLogin AND $_Oli->getUserRightLevel($uid, false) == $_Oli->translateUserRight('NEW-USER')) $resultCode = 'E:Sorry, the account associated with that login ID is not yet activated.';
+			else if(!$isLocalLogin AND $_Oli->getUserRightLevel($uid, false) == $_Oli->translateUserRight('BANNED')) $resultCode = 'E:Sorry, the account associated with that login ID is banned and is not allowed to log in.';
+			else if(!$isLocalLogin AND $_Oli->getUserRightLevel($uid, false) < $_Oli->translateUserRight('USER')) $resultCode = 'E:Sorry, the account associated with that login ID is not allowed to log in.';
 			
-			else if($_Oli->verifyLogin($_['username'], $_['password'])) {
+			else if(!$isLocalLogin AND ($usernameAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND uid = \'' . $uid . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUsernameAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $usernameAttempts . '), this account has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
+			
+			else if($_Oli->verifyLogin($_['logid'], $_['password'])) {
 				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
-				if($_Oli->loginAccount($_['username'], $_['password'], $loginDuration)) {
+				if($_Oli->loginAccount($_['logid'], $_['password'], $loginDuration)) {
 					if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
 						$url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
 						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'userID' => $_Oli->getUserID(), 'authKey' => $_Oli->getAuthKey(), 'extendedDelay' => $_['rememberMe'], 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
@@ -356,7 +352,7 @@ else if($isLoggedIn) {
 					$resultCode = 'S:You are now succesfully logged in.';
 				} else $resultCode = 'E:An error occurred while logging you in.';
 			} else {
-				if(!$isLocalLogin) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'username' => $_['username'], 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
+				if(!$isLocalLogin) $_Oli->insertAccountLine('LOG_LIMITS', array('id' => $_Oli->getLastAccountInfo('LOG_LIMITS', 'id') + 1, 'uid' => $uid, 'user_id' => $_Oli->getUserID(), 'ip_address' => $_Oli->getUserIP(), 'action' => 'login', 'last_trigger' => date('Y-m-d H:i:s')));
 				$resultCode = 'E:Sorry, the password you used is wrong.';
 			}
 		}
@@ -597,7 +593,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<?php } ?>
 					
 					<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
-					<input type="text" name="username" value="<?=$_['username']?>" placeholder="Login ID" />
+					<input type="text" name="username" value="<?=$_['logid']?>" placeholder="Login ID" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>
