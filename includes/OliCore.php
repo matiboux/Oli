@@ -2546,10 +2546,9 @@ class OliCore {
 			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
 			
 			if(!isset($where)) {
-				if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUser());
+				if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 				else return false;
-			}
-			else if(!is_array($where)) $where = array('username' => $where);
+			} else if(!is_array($where)) $where = array('uid' => $where);
 			
 			if($this->updateAccountInfos('ACCOUNTS', array('language' => $language), $where)) {
 				$this->currentLanguage = $language;
@@ -2569,10 +2568,9 @@ class OliCore {
 		 */
 		public function getUserLanguage($where = null, $caseSensitive = true) {
 			if(!isset($where)) {
-				if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUser());
+				if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 				else return false;
-			}
-			else if(!is_array($where)) $where = array('username' => $where);
+			} else if(!is_array($where)) $where = array('uid' => $where);
 			
 			return $this->getAccountInfos('ACCOUNTS', 'language', $where, $caseSensitive);
 		}
@@ -3312,7 +3310,7 @@ class OliCore {
 			 * @return array|boolean Returns lines from specified table
 			 */
 			public function getRightsLines($where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if(!is_array($where)) $where = array('username' => $where);
+				if(!is_array($where)) $where = array('uid' => $where);
 				return $this->getAccountLines('RIGHTS', $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -3345,9 +3343,9 @@ class OliCore {
 				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
 				else {
 					if(empty($where)) {
-						if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUser());
+						if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 						else return false;
-					} else if(!is_array($where)) $where = array('username' => $where);
+					} else if(!is_array($where)) $where = array('uid' => $where);
 					
 					if(!empty($where)) return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
 					else return false;
