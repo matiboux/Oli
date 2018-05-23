@@ -328,7 +328,7 @@ else if($isLoggedIn) {
 		else if(!$isLocalLogin AND ($userIPAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIPAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIPAttempts . '), your IP address has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
 		else if(empty($_['password'])) $resultCode = 'E:Please enter your password.';
 		else {
-			if(!$isLocalLogin) $uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', 'uid = "' . $_['logid'] . '" OR username = "' . $_['logid'] . '" OR email = "' . $_['logid'] . '"', false);
+			if(!$isLocalLogin) $uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $_['logid'], 'username' => $_['logid'], 'email' => $_['logid']), array('where_or' => true), false);
 			else if(file_exists(CONTENTPATH . '.oliauth') AND !empty(json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true))) $localRoot = true;
 			
 			if(!$uid AND !$localRoot) $resultCode = 'E:Sorry, no account is associated with the login ID you used.';

@@ -3878,7 +3878,7 @@ class OliCore {
 				if(empty($password)) return false;
 				else if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
 				else if(!empty($logid)) {
-					$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', 'uid = "' . $_['logid'] . '" OR username = "' . $_['logid'] . '" OR email = "' . $_['logid'] . '"', false);
+					$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $_['logid'], 'username' => $_['logid'], 'email' => $_['logid']), array('where_or' => true), false);
 					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
 					else return false;
 				} else return false;
@@ -3894,7 +3894,7 @@ class OliCore {
 			public function loginAccount($logid, $password, $expireDelay = null) {
 				if($this->verifyLogin($logid, $password)) {
 					if(!$this->isLocalLogin()) {
-						$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', 'uid = "' . $_['logid'] . '" OR username = "' . $_['logid'] . '" OR email = "' . $_['logid'] . '"', false);
+						$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $_['logid'], 'username' => $_['logid'], 'email' => $_['logid']), array('where_or' => true), false);
 					
 						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $uid);
 					}
