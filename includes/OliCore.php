@@ -3867,15 +3867,16 @@ class OliCore {
 			 * 
 			 * @version BETA
 			 * @updated BETA-2.0.0
-			 * @return boolean Returns true if local.
+			 * @return boolean Returns true if valid login infos.
 			 */
-			public function verifyLogin($username, $password) {
-				if(empty($username) OR empty($password)) return false;
-				else if($this->isLocalLogin()) {
-					$rootUserInfos = $this->getLocalRootInfos();
-					return strtolower($username) == strtolower($rootUserInfos['username']) AND password_verify($password, $rootUserInfos['password']);
-				} else if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('username' => $username), false) OR $userPassword = $this->getAccountInfos('ACCOUNTS', 'password', array('email' => $username), false)) return password_verify($password, $userPassword);
-				else return false;
+			public function verifyLogin($logid, $password) {
+				if(empty($password)) return false;
+				else if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
+				else if(!empty($logid)) {
+					$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', 'uid = "' . $_['logid'] . '" OR username = "' . $_['logid'] . '" OR email = "' . $_['logid'] . '"', false);
+					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
+					else return false;
+				} else return false;
 			}
 			
 			/**
@@ -3885,19 +3886,15 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
-			public function loginAccount($username, $password, $expireDelay = null) {
-				if($this->verifyLogin($username, $password)) {
-					if($this->isLocalLogin()) {
-						$rootUserInfos = $this->getLocalRootInfos();
-						$username = $rootUserInfos['username'];
-					} else {
-						$username = $this->getAccountInfos('ACCOUNTS', 'username', array('email' => $username), false) ?: $this->getAccountInfos('ACCOUNTS', 'username', $username, false);
+			public function loginAccount($logid, $password, $expireDelay = null) {
+				if($this->verifyLogin($logid, $password)) {
+					if(!$this->isLocalLogin()) {
+						$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', 'uid = "' . $_['logid'] . '" OR username = "' . $_['logid'] . '" OR email = "' . $_['logid'] . '"', false);
 					
-						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $username)))
-							$this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $username);
+						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $uid);
 					}
 					
-					if($this->isLocalLogin() OR $this->getUserRightLevel($username) >= $this->translateUserRight('USER')) {
+					if($this->isLocalLogin() OR $this->getUserRightLevel($uid) >= $this->translateUserRight('USER')) {
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'] ?: 2*3600;
 						
@@ -3907,7 +3904,7 @@ class OliCore {
 							$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('user_id' => $this->getUserID(), 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
 							fclose($handle);
 						} else $result = $this->updateAccountInfos('SESSIONS', array(
-							'username' => $username,
+							'uid' => $uid,
 							'login_date' => date('Y-m-d H:i:s', $now),
 							'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
 						), array('user_id' => $this->getUserID()));
