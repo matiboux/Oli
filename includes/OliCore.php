@@ -3768,13 +3768,13 @@ class OliCore {
 							} else return false;
 						} else if(!empty($email) AND $this->isAccountsManagementReady() AND ($this->config['allow_register'] OR $isRootRegister)) {
 							/** Account Clean-up Process */
-							if($uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', array('email' => $_['email']), false) AND $this->getUserRightLevel(array('email' => $email)) == $this->translateUserRight('NEW-USER') AND (!$expireDate = $_Oli->getAccountInfos('REQUESTS', 'expire_date', array('uid' => $uid, 'action' => 'activate'), false) OR strtotime($expireDate) < time())) $_Oli->deleteFullAccount($uid);
+							if($uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('email' => $_['email']), false) AND $this->getUserRightLevel(array('email' => $email)) == $this->translateUserRight('NEW-USER') AND (!$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', array('uid' => $uid, 'action' => 'activate'), false) OR strtotime($expireDate) < time())) $this->deleteFullAccount($uid);
 							unset($uid);
 							
 							if(!$this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false) AND (!$isRootRegister OR !$this->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false)) AND !empty($hashedPassword = $this->hashPassword($password))) {
 								/** Generate a new uid */
 								do { $uid = $this->uuid4();
-								} while($_Oli->isExistAccountInfos('ACCOUNTS', $uid, false));
+								} while($this->isExistAccountInfos('ACCOUNTS', $uid, false));
 								
 								/** Set other account parameters */
 								$userRight = $isRootRegister ? 'ROOT' : (!$this->config['account_activation'] ? 'USER' : 'NEW-USER');
