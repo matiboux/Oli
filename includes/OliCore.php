@@ -859,11 +859,16 @@ class OliCore {
 									else $settings[] = 'LIMIT ' . array_pull($settings, 'limit');
 								}
 								// $startFromId = (isset($settings['fromId']) AND $settings['fromId'] > 0) ? $settings['fromId'] : 1;
+								
+								if(isset($settings['where_and'])) $whereGlue = array_pull($settings, 'where_and') ? ' AND ' : ' OR ';
+								else if(isset($settings['where_or'])) $whereGlue = array_pull($settings, 'where_or') ? ' OR ' : ' AND ';
 							} else if(!is_array($settings)) $settings = [$settings];
 						}
 						
-						$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode(' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
-						if(!empty($dataMySQL) AND is_array($dataMySQL)) {							if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
+						/** Data Processing */
+						$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode($whereGlue ?: ' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
+						if(!empty($dataMySQL) AND is_array($dataMySQL)) {
+							if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
 							if(!$rawResult) $dataMySQL = array_map(function($value) {
 								if(is_array($value) AND count($value) == 1) $value = array_values($value)[0];
 								if(is_array($value)) return array_map(function($value) {
