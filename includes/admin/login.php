@@ -593,7 +593,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<?php } ?>
 					
 					<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
-					<input type="text" name="username" value="<?=$_['logid']?>" placeholder="Login ID" />
+					<input type="text" name="logid" value="<?=$_['logid']?>" placeholder="Login ID" />
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>
