@@ -3537,7 +3537,7 @@ class OliCore {
 					if($this->isLocalLogin() AND !$this->isExternalLogin()) $sessionInfos = $this->getLocalRootInfos();
 					else $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID));
 					
-					return !empty($sessionInfos['username']) AND $sessionInfos['user_id'] = $userID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
+					return !empty($sessionInfos['uid']) AND $sessionInfos['user_id'] = $userID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
 				} else return false;
 			}
 			/**
