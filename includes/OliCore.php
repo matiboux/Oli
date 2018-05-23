@@ -2541,7 +2541,7 @@ class OliCore {
 			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
 			
 			if(!isset($where)) {
-				if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUsername());
+				if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUser());
 				else return false;
 			}
 			else if(!is_array($where)) $where = array('username' => $where);
@@ -2564,7 +2564,7 @@ class OliCore {
 		 */
 		public function getUserLanguage($where = null, $caseSensitive = true) {
 			if(!isset($where)) {
-				if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUsername());
+				if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUser());
 				else return false;
 			}
 			else if(!is_array($where)) $where = array('username' => $where);
@@ -3038,7 +3038,7 @@ class OliCore {
 			 */
 			public function getAccountLines($tableCode, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUsername());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
@@ -3064,7 +3064,7 @@ class OliCore {
 			 */
 			public function getAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUsername());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);		
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
@@ -3089,7 +3089,7 @@ class OliCore {
 			 */
 			public function getSummedAccountInfos($tableCode, $whatVar, $where = null, $caseSensitive = true) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUsername());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
@@ -3113,7 +3113,7 @@ class OliCore {
 			 */
 			public function isEmptyAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUsername());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
@@ -3135,7 +3135,7 @@ class OliCore {
 			 */
 			public function isExistAccountInfos($tableCode, $where = null, $caseSensitive = true) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUsername());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
@@ -3175,7 +3175,7 @@ class OliCore {
 			 */
 			public function updateAccountInfos($tableCode, $what, $where = null) {
 				if(!isset($where)) {
-					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUsername());
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
@@ -3340,7 +3340,7 @@ class OliCore {
 				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
 				else {
 					if(empty($where)) {
-						if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUsername());
+						if($this->isLoggedIn()) $where = array('username' => $this->getLoggedUser());
 						else return false;
 					} else if(!is_array($where)) $where = array('username' => $where);
 					
@@ -3547,6 +3547,23 @@ class OliCore {
 			public function verifyAuthKey($authKey = null, $userID = null) { return $this->isLoggedIn($userID, $authKey); }
 			
 			/**
+			 * Get Logged User
+			 * 
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
+			 * @return string|boolean Returns the uid if logged in, false otherwise.
+			 */
+			public function getLoggedUser($userID = null, $authKey = null) {
+				if(empty($userID)) $userID = $this->getUserID();
+				if(empty($authKey)) $authKey = $this->getAuthKey();
+				
+				if($this->isLoggedIn($userID, $authKey)) {
+					if($this->isLocalLogin() AND !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
+					else return $this->getAccountInfos('SESSIONS', 'uid', array('user_id' => $userID));
+				} else return false;
+			}
+			
+			/**
 			 * Get Logged Username
 			 * 
 			 * @version BETA-2.0.0
@@ -3554,14 +3571,9 @@ class OliCore {
 			 * @return string|boolean Returns the username if logged in, false otherwise.
 			 */
 			public function getLoggedUsername($userID = null, $authKey = null) {
-				if(empty($userID)) $userID = $this->getUserID();
-				if(empty($authKey)) $authKey = $this->getAuthKey();
-				
-				if($this->isLoggedIn($userID, $authKey)) {
-					if($this->isLocalLogin() AND !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
-					else return $this->getAccountInfos('SESSIONS', 'username', array('user_id' => $userID));
-				} else return false;
+				return $this->getAccountInfos('SESSIONS', 'username', $this->getLoggedUser($userID, $authKey));
 			}
+			
 			/**
 			 * Get Auth Key Owner
 			 * 
