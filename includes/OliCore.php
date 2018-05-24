@@ -3576,7 +3576,8 @@ class OliCore {
 			public function getLoggedUsername($userID = null, $authKey = null) {
 				if($this->isLoggedIn($userID, $authKey)) {
 					if($this->isLocalLogin()) return 'root';
-					else return $this->getAccountInfos('SESSIONS', 'username', $this->getLoggedUser($userID, $authKey));
+					else if($uid = $this->getLoggedUser($userID, $authKey)) return $this->getAccountInfos('SESSIONS', 'username', $uid) ?: explode('@', $this->getAccountInfos('SESSIONS', 'email', $uid), 2)[0];
+					else return false;
 				} else return false;
 			}
 			/**
