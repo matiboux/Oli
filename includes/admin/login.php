@@ -170,7 +170,7 @@ else if($isLoggedIn) {
 		
 		/** Notice the user */
 		// else
-		$resultCode = 'I:You\'re already logged in, ' . $_Oli->getAuthKeyOwner() . '.';
+		$resultCode = 'I:You\'re already logged in, ' . $_Oli->getLoggedUsername() . '.';
 	}
 
 /** Activate an account */
