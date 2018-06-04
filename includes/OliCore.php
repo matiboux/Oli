@@ -2467,36 +2467,80 @@ class OliCore {
 		/** Get Full Url */
 		public function getFullUrl() { return $this->getUrlParam('full'); }
 		
-		/** Get Data Url */
-		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
-		public function getDataUrl() { return $this->getAssetsUrl(); }
-		
-		/** Get Media Url */
-		public function getMediaUrl() { return $this->getUrlParam(0) . $this->config['media_path']; }
-		
 		/**
-		 * Get Oli Admin Url
+		 * Get Assets Url
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
-		 * @return string|void Returns requested url param if succeeded.
+		 * @return string|void Returns the assets url.
 		 */
-		public function getAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin/'); }
+		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
+		/** * @alias OliCore::getAssetsUrl() */
+		public function getDataUrl() { return $this->getAssetsUrl(); }
+		
+		/**
+		 * Get Media Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the media url.
+		 */
+		public function getMediaUrl() { return $this->getUrlParam(0) . $this->config['media_path']; }
 		
 		/**
 		 * Get Login Url
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
-		 * @return string|void Returns requested url param if succeeded.
+		 * @return string|void Returns the login url.
 		 */
 		public function getLoginUrl() { return $this->isExternalLogin() ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($this->config['login_alias'] ?: 'oli-login/'); }
 		
-		/** Get Common Files Url */
+		/**
+		 * Get Oli Admin Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the admin url.
+		 */
+		public function getAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin/'); }
+		
+		/**
+		 * Get Oli Admin Assets Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the admin assets url.
+		 */
+		public function getAdminAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
+		/** * @alias OliCore::getAdminAssetsUrl() */
+		public function getAdminDataUrl() { return $this->getAdminAssetsUrl(); }
+		
+		/**
+		 * Get Common Assets Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the common assets url.
+		 */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
+		
+		/**
+		 * Get Common Files Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the common files url.
+		 */
 		public function getCommonFilesUrl() { return $this->getCommonAssetsUrl(); }
 		
-		/** Get CDN Url */
+		/**
+		 * Get CDN Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the CDN url.
+		 */
 		public function getCdnUrl() { return $this->config['cdn_url']; }
 		
 		/** ---------------------- */
