@@ -2512,7 +2512,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the admin assets url.
 		 */
-		public function getAdminAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . 'admin-assets/'; }
+		public function getAdminAssetsUrl() { return $this->getUrlParam(0) . 'content/admin-assets/'; }
 		/** * @alias OliCore::getAdminAssetsUrl() */
 		public function getAdminDataUrl() { return $this->getAdminAssetsUrl(); }
 		
