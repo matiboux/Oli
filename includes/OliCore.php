@@ -2512,7 +2512,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the admin assets url.
 		 */
-		public function getAdminAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
+		public function getAdminAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . 'admin-assets/'; }
 		/** * @alias OliCore::getAdminAssetsUrl() */
 		public function getAdminDataUrl() { return $this->getAdminAssetsUrl(); }
 		
@@ -2524,14 +2524,7 @@ class OliCore {
 		 * @return string|void Returns the common assets url.
 		 */
 		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
-		
-		/**
-		 * Get Common Files Url
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return string|void Returns the common files url.
-		 */
+		/** * @alias OliCore::getCommonAssetsUrl() */
 		public function getCommonFilesUrl() { return $this->getCommonAssetsUrl(); }
 		
 		/**
