@@ -1,6 +1,5 @@
 {
-	"init_timestamp": null,
-	"init_setup": true,
+	"setup_wizard": true,
 	
 	"constants": {},
 	"addons": {},

@@ -163,7 +163,7 @@ class OliCore {
 	/** Read-only variables */
 	private $readOnlyVars = [
 		'oliInfos', 'addonsInfos',
-		'debugStatus', 'rawConfig', 'config',
+		'initTimestamp', 'debugStatus', 'rawConfig', 'config',
 		'db', 'dbError',
 		'fileNameParam', 'contentStatus'];
 	
@@ -172,6 +172,7 @@ class OliCore {
 	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
 	
 	/** Oli Config */
+	private $initTimestamp = null; // (PUBLIC READONLY)
 	private $debugStatus = false; // (PUBLIC READONLY)
 	private $rawConfig = null; // (PUBLIC READONLY)
 	private $config = null; // (PUBLIC READONLY)
@@ -258,7 +259,7 @@ class OliCore {
 		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
 		
 		/** Framework Init */
-		$this->config['init_timestamp'] = $initTimestamp ?: microtime(true);
+		$this->initTimestamp = $initTimestamp ?: microtime(true);
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
 		
@@ -1671,7 +1672,7 @@ class OliCore {
 			if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			if(!$this->isLocalLogin() OR $this->isExternalLogin()) $this->initUserSession();
 			
-			if($this->config['init_setup'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
+			if($this->config['setup_wizard'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
 				$params = $this->getUrlParam('params');
 				$contentStatus = null;
