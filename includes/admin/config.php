@@ -24,129 +24,149 @@ else if(!empty($_)) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="author" content="Matiboux" />
 
-<title>Oli Admin: Config</title>
+<!-- CSS Frameworks -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap-reboot.min.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap-grid.min.css" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous" />
 
-<style>
-@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
-html { position: relative; min-height: 100% }
-body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; margin: 0; color: #202020; font-size: 14px; overflow-x: hidden }
-@media (max-width: 420px) { body { font-size: 12px } }
+<!-- JavaScript Frameworks -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
-form .config { background: #e0e0e0; padding: 10px; border: 1px solid #d0d0d0 }
-form .config + .config { margin-top: 10px }
-form > .config .multiple { margin-top: 10px }
-form > .config > .multiple > .config { background: #d0d0d0; border-color: #c0c0c0 }
-form > .config > .multiple > .config > .multiple > .config { background: #c0c0c0; border-color: #b0b0b0 }
-</style>
+<link rel="stylesheet" type="text/css" href="<?=$_Oli->getAdminAssetsUrl()?>style.css" />
+<title>Oli Config</title>
 
 </head>
 <body>
 
-<?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
+<div id="navbar">
+	<ul class="navbar-nav float-left">
+		<li><a href="<?=$_Oli->getUrlParam(0)?>"><i class="fa fa-globe"></i></a></li>
+		<li><a href="<?=$_Oli->getAdminUrl()?>"><i class="fa fa-home"></i></a></li>
+	</ul>
+	<ul class="navbar-nav float-right">
+		<?php if($_Oli->isLoggedIn()) { ?>
+			<li><a href=""><img src="<?=$_Oli->getMediaUrl()?>default-avatar.png" /> <?=$_Oli->getLoggedUsername()?></a></li>
+			<li><a href=""><i class="fa fa-user-cog"></i></a></li>
+		<?php } else { ?>
+			<li><a href=""><i class="fa fa-sign-in-alt fa-fw"></i> Login</a></li>
+		<?php } ?>
+	</ul>
+</div>
 
-<h1>Oli Config —</h1>
-<p>Update your website config.</p>
+<div id="header" class="header">
+	<h1>Oli Config</h1>
+	<p>Update your website config.</p>
+</div>
 
-<form action="#" method="post" id="form">
-	<h2>Love <3</h2>
-	
-	<p>Work in progress i guess.</p>
-	
-	<?php
-	function parseConfig($config, $tree = []) {
-		foreach($config as $eachVar => $eachValue) { ?>
-			<?php
-			if(in_array($tree[0] ?: $eachVar, ['init_timestamp', 'allow_mysql', 'settings'])) $disabled = true;
-			else $disabled = false;
-			if(in_array($tree[0] ?: $eachVar, ['mysql'])) $hidden = true;
-			else $hidden = false;
-			
-			if(!isset($eachValue)) $type = 'null';
-			else if(is_assoc($eachValue)) $type = 'assoc';
-			else if(is_array($eachValue)) $type = 'array';
-			else if(is_bool($eachValue)) $type = 'checkbox';
-			else if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
-			else $type = 'text';
-			
-			$name = !empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar;
-			?>
-			
-			<div class="config">
-				<span><b><?=$eachVar?></b> —</span>
-				<div class="single" style="display: <?php if(in_array($type, ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-		<label><input type="<?=$type?>" name="<?=$name?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /> <?php if($type == 'checkbox') { ?>Yes/No<?php } ?></label> —
-				</div>
-				<div class="settings" style="display: inline-block">
-					<label><input type="radio" class="type" name="type[<?=$name?>]" value="null" <?php if($type == 'null') { ?>checked<?php } ?> /> NULL</label>
-					<label><input type="radio" class="type" name="type[<?=$name?>]" value="number" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
-					<label><input type="radio" class="type" name="type[<?=$name?>]" value="text" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
-					<label><input type="radio" class="type" name="type[<?=$name?>]" value="checkbox" <?php if($type == 'checkbox') { ?>checked<?php } ?> /> Boolean</label>
-					<label><input type="radio" class="type" name="type[<?=$name?>]" value="array" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
-					<label><input type="radio" class="type" name="type[<?=$name?>]" value="assoc" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
-				</div>
-				<div class="multiple" style="display: <?php if(in_array($type, ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
-					<?php /*foreach($_[$eachVar] ?: $eachValue as $eachBVar => $eachBValue) { ?>
-						<?php
-						if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
-						else $type = 'text';
-						?>
-						
-						<div style="display: inline-block">
-							<label><input type="" name="input1" value="<?=$eachBVar?>" <?php if($disabled) { ?>disabled<?php } ?> /></label> =>
-							<label><input type="<?=$type?>" name="input1" value="<?=$eachBValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
-						</div>
-						<div class="settings" style="display: inline-block">
-							<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
-							<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
-						</div> <br />
-					<?php }*/ if(in_array($type, ['array', 'assoc'])) parseConfig($_[$eachVar] ?: $eachValue, array_merge($tree, [$eachVar])); ?>
-				</div>
-			</div>
-		<?php }
-	} parseConfig($_Oli->config); ?>
-	
-	<button type="submit">Submit</button>
-	
-</form>
+<div id="main">
+	<?php if(!empty($result)) { ?><p><u><b>Script logs</b>:</u> <code><?=json_encode($result, JSON_FORCE_OBJECT)?></code></p><?php } ?>
 
-<script>
-// TODO: Disable submit by enter
-var step = 1;
-var nextStep = function(next) {
-	var error = null;
-	var last = 4;
-	next = next || step+1;
-	
-	if(next <= 0 || next > 4) return false;
-	else if(next > 1 && document.querySelector('[name="olisc"]').value == '') error = 'Step 1 error';
-	else if(next > 2 && document.querySelector('[name="baseurl"]').value == '') error = 'Step 2 error';
-	else if(next > 3 && document.querySelector('[name="name"]').value == '') error = 'Step 3 error';
-	
-	if(error) {
-		alert(error);
-		return false;
-	} else {
-		var nextStepElem = document.querySelector('[step="' + next + '"]')
-		if(nextStepElem !== null) {
-			for(var elem of document.querySelectorAll('.step')) {
-				elem.style.display = "none";
-			}
-			
-			if(next == last) {
-				nextStepElem.querySelector('.data-summary').innerHTML = '';
-				for(var pair of (new FormData(document.querySelector('#form'))).entries()) {
-					var node = document.createElement('li');
-					node.appendChild(document.createTextNode(pair[0] + ' → "' + pair[1] + '"'));
-					document.querySelector('.data-summary').appendChild(node);
+	<form action="#" method="post" id="form">
+		<h2>Love <3</h2>
+		
+		<p>Work in progress i guess.</p>
+		
+		<?php
+		function parseConfig($config, $tree = []) {
+			foreach($config as $eachVar => $eachValue) { ?>
+				<?php
+				if(in_array($tree[0] ?: $eachVar, ['init_timestamp', 'allow_mysql', 'settings'])) $disabled = true;
+				else $disabled = false;
+				if(in_array($tree[0] ?: $eachVar, ['mysql'])) $hidden = true;
+				else $hidden = false;
+				
+				if(!isset($eachValue)) $type = 'null';
+				else if(is_assoc($eachValue)) $type = 'assoc';
+				else if(is_array($eachValue)) $type = 'array';
+				else if(is_bool($eachValue)) $type = 'checkbox';
+				else if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
+				else $type = 'text';
+				
+				$name = !empty($tree) ? $tree[0] . '[' . (count($tree) > 1 ? implode('][', array_slice($tree, 1)) . '][' : '') . $eachVar . ']' : $eachVar;
+				?>
+				
+				<div class="config">
+					<span><b><?=$eachVar?></b> —</span>
+					<div class="single" style="display: <?php if(in_array($type, ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
+			<label><input type="<?=$type?>" name="<?=$name?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /> <?php if($type == 'checkbox') { ?>Yes/No<?php } ?></label> —
+					</div>
+					<div class="settings" style="display: inline-block">
+						<label><input type="radio" class="type" name="type[<?=$name?>]" value="null" <?php if($type == 'null') { ?>checked<?php } ?> /> NULL</label>
+						<label><input type="radio" class="type" name="type[<?=$name?>]" value="number" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+						<label><input type="radio" class="type" name="type[<?=$name?>]" value="text" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+						<label><input type="radio" class="type" name="type[<?=$name?>]" value="checkbox" <?php if($type == 'checkbox') { ?>checked<?php } ?> /> Boolean</label>
+						<label><input type="radio" class="type" name="type[<?=$name?>]" value="array" <?php if($type == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
+						<label><input type="radio" class="type" name="type[<?=$name?>]" value="assoc" <?php if($type == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
+					</div>
+					<div class="multiple" style="display: <?php if(in_array($type, ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
+						<?php /*foreach($_[$eachVar] ?: $eachValue as $eachBVar => $eachBValue) { ?>
+							<?php
+							if(is_integer($eachValue) OR is_float($eachValue)) $type = 'number';
+							else $type = 'text';
+							?>
+							
+							<div style="display: inline-block">
+								<label><input type="" name="input1" value="<?=$eachBVar?>" <?php if($disabled) { ?>disabled<?php } ?> /></label> =>
+								<label><input type="<?=$type?>" name="input1" value="<?=$eachBValue?>" <?php if($disabled) { ?>disabled<?php } ?> /></label>
+							</div>
+							<div class="settings" style="display: inline-block">
+								<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'number') { ?>checked<?php } ?> /> Number</label>
+								<label><input type="radio" class="type" name="type[<?=$eachVar?>][<?=$eachBVar?>]" <?php if($type == 'text') { ?>checked<?php } ?> /> Text</label>
+							</div> <br />
+						<?php }*/ if(in_array($type, ['array', 'assoc'])) parseConfig($_[$eachVar] ?: $eachValue, array_merge($tree, [$eachVar])); ?>
+					</div>
+				</div>
+			<?php }
+		} parseConfig($_Oli->config); ?>
+		
+		<button type="submit">Submit</button>
+		
+	</form>
+
+	<script>
+	// TODO: Disable submit by enter
+	var step = 1;
+	var nextStep = function(next) {
+		var error = null;
+		var last = 4;
+		next = next || step+1;
+		
+		if(next <= 0 || next > 4) return false;
+		else if(next > 1 && document.querySelector('[name="olisc"]').value == '') error = 'Step 1 error';
+		else if(next > 2 && document.querySelector('[name="baseurl"]').value == '') error = 'Step 2 error';
+		else if(next > 3 && document.querySelector('[name="name"]').value == '') error = 'Step 3 error';
+		
+		if(error) {
+			alert(error);
+			return false;
+		} else {
+			var nextStepElem = document.querySelector('[step="' + next + '"]')
+			if(nextStepElem !== null) {
+				for(var elem of document.querySelectorAll('.step')) {
+					elem.style.display = "none";
 				}
-			}
-			
-			document.querySelector('[step="' + next + '"]').style.display = "block";
-			step = next;
-		} else alert('An error occurred!');
+				
+				if(next == last) {
+					nextStepElem.querySelector('.data-summary').innerHTML = '';
+					for(var pair of (new FormData(document.querySelector('#form'))).entries()) {
+						var node = document.createElement('li');
+						node.appendChild(document.createTextNode(pair[0] + ' → "' + pair[1] + '"'));
+						document.querySelector('.data-summary').appendChild(node);
+					}
+				}
+				
+				document.querySelector('[step="' + next + '"]').style.display = "block";
+				step = next;
+			} else alert('An error occurred!');
+		}
 	}
-}
-</script>
+	</script>
+</div>
+
+<footer id="footer">
+	<p class="float-left">Powered by <b><?=$_Oli->oliInfos['name']?></b>, <?=$_Oli->oliInfos['short_description']?></p>
+	<p class="float-right">Version <?=$_Oli->oliInfos['version']?></p>
+</footer>
 
 </body>
 </html>
