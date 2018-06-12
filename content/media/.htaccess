@@ -1,3 +1,5 @@
+Order allow,deny
 <FilesMatch ".(bmp|jpg|jpeg|png|gif)">
 	allow from all
 </FilesMatch>
+Options -Indexes
