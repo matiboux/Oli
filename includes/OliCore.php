@@ -2485,7 +2485,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the media url.
 		 */
-		public function getMediaUrl() { return $this->getUrlParam(0) . $this->config['media_path']; }
+		public function getMediaUrl() { return $this->getUrlParam(0) . ($this->config['media_path'] ?: 'content/media/'); }
 		
 		/**
 		 * Get Login Url
