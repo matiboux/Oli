@@ -42,38 +42,13 @@ else if($_Oli->getUrlParam(2) == 'basics') {
 <html>
 <head>
 
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="author" content="Matiboux" />
-
-<!-- CSS Frameworks -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap-reboot.min.css" />
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap-grid.min.css" />
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous" />
-
-<!-- JavaScript Frameworks -->
-<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-
-<link rel="stylesheet" type="text/css" href="<?=$_Oli->getAdminAssetsUrl()?>style.css" />
+<?php include INCLUDESPATH . 'admin/head.php'; ?>
 <title>Oli MySQL Config</title>
 
 </head>
 <body>
 
-<div id="navbar">
-	<ul class="navbar-nav float-left">
-		<li><a href="<?=$_Oli->getUrlParam(0)?>"><i class="fa fa-globe fa-fw"></i> <span class="d-none d-sm-inline"><?=explode('/', $_Oli->getUrlParam(0), 3)[2]?></span><span class="d-sm-none">Website</span></a></li>
-		<li><a href="<?=$_Oli->getAdminUrl()?>"><i class="fa fa-home fa-fw"></i> Oli Admin</a></li>
-	</ul>
-	<ul class="navbar-nav float-right">
-		<?php if($_Oli->isLoggedIn()) { ?>
-			<li><a href=""><img src="<?=$_Oli->getMediaUrl()?>default-avatar.png" /> <?=$_Oli->getLoggedUsername()?></a></li>
-			<li><a href=""><i class="fa fa-user-cog"></i></a></li>
-		<?php } else { ?>
-			<li><a href=""><i class="fa fa-sign-in-alt fa-fw"></i> Login</a></li>
-		<?php } ?>
-	</ul>
-</div>
+<?php include INCLUDESPATH . 'admin/navbar.php'; ?>
 
 <div id="header" class="header">
 	<h1>Oli Config: MySQL</h1>
@@ -152,10 +127,7 @@ else if($_Oli->getUrlParam(2) == 'basics') {
 	</form>
 </div>
 
-<footer id="footer">
-	<p class="float-left">Powered by <b><?=$_Oli->oliInfos['name']?></b>, <?=$_Oli->oliInfos['short_description']?></p>
-	<p class="float-right">Version <?=$_Oli->oliInfos['version']?></p>
-</footer>
+<?php include INCLUDESPATH . 'admin/footer.php'; ?>
 
 </body>
 </html>
