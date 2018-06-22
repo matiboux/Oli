@@ -35,9 +35,19 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 		</div>
 		<div class="form col-md-9" id="set-username" style="display: none">
 			<p>Set username</p>
+			<form action="" method="post">
+				<input type="text" name="username" placeholder="Choose a username" />
+				<button type="submit">Set</button>
+			</form>
 		</div>
 		<div class="form col-md-9" id="change-password" style="display: none">
 			<p>Change password</p>
+			<form action="" method="post">
+				<input type="password" name="password" placeholder="Current Password" />
+				<input type="password" name="new-password" placeholder="New Password" />
+				<input type="password" name="confirm-new-password" placeholder="Confirm New Password" />
+				<button type="submit">Change</button>
+			</form>
 		</div>
 	</div>
 </div>
