@@ -22,6 +22,11 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 </div>
 
 <div id="main">
+	<p>
+		User ID: <?=$_Oli->getLoggedUser()?> <br />
+		Username:  <?=($username = $_Oli->getLoggedUsername()) ? '@' . $username : 'not set'?>
+	</p>
+	
 	<div class="row">
 		<div class="col-md-3" style="margin-bottom: 10px">
 			<select class="btn btn-primary" name="select" style="width: 100%">
@@ -35,14 +40,14 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 		</div>
 		<div class="form col-md-9" id="set-username" style="display: none">
 			<p>Set username</p>
-			<form action="" method="post">
+			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
 				<input type="text" name="username" placeholder="Choose a username" />
 				<button type="submit">Set</button>
 			</form>
 		</div>
 		<div class="form col-md-9" id="change-password" style="display: none">
 			<p>Change password</p>
-			<form action="" method="post">
+			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
 				<input type="password" name="password" placeholder="Current Password" />
 				<input type="password" name="new-password" placeholder="New Password" />
 				<input type="password" name="confirm-new-password" placeholder="Confirm New Password" />
