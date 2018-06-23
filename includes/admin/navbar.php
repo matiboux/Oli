@@ -5,7 +5,7 @@
 	</ul>
 	<ul class="navbar-nav float-right">
 		<?php if($_Oli->isLoggedIn()) { ?>
-			<li><a href=""><img src="<?=$_Oli->getMediaUrl()?>default-avatar.png" /> <?=$_Oli->getLoggedUsername()?></a></li>
+			<li><a href=""><img src="<?=$_Oli->getMediaUrl()?>default-avatar.png" /> <?=$_Oli->getLoggedName()?></a></li>
 			<li><a href=""><i class="fa fa-user-cog"></i></a></li>
 			<li><a href="<?=$_Oli->getLoginUrl()?>logout/"><i class="fa fa-power-off"></i></a></li>
 		<?php } else { ?>
