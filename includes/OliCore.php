@@ -160,15 +160,8 @@ class OliCore {
 	/**  I. Variables  */
 	/** -------------- */
 	
-	/** Read-only variables */
-	private $readOnlyVars = [
-		'oliInfos', 'addonsInfos',
-		'initTimestamp', 'debugStatus', 'rawConfig', 'config',
-		'db', 'dbError',
-		'fileNameParam', 'contentStatus'];
-	
 	/** Components infos */
-	private $oliInfos = []; // Oli Infos (PUBLIC READONLY)
+	private $oliInfos = []; // Oli Infos (SPECIAL PUBLIC READONLY)
 	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
 	
 	/** Oli Config */
@@ -230,12 +223,6 @@ class OliCore {
 	public function __construct($initTimestamp = null) {
 		/** Define primary constants */
 		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.'); // Defined in load.php
-		if(!defined('ADDONSPATH')) die('Oli Error: ADDONSPATH is not defined.'); // Defined in load.php
-		if(!defined('INCLUDESPATH')) die('Oli Error: INCLUDESPATH is not defined.'); // Defined in load.php
-		if(!defined('CONTENTPATH')) die('Oli Error: CONTENTPATH is not defined.'); // Defined in load.php
-		
-		/** Load Oli Infos */
-		if(file_exists(INCLUDESPATH . 'oli-infos.json')) $this->oliInfos = json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true);
 		
 		/** Load Config */
 		$this->loadConfig();
@@ -288,17 +275,16 @@ class OliCore {
 	 * @return mixed Returns the requested variable value if is allowed to read, null otherwise.
 	 */
 	public function __get($whatVar) {
-		if(in_array($whatVar, $this->readOnlyVars)) {
-			// $returnValue = $this->$whatVar;
-			// if($whatVar == 'config') unset($this->$whatVar['mysql']);
-			// return $returnValue;
-			return $this->$whatVar;
-		} else return null;
+		if($whatVar == 'oliInfos') {
+			if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if needed
+			return $this->oliInfos;
+		} else if(in_array($whatVar, ['addonsInfos', 'initTimestamp', 'debugStatus', 'rawConfig', 'config', 'db', 'dbError', 'fileNameParam', 'contentStatus'])) return $this->$whatVar;
+		else return null;
     }
 	
 	/**
 	 * OliCore Class Is Set variables management
-	 * → Fix the empty() false negative issue on inaccessible variables.
+	 * This fix the empty() false negative issue on inaccessible variables.
 	 * 
 	 * @version BETA
 	 * @updated BETA-2.0.0
@@ -317,6 +303,7 @@ class OliCore {
 	 * @return string Returns a short description of Oli.
 	 */
 	public function __toString() {
+		if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if needed
 		return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (v. ' . $this->oliInfos['version'] . ')';
 	}
 	
