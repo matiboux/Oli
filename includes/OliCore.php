@@ -221,8 +221,19 @@ class OliCore {
 	 * @return void
 	 */
 	public function __construct($initTimestamp = null) {
-		/** Define primary constants */
+		/** Primary constants */
 		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.'); // Defined in load.php
+		if(!defined('ADDONSPATH')) die('Oli Error: ADDONSPATH is not defined.'); // Defined in load.php
+		if(!defined('INCLUDESPATH')) define('INCLUDESPATH', __DIR__ . '/'); // SHOULD be defined in load.php
+		if(!defined('CONTENTPATH')) define('INCLUDESPATH', ABSPATH . 'content/'); // SHOULD be defined in load.php
+		
+		/** Secondary constants */
+		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
+		// if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+		// if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+		// if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
+		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
+		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
 		
 		/** Load Config */
 		$this->loadConfig();
@@ -234,24 +245,13 @@ class OliCore {
 			}
 		}
 		
-		/** Setup MySQL */
-		// if($this->config['allow_mysql'] AND !empty($this->config['mysql'])) $this->setupMySQL(!empty($this->config['mysql']['database']) ? $this->config['mysql']['database'] : null, !empty($this->config['mysql']['username']) ? $this->config['mysql']['username'] : null, !empty($this->config['mysql']['password']) ? $this->config['mysql']['password'] : null, !empty($this->config['mysql']['hostname']) ? $this->config['mysql']['hostname'] : null, !empty($this->config['mysql']['charset']) ? $this->config['mysql']['charset'] : null);
-		
-		/** Define secondary constants */
-		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
-		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
-			if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
-		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
-		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
-		
 		/** Framework Init */
 		$this->initTimestamp = $initTimestamp ?: microtime(true);
 		$this->setContentType('DEFAULT', 'utf-8');
 		$this->setCurrentLanguage('DEFAULT');
 		
-		/** Oli debug */
-		if($this->config['debug'] OR (!empty($_GET['oli-debug']) AND $_GET['oli-debug'] == $this->getOliSecurityCode())) $this->debugStatus = true;
+		/** Define Oli Debug State */
+		if($this->config['debug'] OR $_GET['oli-debug'] == $this->getOliSecurityCode()) $this->debugStatus = true;
 		else $this->debugStatus = false;
 	}
 	
