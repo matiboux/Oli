@@ -230,7 +230,7 @@ class OliCore {
 		/** Secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
 		// if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-		// if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 		// if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
 		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
 		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
@@ -2635,56 +2635,119 @@ class OliCore {
 			/** ---------------------- */
 			/**  VI. 9. B. Generators  */
 			/** ---------------------- */
-			
-			/** Random Number generator */
-			public function rand($min = 1, $max = 100) {
-				if(is_numeric($min) AND is_numeric($max)) {
-					if($min > $max) $min = [$max, $max = $min][0];
-					return mt_rand($min, $max);
-				} else return false;
-			}
-			public function randomNumber($min = null, $max = null) { $this->rand($min, $max); }
-			
-			/** KeyGen built-in script */
-			// See https://github.com/matiboux/KeyGen-Lib for the full PHP library.
-			public function keygen($length = 12, $numeric = true, $lowercase = true, $uppercase = true, $special = false, $redundancy = true) {
-				$charactersSet = '';
-				if($numeric) $charactersSet .= '1234567890';
-				if($lowercase) $charactersSet .= 'abcdefghijklmnopqrstuvwxyz';
-				if($uppercase) $charactersSet .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-				if($special) $charactersSet .= '!#$%&\()+-;?@[]^_{|}';
+		
+				/** ------------------- */
+				/**  VI. 9. B. a. UUID  */
+				/** ------------------- */
 				
-				if(empty($charactersSet) OR empty($length) OR $length <= 0) return false;
-				else {
-					if($length > strlen($redundancy) AND !$redundancy) $redundancy = true;
-					
-					$keygen = '';
-					while(strlen($keygen) < $length) {
-						$randomCharacter = substr($charactersSet, mt_rand(0, strlen($charactersSet) - 1), 1);
-						if($redundancy OR !strstr($keygen, $randomCharacter)) $keygen .= $randomCharacter;
-					}
-					
-					return $keygen;
+				/**
+				 * UUID Generator Gateway
+				 * 
+				 * @version BETA-2.0.0
+				 * @updated BETA-2.0.0
+				 * @return string Returns the requested UUID.
+				 */
+				public function uuid(string $type, ...$args) {
+					if(in_array($type, ['v4', '4'])) call_user_func_array(array($this, 'uuid4'), $args);
+					else if($type == 'alt') call_user_func_array(array($this, 'uuid4'), $args);
+					else return false;
 				}
-			}
-			
-			/**
-			 * UUID v4 Generator Script
-			 * 
-			 * From https://stackoverflow.com/a/15875555/5255556
-			 * 
-			 * @version BETA-2.0.0
-			 * @updated BETA-2.0.0
-			 * @return string Returns the generated UUID.
-			 */
-			public function uuid4() {
-				if(function_exists('random_bytes')) $data = random_bytes(16);
-				else $data = openssl_random_pseudo_bytes(16);
-
-				$data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-				$data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-				return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-			}
+				
+				/**
+				 * UUID v4 Generator Script
+				 * 
+				 * From https://stackoverflow.com/a/15875555/5255556
+				 * 
+				 * @version BETA-2.0.0
+				 * @updated BETA-2.0.0
+				 * @return string Returns the generated UUID.
+				 */
+				public function uuid4() {
+					if(function_exists('random_bytes')) $data = random_bytes(16);
+					else $data = openssl_random_pseudo_bytes(16);
+					
+					$data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+					$data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+					return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+				}
+				
+				/**
+				 * Alternative UUID Generation Script
+				 * 
+				 * This is an alternative version of a randomly generated UUID, based on both timestamp and pseudo-random bytes.
+				 * 
+				 * This generated UUID format is {oooooooo-oooo-Mooo-Nxxx-xxxxxxxxxxxx}, it concatenates:
+				 * - o: The current timestamp (60 bits) (time_low, time_mid, time_high)
+				 * - M: The version (4 bits)
+				 * - N: The variant (2 bits)
+				 * - x: Pseudo-random values (62 bits)
+				 * 
+				 * Based on:
+				 * - Code from an UUID v1 Generation script. https://github.com/fredriklindberg/class.uuid.php/blob/c1de11110970c6df4f5d7743a11727851c7e5b5a/class.uuid.php#L220
+				 * - Code from an UUID v4 Generation script. https://stackoverflow.com/a/15875555/5255556
+				 * 
+				 * @author Matiboux <matiboux@gmail.com>
+				 * @link https://github.com/matiboux/Time-Based-Random-UUID
+				 * @version 1.0
+				 * @return string Returns the generated UUID.
+				 */
+				function uuidAlt($tp = null) {
+					if(!empty($tp)) {
+						if(is_array($tp)) $time = ($tp['sec'] * 10000000) + ($tp['usec'] * 10);
+						else if(is_numeric($tp)) $time = (int) ($tp * 10000000);
+						else return false;
+					} else $time = (int) (gettimeofday(true) * 10000000);
+					$time += 0x01B21DD213814000;
+					
+					$arr = str_split(dechex($time & 0xffffffff), 4); // time_low (32 bits)
+					$high = intval($time / 0xffffffff);
+					array_push($arr, dechex($high & 0xffff)); // time_mid (16 bits)
+					array_push($arr, dechex(0x4000 | (($high >> 16) & 0x0fff))); // Version (4 bits) + time_high (12 bits)
+					
+					// Variant (2 bits) + Cryptographically Secure Pseudo-Random Bytes (62 bits)
+					if(function_exists('random_bytes')) $random = random_bytes(8);
+					else $random = openssl_random_pseudo_bytes(8);
+					$random[0] = chr(ord($random[0]) & 0x3f | 0x80); // Apply variant: Set the two first bits of the random set to 10.
+					
+					$uuid = vsprintf('%s%s-%s-%s-%s-%s%s%s', array_merge($arr, str_split(bin2hex($random), 4)));
+					return strlen($uuid) == 36 ? $uuid : false;
+				}
+		
+				/** ------------------- */
+				/**  VI. 9. B. b. Misc  */
+				/** ------------------- */
+				
+				/** Random Number generator */
+				public function rand($min = 1, $max = 100) {
+					if(is_numeric($min) AND is_numeric($max)) {
+						if($min > $max) $min = [$max, $max = $min][0];
+						return mt_rand($min, $max);
+					} else return false;
+				}
+				public function randomNumber($min = null, $max = null) { $this->rand($min, $max); }
+				
+				/** KeyGen built-in script */
+				// See https://github.com/matiboux/KeyGen-Lib for the full PHP library.
+				public function keygen($length = 12, $numeric = true, $lowercase = true, $uppercase = true, $special = false, $redundancy = true) {
+					$charactersSet = '';
+					if($numeric) $charactersSet .= '1234567890';
+					if($lowercase) $charactersSet .= 'abcdefghijklmnopqrstuvwxyz';
+					if($uppercase) $charactersSet .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+					if($special) $charactersSet .= '!#$%&\()+-;?@[]^_{|}';
+					
+					if(empty($charactersSet) OR empty($length) OR $length <= 0) return false;
+					else {
+						if($length > strlen($redundancy) AND !$redundancy) $redundancy = true;
+						
+						$keygen = '';
+						while(strlen($keygen) < $length) {
+							$randomCharacter = substr($charactersSet, mt_rand(0, strlen($charactersSet) - 1), 1);
+							if($redundancy OR !strstr($keygen, $randomCharacter)) $keygen .= $randomCharacter;
+						}
+						
+						return $keygen;
+					}
+				}
 			
 			/** --------------------------- */
 			/**  VI. 9. C. Data Conversion  */
