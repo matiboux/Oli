@@ -121,6 +121,8 @@
 |*|  │ └ 9. Utility Tools
 |*|  │   ├ A. Templates
 |*|  │   ├ B. Generators
+|*|  │   │ ├ a. UUID
+|*|  │   │ └ b. Misc
 |*|  │   ├ C. Data Conversion
 |*|  │   ├ D. Date & Time
 |*|  │   └ E. Client Infos
@@ -229,7 +231,7 @@ class OliCore {
 		
 		/** Secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
-		// if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
 		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
 		// if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
 		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
