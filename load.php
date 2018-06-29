@@ -57,27 +57,48 @@ if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';
 else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (in "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
 
-/** Load OliCore */
+/** Load OliCore & Addons */
 $_Oli = new \Oli\OliCore(INITTIME);
+// if(!empty($config['user-config']['addons'])) {
+	// foreach($config['user-config']['addons'] as $eachAddon) {
+		// if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {
+			// $className = (!empty($eachAddon['namespace']) ? str_replace('/', '\\', $eachAddon['namespace']) . '\\' : '\\') . $eachAddon['class'];
+			// ${$eachAddon['var']} = new $className;
+			// $_Oli->addAddon($eachAddon['name'], $eachAddon['var']);
+			// $_Oli->addAddonInfos($eachAddon['name'], $eachAddon);
+		// }
+	// }
+// }
 
 /** Load Addons */
-if(!empty($_Oli->config['addons'])) {
-	foreach($_Oli->config['addons'] as $eachAddonInfosName => $eachAddonInfos) {
-		if(!empty($eachAddonInfosName) AND !empty($eachAddonInfos['var']) AND !empty($eachAddonInfos['class']) AND !isset(${$eachAddonInfos['var']})) {
-			$className = (!empty($eachAddonInfos['namespace']) ? str_replace('/', '\\', $eachAddonInfos['namespace']) . '\\' : '\\') . $eachAddonInfos['class'];
-			${$eachAddonInfos['var']} = new $className;
-			$_Oli->addAddon($eachAddonInfosName, $eachAddonInfos['var']);
-			$_Oli->addAddonInfos($eachAddonInfosName, $eachAddonInfos);
+// if(!empty($_Oli->config['addons'])) {
+	// foreach($_Oli->config['addons'] as $eachAddonInfosName => $eachAddonInfos) {
+		// if(!empty($eachAddonInfosName) AND !empty($eachAddonInfos['var']) AND !empty($eachAddonInfos['class']) AND !isset(${$eachAddonInfos['var']})) {
+			// $className = (!empty($eachAddonInfos['namespace']) ? str_replace('/', '\\', $eachAddonInfos['namespace']) . '\\' : '\\') . $eachAddonInfos['class'];
+			// ${$eachAddonInfos['var']} = new $className;
+			// $_Oli->addAddon($eachAddonInfosName, $eachAddonInfos['var']);
+			// $_Oli->addAddonInfos($eachAddonInfosName, $eachAddonInfos);
 			
-			if(file_exists(CONTENTPATH . $eachAddonInfosName . '.json')) ${$eachAddonInfos['var']}->loadConfig(json_decode(file_get_contents(CONTENTPATH . $eachAddonInfosName . '.json'), true));
-			else {
-				$handle = fopen(CONTENTPATH . $eachAddonInfosName . '.json', 'w');
-				fclose($handle);
-			}
-		}
-	}
-}
+			// if(file_exists(CONTENTPATH . $eachAddonInfosName . '.json')) ${$eachAddonInfos['var']}->loadConfig(json_decode(file_get_contents(CONTENTPATH . $eachAddonInfosName . '.json'), true));
+			// else {
+				// $handle = fopen(CONTENTPATH . $eachAddonInfosName . '.json', 'w');
+				// fclose($handle);
+			// }
+		// }
+	// }
+// }
 
-/** Load Config Script */
+/** Load Configs */
+// if(!empty($config['user-config'])) {
+	// foreach($config['user-config'] as $eachKey => $eachConfig) {
+		// if($eachKey == 'Oli') {
+			// if(file_exists(ABSPATH . 'mysql.json')) $_Oli->loadConfig(array('mysql' => json_decode(file_get_contents(ABSPATH . 'mysql.json'), true)));
+			// $_Oli->loadConfig($eachConfig);
+		// }
+		// else ${$_Oli->getAddonVar($eachKey)}->loadConfig($eachConfig);
+	// }
+// }
+
+/** Load Additional Config */
 if(file_exists(ABSPATH . 'config.php')) include ABSPATH . 'config.php';
 ?>
