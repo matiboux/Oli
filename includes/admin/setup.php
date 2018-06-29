@@ -1,31 +1,31 @@
 <?php
-$params = array_merge($_GET, $_POST);
+$_ = array_merge($_GET, $_POST);
 $result = [];
 
 if(!$_Oli->config['setup_wizard']) die('Sorry. The initial config seem to have been done already.');
 
-if(!empty($params['formdata'])) $formdata = json_decode(base64_decode($params['formdata']), true);
+if(!empty($_['formdata'])) $formdata = json_decode(base64_decode($_['formdata']), true);
 else $formdata = null;
 
-if(!empty($params)) {
-	if(empty($params['olisc'])) $result = array('error' => 'Error: The "olisc" parameter is missing');
-	else if($params['olisc'] != $_Oli->getOliSecurityCode()) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
+if(!empty($_)) {
+	if(empty($_['olisc'])) $result = array('error' => 'Error: The "olisc" parameter is missing');
+	else if($_['olisc'] != $_Oli->getOliSecurityCode()) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
 	else {
-		if(!empty($params['confirm']) AND $params['confirm'] == 'yes') {
+		if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
 			$newConfig = array('setup_wizard' => false);
 			if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, '_POST' => $_POST);
 			else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
-		} else if(empty($params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
-		else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $params['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
-		else if(empty($params['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
+		} else if(empty($_['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
+		else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
+		else if(empty($_['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
 		else {
 			$newConfig = array(
 				'settings' => array(
-					'url' => $params['baseurl'],
-					'name' => $params['name'],
-					'description' => $params['description'],
-					'creation_date' => $params['creation_date'],
-					'owner' => $params['owner'],
+					'url' => $_['baseurl'],
+					'name' => $_['name'],
+					'description' => $_['description'],
+					'creation_date' => $_['creation_date'],
+					'owner' => $_ams['owner'],
 				));
 			
 			if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, 'olisc' => $_POST['olisc'], '_POST' => $_POST);
@@ -68,7 +68,7 @@ if(!empty($params)) {
 			<?php } ?>
 			
 			<p>In order to verify that you are the owner of this website, please type in below the generated security code. You can find the file containing the security code in the main folder of your website.</p>
-			<input type="text" name="olisc" placeholder="Oli Security Code" value="<?=$_POST['olisc']?>" />
+			<input type="password" name="olisc" placeholder="Oli Security Code" value="<?=$_POST['olisc']?>" />
 			<button type="button" onclick="nextStep();">Verify my identity</button>
 		</div>
 			
