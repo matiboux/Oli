@@ -162,6 +162,13 @@ class OliCore {
 	/**  I. Variables  */
 	/** -------------- */
 	
+	/** Read-only variables */
+	private $readOnlyVars = [
+		'oliInfos', 'addonsInfos',
+		'initTimestamp', 'debugStatus', 'appConfig', 'rawConfig', 'config',
+		'db', 'dbError',
+		'fileNameParam', 'contentStatus'];
+	
 	/** Components infos */
 	private $oliInfos = []; // Oli Infos (SPECIAL PUBLIC READONLY)
 	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
@@ -277,11 +284,12 @@ class OliCore {
 	 * @return mixed Returns the requested variable value if is allowed to read, null otherwise.
 	 */
 	public function __get($whatVar) {
-		if($whatVar == 'oliInfos') {
-			if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if needed
-			return $this->oliInfos;
-		} else if(in_array($whatVar, ['addonsInfos', 'initTimestamp', 'debugStatus', 'rawConfig', 'config', 'db', 'dbError', 'fileNameParam', 'contentStatus'])) return $this->$whatVar;
-		else return null;
+		if(in_array($whatVar, $this->readOnlyVars)) {
+			if($whatVar == 'oliInfos') {
+				if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if needed
+				return $this->oliInfos;
+			} else return $this->$whatVar;
+		} else return null;
     }
 	
 	/**
