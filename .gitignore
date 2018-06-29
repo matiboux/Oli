@@ -4,6 +4,9 @@
 /.olisc
 
 # User or Config Files
+/app.json
+/config.json
+
 /content/.oliauth
 /content/config.json
 /content/mysql.json
