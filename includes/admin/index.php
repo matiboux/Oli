@@ -22,7 +22,7 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 </div>
 
 <div id="main">
-	<p>Welcome on the Oli Admin, <?=$_Oli->getLoggedUsername()?>! \o/</p>
+	<p>Welcome on the Oli Admin, <?=$_Oli->getLoggedName()?>! \o/</p>
 	
 	<p>User Management:</p>
 	<ul>
