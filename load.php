@@ -13,18 +13,19 @@ if(!$oliPath OR !file_exists($oliPath . 'includes/')) {
 }
 
 /** Define Oli Source Files Path (if files not found) */
-if(!empty($_POST['olipath'])) {
-	$_POST['olipath'] = substr($_POST['olipath'], -1) != '/' ? $_POST['olipath'] . '/' : $_POST['olipath'];;
-
-	if(!file_exists($_POST['olipath'] . 'includes/')) $oliPath = null;
-	else {
-		$handle = fopen(ABSPATH . '.olipath', 'w');
-		fwrite($handle, $oliPath = $_POST['olipath']);
-		fclose($handle);
+if($oliPath == null) {
+	if(!empty($_POST['olipath'])) {
+		$_POST['olipath'] = substr($_POST['olipath'], -1) != '/' ? $_POST['olipath'] . '/' : $_POST['olipath'];
+		if(file_exists($_POST['olipath'] . 'includes/')) {
+			$handle = fopen(ABSPATH . '.olipath', 'w');
+			fwrite($handle, $oliPath = $_POST['olipath']);
+			fclose($handle);
+		}
 	}
-}
+	
+	if($oliPath == null) {
+?>
 
-if($oliPath == null) { ?>
 <h1>Oli Basic Configuration —</h1>
 <p><b>Hey, looks like the framework core files could not found</b>. You need to either..</p>
 <ul>
@@ -35,11 +36,13 @@ if($oliPath == null) { ?>
 <h2>Define OliPath —</h2>
 <form action="#" method="post">
 	<?php if(!empty($_POST) AND $_POST['olipath']) { ?><p>[!] Looks like an error occurred.. Are you sure the path you entered led to Oli core folders and files?</p><?php } ?>
-	<p>Please type in the absolute path of the directory containing the Oli core folders (<i>includes/</i>) and files.</p>
+	<p>Please type in the absolute path of the directory containing the Oli core folders (like <i>includes/</i>) and files.</p>
 	<input type="text" name="olipath" placeholder="/var/www/OliSources/" />
-	<button type="submit">Sumbit the path</button>
+	<button type="submit">Submit the path</button>
 </form>
+
 <?php exit;
+	}
 }
 
 /** Define Oli Paths */
