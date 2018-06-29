@@ -61,7 +61,7 @@
 |*|           1.7.2: February 22, 2017
 |*|    * BETA 1.8.0: June 30, 2017
 |*|           1.8.1: July 13, 2017
-|*|           1.8.2: [WIP]
+|*|           1.8.2: [Unfinished.]
 |*|    * BETA 2.0.0: [WIP]
 \*/
 
@@ -432,7 +432,7 @@ class OliCore {
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function saveConfig($config) {
-			$handle = fopen(CONTENTPATH . 'config.json', 'w');
+			$handle = fopen(ABSPATH . 'config.json', 'w');
 			$result = fwrite($handle, json_encode($config));
 			fclose($handle);
 			
@@ -448,7 +448,7 @@ class OliCore {
 		 */
 		public function loadConfig() {
 			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
-			if(file_exists(CONTENTPATH . 'config.json')) $config = json_decode(file_get_contents(CONTENTPATH . 'config.json'), true);
+			if(file_exists(ABSPATH . 'config.json')) $config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
 			
 			$loadedConfig = null;
 			if(!empty($config) AND is_array($config)) {
