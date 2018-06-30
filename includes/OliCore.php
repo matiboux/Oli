@@ -78,11 +78,12 @@
 |*|  │ └ 3. Tools
 |*|  │
 |*|  ├ IV. Configuration
-|*|  │ ├ 1. Load Config
+|*|  │ ├ 1. App Config
+|*|  │ ├ 2. Load Config
 |*|  │ ├ -. (Convert File Size) //!*
-|*|  │ ├ 2. MySQL
-|*|  │ ├ 3. General 
-|*|  │ └ 4. Addons
+|*|  │ ├ 3. MySQL
+|*|  │ ├ 4. General 
+|*|  │ └ 5. Addons
 |*|  │   ├ A. Management
 |*|  │   └ B. Infos
 |*|  │
@@ -176,6 +177,7 @@ class OliCore {
 	/** Oli Config */
 	private $initTimestamp = null; // (PUBLIC READONLY)
 	private $debugStatus = false; // (PUBLIC READONLY)
+	private $appConfig = null; // (PUBLIC READONLY)
 	private $rawConfig = null; // (PUBLIC READONLY)
 	private $config = null; // (PUBLIC READONLY)
 	
@@ -399,8 +401,61 @@ class OliCore {
 	/**  IV. Configuration  */
 	/** ------------------- */
 		
+		/** ------------------- */
+		/**  IV. 1. App Config  */
+		/** ------------------- */
+		
+		/**
+		 * Update App Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if the config is updated.
+		 */
+		public function updateAppConfig(array $newConfig) {
+			$result = [];
+			if($this->isExistTableMySQL($this->config['settings_tables'][0])) { // Are Settings Managed via MySQL?
+				foreach($newConfig as $index => $value) {
+					$result[] = $this->updateInfosMySQL($this->config['settings_tables'][0], array('name' => $index), array('value' => $value));
+				}
+			} else {
+				/** Merging with existing data */
+				$config = array_merge(array(
+					'url' => null,
+					'name' => null,
+					'description' => null,
+					'creation_date' => null,
+					'owner' => null
+				), $this->getAppConfig() ?: [], $newConfig);
+				
+				/** Saving new config */
+				$handle = fopen(ABSPATH . 'app.json', 'w');
+				$result[] = fwrite($handle, json_encode($config));
+				fclose($handle);
+			}
+			
+			if(!in_array(false, $result, true) AND $this->saveConfig($config)) {
+				$this->appConfig = $config;
+				return true;
+			} else return false;
+		}
+		
+		/**
+		 * Get App Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns app config.
+		 */
+		public function getAppConfig($index = null) {
+			if(!isset($this->appConfig) AND file_exists(ABSPATH . 'app.json')) $this->appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true); // Update the app settings buffer
+			
+			if(!empty($index)) return $this->appConfig[$index];
+			else return $this->appConfig;
+		}
+		
 		/** -------------------- */
-		/**  IV. 1. Load Config  */
+		/**  IV. 2. Load Config  */
 		/** -------------------- */
 		
 		/**
@@ -541,7 +596,7 @@ class OliCore {
 		}
 		
 		/** -------------- */
-		/**  IV. 2. MySQL  */
+		/**  IV. 3. MySQL  */
 		/** -------------- */
 		
 		/**
@@ -1929,7 +1984,7 @@ class OliCore {
 					} else $isExist[] = false;
 				}
 			}
-			if(!in_array(true, $isExist, true)) return $this->config['settings'][$setting];
+			if(!in_array(true, $isExist, true)) return $this->getAppConfig($setting);
 		}
 		/** * @alias OliCore::getSetting() */
 		public function getOption($setting, $depth = 0) { return $this->getSetting($setting, $depth); }
