@@ -1697,7 +1697,7 @@ class OliCore {
 		 */
 		public function loadContent() {
 			if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
-			if(!$this->isLocalLogin() OR $this->isExternalLogin()) $this->initUserSession();
+			// if(!$this->isLocalLogin() OR $this->isExternalLogin()) $this->initUserSession();
 			
 			if($this->config['setup_wizard'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
@@ -2064,7 +2064,7 @@ class OliCore {
 				
 				/** Get cookie content */
 				public function getCookie($name, $rawResult = false) {
-					return (!is_array($_COOKIE[$name]) AND is_array(json_decode($_COOKIE[$name], true)) AND !$rawResult) ? json_decode($_COOKIE[$name], true) : $_COOKIE[$name];
+					return (!$rawResult AND ($arr = json_decode($_COOKIE[$name], true)) !== null) ? $arr : $_COOKIE[$name];
 				}
 				public function getCookieContent($name, $rawResult = false) { $this->getCookie($name, $rawResult); }
 				
@@ -3638,17 +3638,8 @@ class OliCore {
 			public function isExistAuthKey() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
 			public function isEmptyAuthKey() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 			
-			/**
-			 * Get Auth Key
-			 * 
-			 * @version BETA-1.8.0
-			 * @updated BETA-2.0.0
-			 * @return string Returns the User ID.
-			 */
-			public function getAuthKey() {
-				if(empty($this->cache['authKey'])) $this->cache['authKey'] = explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[1];
-				return $this->cache['authKey'];
-			}
+			// Get Auth Key
+			// MOVED
 			
 			/**
 			 * Is User Logged In?
@@ -3657,15 +3648,15 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if logged out successfully, false otherwise.
 			 */
-			public function isLoggedIn($userID = null, $authKey = null) {
-				if(empty($userID)) $userID = $this->getUserID();
+			public function isLoggedIn($authID = null, $authKey = null) {
+				if(empty($authID)) $authID = $this->getAuthID();
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if(!empty($userID) AND !empty($authKey)) {
+				if(!empty($authID) AND !empty($authKey)) {
 					if($this->isLocalLogin() AND !$this->isExternalLogin()) $sessionInfos = $this->getLocalRootInfos();
-					else $sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID));
+					else $sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID));
 					
-					return !empty($sessionInfos['uid']) AND $sessionInfos['user_id'] = $userID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
+					return !empty($sessionInfos['uid']) AND $sessionInfos['auth_id'] == $authID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
 				} else return false;
 			}
 			/**
@@ -3675,7 +3666,7 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @alias OliCore::isLoggedIn()
 			 */
-			public function verifyAuthKey($authKey = null, $userID = null) { return $this->isLoggedIn($userID, $authKey); }
+			public function verifyAuthKey($authKey = null, $authID = null) { return $this->isLoggedIn($authID, $authKey); }
 			
 			/**
 			 * Get Logged User
@@ -3684,13 +3675,13 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the uid if logged in, false otherwise.
 			 */
-			public function getLoggedUser($userID = null, $authKey = null) {
-				if(empty($userID)) $userID = $this->getUserID();
+			public function getLoggedUser($authID = null, $authKey = null) {
+				if(empty($authID)) $authID = $this->getAuthID();
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if($this->isLoggedIn($userID, $authKey)) {
+				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin() AND !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
-					else return $this->getAccountInfos('SESSIONS', 'uid', array('user_id' => $userID));
+					else return $this->getAccountInfos('SESSIONS', 'uid', array('auth_id' => $authID));
 				} else return false;
 			}
 			
@@ -3701,10 +3692,10 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the user name if logged in, false otherwise.
 			 */
-			public function getLoggedName($userID = null, $authKey = null, $strictUsername = false) {
-				if($this->isLoggedIn($userID, $authKey)) {
+			public function getLoggedName($authID = null, $authKey = null, $strictUsername = false) {
+				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin()) return 'root';
-					else if($uid = $this->getLoggedUser($userID, $authKey)) {
+					else if($uid = $this->getLoggedUser($authID, $authKey)) {
 						if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
 						else if(!$strictUsername AND $name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) return explode('@', $name, 2)[0];
 						else return false;
@@ -3719,10 +3710,10 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the username if logged in, false otherwise.
 			 */
-			public function getLoggedUsername($userID = null, $authKey = null, $strictUsername = false) {
-				if($this->isLoggedIn($userID, $authKey)) {
+			public function getLoggedUsername($authID = null, $authKey = null, $strictUsername = false) {
+				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin()) return 'root';
-					else if($uid = $this->getLoggedUser($userID, $authKey)) {
+					else if($uid = $this->getLoggedUser($authID, $authKey)) {
 						if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
 						else return false;
 					} else return false;
@@ -3735,7 +3726,7 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @alias OliCore::getLoggedUsername()
 			 */
-			public function getAuthKeyOwner($userID = null, $authKey = null) { return $this->getLoggedUsername($userID, $authKey); }
+			public function getAuthKeyOwner($authID = null, $authKey = null) { return $this->getLoggedUsername($authID, $authKey); }
 		
 		/** ----------------------- */
 		/**  VII. 5. User Sessions  */
@@ -3752,79 +3743,71 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if succeeded, false otherwise.
 			 */
-			public function initUserSession($setUserIDCookie = true) {
-				$userID = $this->getUserID() ?: $this->keygen($this->config['user_id_length'] ?: 16);
-				$authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
-				if(!empty($userID) AND !empty($authKey)) {
-					if(!$this->isLocalLogin() OR $this->isExternalLogin()) {
-						/** Cleanup Process */
-						$this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
+			// public function initUserSession($setAuthCookie = true) {
+				// $authID = $this->getAuthID() ?: $this->keygen($this->config['user_id_length'] ?: 16);
+				// $authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
+				// if(!empty($authID) AND !empty($authKey)) {
+					// if(!$this->isLocalLogin() OR $this->isExternalLogin()) {
+						// /** Cleanup Process */
+						// $this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
 						
-						$now = time();
-						$commonInfos = array(
-							'ip_address' => $this->getUserIP(),
-							'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-							'update_date' => date('Y-m-d H:i:s', $now),
-							'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))
-						);
+						// $now = time();
+						// $commonInfos = array(
+							// 'ip_address' => $this->getUserIP(),
+							// 'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+							// 'update_date' => date('Y-m-d H:i:s', $now),
+							// 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')));
 						
-						if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('user_id' => $userID)) OR !password_verify($authKey, $sessionInfos['auth_key'])) {
-							if(!empty($sessionInfos)) $this->deleteAccountLines('SESSIONS', array('user_id' => $userID));
-							
-							$this->insertAccountLine('SESSIONS', array_merge(array(
-								'user_id' => $userID,
-								'auth_key' => $this->hashPassword($authKey),
-								'creation_date' => date('Y-m-d H:i:s', $now),
-							), $commonInfos));
-						} else {
-							$this->updateAccountInfos('SESSIONS', $commonInfos, array('user_id' => $userID));
-						}
-					}
+						// if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID)) OR !password_verify($authKey, $sessionInfos['auth_key'])) {
+							// if(!empty($sessionInfos)) $this->deleteAccountLines('SESSIONS', array('auth_id' => $authID));
+							// $this->insertAccountLine('SESSIONS', array_merge(array(
+								// 'auth_id' => $authID,
+								// 'auth_key' => $this->hashPassword($authKey),
+								// 'creation_date' => date('Y-m-d H:i:s', $now),
+							// ), $commonInfos));
+						// } else $this->updateAccountInfos('SESSIONS', $commonInfos, array('auth_id' => $authID));
+					// }
 					
-					if($setUserIDCookie) $this->setUserIDCookie($userID . '::' . $authKey, $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
+					// if($setAuthCookie) $this->setAuthCookie($authID, $authKey, $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
 					
-					$this->cache['userID'] = $userID;
-					$this->cache['authKey'] = $authKey;
-					return true;
-				} else return false;
-			}
+					// $this->cache['authID'] = $authID;
+					// $this->cache['authKey'] = $authKey;
+					// return $authID;
+				// } else return false;
+			// }
 			
 			/** Update User Session */
-			public function updateUserSession() {
+			// public function updateUserSession() {
 				// return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
-			}
+			// }
 			
-			/** --------------------------- */
-			/**  VII. 5. B. User ID Cookie  */
-			/** --------------------------- */
+			/** ------------------------ */
+			/**  VII. 5. B. Auth Cookie  */
+			/** ------------------------ */
 			
 				/** -------------------------- */
 				/**  VII. 5. B. a. Management  */
 				/** -------------------------- */
 				
 				/**
-				 * Set User ID Cookie
+				 * Set Auth Cookie
 				 * 
 				 * @version BETA-1.8.0
 				 * @updated BETA-2.0.0
 				 * @return boolean Returns true if succeeded, false otherwise.
 				 */
-				public function setUserIDCookie($authKey, $expireDelay = null) {
-					// if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-					// else
-					return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+				public function setAuthCookie($authID, $authKey, $expireDelay = null) {
+					return $this->setCookie($this->config['user_id_cookie']['name'], $authID . '::' . $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
 				}
 				
 				/**
-				 * Delete User ID Cookie
+				 * Delete Auth Cookie
 				 * 
 				 * @version BETA-1.8.0
 				 * @updated BETA-2.0.0
 				 * @return boolean Returns true if succeeded, false otherwise.
 				 */
-				public function deleteUserIDCookie() {
-					// if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
-					// else
+				public function deleteAuthCookie() {
 					return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
 				}
 				
@@ -3832,24 +3815,35 @@ class OliCore {
 				/**  VII. 5. B. a. Infos  */
 				/** --------------------- */
 				
-				/** Get User ID cookie name */
-				public function getUserIDCookieName() { return $this->config['user_id_cookie']['name']; }
+				/** Get Auth Cookie name */
+				public function getAuthIDCookieName() { return $this->config['user_id_cookie']['name']; }
 				
-				/** User ID cookie content */
-				// public function getUserID($refresh = false) { return (!empty($this->cache['userID']) AND !$refresh) ? $this->cache['userID'] : ($this->cache['userID'] = $this->userID = $this->getCookie($this->config['user_id_cookie']['name'])); } // $this->userID for BACKWARD COMPATIBILITY
-				public function isExistUserID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
-				public function isEmptyUserID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
+				/** Auth Cookie content */
+				public function isExistAuthID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
+				public function isEmptyAuthID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 				
 				/**
-				 * Get User ID
+				 * Get Auth ID
 				 * 
 				 * @version BETA-1.8.0
 				 * @updated BETA-2.0.0
-				 * @return string Returns the User ID.
+				 * @return string Returns the Auth ID.
 				 */
-				public function getUserID() {
-					if(empty($this->cache['userID'])) $this->cache['userID'] = explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0];
-					return $this->cache['userID'];
+				public function getAuthID() {
+					if(empty($this->cache['authID'])) $this->cache['authID'] = explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0];
+					return $this->cache['authID'];
+				}
+				
+				/**
+				 * Get Auth Key
+				 * 
+				 * @version BETA-1.8.0
+				 * @updated BETA-2.0.0
+				 * @return string Returns the Auth Key.
+				 */
+				public function getAuthKey() {
+					if(empty($this->cache['authKey'])) $this->cache['authKey'] = explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[1];
+					return $this->cache['authKey'];
 				}
 		
 		/** ----------------------- */
@@ -4023,11 +4017,11 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if valid login infos.
 			 */
-			public function verifyLogin($logid, $password) {
+			public function verifyLogin($uid, $password) {
 				if(empty($password)) return false;
 				else if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
-				else if(!empty($logid)) {
-					$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $logid), array('where_or' => true), false);
+				else if(!empty($uid)) {
+					$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $uid, 'username' => $uid, 'email' => $uid), array('where_or' => true), false);
 					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
 					else return false;
 				} else return false;
@@ -4040,11 +4034,10 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
-			public function loginAccount($logid, $password, $expireDelay = null) {
-				if($this->verifyLogin($logid, $password)) {
+			public function loginAccount($uid, $password, $expireDelay = null) {
+				if($this->verifyLogin($uid, $password)) {
 					if(!$this->isLocalLogin()) {
-						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $logid), array('where_or' => true), false);
-					
+						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $uid, 'username' => $uid, 'email' => $uid), array('where_or' => true), false);
 						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $uid);
 					}
 					
@@ -4052,19 +4045,47 @@ class OliCore {
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'] ?: 2*3600;
 						
-						if($this->isLocalLogin()) {
-							$this->initUserSession();
-							$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-							$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('user_id' => $this->getUserID(), 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
-							fclose($handle);
-						} else $result = $this->updateAccountInfos('SESSIONS', array(
-							'uid' => $uid,
-							'login_date' => date('Y-m-d H:i:s', $now),
-							'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
-						), array('user_id' => $this->getUserID()));
+						$authID = $this->getAuthID() ?: $this->keygen($this->config['user_id_length'] ?: 16);
+						$authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
+						if(!empty($authID) AND !empty($authKey)) {
+							if(!$this->isLocalLogin() OR $this->isExternalLogin()) { //!?
+							// if(!$this->isLocalLogin() AND !$this->isExternalLogin()) { //!?
+								/** Cleanup Process */
+								$this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
+								
+								$now = time();
+								$commonInfos = array(
+									'ip_address' => $this->getUserIP(),
+									'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+									'update_date' => date('Y-m-d H:i:s', $now),
+									'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')));
+								
+								if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID)) OR !password_verify($authKey, $sessionInfos['auth_key'])) {
+									if(!empty($sessionInfos)) $this->deleteAccountLines('SESSIONS', array('auth_id' => $authID));
+									$this->insertAccountLine('SESSIONS', array_merge(array(
+										'auth_id' => $authID,
+										'auth_key' => $this->hashPassword($authKey),
+										'creation_date' => date('Y-m-d H:i:s', $now),
+									), $commonInfos));
+								} else $this->updateAccountInfos('SESSIONS', $commonInfos, array('auth_id' => $authID));
+							}
+							
+							$this->setAuthCookie($authID, $authKey, $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
+							$this->cache['authID'] = $authID;
+							$this->cache['authKey'] = $authKey;
 						
-						if($result) return true;
-						else return false;
+							if($this->isLocalLogin()) {
+								$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_id' => $authID, 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
+								fclose($handle);
+							} else $result = $this->updateAccountInfos('SESSIONS', array(
+								'uid' => $uid,
+								'login_date' => date('Y-m-d H:i:s', $now),
+								'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
+							), array('auth_id' => $authID));
+							
+							return $result ? true : false;
+						} else return false;
 					} else return false;
 				} else return false;
 			}
@@ -4080,15 +4101,17 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if logged out successfully, false otherwise.
 			 */
-			public function logoutAccount($userID = null, $authKey = null) {
-				if($this->isLoggedIn($userID, $authKey)) {
+			public function logoutAccount($authID = null, $authKey = null) {
+				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
 						$handle = fopen(CONTENTPATH . '.oliauth', 'w');
 						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
 						fclose($handle);
-					} else $result = $this->updateAccountInfos('SESSIONS', array('username' => null, 'login_date' => null, 'expire_date' => null), array('user_id' => $userID ?: $this->getUserID()));
+					// } else $result = $this->updateAccountInfos('SESSIONS', array('username' => null, 'login_date' => null, 'expire_date' => null), array('auth_id' => $authID ?: $this->getAuthID()));
+					} else $result = $this->deleteAccountLines('SESSIONS', array('auth_id' => $authID ?: $this->getAuthID()));
 					
+					$this->deleteAuthCookie();
 					return $result ? true : false;
 				} else return false;
 			}
