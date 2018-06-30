@@ -690,8 +690,7 @@ class OliCore {
 			 * @return boolean Returns the MySQL connection status
 			 */
 			public function isSetupMySQL() {
-				if(isset($this->db)) return true;
-				else return false;
+				return isset($this->db);
 			}
 			
 			/**
@@ -716,14 +715,15 @@ class OliCore {
 			 * @return array|boolean Returns the query result content or true if succeeded.
 			 */
 			public function runQueryMySQL($query, $fetchStyle = true) {
-				if($this->isSetupMySQL()) {
+				if(!$this->isSetupMySQL()) return null;
+				else {
 					$query = $this->db->prepare($query);
 					if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null));
 					else {
 						$this->dbError = $query->errorInfo();
 						return false;
 					}
-				} else return null;
+				}
 			}
 			
 			/**
@@ -734,7 +734,8 @@ class OliCore {
 			 * @return array|boolean|void Returns data from the requested table if succeeded.
 			 */
 			public function getDataMySQL($table, ...$params) {
-				if($this->isSetupMySQL()) {
+				if(!$this->isSetupMySQL()) return null;
+				else {
 					/** Select rows */
 					if(!empty($params[0])) {
 						if(is_array($params[0]) AND preg_grep("/^\S+$/", $params[0]) == $params[0]) $select = implode(', ', array_shift($params));
@@ -755,7 +756,7 @@ class OliCore {
 					}
 					
 					return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
-				} else return null;
+				}
 			}
 			
 			/**
@@ -766,7 +767,8 @@ class OliCore {
 			 * @return array|null Returns first info from specified table.
 			 */
 			public function getFirstInfoMySQL($table, $whatVar = null, $sortBy = null, $rawResult = false) {
-				if($this->isSetupMySQL()) {
+				if(!$this->isSetupMySQL()) return null;
+				else {
 					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
 					if(!empty($dataMySQL)) {
 						if(!$rawResult) $where = array_map(function($value) {
@@ -774,7 +776,7 @@ class OliCore {
 						}, $dataMySQL);
 						return $dataMySQL;
 					} else return null;
-				} else return null;
+				}
 			}
 			/**
 			 * Get first line from table
@@ -796,7 +798,8 @@ class OliCore {
 			 * @return array|null Returns last info from specified table.
 			 */
 			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
-				if($this->isSetupMySQL()) {
+				if(!$this->isSetupMySQL()) return null;
+				else {
 					$dataMySQL = array_reverse($this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null))[0];
 					if(!empty($dataMySQL)) {
 						if(!$rawResult) $where = array_map(function($value) {
@@ -804,7 +807,7 @@ class OliCore {
 						}, $dataMySQL);
 						return $dataMySQL;
 					} else return null;
-				} else return null;
+				}
 			}
 			/**
 			 * Get last line from table
@@ -826,7 +829,8 @@ class OliCore {
 			 * @return array|null Returns infos from specified table.
 			 */
 			public function getInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				if($this->isSetupMySQL()) {
+				if(!$this->isSetupMySQL()) return null;
+				else {
 					/** Parameters Management */
 					if(is_bool($settings)) {
 						$rawResult = $forceArray;
@@ -879,7 +883,7 @@ class OliCore {
 							return ($forceArray OR count($dataMySQL) > 1) ? $dataMySQL : array_values($dataMySQL)[0];
 						} else return null;
 					} else return null;
-				} else return null;
+				}
 			}
 			
 			/**
@@ -903,7 +907,8 @@ class OliCore {
 			 * @return numeric|boolean|null Returns summed infos if numeric values are found, false otherwise. Returns null if no MySQL infos is found.
 			 */
 			public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
-				if($this->isSetupMySQL()) {
+				if(!$this->isSetupMySQL()) return null;
+				else {
 					$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
 					if(!empty($infosMySQL)) {
 						$summedInfos = null;
@@ -912,7 +917,7 @@ class OliCore {
 						}
 					} else $summedInfos = false;
 					return $summedInfos;
-				} else return null;
+				}
 			}
 			
 			/**
@@ -924,7 +929,8 @@ class OliCore {
 			 * @return integer|boolean Returns the number of infos found, false if none found.
 			 */
 			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
-				return (int) $this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive) ?: false;
+				$result = $this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive);
+				return $result === null ? null : (int) $result ?: false;
 			}
 			
 			/**
@@ -954,16 +960,18 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function insertLineMySQL($table, $matches) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				foreach($matches as $matchKey => $matchValue) {
-					$queryVars[] = $matchKey;
-					$queryValues[] = ':' . $matchKey;
-					
-					$matchValue = (is_array($matchValue)) ? json_encode($matchValue, JSON_FORCE_OBJECT) : $matchValue;
-					$matches[$matchKey] = $matchValue;
+				if(!$this->isSetupMySQL()) return null;
+				else {
+					foreach($matches as $matchKey => $matchValue) {
+						$queryVars[] = $matchKey;
+						$queryValues[] = ':' . $matchKey;
+						
+						$matchValue = (is_array($matchValue)) ? json_encode($matchValue, JSON_FORCE_OBJECT) : $matchValue;
+						$matches[$matchKey] = $matchValue;
+					}
+					$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
+					return $query->execute($matches) ?: $query->errorInfo();
 				}
-				$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
-				return $query->execute($matches) ?: $query->errorInfo();
 			}
 			
 			/**
@@ -978,24 +986,26 @@ class OliCore {
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
 			public function updateInfosMySQL($table, $what, $where) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				$matches = [];
-				foreach($what as $whatVar => $whatValue) {
-					$queryWhat[] = $whatVar . ' = :what_' . $whatVar;
-					
-					$whatValue = (is_array($whatValue)) ? json_encode($whatValue, JSON_FORCE_OBJECT) : $whatValue;
-					$matches['what_' . $whatVar] = $whatValue;
-				}
-				if($where != 'all') {
-					foreach($where as $whereVar => $whereValue) {
-						$queryWhere[] = $whereVar . ' = :where_' . $whereVar;
+				if(!$this->isSetupMySQL()) return null;
+				else {
+					$matches = [];
+					foreach($what as $whatVar => $whatValue) {
+						$queryWhat[] = $whatVar . ' = :what_' . $whatVar;
 						
-						$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
-						$matches['where_' . $whereVar] = $whereValue;
+						$whatValue = (is_array($whatValue)) ? json_encode($whatValue, JSON_FORCE_OBJECT) : $whatValue;
+						$matches['what_' . $whatVar] = $whatValue;
 					}
+					if($where != 'all') {
+						foreach($where as $whereVar => $whereValue) {
+							$queryWhere[] = $whereVar . ' = :where_' . $whereVar;
+							
+							$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
+							$matches['where_' . $whereVar] = $whereValue;
+						}
+					}
+					$query = $this->db->prepare('UPDATE ' . $table . ' SET '  . implode(', ', $queryWhat) . ($where != 'all' ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
+					return $query->execute($matches) ?: $query->errorInfo();
 				}
-				$query = $this->db->prepare('UPDATE ' . $table . ' SET '  . implode(', ', $queryWhat) . ($where != 'all' ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
-				return $query->execute($matches) ?: $query->errorInfo();
 			}
 			
 			/**
@@ -1006,19 +1016,21 @@ class OliCore {
 			 * @return boolean Returns true if the request succeeded, false otherwise.
 			 */
 			public function deleteLinesMySQL($table, $where) {
-				if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-				if(is_array($where)) {
-					$matches = [];
-					foreach($where as $whereVar => $whereValue) {
-						$queryWhere[] = $whereVar . ' = :' . $whereVar;
-						
-						$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
-						$matches[$whereVar] = $whereValue;
+				if(!$this->isSetupMySQL()) return null;
+				else {
+					if(is_array($where)) {
+						$matches = [];
+						foreach($where as $whereVar => $whereValue) {
+							$queryWhere[] = $whereVar . ' = :' . $whereVar;
+							
+							$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
+							$matches[$whereVar] = $whereValue;
+						}
 					}
+					$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
+					(is_array($where) ? implode(' AND ', $queryWhere) : ($where !== 'all' ? $where : '*')));
+					return $query->execute($matches) ?: $query->errorInfo();
 				}
-				$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
-				(is_array($where) ? implode(' AND ', $queryWhere) : ($where !== 'all' ? $where : '*')));
-				return $query->execute($matches) ?: $query->errorInfo();
 			}
 			
 			/** ------------------------- */
@@ -1040,12 +1052,14 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function createTableMySQL($table, $columns) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					foreach($columns as $matchName => $matchOption) {
-						$queryData[] = $matchName . ' ' . $matchOption;
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						foreach($columns as $matchName => $matchOption) {
+							$queryData[] = $matchName . ' ' . $matchOption;
+						}
+						$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
+						return $query->execute() ?: $query->errorInfo();
 					}
-					$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
-					return $query->execute() ?: $query->errorInfo();
 				}
 				
 				/**
@@ -1056,9 +1070,11 @@ class OliCore {
 				 * @return boolean Returns true if it exists.
 				 */
 				public function isExistTableMySQL($table) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('SELECT 1 FROM ' . $table);
-					return $query->execute() !== false;
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('SELECT 1 FROM ' . $table);
+						return $query->execute() !== false;
+					}
 				}
 				
 				/**
@@ -1073,9 +1089,11 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function clearTableMySQL($table) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
-					return $query->execute() ?: $query->errorInfo();
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
+						return $query->execute() ?: $query->errorInfo();
+					}
 				}
 				
 				/**
@@ -1088,9 +1106,11 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function deleteTableMySQL($table) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('DROP TABLE ' . $table);
-					return $query->execute() ?: $query->errorInfo();
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('DROP TABLE ' . $table);
+						return $query->execute() ?: $query->errorInfo();
+					}
 				}
 				
 				/** --------------------- */
@@ -1109,9 +1129,11 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function addColumnTableMySQL($table, $column, $type) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
-					return $query->execute() ?: $query->errorInfo();
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
+						return $query->execute() ?: $query->errorInfo();
+					}
 				}
 				
 				/**
@@ -1127,9 +1149,11 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function updateColumnTableMySQL($table, $column, $type) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
-					return $query->execute() ?: $query->errorInfo();
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
+						return $query->execute() ?: $query->errorInfo();
+					}
 				}
 				
 				/**
@@ -1145,9 +1169,11 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
-					return $query->execute() ?: $query->errorInfo();
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
+						return $query->execute() ?: $query->errorInfo();
+					}
 				}
 				
 				/**
@@ -1162,9 +1188,11 @@ class OliCore {
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
 				public function deleteColumnTableMySQL($table, $column) {
-					if(!$this->isSetupMySQL()) trigger_error('Sorry, the MySQL PDO Object hasn\'t been defined!', E_USER_ERROR);
-					$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
-					return $query->execute() ?: $query->errorInfo();
+					if(!$this->isSetupMySQL()) return null;
+					else {
+						$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
+						return $query->execute() ?: $query->errorInfo();
+					}
 				}
 	
 		/** ------------------------------------- */
@@ -1179,14 +1207,15 @@ class OliCore {
 		 * @return array|boolean Returns the query result content or true if succeeded.
 		 */
 		public function runQueryLegacyMySQL($query, $fetchStyle = true) {
-			if($this->isSetupMySQL()) {
+			if(!$this->isSetupMySQL()) return null;
+			else {
 				$query = $this->db->prepare($query);
 				if($query->execute()) return $query->fetchAll(!is_bool($fetchStyle) ? $fetchStyle : ($fetchStyle ? \PDO::FETCH_ASSOC : null)) ?: true;
 				else {
 					$this->dbError = $query->errorInfo();
 					return false;
 				}
-			} else return null;
+			}
 		}
 		
 		/**
@@ -1197,7 +1226,8 @@ class OliCore {
 		 * @return array|boolean Returns data from the requested table if succeeded.
 		 */
 		public function getDataLegacyMySQL($table, ...$params) {
-			if($this->isSetupMySQL()) {
+			if(!$this->isSetupMySQL()) return null;
+			else {
 				$select = (!empty($params) AND is_array($params[0])) ? implode(', ', array_shift($params)) : '*';
 				$fetchStyle = (!empty($params) AND is_integer(array_reverse($params)[0])) ? implode(', ', array_pop($params)) : true;
 				
@@ -1209,7 +1239,7 @@ class OliCore {
 				}
 				
 				return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
-			} else return null;
+			}
 		}
 		
 		/**
