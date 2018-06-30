@@ -12,23 +12,20 @@ if(!empty($_)) {
 	else if($_['olisc'] != $_Oli->getOliSecurityCode()) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
 	else {
 		if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
-			$newConfig = array('setup_wizard' => false);
-			if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, '_POST' => $_POST);
+			if($_Oli->updateConfig(array('setup_wizard' => false), true)) $result = array('error' => false, '_POST' => $_POST);
 			else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
 		} else if(empty($_['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
 		else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
 		else if(empty($_['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
 		else {
 			$newConfig = array(
-				'settings' => array(
-					'url' => $_['baseurl'],
-					'name' => $_['name'],
-					'description' => $_['description'],
-					'creation_date' => $_['creation_date'],
-					'owner' => $_ams['owner'],
-				));
+				'url' => $_['baseurl'],
+				'name' => $_['name'],
+				'description' => $_['description'],
+				'creation_date' => $_['creation_date'],
+				'owner' => $_['owner']);
 			
-			if($_Oli->updateConfig($newConfig, true)) $result = array('error' => false, 'olisc' => $_POST['olisc'], '_POST' => $_POST);
+			if($_Oli->updateAppConfig($newConfig, true)) $result = array('error' => false, 'olisc' => $_POST['olisc'], '_POST' => $_POST);
 			else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
 		}
 	}
