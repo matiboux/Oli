@@ -380,7 +380,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="<?=$_Oli->getSetting('name')?> login page" />
-<meta name="keywords" content="oli,login,page,PHP,framework,official,Mathieu,Guérin,Mati,Matiboux" />
+<meta name="keywords" content="<?=$_Oli->getSetting('name')?>,Oli,Login,Page" />
 <meta name="author" content="Matiboux" />
 <title>Login - <?php echo $_Oli->getSetting('name'); ?></title>
 
@@ -421,7 +421,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	.message .content { padding: 20px 30px } }
 @media (max-width: 340px) { .message, #module { width: auto; margin-left: 10px; margin-right: 10px } }
 
-#module .toggle { position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
+#module .toggle { position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; line-height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
 #module .toggle [data-fa-i2svg] { padding: 8px 0 }
 #module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
 #module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
@@ -586,7 +586,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php } ?>
 		
 		<?php if($scriptState != 'recover') { ?>
-			<div class="form" data-icon="fa-gear-alt" data-text="Account Settings" style="display: <?php if($scriptState == 'account-settings') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-cog" data-text="Account Settings" style="display: <?php if($scriptState == 'account-settings') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Account Settings</h2>
 				
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn">Edit Password</a>
@@ -734,9 +734,9 @@ var updateForm = function(setup) {
 		var nextIndex = (index+1) % length;
 		if(!setup) var futureIndex = (index+2) % length;
 		
-		if(setup) $('#fontawesome').ready(function() { $('.toggle').children('[data-fa-i2svg]').addClass($('.form').eq(nextIndex).attr('data-icon')); }); 
-		else $('.toggle').children('[data-fa-i2svg]').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
-		// $('.toggle').children('.tooltip').text((index +1) + "/" + length + " — " + $('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
+		if(setup) $('.toggle').children('.fas').addClass($('.form').eq(nextIndex).attr('data-icon')); 
+		else $('.toggle').children('.fas').removeClass($('.form').eq(nextIndex).attr('data-icon')).addClass($('.form').eq(futureIndex).attr('data-icon'));
+		
 		$('.toggle').children('.tooltip').text($('.form').eq(setup ? nextIndex : futureIndex).attr('data-text'));
 		return nextIndex;
 	}
