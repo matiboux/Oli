@@ -513,12 +513,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<div class="tooltip"></div>
 	</div>
 	
-	<?php //if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'edit-password' AND !$hideChangePasswordUI) OR $scriptState == 'logged' OR $isLoggedIn) { ?>
 	<?php if(in_array($scriptState, ['logged', 'recover', 'edit-password', 'recover-password', 'set-username', 'account-settings'])) { ?>
-		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
-		<?php //} else if($scriptState == 'recover' OR !$isLocalLogin) { ?>
 		<?php if($scriptState == 'recover') { ?>
-			<?php /*<div class="form" data-icon="fa-refresh" data-text="Logout" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
 			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Recover your account</h2>
 				<?php if(!$isLocalLogin) { ?>
@@ -532,8 +528,6 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<?php } ?>
 			</div>
 		
-		<?php //if(!$isLocalLogin OR $scriptState == 'logged') { ?>
-		<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 		<?php } else if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your password</h2>
@@ -573,8 +567,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<?php } ?>
 				</form>
 			</div>
-		<?php } else { //if($scriptState == 'logged') { ?>
-			<?php /*<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
+		
+		<?php } else { ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>You are logged in</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
@@ -603,9 +597,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php if(!$isLoggedIn) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/login">Login to your account</a></div>
 		<?php } ?>
-	<?php //} else if($_Oli->getUrlParam(2) == 'unlock' AND !$hideUnlockUI) { ?>
+	
 	<?php } else if(in_array($scriptState, ['unlock', 'unlock-submit'])) { ?>
-		<div class="form" data-icon="fa-key" data-text="Generate Unlock Key" style="display:<?php if($scriptState == 'unlock') { ?>block<?php } else { ?>none<?php } ?>">
+		<div class="form" data-icon="fa-key" data-text="Generate Unlock Key" style="display: <?php if($scriptState == 'unlock') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Generate an unlock key</h2>
 			<p>In order to unlock your account, an unlock key will be generated and send to you by email.</p>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
@@ -613,6 +607,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<button type="submit">Generate</button>
 			</form>
 		</div>
+		
 		<div class="form" data-icon="fa-unlock" data-text="Submit Unlock Key" style="display:<?php if($scriptState == 'unlock-submit') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Unlock your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
@@ -622,9 +617,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		</div>
 		
 		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/login">Login to your account</a></div>
+	
 	<?php } else if(in_array($scriptState, ['login', 'register', 'activate', 'root-register'])) { ?>
 		<?php if($isLoginAllowed) { ?>
-			<?php /*<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if((!$_Oli->config['allow_register'] OR $_Oli->getUrlParam(2) != 'register') AND (!$isRootRegisterAllowed OR $_Oli->getUrlParam(2) != 'root')) { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if($scriptState == 'login') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Login to your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
@@ -641,9 +636,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</div>
 		<?php } ?>
 		
-		<?php //if($_Oli->config['allow_register']) { ?>
 		<?php if($isRegisterAllowed) { ?>
-			<?php /*<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($_Oli->getUrlParam(2) == 'register') { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
 			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($scriptState == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
@@ -681,6 +674,7 @@ ob_end_clean(); ?>
 				</form>
 			</div>
 		<?php } ?>
+		
 		<?php if($isActivateAllowed) { ?>
 			<div class="form" data-icon="fa-unlock" data-text="Activate" style="display: <?php if($scriptState == 'activate') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Activate your account</h2>
@@ -690,8 +684,8 @@ ob_end_clean(); ?>
 				</form>
 			</div>
 		<?php } ?>
+		
 		<?php if($isRootRegisterAllowed) { ?>
-			<?php /*<div class="form" data-icon="fa-unlock" data-text="Root Register" style="display: <?php if($_Oli->getUrlParam(2) == 'root') { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
 			<div class="form" data-icon="fa-star" data-text="Root Register" style="display: <?php if($scriptState == 'root-register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a root account</h2>
 				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
@@ -706,13 +700,13 @@ ob_end_clean(); ?>
 			</div>
 		<?php } ?>
 		
-		<?php //if($_Oli->config['allow_recover']) { ?>
 		<?php if(!$isLocalLogin) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/recover">Forgot your password?</a></div>
 		<?php } ?>
 		<?php if($userIdAttempts >= $config['maxUserIdAttempts'] OR $userIPAttempts >= $config['maxUserIPAttempts'] OR $usernameAttempts >= $config['maxUsernameAttempts']) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/unlock<?php if(!empty($_['username'])) { ?>/<?=$_['username']?><?php } ?>">Unlock your account <?php if(!empty($_['username'])) { ?>(<?=$_['username']?>)<?php } ?></a></div>
 		<?php } ?>
+	
 	<?php } else { ?>
 		<div class="form" data-icon="fa-times" data-text="Error">
 			<h2>An error occurred</h2>
@@ -727,7 +721,6 @@ ob_end_clean(); ?>
 </div>
 
 <div id="footer">
-	<?php /*<p>About Oli</p>*/ ?>
 	<p><?=$_Oli?></p>
 </div>
 
