@@ -630,7 +630,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			</form>
 		</div>
 		
-		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/login">Login to your account</a></div>
+		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
 	
 	<?php } else if(in_array($scriptState, ['login', 'register', 'activate', 'root-register'])) { ?>
 		<?php if($isLoginAllowed) { ?>
