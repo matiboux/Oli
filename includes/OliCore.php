@@ -906,6 +906,7 @@ class OliCore {
 					
 					if(!empty($where)) {
 						/** Additional Settings */
+						$whereGlue = [];
 						if(!empty($settings)) {
 							if(is_assoc($settings)) {
 								$settings = array_filter($settings);
