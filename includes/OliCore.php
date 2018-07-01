@@ -3963,7 +3963,7 @@ class OliCore {
 					if($isRootRegister !== null) {
 						if($this->isLocalLogin()) {
 							if($isRootRegister AND !empty($hashedPassword = $this->hashPassword($password))) {
-								$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+								$handle = fopen(ABSPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array('password' => $hashedPassword), JSON_FORCE_OBJECT));
 								// $result = fwrite($handle, json_encode(array('password' => $hashedPassword, 'email' => $email ?: null), JSON_FORCE_OBJECT));
 								fclose($handle);
@@ -4059,8 +4059,8 @@ class OliCore {
 			 * @return array|boolean Returns Local Root User informations if they exist, false otherwise.
 			 */
 			public function getLocalRootInfos($whatVar = null) {
-				if(file_exists(CONTENTPATH . '.oliauth')) {
-					$localRootInfos = json_decode(file_get_contents(CONTENTPATH . '.oliauth'), true);
+				if(file_exists(ABSPATH . '.oliauth')) {
+					$localRootInfos = json_decode(file_get_contents(ABSPATH . '.oliauth'), true);
 					return !empty($whatVar) ? $localRootInfos[$whatVar] : $localRootInfos;
 				} else return false;
 			}
@@ -4130,7 +4130,7 @@ class OliCore {
 							$this->cache['authKey'] = $authKey;
 						
 							if($this->isLocalLogin()) {
-								$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+								$handle = fopen(ABSPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_id' => $authID, 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
 								fclose($handle);
 							} else $result = $this->updateAccountInfos('SESSIONS', array(
@@ -4160,7 +4160,7 @@ class OliCore {
 				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
-						$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+						$handle = fopen(ABSPATH . '.oliauth', 'w');
 						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
 						fclose($handle);
 					// } else $result = $this->updateAccountInfos('SESSIONS', array('username' => null, 'login_date' => null, 'expire_date' => null), array('auth_id' => $authID ?: $this->getAuthID()));
