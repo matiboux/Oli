@@ -373,7 +373,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 <meta name="author" content="Matiboux" />
 <title>Login - <?php echo $_Oli->getSetting('name'); ?></title>
 
-<script id="fontawesome" defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous" />
 <style>
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
 html { position: relative; min-height: 100% }
@@ -418,7 +418,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module .form ~ .form { display: none }
 #module .form form { margin: 0 }
 #module .form *:last-child { margin-bottom: 0 }
-#module .form h2, #module .form p, #module .form ul, #module .form button { margin: 0 0 20px }
+#module .form h2, #module .form p, #module .form ul, #module button, #module .btn { margin: 0 0 20px }
 #module .form h2 { color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
 #module .form ul { padding-left: 20px }
 #module .form .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
@@ -427,8 +427,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 #module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
 #module .form .checkbox > label > input[type=checkbox], #module .form .radio > label > input[type=radio] { display: initial; width: 14px; height: 14px; margin: 0 }
 #module .form input:focus { border: 1px solid #4080c0; color: #303030 }
-#module .form button { background: #4080c0; width: 100%; padding: 10px 15px; color: #fff; font-size: 14px; cursor: pointer; border: 0; -webkit-transition: background .3s ease; -moz-transition: background .3s ease; -o-transition: background .3s ease; transition: background .3s ease }
-#module .form button:hover, #module button:focus { background: #306090 }
+#module button, #module .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; -webkit-transition: background .3s ease; -moz-transition: background .3s ease; -o-transition: background .3s ease; transition: background .3s ease }
+#module button { width: 100% }
+#module button:hover, #module button:focus, #module .btn:hover, #module .btn:focus { background: #306090 }
 #module .cta { background: #f0f0f0; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
 #module .cta:nth-child(odd) { background: #e8e8e8 } 
 #module .cta a, #module .cta span { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
@@ -444,7 +445,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	#module p { margin: 0 0 15px }
 	#module input { margin: 0 0 15px; font-size: 12px }
 	#module .checkbox, #module .radio { margin: 0 0 15px }
-	#module button { padding: 10px 15px; font-size: 12px } }
+	#module button, #module .btn { font-size: 12px } }
 
 #footer { margin: 30px 10px; text-align: center; letter-spacing: 1px }
 #footer p { font-size: 12px }
@@ -522,7 +523,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
 		<?php } else if($scriptState == 'recover' OR !$isLocalLogin) { ?>
 			<?php /*<div class="form" data-icon="fa-refresh" data-text="Logout" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
-			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>;">
+			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Recover your account</h2>
 				<?php if(!$isLocalLogin) { ?>
 					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
@@ -538,9 +539,9 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 		<?php } ?>
 		
 		<?php //if(!$isLocalLogin OR $scriptState == 'logged') { ?>
-			<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
+		<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 		<?php if($isEditPasswordAllowed) { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display:<?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your pasword</h2>
 				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				
