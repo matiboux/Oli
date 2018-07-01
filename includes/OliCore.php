@@ -3705,14 +3705,13 @@ class OliCore {
 			 * @return boolean Returns true if logged out successfully, false otherwise.
 			 */
 			public function isLoggedIn($authID = null, $authKey = null) {
-				if(empty($authID)) $authID = $this->getAuthID();
-				if(empty($authKey)) $authKey = $this->getAuthKey();
+				if(!isset($authID)) $authID = $this->getAuthID();
+				if(!isset($authKey)) $authKey = $this->getAuthKey();
 				
 				if(!empty($authID) AND !empty($authKey)) {
-					if($this->isLocalLogin() AND !$this->isExternalLogin()) $sessionInfos = $this->getLocalRootInfos();
-					else $sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID));
+					$sessionInfos = ($this->isLocalLogin() AND !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', array('auth_id' => $authID));
 					
-					return !empty($sessionInfos['uid']) AND $sessionInfos['auth_id'] == $authID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
+					return $sessionInfos['auth_id'] == $authID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
 				} else return false;
 			}
 			/**
@@ -4101,8 +4100,8 @@ class OliCore {
 						$now = time();
 						if(empty($expireDelay) OR $expireDelay <= 0) $expireDelay = $this->config['default_session_duration'] ?: 2*3600;
 						
-						$authID = $this->getAuthID() ?: $this->keygen($this->config['user_id_length'] ?: 16);
-						$authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
+						$authID = $this->keygen($this->config['user_id_length'] ?: 16);
+						$authKey = $this->keygen($this->config['auth_key_length'] ?: 32);
 						if(!empty($authID) AND !empty($authKey)) {
 							if(!$this->isLocalLogin() OR $this->isExternalLogin()) { //!?
 							// if(!$this->isLocalLogin() AND !$this->isExternalLogin()) { //!?
@@ -4131,6 +4130,7 @@ class OliCore {
 							$this->cache['authKey'] = $authKey;
 						
 							if($this->isLocalLogin()) {
+								$rootUserInfos = $this->getLocalRootInfos();
 								$handle = fopen(ABSPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_id' => $authID, 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
 								fclose($handle);
@@ -4183,7 +4183,8 @@ class OliCore {
 			
 			/** Is prohibited username? */
 			public function isProhibitedUsername($username) {
-				if(in_array($username, $this->config['prohibited_usernames'])) return true;
+				if(empty($usernae)) return null;
+				else if(in_array($username, $this->config['prohibited_usernames'])) return true;
 				else {
 					$found = false;
 					foreach($this->config['prohibited_usernames'] as $eachProhibitedUsername) {
