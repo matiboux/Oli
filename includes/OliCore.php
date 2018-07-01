@@ -287,10 +287,8 @@ class OliCore {
 	 */
 	public function __get($whatVar) {
 		if(in_array($whatVar, $this->readOnlyVars)) {
-			if($whatVar == 'oliInfos') {
-				if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if needed
-				return $this->oliInfos;
-			} else return $this->$whatVar;
+			if($whatVar == 'oliInfos') return $this->getOliInfos();
+			else return $this->$whatVar;
 		} else return null;
     }
 	
@@ -310,13 +308,12 @@ class OliCore {
 	/**
 	 * OliCore Class to String function
 	 * 
-	 * @version BETA
+	 * @version BETA-1.8.1
 	 * @updated BETA-2.0.0
-	 * @return string Returns a short description of Oli.
+	 * @return string Returns Oli Infos.
 	 */
 	public function __toString() {
-		if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if needed
-		return 'Powered by ' . $this->oliInfos['name'] . ', ' . $this->oliInfos['short_description'] . ' (v. ' . $this->oliInfos['version'] . ')';
+		return 'Powered by ' . $this->getOliInfos('name') . ', ' . $this->getOliInfos('short_description') . ' (v. ' . $this->getOliInfos('version') . ')';
 	}
 	
 	/** *** *** */
@@ -329,11 +326,16 @@ class OliCore {
 		/**  III. 1. Oli Infos  */
 		/** ------------------- */
 		
-		/** Get Oli Infos */
-		// - Deprecated
+		/**
+		 * Get Oli Infos
+		 * 
+		 * @version BETA
+		 * @updated BETA-2.0.0
+		 * @return string Returns a short description of Oli.
+		 */
 		public function getOliInfos($whatInfo = null) {
-			if(!empty($whatInfo)) return $this->oliInfos[$whatInfo];
-			else return $this->oliInfos;
+			if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if not already
+			return !empty($whatInfo) ? $this->oliInfos[$whatInfo] : $this->oliInfos;
 		}
 		
 		/** Get Team Infos */
