@@ -421,7 +421,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	.message .content { padding: 20px 30px } }
 @media (max-width: 340px) { .message, #module { width: auto; margin-left: 10px; margin-right: 10px } }
 
-#module .toggle { position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; line-height: 30px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
+#module .toggle { position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; line-height: 32px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
 #module .toggle [data-fa-i2svg] { padding: 8px 0 }
 #module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
 #module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
