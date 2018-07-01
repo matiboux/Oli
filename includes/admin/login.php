@@ -21,6 +21,11 @@
 |*|  - Add support and config for login limits.
 \*/
 
+/** Login management is disabled by the current config */
+// if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
+
+/** *** *** */
+
 $_ = array_merge($_GET, $_POST);
 
 $config = array(
@@ -29,62 +34,47 @@ $config = array(
 	'maxUsernameAttempts' => 8
 );
 
-/** Ignore Form Data */
-// Allow the script to prevent a form from using data from another.
-$ignoreFormData = false;
-
-$showAntiBruteForce = false; // Display the Anti Brute Force stats.
-/** Script State Variable */
-$scriptState = null; // Default value
-// $scriptState values:
-//x - 'login' LOG INTO YOUR ACCOUNT
-//x - 'logged' LOGGED IN
-//x - 'register' CREATE AN ACCOUNT
-//x ... 'login' << 'registered' ACCOUNT CREATED (?)
-//x - 'root-register' CREATE A ROOT ACCOUNT
-//x ... 'login' << 'root-registered' ROOT ACCOUNT CREATED (?)
-// - 'activate' ACTIVATE YOUR ACCOUNT
-//x - 'recover' RECOVER YOUR ACCOUNT
-//x - 'edit-password' PASSWORD EDIT (DIRECT)
-//x - 'recover-password' PASSWORD EDIT (RECOVER)
-//x ... 'login' << 'edited-password' PASSWORD CHANGED
-//x - 'unlock' UNLOCK YOUR ACCOUNT
-// - 'unlock-submit' UNLOCK YOUR ACCOUNT
-// ... 'login' << 'unlock-submited' UNLOCK YOUR ACCOUNT
-
-/** --- */
-
-/** Login management is disabled by the current config */
-// if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
-
 $isExternalLogin = $_Oli->isExternalLogin();
 $isLocalLogin = $_Oli->isLocalLogin();
 $isLoggedIn = $_Oli->isLoggedIn();
 
-/** Is Script State Allowed */
-/** EDIT PASSWORD: */
-	$isEditPasswordAllowed = ($isLoggedIn OR !$isLocalLogin);
-/** SET USERNAME: */
-	$isSetUsernameAllowed = ($isLoggedIn AND !$isLocalLogin);
-/** LOGGED IN (independent) */
+$ignoreFormData = false; // Ignore Form Data - Allow the script to prevent a form from using data from another.
+$showAntiBruteForce = false; // Display the Anti Brute Force stats.
+
+/** Script State Variable */
+$scriptState = null; // Default value
+
+
+/** LIST OF VALUES [$scriptState] - But sometimes uppercased. */
+/** And [Is Script State Allowed?] */
+// - 'LOGIN' Log into your account.
+	$isLoginAllowed = ($isLocalLogin OR $_Oli->config['allow_login']);
+// - 'LOGGED' Logged in.
 	// $isLoggedAllowed = $isLoggedIn;
-/** ACTIVATE (?) */
-	$isActivateAllowed = (!$isLocalLogin AND $_Oli->config['account_activation'] AND $_Oli->config['allow_register']);
-/** RECOVER (explicit) */
-	// $isRecoverAllowed = !$isLocalLogin;
-/** UNLOCK (independent) */
-	// $isUnlockAllowed = !$isLocalLogin; 
-/** REGISTER: */
+// - 'REGISTER' Create an account.
 	$isRegisterAllowed = (!$isLocalLogin AND $_Oli->config['allow_register']);
-/** REGISTER AS ROOT: */
+// .. 'registered' Account created. (?)
+// - 'ROOT-REGISTER' Create a root account.
 	if($isLocalLogin) $isRootRegisterAllowed = empty($_Oli->getLocalRootInfos());
 	else $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false);
-	// else if($_Oli->config['allow_register']) $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => $_Oli->translateUserRight('ROOT')), false);
-	// else $isRootRegisterAllowed = false;
-/** LOGIN: */
-	$isLoginAllowed = ($isLocalLogin OR $_Oli->config['allow_login']);
+// .. 'root-registered' >> 'login' Root account created.
+// - 'ACTIVATE' Activate your account.
+	$isActivateAllowed = (!$isLocalLogin AND $_Oli->config['account_activation'] AND $_Oli->config['allow_register']);
+// - 'RECOVER' Recover your account.
+	// $isRecoverAllowed = !$isLocalLogin;
+// - 'RECOVER-PASSWORD' Change your password. (through RECOVER request)
+// - 'ACCOUNT-SETTINGS' Account settings. (through LOGGED)
+// - 'EDIT-PASSWORD' Change your password. (through LOGGED)
+	$isEditPasswordAllowed = ($isLoggedIn OR !$isLocalLogin);
+// .. 'edited-password' >> 'login' Password changed.
+// - 'SET-USERNAME' Set your username. (through LOGGED)
+	$isSetUsernameAllowed = ($isLoggedIn AND !$isLocalLogin);
+// - 'UNLOCK' Request your account to be unlocked.
+	// $isUnlockAllowed = !$isLocalLogin;
+// - 'UNLOCK-SUBMIT' Unlock your account.
+// .. 'unlock-submited' >> 'login' Account unlocked.
 
-/** --- */
+/** *** *** */
 
 /** Background cleanup process */
 if(!empty($_) AND !$isLocalLogin) {
@@ -94,7 +84,7 @@ if(!empty($_) AND !$isLocalLogin) {
 
 /** --- */
 
-/** Login handled by an external website */
+/** Login handled by an external instance of Oli, or an external script. */
 if($isExternalLogin) header('Location: ' . $_Oli->getLoginUrl());
 
 /** Account Password Edit */
@@ -105,21 +95,21 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 		if(!empty($_)) {
 			if(empty($_['password'])) $resultCode = 'E:Please enter your current password.';
 			else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
-			else {
-				if(!$_Oli->verifyLogin($_Oli->getLoggedUser(), $_['password'])) $resultCode = 'E:The current password is incorrect.';
-				else if(empty($hashedPassword = $_Oli->hashPassword($_['newPassword']))) $resultCode = 'E:The new password couldn\'t be hashed.';
-				else if($isLocalLogin) {
-					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
-					if(fwrite($handle, json_encode($_Oli->getLocalRootInfos(), array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
-						$_Oli->logoutAccount();
-						$scriptState = 'login';
-						$ignoreFormData = true;
-						$resultCode = 'S:Your password has been successfully updated.';
-					} else $resultCode = 'E:An error occurred when updating your password.';
-					fclose($handle);
-				} else if($_Oli->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_Oli->getLoggedUser())) $resultCode = 'S:Your password has been successfully updated.';
-				else $resultCode = 'E:An error occurred when updating your password.';
-			}
+			else if(!$_Oli->verifyLogin($_Oli->getLoggedUser(), $_['password'])) $resultCode = 'E:The current password is incorrect.';
+			else if(empty($hashedPassword = $_Oli->hashPassword($_['newPassword']))) $resultCode = 'E:The new password couldn\'t be hashed.';
+			else if($isLocalLogin) {
+				$handle = fopen(CONTENTPATH . '.oliauth', 'w');
+				if(fwrite($handle, json_encode($_Oli->getLocalRootInfos(), array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
+					$_Oli->logoutAccount(); // Log out all sessions
+					$scriptState = 'login';
+					$ignoreFormData = true;
+					$resultCode = 'S:Your password has been successfully updated.';
+				} else $resultCode = 'E:An error occurred when updating your password.';
+				fclose($handle);
+			} else if($_Oli->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_Oli->getLoggedUser())) {
+				$_Oli->logoutAccount(); // Log out all sessions
+				$resultCode = 'S:Your password has been successfully updated.';
+			} else $resultCode = 'E:An error occurred when updating your password.';
 		}
 	
 	/** Complete Account Recovery */
@@ -143,7 +133,7 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			}
 		}
 	
-	/** An error occurred..? */
+	/** An error occurred..? (This scenario isn't supposed to happen) */
 	} else $resultCode = 'E:An error occurred..?';
 }
 
@@ -379,7 +369,7 @@ else if($isLoggedIn) {
 	}
 }
 
-/** Nothing's happening */
+/** Nothing's happening because this is an error */
 else $resultCode = 'E:It seems you are not allowed to do anything here.';
 ?>
 
