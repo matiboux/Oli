@@ -26,7 +26,7 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 	
 	<p>User Management:</p>
 	<ul>
-		<li><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login/')?>">Update my account infos (Login page)</a></li>
+		<li><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login') . '/account-settings'?>">Update my account infos (Login page)</a></li>
 	</ul>
 	
 	<p>Website Management:</p>
