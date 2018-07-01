@@ -103,7 +103,7 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			if(empty($_['password'])) $resultCode = 'E:Please enter your current password.';
 			else if(empty($_['newPassword'])) $resultCode = 'E:Please enter the new password you want to set.';
 			else {
-				if(!$_Oli->verifyLogin($_Oli->getLoggedUsername(), $_['password'])) $resultCode = 'E:The current password is incorrect.';
+				if(!$_Oli->verifyLogin($_Oli->getLoggedUser(), $_['password'])) $resultCode = 'E:The current password is incorrect.';
 				else if(empty($hashedPassword = $_Oli->hashPassword($_['newPassword']))) $resultCode = 'E:The new password couldn\'t be hashed.';
 				else if($isLocalLogin) {
 					$handle = fopen(CONTENTPATH . '.oliauth', 'w');
@@ -114,7 +114,7 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 						$resultCode = 'S:Your password has been successfully updated.';
 					} else $resultCode = 'E:An error occurred when updating your password.';
 					fclose($handle);
-				} else if($_Oli->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_Oli->getLoggedUsername())) $resultCode = 'S:Your password has been successfully updated.';
+				} else if($_Oli->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_Oli->getLoggedUser())) $resultCode = 'S:Your password has been successfully updated.';
 				else $resultCode = 'E:An error occurred when updating your password.';
 			}
 		}
@@ -135,7 +135,6 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 				if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
 					$scriptState = 'login';
 					$ignoreFormData = true;
-					// $hideChangePasswordUI = true;
 					$resultCode = 'S:Your password has been successfully changed!';
 				} else $resultCode = 'E:An error occurred while changing your password.';
 			}
@@ -169,8 +168,7 @@ else if($isLoggedIn) {
 		// if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_SERVER['HTTP_REFERER']);
 		
 		/** Notice the user */
-		// else
-		$resultCode = 'I:You\'re already logged in, ' . $_Oli->getLoggedUsername() . '.';
+		$resultCode = 'I:You\'re already logged in, ' . $_Oli->getLoggedName() . '.';
 	}
 
 /** Activate an account */
@@ -546,7 +544,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
-					<input type="text" name="username" value="<?=!empty($requestInfos) ? $requestInfos['username'] : ($_Oli->getLoggedUsername ?: $_Oli->getLocalRootInfos('username'))?>" placeholder="Username" disabled />
+					<input type="text" name="uid" value="<?=!empty($requestInfos) ? $requestInfos['uid'] : ($_Oli->getLoggedUser() ?: 'root')?>" placeholder="Username" disabled />
 					<?php if($isLoggedIn) { ?>
 						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
 					<?php } else if(!$isLocalLogin) { ?>
