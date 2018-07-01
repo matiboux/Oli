@@ -514,21 +514,25 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	</div>
 	
 	<?php if(in_array($scriptState, ['logged', 'recover', 'edit-password', 'recover-password', 'set-username', 'account-settings'])) { ?>
+		<?php $showLoggedLinksCTA = true; ?>
 		<?php if($scriptState == 'recover') { ?>
-			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-sync-alt" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Recover your account</h2>
 				<?php if(!$isLocalLogin) { ?>
 					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
 						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
 						<button type="submit">Recover</button>
+						
+						<p>An email will be sent to you with instructions to continue.</p>
 					</form>
 				<?php } else { ?>
 					<p>Sorry, but you <span class="text-error">can't</span> recover a local account.</p>
 					<p>If you are the owner of the website, delete the <code>/content/.oliauth</code> file and <span class="text-info">create a new local root account</span>.</p>
 				<?php } ?>
 			</div>
+		<?php } ?>
 		
-		<?php } else if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>
+		<?php if(in_array($scriptState, ['recover', 'edit-password', 'recover-password'])) { ?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your password</h2>
 				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
@@ -544,6 +548,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<?php } ?>
 					<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
 					<button type="submit">Update Password</button>
+					
+					<p>You'll be disconnected from all your devices.</p>
 				</form>
 			</div>
 		
@@ -552,11 +558,10 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<h2>Set your username</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
 					<?php if(empty($username = $_Oli->getLoggedUsername() ?: '')) { ?>
-						<p>Setting a username may make your account publicly visible.
-						Of course, you can remove or change your username in the future.</p>
+						<p>Make your account publicly visible by setting a username.
+						Of course, you can remove or change your username at any time.</p>
 					<?php } else { ?>
-						<p>Be careful when changing or removing your username, this may make links using your username obsolete.
-						To remove your username, leave the "username" input blank.</p>
+						<p>Be careful, changing or removing your username will allow others to use it, and will make links using it outdated.</p>
 					<?php } ?>
 					
 					<input type="text" name="username" value="<?=$username?>" placeholder="Username" />
@@ -565,10 +570,13 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<?php } else { ?>
 						<button type="submit">Update Username</button>
 					<?php } ?>
+					
+					<p>Your username represents your public identity on the platform.</p>
 				</form>
 			</div>
 		
 		<?php } else { ?>
+			<?php $showLoggedLinksCTA = false; ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout & Links" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>You are logged in</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
@@ -591,20 +599,24 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn">Edit Password</a>
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
+				
+				<p>Manage your basic account settings.</p>
 			</div>
 		<?php } ?>
 		
-		<?php if(!$isLoggedIn) { ?>
-			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/login">Login to your account</a></div>
+		<?php if($showLoggedLinksCTA) { ?>
+			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Logout & Links</a></div>
 		<?php } ?>
 	
 	<?php } else if(in_array($scriptState, ['unlock', 'unlock-submit'])) { ?>
 		<div class="form" data-icon="fa-key" data-text="Generate Unlock Key" style="display: <?php if($scriptState == 'unlock') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Generate an unlock key</h2>
-			<p>In order to unlock your account, an unlock key will be generated and send to you by email.</p>
+			<p>In order to unlock your account, an unlock key will be generated and sent to you by email.</p>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
 				<input type="text" name="username" value="<?=$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" />
 				<button type="submit">Generate</button>
+				
+				<p>An email will be sent to you with instructions to continue.</p>
 			</form>
 		</div>
 		
@@ -613,6 +625,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
 				<input type="text" name="unlockKey" value="<?=$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" />
 				<button type="submit">Unlock your account</button>
+				
+				<p>This will reset the Anti-BruteForce stats.</p>
 			</form>
 		</div>
 		
@@ -632,6 +646,8 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>
+					
+					<p>A cookie will be created to keep you logged in to your account.</p>
 				</form>
 			</div>
 		<?php } ?>
