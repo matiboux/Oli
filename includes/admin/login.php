@@ -63,6 +63,8 @@ $isLoggedIn = $_Oli->isLoggedIn();
 /** Is Script State Allowed */
 /** EDIT PASSWORD: */
 	$isEditPasswordAllowed = ($isLoggedIn OR !$isLocalLogin);
+/** SET USERNAME: */
+	$isSetUsernameAllowed = ($isLoggedIn AND !$isLocalLogin);
 /** LOGGED IN (independent) */
 	// $isLoggedAllowed = $isLoggedIn;
 /** ACTIVATE (?) */
@@ -162,6 +164,23 @@ else if($isLoggedIn) {
 	
 	// } else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password'])) {
 	// This shouldn't be able to get this far. 
+	
+	/** Account Settings */
+	} else if($_Oli->getUrlParam(2) == 'account-settings') {
+		$scriptState = 'account-settings';
+	
+	/** Account Username Edit */
+	} else if($_Oli->getUrlParam(2) == 'set-username' AND $isSetUsernameAllowed) {
+		$scriptState = 'set-username';
+		if(!empty($_)) {
+			if($_Oli->isProhibitedUsername($_['username']) === false) $resultCode = 'E:You\'re not allowed to use this username.';
+			else if(!empty($_['username']) AND $_Oli->isExistAccountInfos('ACCOUNTS', array('username' => $_['username']))) $resultCode = 'E:This username is already used.';
+			else if($_Oli->updateAccountInfos('ACCOUNTS', array('username' => $_['username']), $_Oli->getLoggedUser())) {
+				$scriptState = 'logged';
+				$ignoreFormData = true;
+				$resultCode = 'S:Your username has been successfully set.';
+			} else $resultCode = 'E:An error occurred when updating your username.';
+		}
 	
 	} else {
 		/** Redirect the user */
@@ -503,8 +522,66 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	</div>
 	
 	<?php //if(($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') OR ($_Oli->getUrlParam(2) == 'edit-password' AND !$hideChangePasswordUI) OR $scriptState == 'logged' OR $isLoggedIn) { ?>
-	<?php if(in_array($scriptState, ['logged', 'recover', 'edit-password', 'recover-password'])) { ?>
-		<?php if($scriptState == 'logged' OR $isLoggedIn) { ?>
+	<?php if(in_array($scriptState, ['logged', 'recover', 'edit-password', 'recover-password', 'set-username', 'account-settings'])) { ?>
+		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
+		<?php //} else if($scriptState == 'recover' OR !$isLocalLogin) { ?>
+		<?php if($scriptState == 'recover') { ?>
+			<?php /*<div class="form" data-icon="fa-refresh" data-text="Logout" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
+			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Recover your account</h2>
+				<?php if(!$isLocalLogin) { ?>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
+						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
+						<button type="submit">Recover</button>
+					</form>
+				<?php } else { ?>
+					<p>Sorry, but you <span class="text-error">can't</span> recover a local account.</p>
+					<p>If you are the owner of the website, delete the <code>/content/.oliauth</code> file and <span class="text-info">create a new local root account</span>.</p>
+				<?php } ?>
+			</div>
+		
+		<?php //if(!$isLocalLogin OR $scriptState == 'logged') { ?>
+		<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
+		<?php } else if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Edit your password</h2>
+				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
+				
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
+					<input type="text" name="uid" value="<?=!empty($requestInfos) ? $requestInfos['uid'] : ($_Oli->getLoggedUser() ?: 'root')?>" placeholder="Username" disabled />
+					<?php if($isLoggedIn) { ?>
+						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
+					<?php } else if(!$isLocalLogin) { ?>
+						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
+					<?php } else { ?>
+						<p>An error occurred..</p>
+					<?php } ?>
+					<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
+					<button type="submit">Update Password</button>
+				</form>
+			</div>
+		
+		<?php } else if($scriptState == 'set-username') { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style=": <?php if($scriptState == 'set-username') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Set your username</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
+					<?php if(empty($username = $_Oli->getLoggedUsername() ?: '')) { ?>
+						<p>Setting a username may make your account publicly visible.
+						Of course, you can remove or change your username in the future.</p>
+					<?php } else { ?>
+						<p>Be careful when changing or removing your username, this may make links using your username obsolete.
+						To remove your username, leave the "username" input blank.</p>
+					<?php } ?>
+					
+					<input type="text" name="username" value="<?=$username?>" placeholder="Username" />
+					<?php if(empty($username)) { ?>
+						<button type="submit">Set Username</button>
+					<?php } else { ?>
+						<button type="submit">Update Username</button>
+					<?php } ?>
+				</form>
+			</div>
+		<?php } else { //if($scriptState == 'logged') { ?>
 			<?php /*<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($_Oli->getUrlParam(2) != 'change-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>You are logged in</h2>
@@ -520,43 +597,14 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 					<p>By using this website, you agree that we're using a cookie to keep you logged in.</p>
 				</form>
 			</div>
-		<?php //if($_Oli->config['allow_recover'] AND $_Oli->getUrlParam(2) == 'recover') { ?>
-		<?php } else if($scriptState == 'recover' OR !$isLocalLogin) { ?>
-			<?php /*<div class="form" data-icon="fa-refresh" data-text="Logout" style="display: <?php if($_Oli->getUrlParam(2) == 'recover' AND !$hideRecoverUI) { ?>block<?php } else { ?>none<?php } ?>;">*/ ?>
-			<div class="form" data-icon="fa-refresh" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Recover your account</h2>
-				<?php if(!$isLocalLogin) { ?>
-					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
-						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
-						<button type="submit">Recover</button>
-					</form>
-				<?php } else { ?>
-					<p>Sorry, but you <span class="text-error">can't</span> recover a local account.</p>
-					<p>If you are the owner of the website, delete the <code>/content/.oliauth</code> file and <span class="text-info">create a new local root account</span>.</p>
-				<?php } ?>
-			</div>
-		<?php //} else if($scriptState == 'logged' OR $isLoggedIn) { ?>
 		<?php } ?>
 		
-		<?php //if(!$isLocalLogin OR $scriptState == 'logged') { ?>
-		<?php /*<div class="form" data-icon="fa-edit" data-text="Password Update" style="display:<?php if(($scriptState != 'recover' AND $scriptState != 'logged') OR $scriptState == 'edit-password') { ?>block<?php } else { ?>none<?php } ?>">*/ ?>
-		<?php if($isEditPasswordAllowed) { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Edit your pasword</h2>
-				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
+		<?php if($scriptState != 'recover') { ?>
+			<div class="form" data-icon="fa-gear-alt" data-text="Account Settings" style="display: <?php if($scriptState == 'account-settings') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Account Settings</h2>
 				
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
-					<input type="text" name="uid" value="<?=!empty($requestInfos) ? $requestInfos['uid'] : ($_Oli->getLoggedUser() ?: 'root')?>" placeholder="Username" disabled />
-					<?php if($isLoggedIn) { ?>
-						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
-					<?php } else if(!$isLocalLogin) { ?>
-						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
-					<?php } else { ?>
-						<p>An error occurred..</p>
-					<?php } ?>
-					<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
-					<button type="submit">Update Password</button>
-				</form>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn">Edit Password</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
 			</div>
 		<?php } ?>
 		
