@@ -334,7 +334,7 @@ class OliCore {
 		 * @return string Returns a short description of Oli.
 		 */
 		public function getOliInfos($whatInfo = null) {
-			if(!empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if not already
+			if(empty($this->oliInfos)) $this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json') ? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null; // Load Oli Infos if not already
 			return !empty($whatInfo) ? $this->oliInfos[$whatInfo] : $this->oliInfos;
 		}
 		
