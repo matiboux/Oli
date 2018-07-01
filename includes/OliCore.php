@@ -4153,25 +4153,46 @@ class OliCore {
 			/** ------------------- */
 			
 			/**
-			 * Log out an Account
+			 * Log out from a session
 			 * 
 			 * @version BETA
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if logged out successfully, false otherwise.
 			 */
-			public function logoutAccount($authID = null, $authKey = null) {
+			public function logoutAccount($authID = null, $authKey = null, $deleteCookie = true) {
 				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
 						$handle = fopen(ABSPATH . '.oliauth', 'w');
 						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
 						fclose($handle);
-					// } else $result = $this->updateAccountInfos('SESSIONS', array('username' => null, 'login_date' => null, 'expire_date' => null), array('auth_id' => $authID ?: $this->getAuthID()));
 					} else $result = $this->deleteAccountLines('SESSIONS', array('auth_id' => $authID ?: $this->getAuthID()));
 					
-					$this->deleteAuthCookie();
+					if($deleteCookie) $this->deleteAuthCookie();
 					return $result ? true : false;
 				} else return false;
+			}
+			
+			/**
+			 * Log out an account on all sessions
+			 * 
+			 * @version BETA
+			 * @updated BETA-2.0.0
+			 * @return boolean Returns true if logged out successfully, false otherwise.
+			 */
+			public function logoutAllAccount($uid = null, $deleteCookie = false) {
+				if($this->isLocalLogin()) {
+					$rootUserInfos = $this->getLocalRootInfos();
+					$handle = fopen(ABSPATH . '.oliauth', 'w');
+					$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
+					fclose($handle);
+				} else {
+					if(empty($uid)) $uid = $this->getLoggedUser();
+					$result = !empty($uid) ? $this->deleteAccountLines('SESSIONS', array('uid' => $uid)) : false;
+				}
+				
+				if($deleteCookie) $this->deleteAuthCookie();
+				return $result ? true : false;
 			}
 			
 			/** ---------------------------------- */

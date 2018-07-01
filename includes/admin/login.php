@@ -100,14 +100,14 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			else if($isLocalLogin) {
 				$handle = fopen(CONTENTPATH . '.oliauth', 'w');
 				if(fwrite($handle, json_encode($_Oli->getLocalRootInfos(), array('password' => $hashedPassword), JSON_FORCE_OBJECT))) {
-					$_Oli->logoutAccount(); // Log out all sessions
+					$_Oli->logoutAllAccount(); // Log out all sessions
 					$scriptState = 'login';
 					$ignoreFormData = true;
 					$resultCode = 'S:Your password has been successfully updated.';
 				} else $resultCode = 'E:An error occurred when updating your password.';
 				fclose($handle);
 			} else if($_Oli->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_Oli->getLoggedUser())) {
-				$_Oli->logoutAccount(); // Log out all sessions
+				$_Oli->logoutAllAccount(); // Log out all sessions
 				$resultCode = 'S:Your password has been successfully updated.';
 			} else $resultCode = 'E:An error occurred when updating your password.';
 		}
