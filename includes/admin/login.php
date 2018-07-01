@@ -33,6 +33,7 @@ $config = array(
 // Allow the script to prevent a form from using data from another.
 $ignoreFormData = false;
 
+$showAntiBruteForce = false; // Display the Anti Brute Force stats.
 /** Script State Variable */
 $scriptState = null; // Default value
 // $scriptState values:
@@ -366,6 +367,7 @@ else if($isLoggedIn) {
 					// else header('Location: ' . $_Oli->getUrlParam(0));
 					
 					$scriptState = 'logged';
+					$showAntiBruteForce = true;
 					$isLoggedIn = true;
 					$resultCode = 'S:You are now succesfully logged in.';
 				} else $resultCode = 'E:An error occurred while logging you in.';
@@ -489,7 +491,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	<?php if($isLocalLogin) { ?><p><b>Local login</b> (restricted to the root user)</p><?php } ?>
 </div>
 
-<?php if(!$isLocalLogin) { ?>
+<?php if($showAntiBruteForce) { ?>
 	<div class="message">
 		<div class="summary">Anti brute-force system</div>
 		<div class="content">
