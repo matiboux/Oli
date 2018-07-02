@@ -2560,7 +2560,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the assets url.
 		 */
-		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder']; }
+		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder'] . '/'; }
 		/** * @alias OliCore::getAssetsUrl() */
 		public function getDataUrl() { return $this->getAssetsUrl(); }
 		
@@ -2589,7 +2589,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the admin url.
 		 */
-		public function getAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] . '/' ?: 'oli-admin/'); }
+		public function getAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin') . '/'; }
 		
 		/**
 		 * Get Oli Admin Assets Url
@@ -2609,7 +2609,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the common assets url.
 		 */
-		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder']; }
+		public function getCommonAssetsUrl() { return $this->getUrlParam(0) . $this->config['common_path'] . $this->config['common_assets_folder'] . '/'; }
 		/** * @alias OliCore::getCommonAssetsUrl() */
 		public function getCommonFilesUrl() { return $this->getCommonAssetsUrl(); }
 		
