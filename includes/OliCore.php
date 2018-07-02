@@ -1755,7 +1755,6 @@ class OliCore {
 		 */
 		public function loadContent() {
 			if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
-			// if(!$this->isLocalLogin() OR $this->isExternalLogin()) $this->initUserSession();
 			
 			if($this->config['setup_wizard'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
@@ -1769,92 +1768,117 @@ class OliCore {
 				if(!empty($params)) {
 					$accessAllowed = null;
 					$fileName = [];
+					
 					foreach($params as $eachParam) {
-						$fileName[] = $eachParam;
-						$pathTo = implode('/', array_slice($fileName, 0, -1)) . '/';
-						
-						if(!empty($contentRules) AND !empty($pathTo)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, $pathTo));
-						
-						/** Oli Login */
-						if(($fileName[0] == 'oli-login' OR (!empty($this->config['login_alias']) AND $fileName[0] == $this->config['login_alias'])) AND file_exists(OLIADMINPATH . 'login.php')) {
-							$found = OLIADMINPATH . 'login.php';
-							$this->fileNameParam = implode('/', $fileName);
-							break;
-						}
-						/** Oli Admin */
-						else if($fileName[0] == 'oli-admin' OR (!empty($this->config['admin_alias']) AND $fileName[0] == $this->config['admin_alias'])) {
-							if(count($fileName) > 1) {
-								if(file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
-									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
-									$this->fileNameParam = implode('/', $fileName);
-								} else if(empty($found)) {
-									if(file_exists(OLIADMINPATH . '404.php')) {
-										$found = OLIADMINPATH . '404.php';
-										$this->contentStatus = '404';
-									} else $found = null;
-								}
-							} else if(file_exists(OLIADMINPATH . 'index.php')) {
-								$found = OLIADMINPATH . 'index.php';
-								$this->fileNameParam = implode('/', $fileName);
-							}
-						}
-						/** User Scripts */
-						else if(file_exists(SCRIPTSPATH . implode('/', $fileName))) {
-							$found = SCRIPTSPATH . implode('/', $fileName);
-							$this->fileNameParam = implode('/', $fileName);
-							$this->setContentType('JSON');
-							break;
-						}
-						/** General Scripts */
-						else if(file_exists(INCLUDESPATH . 'scripts/' . implode('/', $fileName))) {
-							$found = INCLUDESPATH . 'scripts/' . implode('/', $fileName);
-							$this->fileNameParam = implode('/', $fileName);
-							$this->setContentType('JSON');
-							break;
-						}
-						/** User Pages */
-						else if($fileName[0] == $this->config['assets_folder']) {
-							$accessAllowed = false;
-							break;
-						} else if(file_exists(THEMEPATH . implode('/', $fileName) . '.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '.php')) {
-							$found = THEMEPATH . implode('/', $fileName) . '.php';
-							$this->fileNameParam = implode('/', $fileName);
-						} else if($fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
-							$found = THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php');
-							$contentStatus = 'index';
-						}
-						
-						// CODE FOR $this->config['index_file'] AS AN ARRAY.
-						// else {
-							// if(!empty($this->config['index_file'])) $indexFiles = !is_array($this->config['index_file']) ? [$this->config['index_file']] : $this->config['index_file'];
+						if(empty($eachParam)) break; // Filename can't be empty.
+						else {
+							$fileName[] = $eachParam;
+							$fileNameParam = implode('/', $fileName);
+							if(!empty($contentRules)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, implode('/', array_slice($fileName, 0, -1)) . '/'));
 							
-							// if(!empty($indexFiles)) {
-								// foreach(array_slice($indexFiles, 1) as $eachValue) {
-									// $eachValue = explode('/', $eachValue);
-									// $indexFilePath = implode('/', array_slice($eachValue, 0, -1));
-									// $indexFileName = implode('/', array_slice($eachValue, -1));
-									
-									// if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
-										// $found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
-										// $this->fileNameParam = $indexFilePath;
-									// }
-									// /** Sub-directory Content Rules Indexes */
-									// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
-										// $found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
-										// $this->fileNameParam = implode('/', $fileName);
-									// }
-									// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
-										// $found = THEMEPATH . implode('/', $fileName) . '/index.php';
-										// $this->fileNameParam = implode('/', $fileName);
+							/** Oli Login */
+							if(($fileName[0] == 'oli-login' OR (!empty($this->config['login_alias']) AND $fileName[0] == $this->config['login_alias'])) AND file_exists(OLIADMINPATH . 'login.php')) {
+								$found = OLIADMINPATH . 'login.php';
+								$this->fileNameParam = $fileNameParam;
+								break;
+							
+							/** Oli Admin */
+							} else if($fileName[0] == 'oli-admin' OR (!empty($this->config['admin_alias']) AND $fileName[0] == $this->config['admin_alias'])) {
+								/** Custom Pages */
+								if(count($fileName) > 1 AND file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
+									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
+									$this->fileNameParam = $fileNameParam;
+									break; // Sub-level pages not allowed.
+								
+								/** Home Page */
+								} else if(file_exists(OLIADMINPATH . 'index.php')) {
+									$found = OLIADMINPATH . 'index.php';
+									$this->fileNameParam = $fileNameParam;
+									continue; // There may be a requested page.
+								}
+							
+							/** User Scripts */
+							} else if(file_exists(SCRIPTSPATH . $fileNameParam)) { echo 'scr';
+								$found = SCRIPTSPATH . $fileNameParam;
+								$this->fileNameParam = $fileNameParam;
+								$this->setContentType('JSON');
+								break;
+							
+							/** General Scripts */
+							} else if(file_exists(INCLUDESPATH . 'scripts/' . $fileNameParam)) { echo 'scr';
+								$found = INCLUDESPATH . 'scripts/' . $fileNameParam;
+								$this->fileNameParam = $fileNameParam;
+								$this->setContentType('JSON');
+								break;
+							
+							/** User Assets */
+							} else if($fileNameParam == ($this->config['assets_folder'] ?: 'assets')) {
+								$accessAllowed = false; // 403 Forbidden
+								break;
+							
+							/** User Custom Page */
+							} else {
+								/** User Custom Page */
+								if(file_exists(THEMEPATH . $fileNameParam . '.php')) { echo 'cp';
+									/** Custom Page */
+									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
+										$found = THEMEPATH . $fileNameParam . '.php';
+										$this->fileNameParam = $fileNameParam;
+									}
+								
+								/** User Home Page */
+								} else if($fileNameParam == 'home' AND file_exists(THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php'))) { echo 'hh';
+									/** Home Page */
+									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
+										$found = THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php');
+										$contentStatus = 'index';
+									}
+								}
+								
+								/** Search for sub-directory */
+								if(!file_exists(THEMEPATH . $fileNameParam . '/')) break; // No more to search.
+								else {
+									if(file_exists(THEMEPATH . $fileNameParam . '/index.php')) {
+										$found = THEMEPATH . $fileNameParam . '/index.php';
+										$this->fileNameParam = $fileNameParam;
+									}
+									continue; // There may be another level.
+								}
+							
+							}
+							
+							// CODE FOR $this->config['index_file'] AS AN ARRAY.
+							// else {
+								// if(!empty($this->config['index_file'])) $indexFiles = !is_array($this->config['index_file']) ? [$this->config['index_file']] : $this->config['index_file'];
+								
+								// if(!empty($indexFiles)) {
+									// foreach(array_slice($indexFiles, 1) as $eachValue) {
+										// $eachValue = explode('/', $eachValue);
+										// $indexFilePath = implode('/', array_slice($eachValue, 0, -1));
+										// $indexFileName = implode('/', array_slice($eachValue, -1));
+										
+										// if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
+											// $found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
+											// $this->fileNameParam = $indexFilePath;
+										// }
+										// /** Sub-directory Content Rules Indexes */
+										// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
+											// $found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
+											// $this->fileNameParam = implode('/', $fileName);
+										// }
+										// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
+											// $found = THEMEPATH . implode('/', $fileName) . '/index.php';
+											// $this->fileNameParam = implode('/', $fileName);
+										// }
 									// }
 								// }
+								
+								// if(empty($found) AND $fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) {
+									// $found = THEMEPATH . ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php');
+									// $contentStatus = 'index';
+								// }
 							// }
-							
-							// if(empty($found) AND $fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) {
-								// $found = THEMEPATH . ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php');
-								// $contentStatus = 'index';
-							// }
-						// }
+						}
 					}
 				}
 			}
