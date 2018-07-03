@@ -22,7 +22,7 @@
 	"admin_alias": null,
 	"login_alias": "login",
 	
-	"assets_folder": "assets/",
+	"assets_folder": "assets",
 	
 	"default_language": "en",
 	"default_content_type": "html",
