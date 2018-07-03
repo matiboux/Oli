@@ -1754,7 +1754,8 @@ class OliCore {
 		 * @return string|void Returns the path to the file to include.
 		 */
 		public function loadContent(array $params = null) {
-			if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
+			// if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
+			//!\ $this->getUserLanguage() - OPTIMIZTION ISSUE. Exec: 150ms+
 			
 			if($this->config['setup_wizard'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
@@ -1763,7 +1764,8 @@ class OliCore {
 				$found = null;
 				
 				$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
-				$contentRules = array_merge(array('access' => array('*' => array('ALLOW' => '*'))), $this->decodeContentRules($contentRulesFile) ?: []);
+				$contentRules = array('access' => array('*' => array('ALLOW' => '*')));
+				$contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile) ?: []);
 				
 				if(!empty($params)) {
 					$accessAllowed = null;
@@ -1882,7 +1884,6 @@ class OliCore {
 			}
 			
 			// if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
-			
 			if(!empty($found)) {
 				http_response_code(200); // 200 OK
 				$this->contentStatus = $contentStatus ?: 'found';
