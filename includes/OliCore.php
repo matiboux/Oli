@@ -1753,12 +1753,12 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the path to the file to include.
 		 */
-		public function loadContent() {
+		public function loadContent(array $params = null) {
 			if($this->isAccountsManagementReady() AND !empty($this->getUserLanguage())) $this->setCurrentLanguage($this->getUserLanguage());
 			
 			if($this->config['setup_wizard'] AND !$this->debugStatus) $found = INCLUDESPATH . 'admin/setup.php';
 			else {
-				$params = $this->getUrlParam('params');
+				$params = !empty($params) ? $params : $this->getUrlParam('params');
 				$contentStatus = null;
 				$found = null;
 				
