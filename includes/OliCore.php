@@ -3736,7 +3736,7 @@ class OliCore {
 				if(!empty($authID) AND !empty($authKey)) {
 					$sessionInfos = ($this->isLocalLogin() AND !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', array('auth_id' => $authID));
 					
-					return $sessionInfos['auth_id'] == $authID AND password_verify($authKey, $sessionInfos['auth_key']) AND strtotime($sessionInfos['expire_date']) >= time();
+					return $sessionInfos['auth_id'] == $authID AND $sessionInfos['auth_key'] == hash('sha512', $authKey) AND strtotime($sessionInfos['expire_date']) >= time();
 				} else return false;
 			}
 			/**
@@ -4140,11 +4140,11 @@ class OliCore {
 									'update_date' => date('Y-m-d H:i:s', $now),
 									'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')));
 								
-								if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID)) OR !password_verify($authKey, $sessionInfos['auth_key'])) {
+								if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID)) OR $sessionInfos['auth_key'] != hash('sha512', $authKey)) {
 									if(!empty($sessionInfos)) $this->deleteAccountLines('SESSIONS', array('auth_id' => $authID));
 									$this->insertAccountLine('SESSIONS', array_merge(array(
 										'auth_id' => $authID,
-										'auth_key' => $this->hashPassword($authKey),
+										'auth_key' => hash('sha512', $authKey),
 										'creation_date' => date('Y-m-d H:i:s', $now),
 									), $commonInfos));
 								} else $this->updateAccountInfos('SESSIONS', $commonInfos, array('auth_id' => $authID));
@@ -4157,7 +4157,13 @@ class OliCore {
 							if($this->isLocalLogin()) {
 								$rootUserInfos = $this->getLocalRootInfos();
 								$handle = fopen(ABSPATH . '.oliauth', 'w');
-								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('auth_id' => $authID, 'auth_key' => $this->hashPassword($this->getAuthKey()), 'ip_address' => $this->getUserIP(), 'login_date' => date('Y-m-d H:i:s', $now), 'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay))), JSON_FORCE_OBJECT));
+								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array(
+									'auth_id' => $authID,
+									'auth_key' => hash('sha512', $authKey),
+									'ip_address' => $this->getUserIP(),
+									'login_date' => date('Y-m-d H:i:s', $now),
+									'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
+								)), JSON_FORCE_OBJECT));
 								fclose($handle);
 							} else $result = $this->updateAccountInfos('SESSIONS', array(
 								'uid' => $uid,
