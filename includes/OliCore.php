@@ -1798,14 +1798,14 @@ class OliCore {
 								}
 							
 							/** User Scripts */
-							} else if(file_exists(SCRIPTSPATH . $fileNameParam)) { echo 'scr';
+							} else if(file_exists(SCRIPTSPATH . $fileNameParam)) {
 								$found = SCRIPTSPATH . $fileNameParam;
 								$this->fileNameParam = $fileNameParam;
 								$this->setContentType('JSON');
 								break;
 							
-							/** General Scripts */
-							} else if(file_exists(INCLUDESPATH . 'scripts/' . $fileNameParam)) { echo 'scr';
+							/** Oli Scripts */
+							} else if(file_exists(INCLUDESPATH . 'scripts/' . $fileNameParam)) {
 								$found = INCLUDESPATH . 'scripts/' . $fileNameParam;
 								$this->fileNameParam = $fileNameParam;
 								$this->setContentType('JSON');
@@ -1816,19 +1816,17 @@ class OliCore {
 								$accessAllowed = false; // 403 Forbidden
 								break;
 							
-							/** User Custom Page */
+							/** User Pages */
 							} else {
-								/** User Custom Page */
-								if(file_exists(THEMEPATH . $fileNameParam . '.php')) { echo 'cp';
-									/** Custom Page */
+								/** Custom Page */
+								if(file_exists(THEMEPATH . $fileNameParam . '.php')) {
 									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
 										$found = THEMEPATH . $fileNameParam . '.php';
 										$this->fileNameParam = $fileNameParam;
 									}
 								
-								/** User Home Page */
-								} else if($fileNameParam == 'home' AND file_exists(THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php'))) { echo 'hh';
-									/** Home Page */
+								/** Home Page */
+								} else if($fileNameParam == 'home' AND file_exists(THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php'))) {
 									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
 										$found = THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php');
 										$contentStatus = 'index';
