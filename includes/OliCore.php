@@ -3768,6 +3768,28 @@ class OliCore {
 			}
 			
 			/**
+			 * Get User Name
+			 * 
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
+			 * @return string|boolean Returns the username of user, false otherwise.
+			 */
+			public function getName($uid, &$type = null) {
+				if($_Oli->isExistAccountInfos('ACCOUNTS', array('uid' => $uid))) {
+					if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) {
+						$type = 'username';
+						return $name;
+					} else if(!$strictUsername AND $name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) {
+						$type = 'email';
+						return explode('@', $name, 2)[0];
+					} else {
+						$type = 'uid';
+						return $uid;
+					}
+				} else return false;
+			}
+			
+			/**
 			 * Get Logged Name
 			 * 
 			 * @version BETA-2.0.0
@@ -3795,13 +3817,24 @@ class OliCore {
 			}
 			
 			/**
+			 * Get User Username
+			 * 
+			 * @version BETA-2.0.0
+			 * @updated BETA-2.0.0
+			 * @return string|boolean Returns the username of user, false otherwise.
+			 */
+			public function getUsername($uid) {
+				return $_Oli->getAccountInfos('ACCOUNTS', 'username', array('uid' => $uid)) : false;
+			}
+			
+			/**
 			 * Get Logged Username
 			 * 
 			 * @version BETA-2.0.0
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the username if logged in, false otherwise.
 			 */
-			public function getLoggedUsername($authID = null, $authKey = null, $strictUsername = false) {
+			public function getLoggedUsername($authID = null, $authKey = null) {
 				if($this->isLoggedIn($authID, $authKey)) {
 					if($this->isLocalLogin()) return 'root';
 					else if($uid = $this->getLoggedUser($authID, $authKey)) {
@@ -3959,7 +3992,7 @@ class OliCore {
 			public function createRequest($uid, $action, &$requestTime = null) {
 				if(!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 				else {
-					$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, false, true, true));
+					$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->keygen(6, true, false, true));
 					$requestsMatches['uid'] = $uid;
 					$requestsMatches['action'] = $action;
 					$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
