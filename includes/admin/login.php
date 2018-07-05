@@ -386,28 +386,35 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous" />
 <style>
-@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html { position: relative; min-height: 100% }
 body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; margin: 0; color: #808080; font-size: 14px; overflow-x: hidden }
 @media (max-width: 420px) { body { font-size: 12px } }
 
+a { color: #50a0f0; text-decoration: none }
+a:hover, a:focus { color: #4080c0; text-decoration: underline }
+
+/** Header */
 #header { margin: 50px 30px; text-align: center; color: #303030; letter-spacing: 1px }
-#header h1 { margin: 0 0 20px; font-size: 40px; font-weight: 400 }
-#header p { font-size: 12px }
-#header p.description { font-size: 14px }
-#header a, .message a { color: #4080c0; text-decoration: none }
-#header h1 a { background: #4080c0; display: inline-block; padding: 5px 10px; color: #fff; font-weight: bold; border-radius: 10px }
+#header h1 { margin: 0 0 20px; font-size: 40px; font-weight: bold }
+#header h1 a { background: #4080c0; display: inline-block; padding: 5px 10px; color: #fff; text-decoration: none; border-radius: 10px }
+#header p { font-size: 14px }
+#header p:not(.description) { color: #808080; font-size: 12px }
 @media (max-width: 420px) {
 	#header { margin: 30px 10px }
 	#header h1 { font-size: 32px }
-	#header p { font-size: 10px; }
-	#header p.description { font-size: 12px; } }
+	#header p { font-size: 12px; }
+	#header p:not(.description) { font-size: 10px; } }
 
-.message, #module { position: relative; background: #fff; max-width: 320px; width: 100%; min-height: 20px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
-.message.message-info, #module { border-top-color: #4080c0 }
+/** Message / Module */
+.message, #module { position: relative; background: #fff; width: 100%; max-width: 320px; min-height: 20px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
+
+/** Message */
+.message { border-top: 5px solid #808080 }
+.message.message-info { border-top-color: #4080c0 }
 .message.message-success { border-top-color: #40c040 }
 .message.message-error { border-top-color: #c04040 }
-.message .summary { padding: 5px; text-align: center; font-size: 14px; cursor: pointer }
+.message .summary { padding: 5px; font-size: 14px; text-align: center; cursor: pointer }
 .message .summary:hover, .message .summary:focus { color: #4080c0 }
 .message .summary:before { content: '— ' }
 .message .summary:after { content: ' —' }
@@ -421,34 +428,34 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	.message .content { padding: 20px 30px } }
 @media (max-width: 340px) { .message, #module { width: auto; margin-left: 10px; margin-right: 10px } }
 
-#module .toggle { position: absolute; top: 0; right: 0; background: #4080c0; width: 30px; height: 30px; line-height: 32px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
-#module .toggle [data-fa-i2svg] { padding: 8px 0 }
+/** Module */
+#module { border-top: 5px solid #4080c0 }
+#module .toggle { position: absolute; background: #4080c0; top: 0; right: 0; width: 30px; height: 30px; line-height: 32px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
 #module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
 #module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
+
 #module .form { display: block; padding: 40px }
 #module .form ~ .form { display: none }
-#module .form form { margin: 0 }
-#module .form *:last-child { margin-bottom: 0 }
-#module .form h2, #module .form p, #module .form ul, #module button, #module .btn { margin: 0 0 20px }
-#module .form h2 { color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
+#module .form h2 { margin: 20px 0; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
+#module .form p, #module .form ul, #module .form hr, #module .form button, #module .form .btn, #module .form input, #module .form .checkbox, #module .form .radio { margin: 20px 0 0 }
+#module .form p.help-block { padding: 5px 10px; color: #808080; border-left: 3px solid #c9c9c9 }
 #module .form ul { padding-left: 20px }
-#module .form .help-block { margin: 0 0 20px; padding: 10px 15px; color: #808080; border-left: 2px solid #c9c9c9 }
-#module .form input { display: block; width: 100%; margin: 0 0 20px; padding: 10px 15px; font-size: 14px; font-weight: 400; border: 1px solid #e0e0e0; box-sizing: border-box; outline: none; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
-#module .form .checkbox, #module .form .radio { display: block; margin: 0 0 20px; padding: 0 10px; font-weight: 300; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
-#module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
-#module .form .checkbox > label > input[type=checkbox], #module .form .radio > label > input[type=radio] { display: initial; width: 14px; height: 14px; margin: 0 }
+#module .form hr { margin-left: 10px; margin-right: 10px; border: 0; border-top: 1px solid #c0c0c0 }
+#module .form input { display: block; width: 100%; padding: 10px 15px; font-size: 14px; font-weight: 400; border: 1px solid #e0e0e0; box-sizing: border-box; outline: none; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
 #module .form input:focus { border: 1px solid #4080c0; color: #303030 }
-#module button, #module .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; -webkit-transition: background .3s ease; -moz-transition: background .3s ease; -o-transition: background .3s ease; transition: background .3s ease }
+#module .form .checkbox, #module .form .radio { display: block; padding: 0 10px; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
+#module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
+#module .form .checkbox input[type=checkbox], #module .form .radio input[type=radio] { display: initial; width: 15px; height: 15px; margin: 0 2px; vertical-align: middle }
+#module button, #module .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
 #module button { width: 100% }
 #module button:hover, #module button:focus, #module .btn:hover, #module .btn:focus { background: #306090 }
-#module .cta { background: #f0f0f0; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
-#module .cta:nth-child(odd) { background: #e8e8e8 } 
-#module .cta a, #module .cta span { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
+#module .cta { background: #f8f8f8; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
+#module .cta:nth-child(even) { background: #f0f0f0 } 
+#module .cta > * { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
 #module .cta a { text-decoration: none }
-#module .cta a:hover, #module .cta a:focus { color: #303030 }
+#module .cta a:hover, #module .cta a:focus { color: #404040 }
 @media (max-width: 420px) {
-	#module .toggle { width: 25px; height: 25px; font-size: 12px }
-	#module .toggle [data-fa-i2svg] { padding: 6.5px 0 }
+	#module .toggle { width: 25px; height: 25px; line-height: 26px; font-size: 12px }
 	#module .toggle .tooltip { top: 7px; right: 32px; padding: 3px 4px; font-size: 9px }
 	#module .toggle .tooltip:before { top: 4px; right: -4px; border-width: 4px }
 	#module .form { padding: 30px }
@@ -457,18 +464,24 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 	#module input { margin: 0 0 15px; font-size: 12px }
 	#module .checkbox, #module .radio { margin: 0 0 15px }
 	#module button, #module .btn { font-size: 12px } }
+#module .form *:first-child { margin-top: 0 !important }
+#module .form *:last-child { margin-bottom: 0 !important }
 
 #footer { margin: 30px 10px; text-align: center; letter-spacing: 1px }
 #footer p { font-size: 12px }
 #footer p .fa { color: #4080c0 }
 #footer p a { color: #4080c0; font-weight: bold; text-decoration: none }
 @media (max-width: 420px) {
-	#footer { margin-top: 20px; margin-bottom: 20px }
+	#footer { margin: 20px 10px }
 	#footer p { font-size: 10px } }
 
 .text-info { color: #4080c0 }
 .text-success { color: #40c040 }
 .text-error { color: #c04040 }
+
+.mt-0 { margin-top: 0 !important }
+.mt-1 { margin-top: 10px !important }
+/*.mt-2 { margin-top: 20px !important }*/
 </style>
 
 </head>
@@ -583,11 +596,16 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<h2>You are logged in</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
 					<p>You can tap on the top-right icon to change your password. You can also click on one of those links to navigate on the website.</p>
-					<ul>
-						<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?><li><a href="<?=$_SERVER['HTTP_REFERER']?>">&laquo; Go back</a> (<?=$_SERVER['HTTP_REFERER']?>).</li><?php } ?>
-						<li><a href="<?=$_Oli->getUrlParam(0)?>">Access the website home page</a>.</li>
-						<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?><li><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['admin_alias'] ?: 'oli-admin/')?>">Access the Oli Admin panel</a>.</li><?php } ?>
-					</ul>
+					
+					<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?>
+						<a href="<?=$_SERVER['HTTP_REFERER']?>" class="btn">&laquo; Go back</a>
+						<p class="mt-1">&rsaquo; Go back to <?=$_SERVER['HTTP_REFERER']?></p>
+					<?php } ?>
+					<a href="<?=$_Oli->getUrlParam(0)?>" class="btn">Website home page</a>
+					<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?>
+						<a href="<?=$_Oli->getOliAdminUrl()?>" class="btn mt-1">Oli Admin panel</a>
+					<?php } ?> <hr />
+					
 					<button type="submit">Logout</button>
 					
 					<p>By using this website, you agree that we're using a cookie to keep you logged in.</p>
@@ -600,7 +618,7 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<h2>Account Settings</h2>
 				
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn">Edit Password</a>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn mt-1">Set Username</a>
 				
 				<p>Manage your basic account settings.</p>
 			</div>
