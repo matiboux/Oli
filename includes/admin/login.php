@@ -89,7 +89,7 @@ if($isExternalLogin) header('Location: ' . $_Oli->getLoginUrl());
 
 /** Account Password Edit */
 else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AND $isEditPasswordAllowed) {
-	/** Direct Password Edit */
+	/**	Password Edit (is Logged In) */
 	if($isLoggedIn) {
 		$scriptState = 'edit-password';
 		if(!empty($_)) {
@@ -112,26 +112,34 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			} else $resultCode = 'E:An error occurred when updating your password.';
 		}
 	
-	/** Complete Account Recovery */
+	/** Account Recovery (not Logged In) */
 	} else if(!$isLocalLogin) {
 		$scriptState = 'recover-password';
+		
+		if(!empty($_)) $activateKey = $_['activateKey'];
+		else $activateKey = $_Oli->getUrlParam(3) ?: null;
+		
+		if(!empty($activateKey)) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $activateKey)));
+		
 		if(!empty($_)) {
 			if(empty($_['activateKey'])) $resultCode = 'E:The Activate Key is missing.';
-			else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
+			else if(empty($requestInfos)) $resultCode = 'E:Sorry, the request you asked for does not exist.';
 			else if($requestInfos['action'] != 'change-password') $resultCode = 'E:The request you triggered does not allow you to change your password.';
 			else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
 			else {
-				/** Logout the user if they're logged in */
-				if($isLoggedIn) $_Oli->logoutAccount();
-				
 				/** Deletes all the user sessions, change the user password and delete the request */
-				if($_Oli->deleteAccountLines('SESSIONS', $requestInfos['username']) AND $_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) {
+				if(!$_Oli->logoutAllAccount($requestInfos['uid'])) $resultCode = 'E:An error occurred while changing your password (#1).';
+				else if(!$_Oli->updateAccountInfos('ACCOUNTS', array('password' => $_Oli->hashPassword($_['newPassword'])), $requestInfos['uid'])) $resultCode = 'E:An error occurred while changing your password (#2).';
+				else if(!$_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:An error occurred while changing your password (#3).';
+				else {
 					$scriptState = 'login';
 					$ignoreFormData = true;
 					$resultCode = 'S:Your password has been successfully changed!';
-				} else $resultCode = 'E:An error occurred while changing your password.';
+				}
 			}
-		}
+		} else $_['activateKey'] = $activateKey ?: null;
+		
+		
 	
 	/** An error occurred..? (This scenario isn't supposed to happen) */
 	} else $resultCode = 'E:An error occurred..?';
@@ -548,20 +556,23 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<?php if(in_array($scriptState, ['recover', 'edit-password', 'recover-password'])) { ?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your password</h2>
-				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
 					<?php if($isLoggedIn) { ?>
 						<p>You are logged in as <b><?=$_Oli->getLoggedName() ?: 'unknown user'?></b>.</p>
-						<input type="text" name="a
-						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
+						<input type="password" name="password" placeholder="Current password" />
+					
 					<?php } else if(!$isLocalLogin) { ?>
-						<?php if($requestInfos) { ?><p>Request for <b><?=$_Oli->getName($requestInfos['uid'])?></b>.</p><?php } ?>
-						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
+						<?php if(!empty($requestInfos)) { ?>
+							<p>Request for <b><?=$_Oli->getName($requestInfos['uid'])?></b>.</p>
+						<?php } ?>
+						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation Key" <?php if(!empty($requestInfos)) { ?>disabled<?php } ?> />
+					
 					<?php } else { ?>
-						<p>An error occurred..</p>
+						<p>Something went wrong..</p>
 					<?php } ?>
-					<input type="password" name="newPassword" value="<?php //=$_['newPassword'] ?>" placeholder="New password" />
+
+					<input type="password" name="newPassword" placeholder="New password" />
 					<button type="submit">Update Password</button>
 					
 					<p>You'll be disconnected from all your devices.</p>
