@@ -2612,7 +2612,9 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the admin url.
 		 */
-		public function getAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin') . '/'; }
+		public function getOliAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin') . '/'; }
+		/** * @alias OliCore::getOliAdminUrl() */
+		public function getAdminUrl() { return $this->getOliAdminUrl(); }
 		
 		/**
 		 * Get Oli Admin Assets Url
