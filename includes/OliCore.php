@@ -3775,7 +3775,7 @@ class OliCore {
 			 * @return string|boolean Returns the username of user, false otherwise.
 			 */
 			public function getName($uid, &$type = null) {
-				if($_Oli->isExistAccountInfos('ACCOUNTS', array('uid' => $uid))) {
+				if($this->isExistAccountInfos('ACCOUNTS', array('uid' => $uid))) {
 					if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) {
 						$type = 'username';
 						return $name;
