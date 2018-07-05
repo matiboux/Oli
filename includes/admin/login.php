@@ -211,9 +211,9 @@ else if($isLoggedIn) {
 				$subject = 'One more step to change your password';
 				$message .= '<p><b>Hi ' . $username . '</b>!</p>';
 				$message .= '<p>A new request has been created for changing your account password. <br />';
-				$message .= 'To set your new password, just click on <a href="' . $_Oli->getUrlParam(0) . 'change-password/' . $activateKey . '">this link</a> and follow the instructions. <br />';
+				$message .= 'To set your new password, just click on <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . 'change-password/' . $activateKey . '">this link</a> and follow the instructions. <br />';
 				$message .= 'This request will expire after ' . floor($expireDelay = $_Oli->getRequestsExpireDelay() /3600 /24) . ' ' . ($expireDelay > 1 ? 'days' : 'day') . '. After that, the link will be desactivated and the request deleted.</p>';
-				$message .= '<p>If you can\'t open the link, just copy this in your browser: ' . $_Oli->getUrlParam(0)  . $_Oli->getUrlParam(1) . '/change-password/' . $activateKey . '.</p>';
+				$message .= '<p>If you can\'t open the link, just copy this in your browser: ' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password/' . $activateKey . '.</p>';
 				$message .= '<p>If you didn\'t want to change your password or didn\'t ask for this request, please just ignore this mail.</p>';
 				
 				if(mail($_['email'], $subject, $_Oli->getTemplate('mail', array('__URL__' => $_Oli->getUrlParam(0), '__NAME__' => $_Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $_Oli->getDefaultMailHeaders(true))) {
@@ -624,7 +624,9 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			</div>
 		<?php } ?>
 		
-		<?php if($showLoggedLinksCTA) { ?>
+		<?php if(!$isLoggedIn) { ?>
+			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a></div>
+		<?php } else if($showLoggedLinksCTA) { ?>
 			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Logout & Links</a></div>
 		<?php } ?>
 	
@@ -650,12 +652,12 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			</form>
 		</div>
 		
-		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Login to your account</a></div>
+		<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a></div>
 	
 	<?php } else if(in_array($scriptState, ['login', 'register', 'activate', 'root-register'])) { ?>
 		<?php if($isLoginAllowed) { ?>
 			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if($scriptState == 'login') { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Login to your account</h2>
+				<h2>Log into your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
 					<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
 						<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
