@@ -205,11 +205,11 @@ else if($isLoggedIn) {
 		$scriptState = 'recover';
 		if(!empty($_) AND !$isLocalLogin) {
 			if(empty($_['email'])) $resultCode = 'E:Please enter your email.';
-			else if(!$username = $_Oli->getAccountInfos('ACCOUNTS', 'username', array('email' => trim($_['email'])), false)) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
-			else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('username' => $username, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
-			else if($activateKey = $_Oli->createRequest($username, 'change-password')) {
+			else if(!$uid = $_Oli->getAccountInfos('ACCOUNTS', 'uid', array('email' => trim($_['email'])))) $resultCode = 'E:Sorry, no account is associated with the email you entered.';
+			else if($requestInfos = $_Oli->getAccountLines('REQUESTS', array('uid' => $uid, 'action' => 'change-password')) AND time() <= strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, a change-password request already exists for that account, please check your mail inbox.';
+			else if($activateKey = $_Oli->createRequest($uid, 'change-password')) {
 				$subject = 'One more step to change your password';
-				$message .= '<p><b>Hi ' . $username . '</b>!</p>';
+				$message .= '<p><b>Hi ' . $_Oli->getName($uid) . '</b>!</p>';
 				$message .= '<p>A new request has been created for changing your account password. <br />';
 				$message .= 'To set your new password, just click on <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . 'change-password/' . $activateKey . '">this link</a> and follow the instructions. <br />';
 				$message .= 'This request will expire after ' . floor($expireDelay = $_Oli->getRequestsExpireDelay() /3600 /24) . ' ' . ($expireDelay > 1 ? 'days' : 'day') . '. After that, the link will be desactivated and the request deleted.</p>';
