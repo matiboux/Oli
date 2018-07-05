@@ -2256,7 +2256,7 @@ class OliCore {
 					'Content-type: text/html; charset=utf-8',
 					'X-Mailer: PHP/' . phpversion()
 				];
-				if(!$toString) return implode("\r\n", $mailHeaders);
+				if($toString) return implode("\r\n", $mailHeaders);
 				else return $mailHeaders;
 			}
 		
