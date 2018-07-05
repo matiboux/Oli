@@ -2469,105 +2469,112 @@ class OliCore {
 		 * - # => Other parameters (e.g. 2 => 'param')
 		 * - 'last' => Get the last parameters fragment
 		 * - 'get' => Get $_GET
+		 * - 'getvars' => Get GET vars fetched manually
 		 * 
 		 * @version BETA
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns requested url param if succeeded.
 		 */
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
-			$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
-			$urlPrefix = $protocol . '://';
-			
-			if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-			else if($param === 'protocol') return $protocol;
+			if($param === 'get') return $_GET;
 			else {
-				$urlSetting = $this->getSetting('url');
-				$urlSetting = !empty($urlSetting) ? (!is_array($urlSetting) ? [$urlSetting] : $urlSetting) : null;
+				$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
+				$urlPrefix = $protocol . '://';
 				
-				if(in_array($param, ['allbases', 'alldomains'], true)) {
-					$allBases = $allDomains = [];
-					foreach($urlSetting as $eachUrl) {
- 						preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
-						$allBases[] = ($matches[1] ?: $urlPrefix) . $matches[2];
-						$allDomains[] = $matches[3];
-					}
-					
-					if($param == 'allbases') return $allBases;
-					else if($param == 'alldomains') return $allDomains;
-				}
+				if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+				else if($param === 'protocol') return $protocol;
 				else {
-					$frationnedUrl = explode('/', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-					$hasUsedHttpHostBase = false;
-					$baseUrlMatch = false;
-					$baseUrl = $urlPrefix;
-					$shortBaseUrl = '';
-					$countLoop = 0;
+					$urlSetting = $this->getSetting('url');
+					$urlSetting = !empty($urlSetting) ? (!is_array($urlSetting) ? [$urlSetting] : $urlSetting) : null;
 					
-					if(isset($urlSetting)) {
-						foreach($frationnedUrl as $eachPart) {
-							if(in_array($baseUrl, $urlSetting) OR in_array($shortBaseUrl, $urlSetting)) {
-								$baseUrlMatch = true;
-								break;
-							}
-							else {
-								$baseUrlMatch = false;
-								$baseUrl .= urldecode($eachPart) . '/';
-								$shortBaseUrl .= urldecode($eachPart) . '/';
-								$countLoop++;
-							}
+					if(in_array($param, ['allbases', 'alldomains'], true)) {
+						$allBases = $allDomains = [];
+						foreach($urlSetting as $eachUrl) {
+							preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
+							$allBases[] = ($matches[1] ?: $urlPrefix) . $matches[2];
+							$allDomains[] = $matches[3];
 						}
-					}
-					
-					if(!isset($urlSetting) OR !$baseUrlMatch) {
-						$baseUrl = $urlPrefix . $_SERVER['HTTP_HOST'] . '/';
-						$hasUsedHttpHostBase = true;
-					}
-					
-					if(in_array($param, [0, 'base'], true)) return $baseUrl;
-					else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
-						preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/', $baseUrl, $matches);
-						if($param == 'fulldomain') return $matches[1];
-						if($param == 'subdomain') return $matches[2];
-						if($param == 'domain') return $matches[3];
-					}
-					else {
-						$newFrationnedUrl[] = $baseUrl;
-						if(!empty($this->fileNameParam)) {
-							while(isset($frationnedUrl[$countLoop])) {
-								if(!empty($fileName) AND implode('/', $fileName) == $this->fileNameParam) break;
-								else {
-									$fileName[] = urldecode($frationnedUrl[$countLoop]);
-									$countLoop++;
+						
+						if($param === 'allbases') return $allBases;
+						else if($param === 'alldomains') return $allDomains;
+					} else {
+						$httpParams = explode('?', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], 2);
+						if($param === 'getvars' AND !empty($httpParams[1])) return explode('&', $httpParams[1]);
+						else {
+							$fractionedUrl = explode('/', $httpParams[0]);
+							unset($httpParams);
+							
+							$baseUrlMatch = false;
+							$baseUrl = $urlPrefix;
+							$shortBaseUrl = ''; // IS THIS USEFULL? - It seems.
+							$countLoop = 0;
+							
+							if(isset($urlSetting)) {
+								foreach($fractionedUrl as $eachPart) {
+									if(in_array($baseUrl, $urlSetting) OR in_array($shortBaseUrl, $urlSetting)) {
+									// if(in_array($baseUrl, $urlSetting)) {
+										$baseUrlMatch = true;
+										break;
+									} else {
+										$baseUrlMatch = false;
+										$baseUrl .= urldecode($eachPart) . '/';
+										$shortBaseUrl .= urldecode($eachPart) . '/';
+										$countLoop++;
+									}
 								}
 							}
 							
-							preg_match('/^([^?]*)(?:\?(.*))?$/', implode('/', $fileName), $matches);
-							if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFrationnedUrl);
-						}
-						
-						if($hasUsedHttpHostBase) $countLoop = 1; // Needs more debug..
-						while(isset($frationnedUrl[$countLoop])) {
-							if(!empty($frationnedUrl[$countLoop]) OR isset($frationnedUrl[$countLoop + 1])) {
-								$nextFrationnedUrl = urldecode($frationnedUrl[$countLoop]);
-								if(isset($frationnedUrl[$countLoop + 1]) AND empty($frationnedUrl[$countLoop + 1]) AND isset($frationnedUrl[$countLoop + 2])) {
-									$nextFrationnedUrl .= '/' . urldecode($frationnedUrl[$countLoop + 2]);
-									$countLoop += 2;
+							$hasUsedHttpHostBase = false;
+							if(!isset($urlSetting) OR !$baseUrlMatch) {
+								$baseUrl = $urlPrefix . $_SERVER['HTTP_HOST'] . '/';
+								$hasUsedHttpHostBase = true;
+							}
+							
+							if(in_array($param, [0, 'base'], true)) return $baseUrl;
+							else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
+								preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/', $baseUrl, $matches);
+								if($param === 'fulldomain') return $matches[1];
+								if($param === 'subdomain') return $matches[2];
+								if($param === 'domain') return $matches[3];
+							} else {
+								$newFractionedUrl[] = $baseUrl;
+								if(!empty($this->fileNameParam)) {
+									while(isset($fractionedUrl[$countLoop])) {
+										if(!empty($fileName) AND implode('/', $fileName) == $this->fileNameParam) break;
+										else {
+											$fileName[] = urldecode($fractionedUrl[$countLoop]);
+											$countLoop++;
+										}
+									}
+									
+									preg_match('/^([^?]*)(?:\?(.*))?$/', implode('/', $fileName), $matches);
+									if(empty($newFractionedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFractionedUrl);
 								}
 								
-								preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFrationnedUrl, $matches);
-								if(empty($newFrationnedUrl[] = !empty($matches) ? $matches[1] : $nextFrationnedUrl)) array_pop($newFrationnedUrl);
+								if($hasUsedHttpHostBase) $countLoop = 1; // Needs more debug..
+								while(isset($fractionedUrl[$countLoop])) {
+									if(!empty($fractionedUrl[$countLoop]) OR isset($fractionedUrl[$countLoop + 1])) {
+										$nextFractionedUrl = urldecode($fractionedUrl[$countLoop]);
+										if(isset($fractionedUrl[$countLoop + 1]) AND empty($fractionedUrl[$countLoop + 1]) AND isset($fractionedUrl[$countLoop + 2])) {
+											$nextFractionedUrl .= '/' . urldecode($fractionedUrl[$countLoop + 2]);
+											$countLoop += 2;
+										}
+										
+										preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFractionedUrl, $matches);
+										if(empty($newFractionedUrl[] = !empty($matches) ? $matches[1] : $nextFractionedUrl)) array_pop($newFractionedUrl);
+									}
+									$countLoop++;
+								}
+								
+								$newFractionedUrl[1] = $newFractionedUrl[1] ?: 'home';
+								
+								if($param === 'all') return $newFractionedUrl;
+								else if($param === 'params') return array_slice($newFractionedUrl, 1);
+								else if($param === 'last') return $newFractionedUrl[count($newFractionedUrl) - 1];
+								else if(isset($newFractionedUrl[$param])) return $newFractionedUrl[$param];
+								else return null;
 							}
-							$countLoop++;
 						}
-						
-						$newFrationnedUrl[1] = $newFrationnedUrl[1] ?: 'home';
-						
-						if($param == 'all') return $newFrationnedUrl;
-						else if($param == 'params') return array_slice($newFrationnedUrl, 1);
-						else if($param == 'last') return $newFrationnedUrl[count($newFrationnedUrl) - 1];
-						else if($param == 'get') return $_GET;
-						else if(isset($newFrationnedUrl[$param])) return $newFrationnedUrl[$param];
-						else return null;
 					}
 				}
 			}
