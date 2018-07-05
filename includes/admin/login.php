@@ -211,7 +211,7 @@ else if($isLoggedIn) {
 				$subject = 'One more step to change your password';
 				$message .= '<p><b>Hi ' . $_Oli->getName($uid) . '</b>!</p>';
 				$message .= '<p>A new request has been created for changing your account password. <br />';
-				$message .= 'To set your new password, just click on <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . 'change-password/' . $activateKey . '">this link</a> and follow the instructions. <br />';
+				$message .= 'To set your new password, just click on <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password/' . $activateKey . '">this link</a> and follow the instructions. <br />';
 				$message .= 'This request will expire after ' . floor($expireDelay = $_Oli->getRequestsExpireDelay() /3600 /24) . ' ' . ($expireDelay > 1 ? 'days' : 'day') . '. After that, the link will be desactivated and the request deleted.</p>';
 				$message .= '<p>If you can\'t open the link, just copy this in your browser: ' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password/' . $activateKey . '.</p>';
 				$message .= '<p>If you didn\'t want to change your password or didn\'t ask for this request, please just ignore this mail.</p>';
@@ -550,13 +550,13 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				<h2>Edit your password</h2>
 				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
 					<?php if($isLoggedIn) { ?>
 						<p>You are logged in as <b><?=$_Oli->getLoggedName() ?: 'unknown user'?></b>.</p>
 						<input type="text" name="a
 						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
 					<?php } else if(!$isLocalLogin) { ?>
-						<?php if($requestInfos) { ?><p>Request for user: <?=$requestInfos['uid']?></p><?php } ?>
+						<?php if($requestInfos) { ?><p>Request for <b><?=$_Oli->getName($requestInfos['uid'])?></b>.</p><?php } ?>
 						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
 					<?php } else { ?>
 						<p>An error occurred..</p>
