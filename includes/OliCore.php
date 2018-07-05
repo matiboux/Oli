@@ -3824,7 +3824,7 @@ class OliCore {
 			 * @return string|boolean Returns the username of user, false otherwise.
 			 */
 			public function getUsername($uid) {
-				return $_Oli->getAccountInfos('ACCOUNTS', 'username', array('uid' => $uid)) : false;
+				return $_Oli->getAccountInfos('ACCOUNTS', 'username', array('uid' => $uid)) ?: false;
 			}
 			
 			/**
