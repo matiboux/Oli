@@ -3772,13 +3772,22 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the user name if logged in, false otherwise.
 			 */
-			public function getLoggedName($authID = null, $authKey = null, $strictUsername = false) {
+			public function getLoggedName($authID = null, $authKey = null, &$type = null) {
 				if($this->isLoggedIn($authID, $authKey)) {
-					if($this->isLocalLogin()) return 'root';
-					else if($uid = $this->getLoggedUser($authID, $authKey)) {
-						if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
-						else if(!$strictUsername AND $name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) return explode('@', $name, 2)[0];
-						else return false;
+					if($this->isLocalLogin()) {
+						$type = 'local';
+						return 'root';
+					} else if($uid = $this->getLoggedUser($authID, $authKey)) {
+						if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) {
+							$type = 'username';
+							return $name;
+						} else if(!$strictUsername AND $name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) {
+							$type = 'email';
+							return explode('@', $name, 2)[0];
+						} else {
+							$type = 'uid';
+							return $uid;
+						}
 					} else return false;
 				} else return false;
 			}
