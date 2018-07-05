@@ -538,10 +538,12 @@ body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; mar
 				<?php if(!$isLocalLogin) $requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_Oli->getUrlParam(3) ?: $_['activateKey']))); ?>
 				
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>&activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
-					<input type="text" name="uid" value="<?=!empty($requestInfos) ? $requestInfos['uid'] : ($_Oli->getLoggedUser() ?: 'root')?>" placeholder="Username" disabled />
 					<?php if($isLoggedIn) { ?>
+						<p>You are logged in as <b><?=$_Oli->getLoggedName() ?: 'unknown user'?></b>.</p>
+						<input type="text" name="a
 						<input type="password" name="password" value="<?php //=$_['password'] ?>" placeholder="Current password" />
 					<?php } else if(!$isLocalLogin) { ?>
+						<?php if($requestInfos) { ?><p>Request for user: <?=$requestInfos['uid']?></p><?php } ?>
 						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation key" <?php if($requestInfos) { ?>disabled<?php } ?> />
 					<?php } else { ?>
 						<p>An error occurred..</p>
