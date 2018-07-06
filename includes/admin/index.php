@@ -24,12 +24,12 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 <div id="main">
 	<p>Welcome on the Oli Admin, <?=$_Oli->getLoggedName()?>! \o/</p>
 	
-	<p>User Management:</p>
+	<h2>User Management</h2>
 	<ul>
-		<li><a href="<?=$_Oli->getUrlParam(0) . ($_Oli->config['login_alias'] ?: 'oli-login') . '/account-settings'?>">Update my account infos (Login page)</a></li>
+		<li><a href="<?=$_Oli->getLoginUrl() . '/account-settings'?>">Update my account infos (Login page)</a></li>
 	</ul>
 	
-	<p>Website Management:</p>
+	<h2>Website Management</h2>
 	<ul>
 		<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config'?>">Edit your website config</a></li>
 		<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/mysql'?>">Edit your mysql config</a></li>
