@@ -89,6 +89,12 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus { color: #4080c0 }
 	#main section { margin-top: 30px; margin-bottom: 20px }
 	#main section + hr + section { margin-top: 20px } } */
 
+table tr { border: 1px solid #c0c0c0 }
+table tr > * { padding: 5px }
+table tr > td + td { border-left: 1px solid #c0c0c0 }
+table tr > td.empty { background: #f0f0f0 }
+table tr > td.disabled { background: #e0e0e0 }
+
 /** Misc. */
 #main *:first-child { margin-top: 0 }
 #main *:last-child { margin-bottom: 0 }
