@@ -497,6 +497,39 @@ class OliCore {
 		}
 		
 		/**
+		 * Get Default Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if succeeded.
+		 */
+		public function getDefaultConfig() {
+			return file_exists(INCLUDESPATH . 'config.default.json') ? json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true) : null;
+		}
+		
+		/**
+		 * Get Global Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if succeeded.
+		 */
+		public function getGlobalConfig() {
+			return file_exists(OLIPATH . 'config.global.json') ? json_decode(file_get_contents(OLIPATH . 'config.global.json'), true) : null;
+		}
+		
+		/**
+		 * Get Default Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if succeeded.
+		 */
+		public function getLocalConfig() {
+			return file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(ABSPATH . 'config.json'), true) : null;
+		}
+		
+		/**
 		 * Load Oli Config
 		 * 
 		 * @version BETA-2.0.0
