@@ -63,7 +63,7 @@ else if(!empty($_)) {
 				<div class="config">
 					<span><b><?=$eachVar?></b> —</span>
 					<div class="single" style="display: <?php if(in_array($type, ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-			<label><input type="<?=$type?>" name="<?=$name?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /> <?php if($type == 'checkbox') { ?>Yes/No<?php } ?></label> —
+						<label><input type="<?=$type?>" name="<?=$name?>" value="<?=!$hidden ? ($_[$eachVar] ?: $eachValue) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /> <?php if($type == 'checkbox') { ?>Yes/No<?php } ?></label> —
 					</div>
 					<div class="settings" style="display: inline-block">
 						<label><input type="radio" class="type" name="type[<?=$name?>]" value="null" <?php if($type == 'null') { ?>checked<?php } ?> /> NULL</label>
