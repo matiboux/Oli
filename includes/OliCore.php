@@ -275,7 +275,6 @@ class OliCore {
 	 */
 	public function __destruct() {
 		$this->loadEndHtmlFiles();
-		// if($this->isAccountsManagementReady()) $this->updateUserSession();
 	}
 	
 	/**
@@ -3891,51 +3890,6 @@ class OliCore {
 			/**  VII. 5. A. General  */
 			/** -------------------- */
 			
-			/**
-			 * Initialize User Session
-			 * 
-			 * @version BETA-1.8.0
-			 * @updated BETA-2.0.0
-			 * @return boolean Returns true if succeeded, false otherwise.
-			 */
-			// public function initUserSession($setAuthCookie = true) {
-				// $authID = $this->getAuthID() ?: $this->keygen($this->config['user_id_length'] ?: 16);
-				// $authKey = $this->getAuthKey() ?: $this->keygen($this->config['auth_key_length'] ?: 32);
-				// if(!empty($authID) AND !empty($authKey)) {
-					// if(!$this->isLocalLogin() OR $this->isExternalLogin()) {
-						// /** Cleanup Process */
-						// $this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
-						
-						// $now = time();
-						// $commonInfos = array(
-							// 'ip_address' => $this->getUserIP(),
-							// 'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-							// 'update_date' => date('Y-m-d H:i:s', $now),
-							// 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')));
-						
-						// if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('auth_id' => $authID)) OR !password_verify($authKey, $sessionInfos['auth_key'])) {
-							// if(!empty($sessionInfos)) $this->deleteAccountLines('SESSIONS', array('auth_id' => $authID));
-							// $this->insertAccountLine('SESSIONS', array_merge(array(
-								// 'auth_id' => $authID,
-								// 'auth_key' => $this->hashPassword($authKey),
-								// 'creation_date' => date('Y-m-d H:i:s', $now),
-							// ), $commonInfos));
-						// } else $this->updateAccountInfos('SESSIONS', $commonInfos, array('auth_id' => $authID));
-					// }
-					
-					// if($setAuthCookie) $this->setAuthCookie($authID, $authKey, $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
-					
-					// $this->cache['authID'] = $authID;
-					// $this->cache['authKey'] = $authKey;
-					// return $authID;
-				// } else return false;
-			// }
-			
-			/** Update User Session */
-			// public function updateUserSession() {
-				// return $this->updateAccountInfos('SESSIONS', array_merge((!$this->verifyAuthKey() ? array('ip_address' => $this->getUserIP()) : []), array('user_agent' => $_SERVER['HTTP_USER_AGENT'], 'update_date' => date('Y-m-d H:i:s'), 'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')))), array('user_id' => $this->cache['userID']));
-			// }
-			
 			/** ------------------------ */
 			/**  VII. 5. B. Auth Cookie  */
 			/** ------------------------ */
@@ -3978,18 +3932,6 @@ class OliCore {
 				public function isEmptyAuthID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
 				
 				/**
-				 * Get Auth ID
-				 * 
-				 * @version BETA-1.8.0
-				 * @updated BETA-2.0.0
-				 * @return string Returns the Auth ID.
-				 */
-				// public function getAuthID() {
-					// if(empty($this->cache['authID'])) $this->cache['authID'] = explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[0];
-					// return $this->cache['authID'];
-				// }
-				
-				/**
 				 * Get Auth Key
 				 * 
 				 * @version BETA-1.8.0
@@ -3997,7 +3939,6 @@ class OliCore {
 				 * @return string Returns the Auth Key.
 				 */
 				public function getAuthKey() {
-					// if(empty($this->cache['authKey'])) $this->cache['authKey'] = explode('::', $this->getCookie($this->config['user_id_cookie']['name']), 2)[1];
 					if(empty($this->cache['authKey'])) $this->cache['authKey'] = $this->getCookie($this->config['user_id_cookie']['name']);
 					return $this->cache['authKey'];
 				}
@@ -4066,7 +4007,6 @@ class OliCore {
 							if($isRootRegister AND !empty($hashedPassword = $this->hashPassword($password))) {
 								$handle = fopen(ABSPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array('password' => $hashedPassword), JSON_FORCE_OBJECT));
-								// $result = fwrite($handle, json_encode(array('password' => $hashedPassword, 'email' => $email ?: null), JSON_FORCE_OBJECT));
 								fclose($handle);
 								return $result ? true : false;
 							} else return false;
