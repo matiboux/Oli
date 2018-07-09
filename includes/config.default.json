@@ -62,7 +62,7 @@
 		"http_only": false
 	},
 	
-	"hash": {
+	"pw_hash": {
 		"algorithm": "Const:PASSWORD_DEFAULT",
 		"salt": null,
 		"cost": 10

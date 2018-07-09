@@ -4267,15 +4267,15 @@ class OliCore {
 		
 		/** Hash Password */
 		public function hashPassword($password) {
-			if(!empty($this->config['hash']['salt'])) $hashOptions['salt'] = $this->config['hash']['salt'];
-			if(!empty($this->config['hash']['cost'])) $hashOptions['cost'] = $this->config['hash']['cost'];
-			return password_hash($password, $this->config['hash']['algorithm'], $hashOptions ?: []);
+			if(!empty($this->config['pw_hash']['salt'])) $hashOptions['salt'] = $this->config['pw_hash']['salt'];
+			if(!empty($this->config['pw_hash']['cost'])) $hashOptions['cost'] = $this->config['pw_hash']['cost'];
+			return password_hash($password, $this->config['pw_hash']['algorithm'], $hashOptions ?: []);
 		}
 		
 		public function needsRehashPassword($password) {
-			if(!empty($this->config['hash']['salt'])) $hashOptions['salt'] = $this->config['hash']['salt'];
-			if(!empty($this->config['hash']['cost'])) $hashOptions['cost'] = $this->config['hash']['cost'];
-			return password_needs_rehash($password, $this->config['hash']['algorithm'], $hashOptions);
+			if(!empty($this->config['pw_hash']['salt'])) $hashOptions['salt'] = $this->config['pw_hash']['salt'];
+			if(!empty($this->config['pw_hash']['cost'])) $hashOptions['cost'] = $this->config['pw_hash']['cost'];
+			return password_needs_rehash($password, $this->config['pw_hash']['algorithm'], $hashOptions);
 		}
 
 }
