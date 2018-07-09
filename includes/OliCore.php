@@ -2115,8 +2115,8 @@ class OliCore {
 			/** Echo translated text */
 			public function __($text, $text_plural = '', $count = 0) {
 				$text = ($count > 1) ? $text_plural : $text;
-				if($this->currentLanguage != $this->config['default_user_language'] AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->config['default_user_language'] => $text))) echo $translatedText;
-				else if(!$this->isExistTranslation(array($this->config['default_user_language'] => $text))) $this->addTranslations(array($this->config['default_user_language'] => $text));
+				if($this->currentLanguage != $this->config['default_language'] AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->config['default_language'] => $text))) echo $translatedText;
+				else if(!$this->isExistTranslation(array($this->config['default_language'] => $text))) $this->addTranslations(array($this->config['default_language'] => $text));
 				else echo $text;
 			}
 		
@@ -2696,7 +2696,7 @@ class OliCore {
 		 * @uses OliCore::$defaultLanguage to get default language
 		 * @return string Returns default language
 		 */
-		public function getDefaultLanguage() { return $this->config['default_user_language']; }
+		public function getDefaultLanguage() { return $this->config['default_language']; }
 		
 		/**
 		 * Set current language
@@ -2708,7 +2708,7 @@ class OliCore {
 		 * @return void
 		 */
 		public function setCurrentLanguage($language = null) {
-			$this->currentLanguage = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
+			$this->currentLanguage = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_language'];
 		}
 		
 		/**
@@ -2730,7 +2730,7 @@ class OliCore {
 		 * @return boo
 		 */
 		public function setUserLanguage($language = null, $where = null) {
-			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_user_language'];
+			$language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_language'];
 			
 			if(!isset($where)) {
 				if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());

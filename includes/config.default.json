@@ -69,94 +69,41 @@
 	},
 	
 	
-	"custom": {},
 	
-	
-"#": {
-	
-	"constants": null,
-	
-	"mysql": null,
-	"settings_tables": null,
-	"shortcut_links_table": null,
-	"translations_table": null,
-	
-	"force_https": false,
-	"index_files": "index.php",
-	"error_files": {
-		"404": "404.php",
-		"403": "403.php"
-	},
-	
-	"default_user_language": "en",
-	"default_content_type": "html",
-	"default_charset": "utf-8",
-	"time_zone": "Europe/Paris",
-	
-	"theme_path": "content/theme/",
-	"assets_folder": "assets/",
-	"media_path": "content/media/",
-	"common_path": null,
-	"common_assets_folder": "assets/",
-	"cdn_url": null,
-	
-	"post_vars_cookie": {
-		"name": "OliPostVars",
-		"domain": "UrlParam:fulldomain",
-		"secure": false,
-		"http_only": false
-	},
-	
-	"templates": {
-		"mail": "mail.html"
-	},
-	
-	
-	"user_management": false,
-	"accounts_tables": {
-		"accounts": "accounts",
-		"infos": "accounts_infos",
-		"sessions": "accounts_sessions",
-		"log_limits": "accounts_log_limits",
-		"requests": "accounts_requests",
-		"permissions": "accounts_permissions",
-		"rights": "accounts_rights"
-	},
-	
-	"allow_login": true,
-	"allow_recover": true,
-	"allow_register": false,
-	"default_user_right": "USER",
-	"account_activation": false,
-	"account_activation_method": "email",
-	
-	"prohibited_usernames": [],
-	"request_expire_delay": "Time:2 days",
-	"default_session_duration": "Time:1 day",
-	"extended_session_duration": "Time:7 days",
-	
-	"associated_websites": [],
-	
-	"user_id_length": 16,
-	"user_id_cookie": {
-		"name": "OliUserID",
-		"domain": "UrlParam:fulldomain",
-		"secure": false,
-		"http_only": false
-	},
-	
-	"auth_key_length": 32,
-	"auth_key_cookie": {
-		"name": "OliAuthKey",
-		"domain": "UrlParam:fulldomain",
-		"secure": false,
-		"http_only": false
-	},
-	
-	"hash": {
-		"algorithm": "Const:PASSWORD_DEFAULT",
-		"salt": null,
-		"cost": 10
+	"#": {
+		
+		"force_https": false,
+		"time_zone": "Europe/Paris",
+		
+		"theme_path": "content/theme/",
+		"media_path": "content/media/",
+		"common_path": null,
+		"common_assets_folder": "assets/",
+		
+		"post_vars_cookie": {
+			"name": "OliPostVars",
+			"domain": "UrlParam:fulldomain",
+			"secure": false,
+			"http_only": false
+		},
+		
+		"templates": {
+			"mail": "mail.html"
+		},
+		
+		
+		"user_management": false,
+		
+		"allow_recover": true,
+		"default_user_right": "USER",
+		"account_activation_method": "email",
+		
+		"auth_key_length": 32,
+		"auth_key_cookie": {
+			"name": "OliAuthKey",
+			"domain": "UrlParam:fulldomain",
+			"secure": false,
+			"http_only": false
+		}
 	}
-}
 }
