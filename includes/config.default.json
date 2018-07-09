@@ -53,9 +53,8 @@
 		
 	"associated_websites": [],
 	
-	"user_id_length": 16,
 	"auth_key_length": 32,
-	"user_id_cookie": {
+	"auth_key_cookie": {
 		"name": "OliUserID",
 		"domain": "UrlParam:fulldomain",
 		"expire_delay": "Time:7 days",

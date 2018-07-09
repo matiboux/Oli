@@ -3906,7 +3906,7 @@ class OliCore {
 				 * @return boolean Returns true if succeeded, false otherwise.
 				 */
 				public function setAuthCookie($authKey, $expireDelay = null) {
-					return $this->setCookie($this->config['user_id_cookie']['name'], $authKey, $expireDelay, '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+					return $this->setCookie($this->config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 				}
 				
 				/**
@@ -3917,7 +3917,7 @@ class OliCore {
 				 * @return boolean Returns true if succeeded, false otherwise.
 				 */
 				public function deleteAuthCookie() {
-					return $this->deleteCookie($this->config['user_id_cookie']['name'], '/', $this->config['user_id_cookie']['domain'], $this->config['user_id_cookie']['secure'], $this->config['user_id_cookie']['http_only']);
+					return $this->deleteCookie($this->config['auth_key_cookie']['name'], '/', $this->config['auth_key_cookie']['domain'], $this->config['auth_key_cookie']['secure'], $this->config['auth_key_cookie']['http_only']);
 				}
 				
 				/** --------------------- */
@@ -3925,11 +3925,11 @@ class OliCore {
 				/** --------------------- */
 				
 				/** Get Auth Cookie name */
-				public function getAuthIDCookieName() { return $this->config['user_id_cookie']['name']; }
+				public function getAuthIDCookieName() { return $this->config['auth_key_cookie']['name']; }
 				
 				/** Auth Cookie content */
-				public function isExistAuthID() { return $this->isExistCookie($this->config['user_id_cookie']['name']); }
-				public function isEmptyAuthID() { return $this->isEmptyCookie($this->config['user_id_cookie']['name']); }
+				public function isExistAuthID() { return $this->isExistCookie($this->config['auth_key_cookie']['name']); }
+				public function isEmptyAuthID() { return $this->isEmptyCookie($this->config['auth_key_cookie']['name']); }
 				
 				/**
 				 * Get Auth Key
@@ -3939,7 +3939,7 @@ class OliCore {
 				 * @return string Returns the Auth Key.
 				 */
 				public function getAuthKey() {
-					if(empty($this->cache['authKey'])) $this->cache['authKey'] = $this->getCookie($this->config['user_id_cookie']['name']);
+					if(empty($this->cache['authKey'])) $this->cache['authKey'] = $this->getCookie($this->config['auth_key_cookie']['name']);
 					return $this->cache['authKey'];
 				}
 		
@@ -4164,7 +4164,7 @@ class OliCore {
 								} else $this->updateAccountInfos('SESSIONS', $commonInfos, array('auth_key' => hash('sha512', $authKey)));
 							}
 							
-							$this->setAuthCookie($authKey, $this->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
+							$this->setAuthCookie($authKey, $this->config['auth_key_cookie']['expire_delay'] ?: 3600*24*7);
 							$this->cache['authKey'] = $authKey;
 						
 							if($this->isLocalLogin()) {
