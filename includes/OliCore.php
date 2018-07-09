@@ -166,7 +166,8 @@ class OliCore {
 	/** Read-only variables */
 	private $readOnlyVars = [
 		'oliInfos', 'addonsInfos',
-		'initTimestamp', 'debugStatus', 'appConfig', 'rawConfig', 'config',
+		'initTimestamp', 'debugStatus', 'appConfig', 'rawConfig',
+		'defaultConfig', 'globalConfig', 'localConfig', 'config',
 		'db', 'dbError',
 		'fileNameParam', 'contentStatus'];
 	
@@ -178,6 +179,11 @@ class OliCore {
 	private $initTimestamp = null; // (PUBLIC READONLY)
 	private $debugStatus = false; // (PUBLIC READONLY)
 	private $appConfig = null; // (PUBLIC READONLY)
+	
+	private $defaultConfig = null; // (PUBLIC READONLY)
+	private $globalConfig = null; // (PUBLIC READONLY)
+	private $localConfig = null; // (PUBLIC READONLY)
+	
 	private $rawConfig = null; // (PUBLIC READONLY)
 	private $config = null; // (PUBLIC READONLY)
 	
@@ -460,38 +466,42 @@ class OliCore {
 		/** -------------------- */
 		
 		/**
-		 * Update Oli Config
-		 * 
-		 * @param array $newConfig New config fragment to complete or replace the old config.
-		 * @param boolean $saveNew Whether or not to save the new config in the config file using OliCore::saveConfig().
-		 * @param boolean $replaceWhole Whether or not to force the new config to replace completely the old config.
+		 * Update Config
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if the config is updated.
 		 */
-		public function updateConfig($newConfig, $saveNew = false, $replaceWhole = false) {
+		public function updateConfig($newConfig, $saveWhere = false, $replaceWhole = false) {
 			if($replaceWhole) $config = $newConfig;
 			else $config = array_merge($this->rawConfig, $newConfig);
 			
-			if(!$saveNew OR $this->saveConfig($config)) {
+			if(!$saveWhere) $result = true;
+			else $result = $this->saveConfig($config, $saveWhere);
+			
+			if($result) {
 				$this->config = $config;
 				return true;
 			} else return false;
 		}
 		
 		/**
-		 * Save Oli Config
+		 * Save Config
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
-		public function saveConfig($config) {
-			$handle = fopen(ABSPATH . 'config.json', 'w');
-			$result = fwrite($handle, json_encode($config));
-			fclose($handle);
-			
+		public function saveConfig($config, $target = null) {
+			if($target == 'global') {
+				$handle = fopen(OLIPATH . 'config.global.json', 'w');
+				$result = fwrite($handle, json_encode($config));
+				fclose($handle);
+			} else {
+				$handle = fopen(ABSPATH . 'config.json', 'w');
+				$result = fwrite($handle, json_encode($config));
+				fclose($handle);
+			}
 			return $result !== false;
 		}
 		
@@ -536,18 +546,21 @@ class OliCore {
 		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
 		 */
 		public function loadConfig() {
-			$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
-			if(file_exists(ABSPATH . 'config.json')) $config = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+			/** Load Config */
+			$this->defaultConfig = $this->getDefaultConfig();
+			$this->globalConfig = $this->getGlobalConfig();
+			$this->localConfig = $this->getLocalConfig();
 			
-			$loadedConfig = null;
-			if(!empty($config) AND is_array($config)) {
-				if($config != array_merge($defaultConfig, $config)) $this->saveConfig($loadedConfig = array_merge($defaultConfig, $config));
-				else $loadedConfig = $config;
-			} else $this->saveConfig($loadedConfig = $defaultConfig);
-			$this->rawConfig = $loadedConfig;
+			/** Merge with Global & Local Config */
+			$this->rawConfig = [];
+			if(!empty($this->defaultConfig) AND is_array($this->defaultConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->defaultConfig);
+			if(!empty($this->globalConfig) AND is_array($this->globalConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->globalConfig);
+			if(!empty($this->localConfig) AND is_array($this->localConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->localConfig);
 			
-			if(!empty($loadedConfig)) {
-				foreach($loadedConfig as $eachConfig => $eachValue) {
+			if(empty($this->rawConfig)) die('Oli Error: Default Config couldn\'t be loaded..');
+			else {
+				$this->config = [];
+				foreach($this->rawConfig as $eachConfig => $eachValue) {
 					$eachValue = $this->decodeConfigValues($eachValue);
 					
 					if($eachConfig == 'constants' AND !empty($eachValue) AND is_assoc($eachValue)) {
