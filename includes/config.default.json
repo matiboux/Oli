@@ -8,7 +8,6 @@
 	"mysql": null,
 	
 	"settings_tables": ["settings"],
-	"settings": null,
 	"shortcut_links_table": "shortcut_links",
 	"translations_table": null,
 	
