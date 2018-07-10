@@ -513,12 +513,12 @@ class OliCore {
 		 */
 		public function saveConfig($config, $target = null, $replace = false) {
 			$result = [];
-			if($target == 'global') {
+			if($target === 'global') {
 				if(!$replace AND is_array($globalConfig = $this->getGlobalConfig())) $config = array_merge($globalConfig, $config);
 				$handle = fopen(OLIPATH . 'config.global.json', 'w');
 				if($result[] = fwrite($handle, json_encode($config))) $this->globalConfig = $config;
 				fclose($handle);
-			} else if($target == 'app') {
+			} else if($target === 'app') {
 				if($this->isExistTableMySQL($this->config['settings_tables'][0])) { // Are Settings Managed via MySQL?
 					foreach($config as $name => $value) {
 						$result[] = $this->updateInfosMySQL($this->config['settings_tables'][0], array('name' => $name), array('value' => $value));
