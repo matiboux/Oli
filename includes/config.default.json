@@ -55,7 +55,7 @@
 	
 	"auth_key_length": 32,
 	"auth_key_cookie": {
-		"name": "OliUserID",
+		"name": "OliAuthKey",
 		"domain": "UrlParam:fulldomain",
 		"expire_delay": "Time:7 days",
 		"secure": false,
