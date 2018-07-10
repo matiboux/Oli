@@ -492,7 +492,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if the config is updated.
 		 */
-		public function updateConfig($newConfig, $target = false, $replace = false) {
+		public function updateConfig($config, $target = false, $replace = false) {
 			if(!$target) $result = true;
 			else $result = $this->saveConfig($config, $target, $replace);
 			
