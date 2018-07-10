@@ -419,11 +419,13 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return mixed Array or requested value.
 		 */
-		public function getDefaultConfig($index = null) {
-			if(file_exists(INCLUDESPATH . 'config.default.json')) {
-				$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
-				if(!empty($index)) return $defaultConfig[$index] ?: null;
-				else return $defaultConfig ?: [];
+		public function getDefaultConfig($index = null, $reload = false) {
+			if(is_bool($index)) $reload = $index;
+			if(($reload OR !isset($this->defaultConfig)) AND file_exists(INCLUDESPATH . 'config.default.json')) $this->defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+			
+			if(!empty($this->defaultConfig)) {
+				if(!empty($index)) return $this->defaultConfig[$index] ?: null;
+				else return $this->defaultConfig ?: [];
 			} else return null;
 		}
 		
@@ -434,11 +436,13 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return mixed Array or requested value.
 		 */
-		public function getGlobalConfig($index = null) {
-			if(file_exists(OLIPATH . 'config.global.json')) {
-				$globalConfig = json_decode(file_get_contents(OLIPATH . 'config.global.json'), true);
-				if(!empty($index)) return $globalConfig[$index] ?: null;
-				else return $globalConfig ?: [];
+		public function getGlobalConfig($index = null, $reload = false) {
+			if(is_bool($index)) $reload = $index;
+			if(($reload OR !isset($this->globalConfig)) AND file_exists(OLIPATH . 'config.global.json')) $this->globalConfig = json_decode(file_get_contents(OLIPATH . 'config.global.json'), true);
+			
+			if(!empty($this->globalConfig)) {
+				if(!empty($index)) return $this->globalConfig[$index] ?: null;
+				else return $this->globalConfig ?: [];
 			} else return null;
 		}
 		
@@ -449,11 +453,13 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return mixed Array or requested value.
 		 */
-		public function getLocalConfig($index = null) {
-			if(file_exists(ABSPATH . 'config.json')) {
-				$localConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
-				if(!empty($index)) return $localConfig[$index] ?: null;
-				else return $localConfig ?: [];
+		public function getLocalConfig($index = null, $reload = false) {
+			if(is_bool($index)) $reload = $index;
+			if(($reload OR !isset($this->localConfig)) AND file_exists(ABSPATH . 'config.json')) $this->localConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+			
+			if(!empty($this->localConfig)) {
+				if(!empty($index)) return $this->localConfig[$index] ?: null;
+				else return $this->localConfig ?: [];
 			} else return null;
 		}
 		
@@ -464,11 +470,14 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return mixed Array or requested value.
 		 */
-		public function getAppConfig($index = null) {
-			if(file_exists(ABSPATH . 'app.json')) {
-				$appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true);
-				if(!empty($index)) return $appConfig[$index] ?: null;
-				else return $appConfig ?: [];
+		public function getAppConfig($index = null, $reload = false) {
+			if(is_bool($index)) $reload = $index;
+			
+			if(($reload OR !isset($this->appConfig)) AND file_exists(ABSPATH . 'app.json')) $this->appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true);
+			
+			if(!empty($this->appConfig)) {
+				if(!empty($index)) return $this->appConfig[$index] ?: null;
+				else return $this->appConfig ?: [];
 			} else return null;
 		}
 		
