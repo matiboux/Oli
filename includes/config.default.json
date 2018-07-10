@@ -87,23 +87,11 @@
 			"http_only": false
 		},
 		
-		"templates": {
-			"mail": "mail.html"
-		},
-		
 		
 		"user_management": false,
 		
 		"allow_recover": true,
 		"default_user_right": "USER",
-		"account_activation_method": "email",
-		
-		"auth_key_length": 32,
-		"auth_key_cookie": {
-			"name": "OliAuthKey",
-			"domain": "UrlParam:fulldomain",
-			"secure": false,
-			"http_only": false
-		}
+		"account_activation_method": "email"
 	}
 }
