@@ -25,7 +25,7 @@ if(!empty($_)) {
 				'creation_date' => $_['creation_date'],
 				'owner' => $_['owner']);
 			
-			if($_Oli->updateAppConfig($newConfig, true)) $result = array('error' => false, 'olisc' => $_POST['olisc'], '_POST' => $_POST);
+			if($_Oli->updateConfig($newConfig, 'app')) $result = array('error' => false, 'olisc' => $_POST['olisc'], '_POST' => $_POST);
 			else $result = array('error' => 'Error: An error occurred.', '_POST' => $_POST);
 		}
 	}
