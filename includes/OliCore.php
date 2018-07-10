@@ -517,7 +517,7 @@ class OliCore {
 		public function saveConfig($config, $target = null, $replace = false) {
 			$result = [];
 			if($target == 'global') {
-				if(!$replace AND is_array($globalConfig = $_Oli->getGlobalConfig())) $config = array_merge($globalConfig, $config);
+				if(!$replace AND is_array($globalConfig = $this->getGlobalConfig())) $config = array_merge($globalConfig, $config);
 				$handle = fopen(OLIPATH . 'config.global.json', 'w');
 				if($result[] = fwrite($handle, json_encode($config))) $this->globalConfig = $config;
 				fclose($handle);
@@ -529,7 +529,7 @@ class OliCore {
 					if(!in_array(false, $result, true)) $this->appConfig = $config;
 				} else {
 					/** Merging with existing config */
-					if(!$replace AND is_array($appConfig = $_Oli->getAppConfig())) $config = array_merge(array(
+					if(!$replace AND is_array($appConfig = $this->getAppConfig())) $config = array_merge(array(
 						'url' => null,
 						'name' => null,
 						'description' => null,
@@ -543,12 +543,12 @@ class OliCore {
 					fclose($handle);
 				}
 				
-				// if(!$replace AND is_array($appConfig = $_Oli->getAppConfig())) $config = array_merge($appConfig, $config);
+				// if(!$replace AND is_array($appConfig = $this->getAppConfig())) $config = array_merge($appConfig, $config);
 				// $handle = fopen(ABSPATH . 'app.json', 'w');
 				// if($result[] = fwrite($handle, json_encode($config))) $this->appConfig = $config;
 				// fclose($handle);
 			} else {
-				if(!$replace AND is_array($localConfig = $_Oli->getLocalConfig())) $config = array_merge($localConfig, $config);
+				if(!$replace AND is_array($localConfig = $this->getLocalConfig())) $config = array_merge($localConfig, $config);
 				$handle = fopen(ABSPATH . 'config.json', 'w');
 				if($result[] = fwrite($handle, json_encode($config))) $this->localConfig = $config;
 				fclose($handle);
@@ -3900,7 +3900,7 @@ class OliCore {
 			 * @return string|boolean Returns the username of user, false otherwise.
 			 */
 			public function getUsername($uid) {
-				return $_Oli->getAccountInfos('ACCOUNTS', 'username', array('uid' => $uid)) ?: false;
+				return $this->getAccountInfos('ACCOUNTS', 'username', array('uid' => $uid)) ?: false;
 			}
 			
 			/**
