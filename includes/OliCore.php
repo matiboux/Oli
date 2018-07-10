@@ -565,15 +565,20 @@ class OliCore {
 		 */
 		public function loadConfig() {
 			/** Load Config */
-			$this->defaultConfig = $this->getDefaultConfig();
-			$this->globalConfig = $this->getGlobalConfig();
-			$this->localConfig = $this->getLocalConfig();
+			$defaultConfig = $this->getDefaultConfig();
+			$globalConfig = $this->getGlobalConfig();
+			$localConfig = $this->getLocalConfig();
 			
 			$this->rawConfig = [];
 			/** Merge with Global & Local Config */
-			if(!empty($this->defaultConfig) AND is_array($this->defaultConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->defaultConfig);
-			if(!empty($this->globalConfig) AND is_array($this->globalConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->globalConfig);
-			if(!empty($this->localConfig) AND is_array($this->localConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->localConfig);
+			if(!empty($defaultConfig) AND is_array($defaultConfig)) $this->rawConfig = array_merge($this->rawConfig, $defaultConfig);
+			if(!empty($globalConfig) AND is_array($globalConfig)) $this->rawConfig = array_merge($this->rawConfig, $globalConfig);
+			if(!empty($localConfig) AND is_array($localConfig)) $this->rawConfig = array_merge($this->rawConfig, $localConfig);
+			
+			/** Unset variables */
+			unset($defaultConfig);
+			unset($globalConfig);
+			unset($localConfig);
 			
 			if(empty($this->rawConfig)) die('Oli Error: Default Config couldn\'t be loaded..');
 			else return $this->reloadConfig();
