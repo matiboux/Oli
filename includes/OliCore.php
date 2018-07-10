@@ -409,42 +409,52 @@ class OliCore {
 	/** ------------------- */
 		
 		/** ------------------- */
-		/**  IV. 1. App Config  */
+		/**  IV. 1. Get Config  */
 		/** ------------------- */
 		
 		/**
-		 * Update App Config
+		 * Get Default Config
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if the config is updated.
+		 * @return mixed Array or requested value.
 		 */
-		public function updateAppConfig(array $newConfig) {
-			$result = [];
-			if($this->isExistTableMySQL($this->config['settings_tables'][0])) { // Are Settings Managed via MySQL?
-				foreach($newConfig as $index => $value) {
-					$result[] = $this->updateInfosMySQL($this->config['settings_tables'][0], array('name' => $index), array('value' => $value));
-				}
-			} else {
-				/** Merging with existing data */
-				$config = array_merge(array(
-					'url' => null,
-					'name' => null,
-					'description' => null,
-					'creation_date' => null,
-					'owner' => null
-				), $this->getAppConfig() ?: [], $newConfig);
-				
-				/** Saving new config */
-				$handle = fopen(ABSPATH . 'app.json', 'w');
-				$result[] = fwrite($handle, json_encode($config));
-				fclose($handle);
-			}
-			
-			if(!in_array(false, $result, true) AND $this->saveConfig($config)) {
-				$this->appConfig = $config;
-				return true;
-			} else return false;
+		public function getDefaultConfig($index = null) {
+			if(file_exists(INCLUDESPATH . 'config.default.json')) {
+				$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+				if(!empty($index)) return $defaultConfig[$index] ?: null;
+				else return $defaultConfig ?: [];
+			} else return null;
+		}
+		
+		/**
+		 * Get Global Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return mixed Array or requested value.
+		 */
+		public function getGlobalConfig($index = null) {
+			if(file_exists(OLIPATH . 'config.global.json')) {
+				$globalConfig = json_decode(file_get_contents(OLIPATH . 'config.global.json'), true);
+				if(!empty($index)) return $globalConfig[$index] ?: null;
+				else return $globalConfig ?: [];
+			} else return null;
+		}
+		
+		/**
+		 * Get Default Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return mixed Array or requested value.
+		 */
+		public function getLocalConfig($index = null) {
+			if(file_exists(ABSPATH . 'config.json')) {
+				$localConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+				if(!empty($index)) return $localConfig[$index] ?: null;
+				else return $localConfig ?: [];
+			} else return null;
 		}
 		
 		/**
@@ -452,13 +462,14 @@ class OliCore {
 		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
-		 * @return boolean Returns app config.
+		 * @return mixed Array or requested value.
 		 */
 		public function getAppConfig($index = null) {
-			if(!isset($this->appConfig) AND file_exists(ABSPATH . 'app.json')) $this->appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true); // Update the app settings buffer
-			
-			if(!empty($index)) return $this->appConfig[$index];
-			else return $this->appConfig;
+			if(file_exists(ABSPATH . 'app.json')) {
+				$appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true);
+				if(!empty($index)) return $appConfig[$index] ?: null;
+				else return $appConfig ?: [];
+			} else return null;
 		}
 		
 		/** -------------------- */
@@ -472,70 +483,68 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if the config is updated.
 		 */
-		public function updateConfig($newConfig, $saveWhere = false, $replaceWhole = false) {
-			if($replaceWhole) $config = $newConfig;
-			else $config = array_merge($this->rawConfig, $newConfig);
+		public function updateConfig($newConfig, $target = false, $replace = false) {
+			if(!$target) $result = true;
+			else $result = $this->saveConfig($config, $target, $replace);
 			
-			if(!$saveWhere) $result = true;
-			else $result = $this->saveConfig($config, $saveWhere);
-			
-			if($result) {
-				$this->config = $config;
-				return true;
+			if(!$target OR $this->saveConfig($config, $target, $replace)) {
+				$this->rawConfig = array_merge($this->rawConfig, $config);
+				return $this->reloadConfig();
 			} else return false;
 		}
 		
 		/**
 		 * Save Config
 		 * 
+		 * Targets for saving config:
+		 * - 'app' for saving in app.json
+		 * - 'global' for saving in config.global.json
+		 * - anything else for saving in config.json
+		 * 
 		 * @version BETA-2.0.0
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
-		public function saveConfig($config, $target = null) {
+		public function saveConfig($config, $target = null, $replace = false) {
+			$result = [];
 			if($target == 'global') {
+				if(!$replace AND is_array($globalConfig = $_Oli->getGlobalConfig())) $config = array_merge($globalConfig, $config);
 				$handle = fopen(OLIPATH . 'config.global.json', 'w');
-				$result = fwrite($handle, json_encode($config));
+				if($result[] = fwrite($handle, json_encode($config))) $this->globalConfig = $config;
 				fclose($handle);
+			} else if($target == 'app') {
+				if($this->isExistTableMySQL($this->config['settings_tables'][0])) { // Are Settings Managed via MySQL?
+					foreach($config as $name => $value) {
+						$result[] = $this->updateInfosMySQL($this->config['settings_tables'][0], array('name' => $name), array('value' => $value));
+					}
+					if(!in_array(false, $result, true)) $this->appConfig = $config;
+				} else {
+					/** Merging with existing config */
+					if(!$replace AND is_array($appConfig = $_Oli->getAppConfig())) $config = array_merge(array(
+						'url' => null,
+						'name' => null,
+						'description' => null,
+						'creation_date' => null,
+						'owner' => null
+					), $appConfig, $config);
+					
+					/** Saving new config */
+					$handle = fopen(ABSPATH . 'app.json', 'w');
+					if($result[] = fwrite($handle, json_encode($config))) $this->appConfig = $config;
+					fclose($handle);
+				}
+				
+				// if(!$replace AND is_array($appConfig = $_Oli->getAppConfig())) $config = array_merge($appConfig, $config);
+				// $handle = fopen(ABSPATH . 'app.json', 'w');
+				// if($result[] = fwrite($handle, json_encode($config))) $this->appConfig = $config;
+				// fclose($handle);
 			} else {
+				if(!$replace AND is_array($localConfig = $_Oli->getLocalConfig())) $config = array_merge($localConfig, $config);
 				$handle = fopen(ABSPATH . 'config.json', 'w');
-				$result = fwrite($handle, json_encode($config));
+				if($result[] = fwrite($handle, json_encode($config))) $this->localConfig = $config;
 				fclose($handle);
 			}
-			return $result !== false;
-		}
-		
-		/**
-		 * Get Default Config
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if succeeded.
-		 */
-		public function getDefaultConfig() {
-			return file_exists(INCLUDESPATH . 'config.default.json') ? json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true) : null;
-		}
-		
-		/**
-		 * Get Global Config
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if succeeded.
-		 */
-		public function getGlobalConfig() {
-			return file_exists(OLIPATH . 'config.global.json') ? json_decode(file_get_contents(OLIPATH . 'config.global.json'), true) : null;
-		}
-		
-		/**
-		 * Get Default Config
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if succeeded.
-		 */
-		public function getLocalConfig() {
-			return file_exists(ABSPATH . 'config.json') ? json_decode(file_get_contents(ABSPATH . 'config.json'), true) : null;
+			return !in_array(false, $result, true);
 		}
 		
 		/**
@@ -551,14 +560,25 @@ class OliCore {
 			$this->globalConfig = $this->getGlobalConfig();
 			$this->localConfig = $this->getLocalConfig();
 			
-			/** Merge with Global & Local Config */
 			$this->rawConfig = [];
+			/** Merge with Global & Local Config */
 			if(!empty($this->defaultConfig) AND is_array($this->defaultConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->defaultConfig);
 			if(!empty($this->globalConfig) AND is_array($this->globalConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->globalConfig);
 			if(!empty($this->localConfig) AND is_array($this->localConfig)) $this->rawConfig = array_merge($this->rawConfig, $this->localConfig);
 			
 			if(empty($this->rawConfig)) die('Oli Error: Default Config couldn\'t be loaded..');
-			else {
+			else return $this->reloadConfig();
+		}
+		
+		/**
+		 * Reload Oli Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
+		 */
+		public function reloadConfig() {
+			if(!empty($this->rawConfig)) {
 				$this->config = [];
 				foreach($this->rawConfig as $eachConfig => $eachValue) {
 					$eachValue = $this->decodeConfigValues($eachValue);
@@ -582,9 +602,8 @@ class OliCore {
 					
 					$this->config[$eachConfig] = $this->decodeConfigArray($eachValue, array_key_exists($eachConfig, $this->config ?: []) ? $this->config[$eachConfig] : null);
 				}
-			}
-			
-			return !empty($this->config);
+				return !empty($this->config);
+			} else return false;
 		}
 		
 		/** Decode config arrays */
