@@ -110,13 +110,15 @@ else if(!empty($_)) {
 								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="assoc" <?php if($type['default'] == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
 							</div>
 							<div class="multiple" style="display: <?php if(in_array($type['default'], ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
-								<?=var_dump($eachValue['default'])?>
+								<?=var_export($eachValue['default'])?>
 							</div>*/ ?>
 					
-							<pre><?=isset($eachValue['default']) ? var_dump($eachValue['default']) : null?></pre>
+							<pre><?=isset($eachValue['default']) ? var_export($eachValue['default']) : null?></pre>
 						</td>
 						<td class="<?php if($globalConfig === null) { ?>disabled<?php } else if(!isset($eachValue['global'])) { ?>empty<?php } ?>">
-							<?php if($globalConfig !== null) { ?>
+							<?php if(!isset($type['global'])) { ?>
+								<i>&laquo; Inherit from Default</i>
+							<?php } else if($globalConfig !== null) { ?>
 								<div class="single" style="display: <?php if(in_array($type['global'], ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
 									<label><input type="<?=$type['global']?>" name="default[<?=$eachConfig?>]" value="<?=!$hidden ? ($_[$eachVar]['global'] ?: $eachValue['global']) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> <?php if($type['global'] == 'checkbox' AND !$hidden AND ($_[$eachVar]['global'] ?: $eachValue['global'])) { ?>checked<?php } ?> /> <?php if($type['global'] == 'checkbox') { ?>Yes/No<?php } ?></label> —
 								</div>
@@ -129,14 +131,16 @@ else if(!empty($_)) {
 									<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="assoc" <?php if($type['global'] == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
 								</div>
 								<div class="multiple" style="display: <?php if(in_array($type['global'], ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
-									<pre><?=var_dump($eachValue['global'])?></pre>
+									<pre><?=var_export($eachValue['global'])?></pre>
 								</div>
 							<?php } ?>
 							
-							<?=''//isset($eachValue['global']) ? var_dump($eachValue['global']) : null?>
+							<?=''//isset($eachValue['global']) ? var_export($eachValue['global']) : null?>
 						</td>
 						<td class="<?php if($localConfig === null) { ?>disabled<?php } else if(!isset($eachValue['local'])) { ?>empty<?php } ?>">
-							<?php if($localConfig !== null) { ?>
+							<?php if(!isset($type['local'])) { ?>
+								<i>&laquo; Inherit from Global</i>
+							<?php } else if($localConfig !== null) { ?>
 								<div class="single" style="display: <?php if(in_array($type['local'], ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
 									<label><input type="<?=$type['local']?>" name="default[<?=$eachConfig?>]" value="<?=!$hidden ? ($_[$eachVar]['local'] ?: $eachValue['local']) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> <?php if($type['local'] == 'checkbox' AND !$hidden AND ($_[$eachVar]['local'] ?: $eachValue['local'])) { ?>checked<?php } ?> /> <?php if($type['local'] == 'checkbox') { ?>Yes/No<?php } ?></label> —
 								</div>
@@ -149,11 +153,11 @@ else if(!empty($_)) {
 									<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="assoc" <?php if($type['local'] == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
 								</div>
 								<div class="multiple" style="display: <?php if(in_array($type['local'], ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
-									<pre><?=var_dump($eachValue['local'])?></pre>
+									<pre><?=var_export($eachValue['local'])?></pre>
 								</div>
 							<?php } ?>
 							
-							<?=''//isset($eachValue['local']) ? var_dump($eachValue['local']) : null?>
+							<?=''//isset($eachValue['local']) ? var_export($eachValue['local']) : null?>
 						</td>
 					</tr>
 				<?php } ?>
