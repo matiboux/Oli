@@ -78,12 +78,12 @@ This license does not apply to the...
 - Git configuration files such as **/.gitignore**
 - **.htaccess** files
 - **/oli.default.sql** file (licensed under the MIT license)
-- Admin panel: files in **/includes/admin/...** file (which is licensed under the MIT license)
+- Admin panel: files in **/includes/admin/...** (licensed under the MIT license)
 
 This license does not apply either to your own files and other libraries:
-- The **/addons/** folder should contain files of your website. We believe your website and its files are not derivative work as long as they only use the framework as-is without modifying it, and thus files in **/content/...** (and in sub-directories) **do not inherit the AGPL license**.  
+- The **/addons/** folder should contain files of your website. We believe your website and its files are not derivative work as long as they only use the framework as-is without modifying it, and thus files in **/content/...** (and in sub-directories) **do not inherit** the AGPL license.  
 Files in **/content/...** are files you should own or have the right to use. You're responsible for how you use them.
-- The **/addons/** folder consists of an "aggregate" of libraries, and thus files in **/addons/...** (and in sub-directories) **do not inherit the AGPL license**.
+- The **/addons/** folder consists of an "aggregate" of libraries, and thus files in **/addons/...** (and in sub-directories) **do not inherit** the AGPL license.
 
 ℹ️ The website pages (files in **/content/...**), as they are in this repository, are **not licensed**. They're here for the example and you're free to edit them and re-use them.
 
