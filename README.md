@@ -71,23 +71,21 @@ Copyright (C) 2015-2018 Matiboux (Mathieu Guérin)
 This license applies to the...
 - **/index.php** file
 - **/load.php** file
-- files in **/includes/...** – and in sub-directories
+- Files in **/includes/...** – and in sub-directories
 
 This license does not apply to the...
-- website configuration files: **/config.json**, **/config.global.json**, and **/app.json**
-- git configuration files such as **/.gitignore**
+- Website configuration files: **/config.json**, **/config.global.json**, and **/app.json**
+- Git configuration files such as **/.gitignore**
 - **.htaccess** files
 - **/oli.default.sql** file (licensed under the MIT license)
-- admin panel and login page: files in **/includes/admin/...** file (which is licensed under the MIT license)
-- default website pages: files in **/content/...** file (which is licensed under the MIT license)
+- Admin panel: files in **/includes/admin/...** file (which is licensed under the MIT license)
 
 This license does not apply either to your own files and other libraries:
 - The **/addons/** folder should contain files of your website. We believe your website and its files are not derivative work as long as they only use the framework as-is without modifying it, and thus files in **/content/...** (and in sub-directories) **do not inherit the AGPL license**.  
 Files in **/content/...** are files you should own or have the right to use. You're responsible for how you use them.
 - The **/addons/** folder consists of an "aggregate" of libraries, and thus files in **/addons/...** (and in sub-directories) **do not inherit the AGPL license**.
 
-
-Files in **/content/...**
+ℹ️ The website pages (files in **/content/...**), as they are in this repository, are **not licensed**. They're here for the example and you're free to edit them and re-use them.
 
 *Paths beginning with **/** are relative to the main directory of this repository.*
 
