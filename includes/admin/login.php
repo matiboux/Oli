@@ -605,22 +605,20 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			<?php $showLoggedLinksCTA = false; ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout & Links" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>You are logged in</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" method="post">
-					<p>You can tap on the top-right icon to change your password. You can also click on one of those links to navigate on the website.</p>
-					
-					<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?>
-						<a href="<?=$_SERVER['HTTP_REFERER']?>" class="btn">&laquo; Go back</a>
-						<p class="mt-1">&rsaquo; Go back to <?=$_SERVER['HTTP_REFERER']?></p>
-					<?php } ?>
-					<a href="<?=$_Oli->getUrlParam(0)?>" class="btn">Website home page</a>
-					<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?>
-						<a href="<?=$_Oli->getOliAdminUrl()?>" class="btn mt-1">Oli Admin panel</a>
-					<?php } ?> <hr />
-					
-					<button type="submit">Logout</button>
-					
-					<p>By using this website, you agree that we're using a cookie to keep you logged in.</p>
-				</form>
+				<p>You can tap on the top-right icon to change your password. You can also click on one of those links to navigate on the website.</p>
+				
+				<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?>
+					<a href="<?=$_SERVER['HTTP_REFERER']?>" class="btn">&laquo; Go back</a>
+					<p class="mt-1">&rsaquo; Go back to <?=$_SERVER['HTTP_REFERER']?></p>
+				<?php } ?>
+				<a href="<?=$_Oli->getUrlParam(0)?>" class="btn">Website home page</a>
+				<?php if($_Oli->getUserRightLevel() >= $_Oli->translateUserRight('ROOT')) { ?>
+					<a href="<?=$_Oli->getOliAdminUrl()?>" class="btn mt-1">Oli Admin panel</a>
+				<?php } ?> <hr />
+				
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" class="btn">Log out</a>
+				
+				<p>By using this website, you agree that we're using a cookie to keep you logged in. Otherwise, please log out.</p>
 			</div>
 		<?php } ?>
 		
