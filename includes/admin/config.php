@@ -77,19 +77,13 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 		}
 	} ?>
 	
-	<?php if($globalConfig === null) { ?>
+	<?php /*if($globalConfig === null) { ?>
 		<p>\o/ Global Config does not exist</p>
-	<?php } ?>
+	<?php }*/ ?>
 	
-	<?php if($localConfig === null) { ?>
+	<?php /*if($localConfig === null) { ?>
 		<p>\o/ Local Config does not exist</p>
-	<?php } ?>
-	
-	<style>
-	.btn { display: block }
-	</style>
-	
-	<p>/!\ Value Editor interpret input as JSON</p>
+	<?php }*/ ?>
 	
 	<table>
 		<thead>
@@ -124,47 +118,47 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 				
 				<tr>
 					<td><?=$eachConfig?></td>
-					<td class="disabled"> <?php /** Default Config – Non editable */ ?>
-						<pre><?=isset($eachValue['default']) ? var_export($eachValue['default']) : null?></pre>
+					
+					<?php /** Default Config – Non editable */ ?>
+					<td class="<?php if(!isset($type['default'])) { ?>empty<?php } else { ?>disabled<?php } ?>">
+						<pre><?=$eachValue['default'] !== null ? var_export($eachValue['default'], true) : 'null'?></pre>
 					</td>
+					
+					<?php /** Global Config */ ?>
 					<td class="<?php if($globalConfig === null) { ?>disabled<?php } else if(!isset($eachValue['global'])) { ?>empty<?php } ?>">
 						<?php if(!isset($type['global'])) { ?>
-							<?php if($globalConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/' . urlencode($eachConfig) . '/'?> " class="btn">Create config</a><?php } ?>
+							<?php if($globalConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/' . urlencode($eachConfig) . '/'?>" class="btn">Create config</a><?php } ?>
 							<i>&laquo; Inherit from Default</i>
 						<?php } else if($globalConfig !== null) { ?>
-							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/global/' . urlencode($eachConfig) . '/'?> " class="btn mb-1">Delete config</a>
-							<div class="settings" style="background: #a0a0f0; display: block; margin: 0 -5px; padding: 5px">
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="null" <?php if($type['global'] == 'null') { ?>checked<?php } ?> /> NULL</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="number" <?php if($type['global'] == 'number') { ?>checked<?php } ?> /> Number</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="text" <?php if($type['global'] == 'text') { ?>checked<?php } ?> /> Text</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="checkbox" <?php if($type['global'] == 'checkbox') { ?>checked<?php } ?> /> Boolean</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="array" <?php if($type['global'] == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="assoc" <?php if($type['global'] == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
-							</div>
-							<pre style="margin-top: 5px"><?=var_export($eachValue['global'])?></pre>
+							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/global/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
+							<pre><?$eachValue['global'] !== null ? var_export($eachValue['global'], true) : 'null'?></pre>
+							
+							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post">
+								<textarea name="value"><?=json_encode($eachValue['global'])?></textarea>
+								<button type="submit">Update</button> Format: JSON
+							</form>
 						<?php } ?>
 					</td>
+					
+					<?php /** Local Config */ ?>
 					<td class="<?php if($localConfig === null) { ?>disabled<?php } else if(!isset($eachValue['local'])) { ?>empty<?php } ?>">
 						<?php if(!isset($type['local'])) { ?>
-							<?php if($localConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/' . urlencode($eachConfig) . '/'?> " class="btn">Create config</a><?php } ?>
+							<?php if($localConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/' . urlencode($eachConfig) . '/'?>" class="btn">Create config</a><?php } ?>
 							<i>&laquo; Inherit from Global</i>
 						<?php } else if($localConfig !== null) { ?>
-							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/local/' . urlencode($eachConfig) . '/'?> " class="btn mb-1">Delete config</a>
-							<div class="settings" style="background: #a0a0f0; display: block; margin: 0 -5px; padding: 5px">
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="null" <?php if($type['local'] == 'null') { ?>checked<?php } ?> /> NULL</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="number" <?php if($type['local'] == 'number') { ?>checked<?php } ?> /> Number</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="text" <?php if($type['local'] == 'text') { ?>checked<?php } ?> /> Text</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="checkbox" <?php if($type['local'] == 'checkbox') { ?>checked<?php } ?> /> Boolean</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="array" <?php if($type['local'] == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
-								<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="assoc" <?php if($type['local'] == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
-							</div>
-							<pre style="margin-top: 5px"><?=var_export($eachValue['local'])?></pre>
+							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/local/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
+							<pre><?=$eachValue['local'] !== null ? var_export($eachValue['local'], true) : 'null'?></pre>
+							
+							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post">
+								<textarea name="value"><?=json_encode($eachValue['local'])?></textarea>
+								<button type="submit">Update</button> Format: JSON
+							</form>
 						<?php } ?>
 					</td>
 				</tr>
 			<?php } ?>
 			<tr style="background: rgba(160, 80, 240, .1)">
-				<form action="#" method="post" id="form">
+				<form action="#" method="post">
 					<td>
 						(+)
 						<input type="text" name="config" /> <br />
