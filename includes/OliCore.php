@@ -2544,7 +2544,7 @@ class OliCore {
 		 * - # => Other parameters (e.g. 2 => 'param')
 		 * - 'last' => Get the last parameters fragment
 		 * - 'get' => Get $_GET
-		 * - 'getvars' => Get GET vars fetched manually
+		 * - 'getvars' => Get raw GET vars
 		 * 
 		 * @version BETA
 		 * @updated BETA-2.0.0
@@ -2630,13 +2630,12 @@ class OliCore {
 								while(isset($fractionedUrl[$countLoop])) {
 									if(!empty($fractionedUrl[$countLoop]) OR isset($fractionedUrl[$countLoop + 1])) {
 										$nextFractionedUrl = urldecode($fractionedUrl[$countLoop]);
-										if(isset($fractionedUrl[$countLoop + 1]) AND empty($fractionedUrl[$countLoop + 1]) AND isset($fractionedUrl[$countLoop + 2])) {
+										while(isset($fractionedUrl[$countLoop + 1]) AND empty($fractionedUrl[$countLoop + 1]) AND isset($fractionedUrl[$countLoop + 2])) {
 											$nextFractionedUrl .= '/' . urldecode($fractionedUrl[$countLoop + 2]);
 											$countLoop += 2;
 										}
 										
-										preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFractionedUrl, $matches);
-										if(empty($newFractionedUrl[] = !empty($matches) ? $matches[1] : $nextFractionedUrl)) array_pop($newFractionedUrl);
+										if(empty($newFractionedUrl[] = (preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFractionedUrl, $matches) AND !empty($matches)) ? $matches[1] : !$nextFractionedUrl)) array_pop($newFractionedUrl);
 									}
 									$countLoop++;
 								}
