@@ -94,8 +94,16 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 			<tr>
 				<th>Config</th>
 				<th>Default</th>
-				<th>Global</th>
-				<th>Local</th>
+				<th>
+					<?php if($globalConfig === null) { ?>
+						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/'?> " class="btn">Create Global config</a>
+					<?php } else { ?>Global<?php } ?>
+				</th>
+				<th>
+					<?php if($localConfig === null) { ?>
+						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/'?> " class="btn">Create Local config</a>
+					<?php } else { ?>Local<?php } ?>
+				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -114,27 +122,12 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 				
 				<tr>
 					<td><?=$eachConfig?></td>
-					<td class="disabled">
-						<?php /*<div class="single" style="display: <?php if(in_array($type['default'], ['number', 'text', 'checkbox'])) { ?>inline-block<?php } else { ?>none<?php } ?>">
-							<label><input type="<?=$type['default']?>" name="default[<?=$eachConfig?>]" value="<?=!$hidden ? ($_[$eachVar]['default'] ?: $eachValue['default']) : '[hidden]'?>" <?php if($disabled OR $hidden) { ?>disabled<?php } ?> /> <?php if($type['default'] == 'checkbox') { ?>Yes/No<?php } ?></label> —
-						</div>
-						<div class="settings" style="background: #f050a0; display: inline-block">
-							<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="null" <?php if($type['default'] == 'null') { ?>checked<?php } ?> /> NULL</label>
-							<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="number" <?php if($type['default'] == 'number') { ?>checked<?php } ?> /> Number</label>
-							<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="text" <?php if($type['default'] == 'text') { ?>checked<?php } ?> /> Text</label>
-							<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="checkbox" <?php if($type['default'] == 'checkbox') { ?>checked<?php } ?> /> Boolean</label>
-							<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="array" <?php if($type['default'] == 'array') { ?>checked<?php } ?> /> Indexed arrays</label>
-							<label><input type="radio" class="type" name="type[default][<?=$eachConfig?>]" value="assoc" <?php if($type['default'] == 'assoc') { ?>checked<?php } ?> /> Associative arrays</label>
-						</div>
-						<div class="multiple" style="display: <?php if(in_array($type['default'], ['array', 'assoc'])) { ?>block<?php } else { ?>none<?php } ?>">
-							<?=var_export($eachValue['default'])?>
-						</div>*/ ?>
-				
+					<td class="disabled"> <?php /** Default Config – Non editable */ ?>
 						<pre><?=isset($eachValue['default']) ? var_export($eachValue['default']) : null?></pre>
 					</td>
 					<td class="<?php if($globalConfig === null) { ?>disabled<?php } else if(!isset($eachValue['global'])) { ?>empty<?php } ?>">
 						<?php if(!isset($type['global'])) { ?>
-							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/' . urlencode($eachConfig) . '/'?> " class="btn">Create config</a>
+							<?php if($globalConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/' . urlencode($eachConfig) . '/'?> " class="btn">Create config</a><?php } ?>
 							<i>&laquo; Inherit from Default</i>
 						<?php } else if($globalConfig !== null) { ?>
 							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/global/' . urlencode($eachConfig) . '/'?> " class="btn">Delete config</a>
@@ -158,7 +151,7 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 					</td>
 					<td class="<?php if($localConfig === null) { ?>disabled<?php } else if(!isset($eachValue['local'])) { ?>empty<?php } ?>">
 						<?php if(!isset($type['local'])) { ?>
-							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/' . urlencode($eachConfig) . '/'?> " class="btn">Create config</a>
+							<?php if($localConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/' . urlencode($eachConfig) . '/'?> " class="btn">Create config</a><?php } ?>
 							<i>&laquo; Inherit from Global</i>
 						<?php } else if($localConfig !== null) { ?>
 							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/local/' . urlencode($eachConfig) . '/'?> " class="btn">Delete config</a>
