@@ -457,8 +457,9 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 #module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
 #module .form .checkbox input[type=checkbox], #module .form .radio input[type=radio] { display: initial; width: 15px; height: 15px; margin: 0 2px; vertical-align: middle }
 #module .form button, #module .form .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
+#module .form button.disabled, #module .form .btn.disabled { background: #c0c0c0; cursor: not-allowed }
 #module .form button { width: 100% }
-#module .form button:hover, #module .form button:focus, #module .form .btn:hover, #module .form .btn:focus { background: #306090 }
+#module .form button:not(.disabled):hover, #module .form button:not(.disabled):focus, #module .form .btn:not(.disabled):hover, #module .form .btn:not(.disabled):focus { background: #306090 }
 @media (max-width: 420px) {
 	#module .form { padding: 30px }
 	#module .form h2 { margin: 0 0 15px; font-size: 16px }
@@ -467,8 +468,8 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 	#module .form .checkbox, #module .form .radio { margin: 0 0 15px }
 	#module .form button, #module .form .btn { font-size: 12px } }
 #module .form .profile { display: flex; align-items: center }
-#module .form .profile .avatar { width: 80px; height: 80px; border-radius: 50% }
-#module .form .profile .infos { margin: 0 0 0 10px }
+#module .form .profile .avatar { width: 80px; height: 80px; border: 2px solid #808080; border-radius: 50% }
+#module .form .profile .infos { margin: 0 0 0 20px }
 #module .form .profile .infos > * + * { margin-top: 5px }
 #module .form .profile .infos p { font-size: 20px; font-weight: bold }
 #module .form *:first-child { margin-top: 0 !important }
@@ -640,8 +641,9 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				
 				<h2>Account Settings</h2>
 				
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn">Edit Password</a>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn mt-1">Set Username</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn mt-1">Edit Password</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" class="btn disabled mt-1">Update Avatar</a>
 				
 				<p>Manage your basic account settings.</p>
 			</div>
