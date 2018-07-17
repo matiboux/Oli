@@ -25,7 +25,7 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 	
 	<h2>User Management</h2>
 	<ul>
-		<li><a href="<?=$_Oli->getLoginUrl() . '/account-settings'?>">Update my account infos (Login page)</a></li>
+		<li><a href="<?=$_Oli->getLoginUrl() . 'account-settings'?>">Update my account infos (Login page)</a></li>
 	</ul>
 	
 	<h2>Website Management</h2>
