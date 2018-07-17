@@ -5,15 +5,34 @@ $result = [];
 if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 else if($_Oli->getUserRightLevel() < $_Oli->translateUserRight('ROOT')) header('Location: ' . $_Oli->getAdminUrl());
 
-/** Create Config */
-// .../create-config/ $level / $config
-else if($_Oli->getUrlParam(2) == 'create-config') {
-	
+/** Create Config File */
+// .../create-file/ $level
+if($_Oli->getUrlParam(2) == 'create-file') {
+	if(empty($_Oli->getUrlParam(3))) $result = array('error' => 'Error: Url param 3 $level missing.');
+	else if($_Oli->getUrlParam(3) == 'global') {
+		if(file_exists(OLIPATH . 'config.global.json')) $result = array('error' => 'Error: file exists already.');
+		else if($_Oli->saveConfig([], 'global')) $result = array('success' => true);
+		else $result = array('error' => 'Error: An error occurred.');
+	} else if($_Oli->getUrlParam(3) == 'local') {
+		if(file_exists(ABSPATH . 'config.json')) $result = array('error' => 'Error: file exists already.');
+		else if($_Oli->saveConfig([], 'local')) $result = array('success' => true);
+		else $result = array('error' => 'Error: An error occurred.');
+	} else $result = array('error' => 'Error: $level invalid.');
 
 /** Delete Config */
 // .../delete-config/ $level / $config
 } else if($_Oli->getUrlParam(2) == 'delete-config') {
-	
+	if(empty($_Oli->getUrlParam(3))) $result = array('error' => 'Error: Url param 3 $level missing.');
+	else if(empty($_Oli->getUrlParam(4))) $result = array('error' => 'Error: Url param 4 $config missing.');
+	else if($_Oli->getUrlParam(3) == 'global') {
+		$globalConfig = $_Oli->getGlobalConfig();
+		if($_Oli->saveConfig(array_diff_key($globalConfig, array($_Oli->getUrlParam(4) => '#killme')), 'global', true)) $result = array('success' => true);
+		else $result = array('error' => 'Error: An error occurred.');
+	} else if($_Oli->getUrlParam(3) == 'local') {
+		$localConfig = $_Oli->getLocalConfig();
+		if($_Oli->saveConfig(array_diff_key($localConfig, array($_Oli->getUrlParam(4) => '#killme')), 'local', true)) $result = array('success' => true);
+		else $result = array('error' => 'Error: An error occurred.');
+	} else $result = array('error' => 'Error: $level invalid.');
 
 /** With Form Data */
 } else if(!empty($_)) {
@@ -21,13 +40,29 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 	// .../add-config/
 	// POST ['config', 'global', 'local']
 	if($_Oli->getUrlParam(2) == 'add-config') {
-		// if(empty($_['database'])) $result = array('error' => 'Error: The database is missing.');
-		// else {
-			// $status = $_Oli->updateConfig(array('mysql' => array('database' => $_['database'], 'username' => isset($_['username']) ? $_['username'] : null, 'password' => isset($_['password']) ? $_['password'] : null, 'hostname' => isset($_['hostname']) ? $_['hostname'] : null, 'charset' => isset($_['charset']) ? $_['charset'] : null)), true, false);
+		if(empty($_['config'])) $result = array('error' => 'Error: config missing.');
+		else {
+			$status = [];
+			if(!empty($_['global'])) $status[] = $_Oli->saveConfig(array($_['config'] => json_decode($_['global'])), 'global');
+			if(!empty($_['local'])) $status[] = $_Oli->saveConfig(array($_['config'] => json_decode($_['local'])), 'local');
 			
-			// if($status) $result = array('error' => false, 'database' => $_['database']);
-			// else $result = array('error' => 'Error: An error occurred.');
-		// }
+			if(!in_array(false, $status, true)) $result = array('success' => true);
+			else $result = array('error' => 'Error: An error occurred.');
+		}
+	
+	/** Update Config */
+	// .../update-config/ $level / $config
+	// POST ['value']
+	} else if($_Oli->getUrlParam(2) == 'update-config') {
+		if(empty($_Oli->getUrlParam(3))) $result = array('error' => 'Error: Url param 3 $level missing.');
+		else if(empty($_Oli->getUrlParam(4))) $result = array('error' => 'Error: Url param 4 $config missing.');
+		else if($_Oli->getUrlParam(3) == 'global') {
+			if($_Oli->saveConfig(array($_Oli->getUrlParam(4) => json_decode($_['value'])), 'global')) $result = array('success' => true);
+			else $result = array('error' => 'Error: An error occurred.');
+		} else if($_Oli->getUrlParam(3) == 'local') {
+			if($_Oli->saveConfig(array($_Oli->getUrlParam(4) => json_decode($_['value'])), 'local')) $result = array('success' => true);
+			else $result = array('error' => 'Error: An error occurred.');
+		} else $result = array('error' => 'Error: $level invalid.');
 	}
 }
 ?>
@@ -61,6 +96,7 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 	$defaultConfig = $_Oli->getDefaultConfig();
 	$globalConfig = $_Oli->getGlobalConfig();
 	$localConfig = $_Oli->getLocalConfig();
+	
 	if(is_array($defaultConfig)) {
 		foreach ($defaultConfig as $key => $value) {
 			$config[$key]['default'] = $value;
@@ -92,12 +128,12 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 				<th>Default</th>
 				<th>
 					<?php if($globalConfig === null) { ?>
-						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/'?> " class="btn">Create Global config</a>
+						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-file/global/'?> " class="btn">Create Global config</a>
 					<?php } else { ?>Global<?php } ?>
 				</th>
 				<th>
 					<?php if($localConfig === null) { ?>
-						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/'?> " class="btn">Create Local config</a>
+						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-file/local/'?> " class="btn">Create Local config</a>
 					<?php } else { ?>Local<?php } ?>
 				</th>
 			</tr>
@@ -121,44 +157,54 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 					
 					<?php /** Default Config – Non editable */ ?>
 					<td class="<?php if(!isset($type['default'])) { ?>empty<?php } else { ?>disabled<?php } ?>">
-						<pre><?=$eachValue['default'] !== null ? var_export($eachValue['default'], true) : 'null'?></pre>
+						<?php if(isset($type['default'])) { ?>
+							<pre><?=$eachValue['default'] !== null ? var_export($eachValue['default'], true) : 'null'?></pre>
+						<?php } ?>
 					</td>
 					
 					<?php /** Global Config */ ?>
 					<td class="<?php if($globalConfig === null) { ?>disabled<?php } else if(!isset($eachValue['global'])) { ?>empty<?php } ?>">
 						<?php if(!isset($type['global'])) { ?>
-							<?php if($globalConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/global/' . urlencode($eachConfig) . '/'?>" class="btn">Create config</a><?php } ?>
 							<i>&laquo; Inherit from Default</i>
+							<?php if($globalConfig !== null) { ?>
+								<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post" class="create">
+									<textarea name="value">null</textarea>
+									<button type="submit">Create Config!</button> Format: JSON
+								</form>
+							<?php } ?>
 						<?php } else if($globalConfig !== null) { ?>
-							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/global/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
-							<pre><?$eachValue['global'] !== null ? var_export($eachValue['global'], true) : 'null'?></pre>
-							
-							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post">
+							<pre><?=$eachValue['global'] !== null ? var_export($eachValue['global'], true) : 'null'?></pre>
+							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post" class="update">
 								<textarea name="value"><?=json_encode($eachValue['global'])?></textarea>
-								<button type="submit">Update</button> Format: JSON
+								<button type="submit">Update Config</button> Format: JSON
 							</form>
+							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/global/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
 						<?php } ?>
 					</td>
 					
 					<?php /** Local Config */ ?>
 					<td class="<?php if($localConfig === null) { ?>disabled<?php } else if(!isset($eachValue['local'])) { ?>empty<?php } ?>">
 						<?php if(!isset($type['local'])) { ?>
-							<?php if($localConfig !== null) { ?><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/create-config/local/' . urlencode($eachConfig) . '/'?>" class="btn">Create config</a><?php } ?>
 							<i>&laquo; Inherit from Global</i>
+							<?php if($localConfig !== null) { ?>
+								<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post" class="create">
+									<textarea name="value">null</textarea>
+									<button type="submit">Create Config!</button> Format: JSON
+								</form>
+							<?php } ?>
 						<?php } else if($localConfig !== null) { ?>
-							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/local/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
 							<pre><?=$eachValue['local'] !== null ? var_export($eachValue['local'], true) : 'null'?></pre>
-							
-							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post">
+							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post" class="update">
 								<textarea name="value"><?=json_encode($eachValue['local'])?></textarea>
-								<button type="submit">Update</button> Format: JSON
+								<button type="submit">Update Config</button> Format: JSON
 							</form>
+							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/local/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
 						<?php } ?>
 					</td>
 				</tr>
 			<?php } ?>
-			<tr style="background: rgba(160, 80, 240, .1)">
-				<form action="#" method="post">
+			<tr class="add">
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/add-config/'?>" method="post">
 					<td>
 						(+)
 						<input type="text" name="config" /> <br />
@@ -167,10 +213,12 @@ else if($_Oli->getUrlParam(2) == 'create-config') {
 					</td>
 					<td>Default config cannot be modified.</td>
 					<td>
-						<input type="text" name="global" placeholder="Leave blank for Inherit" />
+						<textarea name="global" placeholder="Leave blank for Inherit"></textarea>
+						Format: JSON
 					</td>
 					<td>
-						<input type="text" name="local" placeholder="Leave blank for Inherit" />
+						<textarea name="local" placeholder="Leave blank for Inherit"></textarea>
+						Format: JSON
 					</td>
 				</form>
 			</tr>

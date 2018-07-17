@@ -98,14 +98,19 @@ pre { background: #f0f0f0; padding: 5px; border: 1px solid #e0e0e0; border-radiu
 @media (min-width: 768px) { #main { padding: 25px } }
 
 #main table tr { border: 1px solid #c0c0c0 }
+#main table tr.add { background: rgba(80, 160, 240, .2) }
 #main table tr > * { padding: 5px }
 #main table tr > td + td { border-left: 1px solid #c0c0c0 }
 #main table tr > td.empty { background: rgba(80, 80, 80, .1) }
 #main table tr > td.disabled { background: rgba(80, 80, 80, .2) }
 #main table tr > td > * { margin-top: 0; margin-bottom: 0 }
-#main table tr > td > * + *, #main table tr > td form > * + * { margin-top: 5px !important }
-#main table tr > td form { background: rgba(160, 160, 240, .4); margin: -5px; padding: 10px 5px }
-#main table tr > td form textarea { font-family: 'Roboto Mono', sans-serif; width: 100%; font-size: 14px }
+#main table tr > td > * + *, #main table tr > td form > * + * { margin-top: 5px }
+#main table tr > td form { background: rgba(160, 160, 160, .4); margin: 5px -5px; padding: 10px 5px }
+#main table tr > td form.create { background: rgba(160, 240, 160, .4) }
+#main table tr > td form.update { background: rgba(160, 160, 240, .4) }
+#main table tr > td form:first-child-child { margin-top: -5px }
+#main table tr > td form:last-child { margin-bottom: -5px }
+#main table tr > td textarea { font-family: 'Roboto Mono', sans-serif; width: 100%; font-size: 14px }
 
 /** *** *** */
 
