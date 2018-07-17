@@ -423,7 +423,7 @@ class OliCore {
 			if(is_bool($index)) $reload = $index;
 			if(($reload OR !isset($this->defaultConfig)) AND file_exists(INCLUDESPATH . 'config.default.json')) $this->defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
 			
-			if(!empty($this->defaultConfig)) {
+			if($this->defaultConfig !== null) {
 				if(!empty($index)) return $this->defaultConfig[$index] ?: null;
 				else return $this->defaultConfig ?: [];
 			} else return null;
@@ -440,7 +440,7 @@ class OliCore {
 			if(is_bool($index)) $reload = $index;
 			if(($reload OR !isset($this->globalConfig)) AND file_exists(OLIPATH . 'config.global.json')) $this->globalConfig = json_decode(file_get_contents(OLIPATH . 'config.global.json'), true);
 			
-			if(!empty($this->globalConfig)) {
+			if($this->globalConfig !== null) {
 				if(!empty($index)) return $this->globalConfig[$index] ?: null;
 				else return $this->globalConfig ?: [];
 			} else return null;
@@ -457,7 +457,7 @@ class OliCore {
 			if(is_bool($index)) $reload = $index;
 			if(($reload OR !isset($this->localConfig)) AND file_exists(ABSPATH . 'config.json')) $this->localConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
 			
-			if(!empty($this->localConfig)) {
+			if($this->localConfig !== null) {
 				if(!empty($index)) return $this->localConfig[$index] ?: null;
 				else return $this->localConfig ?: [];
 			} else return null;
@@ -475,7 +475,7 @@ class OliCore {
 			
 			if(($reload OR !isset($this->appConfig)) AND file_exists(ABSPATH . 'app.json')) $this->appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true);
 			
-			if(!empty($this->appConfig)) {
+			if($this->appConfig !== null) {
 				if(!empty($index)) return $this->appConfig[$index] ?: null;
 				else return $this->appConfig ?: [];
 			} else return null;
@@ -539,11 +539,6 @@ class OliCore {
 					if($result[] = fwrite($handle, json_encode($config))) $this->appConfig = $config;
 					fclose($handle);
 				}
-				
-				// if(!$replace AND is_array($appConfig = $this->getAppConfig())) $config = array_merge($appConfig, $config);
-				// $handle = fopen(ABSPATH . 'app.json', 'w');
-				// if($result[] = fwrite($handle, json_encode($config))) $this->appConfig = $config;
-				// fclose($handle);
 			} else {
 				if(!$replace AND is_array($localConfig = $this->getLocalConfig())) $config = array_merge($localConfig, $config);
 				$handle = fopen(ABSPATH . 'config.json', 'w');
