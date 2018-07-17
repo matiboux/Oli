@@ -466,8 +466,14 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 	#module .form input { margin: 0 0 15px; font-size: 12px }
 	#module .form .checkbox, #module .form .radio { margin: 0 0 15px }
 	#module .form button, #module .form .btn { font-size: 12px } }
+#module .form .profile { display: flex; align-items: center }
+#module .form .profile .avatar { width: 80px; height: 80px; border-radius: 50% }
+#module .form .profile .infos { margin: 0 0 0 10px }
+#module .form .profile .infos > * + * { margin-top: 5px }
+#module .form .profile .infos p { font-size: 20px; font-weight: bold }
 #module .form *:first-child { margin-top: 0 !important }
 #module .form *:last-child { margin-bottom: 0 !important }
+
 #module .cta { background: #f8f8f8; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
 #module .cta:nth-child(even) { background: #f0f0f0 } 
 #module .cta > * { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
@@ -624,6 +630,14 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		
 		<?php if($scriptState != 'recover') { ?>
 			<div class="form" data-icon="fa-cog" data-text="Account Settings" style="display: <?php if($scriptState == 'account-settings') { ?>block<?php } else { ?>none<?php } ?>">
+				<div class="profile">
+					<img class="avatar" src="<?=$_Oli->getMediaUrl()?>default-avatar.png" />
+					<div class="infos">
+						<span>Welcome,</span>
+						<p><?=$_Oli->getLoggedName()?>!</p>
+					</div>
+				</div>
+				
 				<h2>Account Settings</h2>
 				
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn">Edit Password</a>
