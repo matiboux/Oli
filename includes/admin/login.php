@@ -412,7 +412,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 	#header p { font-size: 12px; }
 	#header p:not(.description) { font-size: 10px; } }
 
-/** Message / Module */
+/** Message & Module */
 .message, #module { position: relative; background: #fff; width: 100%; max-width: 320px; min-height: 20px; margin: 30px auto; border-top: 5px solid #808080; box-shadow: 0 0 10px rgba(0, 0, 0, .2) }
 
 /** Message */
@@ -439,6 +439,10 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 #module .toggle { position: absolute; background: #4080c0; top: 0; right: 0; width: 30px; height: 30px; line-height: 32px; margin: -5px 0 0; color: #fff; font-size: 14px; text-align: center; cursor: pointer }
 #module .toggle .tooltip { position: absolute; display: block; background: #808080; top: 8px; right: 40px; width: auto; min-height: 10px; padding: 5px; font-size: 10px; line-height: 1; text-transform: uppercase; white-space: nowrap }
 #module .toggle .tooltip:before { content: ''; position: absolute; display: block; top: 5px; right: -5px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid #808080 }
+@media (max-width: 420px) {
+	#module .toggle { width: 25px; height: 25px; line-height: 26px; font-size: 12px }
+	#module .toggle .tooltip { top: 7px; right: 32px; padding: 3px 4px; font-size: 9px }
+	#module .toggle .tooltip:before { top: 4px; right: -4px; border-width: 4px } }
 
 #module .form { display: block; padding: 40px }
 #module .form ~ .form { display: none }
@@ -452,27 +456,26 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 #module .form .checkbox, #module .form .radio { display: block; padding: 0 10px; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
 #module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
 #module .form .checkbox input[type=checkbox], #module .form .radio input[type=radio] { display: initial; width: 15px; height: 15px; margin: 0 2px; vertical-align: middle }
-#module button, #module .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
-#module button { width: 100% }
-#module button:hover, #module button:focus, #module .btn:hover, #module .btn:focus { background: #306090 }
 #module .cta { background: #f8f8f8; width: 100%; color: #c0c0c0; font-size: 12px; text-align: center }
 #module .cta:nth-child(even) { background: #f0f0f0 } 
 #module .cta > * { display: block; padding: 15px 40px; color: #808080; font-size: 12px; text-align: center }
 #module .cta a { text-decoration: none }
 #module .cta a:hover, #module .cta a:focus { color: #404040 }
 @media (max-width: 420px) {
-	#module .toggle { width: 25px; height: 25px; line-height: 26px; font-size: 12px }
-	#module .toggle .tooltip { top: 7px; right: 32px; padding: 3px 4px; font-size: 9px }
-	#module .toggle .tooltip:before { top: 4px; right: -4px; border-width: 4px }
 	#module .form { padding: 30px }
-	#module h2 { margin: 0 0 15px; font-size: 16px }
-	#module p { margin: 0 0 15px }
-	#module input { margin: 0 0 15px; font-size: 12px }
-	#module .checkbox, #module .radio { margin: 0 0 15px }
-	#module button, #module .btn { font-size: 12px } }
+	#module .form h2 { margin: 0 0 15px; font-size: 16px }
+	#module .form p { margin: 0 0 15px }
+	#module .form input { margin: 0 0 15px; font-size: 12px }
+	#module .form .checkbox, #module .form .radio { margin: 0 0 15px }
 #module .form *:first-child { margin-top: 0 !important }
 #module .form *:last-child { margin-bottom: 0 !important }
 
+#module button, #module .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
+#module button { width: 100% }
+#module button:hover, #module button:focus, #module .btn:hover, #module .btn:focus { background: #306090 }
+@media (max-width: 420px) { #module button, #module .btn { font-size: 12px } }
+
+/** Footer */
 #footer { margin: 30px 10px; text-align: center; letter-spacing: 1px }
 #footer p { font-size: 12px }
 #footer p .fa { color: #4080c0 }
