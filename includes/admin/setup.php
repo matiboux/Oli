@@ -1,5 +1,4 @@
 <?php
-$_ = array_merge($_GET, $_POST);
 $result = [];
 
 if(!$_Oli->config['setup_wizard']) die('Sorry. The initial config seem to have been done already.');

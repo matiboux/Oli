@@ -1,5 +1,4 @@
 <?php
-$params = array_merge($_GET, $_POST);
 $result = [];
 
 if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());

@@ -26,8 +26,6 @@
 
 /** *** *** */
 
-$_ = array_merge($_GET, $_POST);
-
 $config = array(
 	'maxUserIdAttempts' => 3,
 	'maxUserIPAttempts' => 5,
