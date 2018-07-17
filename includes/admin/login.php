@@ -42,7 +42,6 @@ $showAntiBruteForce = false; // Display the Anti Brute Force stats.
 /** Script State Variable */
 $scriptState = null; // Default value
 
-
 /** LIST OF VALUES [$scriptState] - But sometimes uppercased. */
 /** And [Is Script State Allowed?] */
 // - 'LOGIN' Log into your account.
@@ -180,8 +179,21 @@ else if($isLoggedIn) {
 		}
 	
 	/** Account Avatar Update */
-	} else if($_Oli->getUrlParam(2) == 'update-avatar' AND $isSetUsernameAllowed) {
+	} else if($_Oli->getUrlParam(2) == 'update-avatar') {
 		$scriptState = 'update-avatar';
+		// if(!empty($_)) {
+			// if($_Oli->isProhibitedUsername($_['username']) === false) $resultCode = 'E:You\'re not allowed to use this username.';
+			// else if(!empty($_['username']) AND $_Oli->isExistAccountInfos('ACCOUNTS', array('username' => $_['username']))) $resultCode = 'E:This username is already used.';
+			// else if($_Oli->updateAccountInfos('ACCOUNTS', array('username' => $_['username']), $_Oli->getLoggedUser())) {
+				// $scriptState = 'logged';
+				// $ignoreFormData = true;
+				// $resultCode = 'S:Your username has been successfully set.';
+			// } else $resultCode = 'E:An error occurred when updating your username.';
+		// }
+	
+	/** Configure Account 2FA */
+	} else if($_Oli->getUrlParam(2) == 'config-2fa') {
+		$scriptState = 'config-2fa';
 		// if(!empty($_)) {
 			// if($_Oli->isProhibitedUsername($_['username']) === false) $resultCode = 'E:You\'re not allowed to use this username.';
 			// else if(!empty($_['username']) AND $_Oli->isExistAccountInfos('ACCOUNTS', array('username' => $_['username']))) $resultCode = 'E:This username is already used.';
@@ -555,7 +567,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<div class="tooltip"></div>
 	</div>
 	
-	<?php if(in_array($scriptState, ['logged', 'recover', 'set-username', 'edit-password', 'recover-password', 'update-avatar', 'account-settings'])) { ?>
+	<?php if(in_array($scriptState, ['logged', 'recover', 'set-username', 'edit-password', 'recover-password', 'update-avatar', 'config-2fa', 'account-settings'])) { ?>
 		<?php $showLoggedLinksCTA = true; ?>
 		<?php if($scriptState == 'recover') { ?>
 			<div class="form" data-icon="fa-sync-alt" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
@@ -622,14 +634,14 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				</form>
 			</div>
 		
-		<?php } else if($scriptState == 'update-avatar') { ?>
+		<?php } else if($scriptState == 'update-avatar') { // https://www.gravatar.com/avatar/?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'update-avatar') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Update your avatar</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post">
 					<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
 					<div class="radio mt-1"><label><input type="radio" name="origin" value="default" <?php if(true) { ?>checked<?php } ?> /> Use the default avatar</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="origin" value="gravatar" <?php if(true) { ?>checked<?php } ?> /> Use your Gravatar</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="origin" value="custom" <?php if(true) { ?>checked<?php } ?> /> Use a custom avatar</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="origin" value="gravatar" <?php if(false) { ?>checked<?php } ?> /> Use your Gravatar</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="origin" value="custom" <?php if(false) { ?>checked<?php } ?> /> Use a custom avatar</label></div>
 					
 					<p>Here's how your avatar will look like:</p>
 					<img class="avatar mt-1 default" src="<?=$_Oli->getMediaUrl()?>default-avatar.png" />
@@ -641,6 +653,20 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					</div>
 					
 					<button type="submit">Update Avatar</button>
+				</form>
+			</div>
+		
+		<?php } else if($scriptState == 'config-2fa') { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'config-2fa') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Configure 2FA</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" method="post">
+					<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="none" <?php if(true) { ?>checked<?php } ?> /> Disable 2FA</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via email</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via Telegram!</label></div>
+					<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
+					
+					<button type="submit">Configure 2FA</button>
 				</form>
 			</div>
 		
@@ -680,6 +706,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn mt-1">Edit Password</a>
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" class="btn disabled mt-1">Update Avatar</a>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" class="btn disabled mt-1">Configure 2FA</a>
 				
 				<p>Manage your basic account settings.</p>
 			</div>
