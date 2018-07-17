@@ -16,7 +16,7 @@ foreach(array_merge(glob(INCLUDESPATH . '*.php')) as $filename) {
 }
 
 /** Load Addons files */
-foreach(array_merge(glob(ADDONSPATH . '*.php'), glob(ADDONSPATH . '*/*.php')) as $filename) {
-	include_once $filename;
-}
+// foreach(array_merge(glob(ADDONSPATH . '*.php'), glob(ADDONSPATH . '*/*.php')) as $filename) {
+	// include_once $filename;
+// }
 ?>
