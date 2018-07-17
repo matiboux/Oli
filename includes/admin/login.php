@@ -468,8 +468,8 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 	#module .form .checkbox, #module .form .radio { margin: 0 0 15px }
 	#module .form button, #module .form .btn { font-size: 12px } }
 #module .form .profile { display: flex; align-items: center }
-#module .form .profile .avatar { width: 80px; height: 80px; border: 2px solid #808080; border-radius: 50% }
-#module .form .profile .infos { margin: 0 0 0 20px }
+#module .form .profile .avatar { width: 80px; height: 80px; border: 2px solid #808080; border-radius: 15px }
+#module .form .profile .infos { margin: 0 0 0 15px }
 #module .form .profile .infos > * + * { margin-top: 5px }
 #module .form .profile .infos p { font-size: 20px; font-weight: bold }
 #module .form *:first-child { margin-top: 0 !important }
@@ -635,7 +635,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					<img class="avatar" src="<?=$_Oli->getMediaUrl()?>default-avatar.png" />
 					<div class="infos">
 						<span>Welcome,</span>
-						<p><?=$_Oli->getLoggedName()?>!</p>
+						<p><?=$_Oli->getLoggedName()?></p>
 					</div>
 				</div>
 				
