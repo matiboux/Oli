@@ -179,6 +179,19 @@ else if($isLoggedIn) {
 			} else $resultCode = 'E:An error occurred when updating your username.';
 		}
 	
+	/** Account Avatar Update */
+	} else if($_Oli->getUrlParam(2) == 'update-avatar' AND $isSetUsernameAllowed) {
+		$scriptState = 'update-avatar';
+		// if(!empty($_)) {
+			// if($_Oli->isProhibitedUsername($_['username']) === false) $resultCode = 'E:You\'re not allowed to use this username.';
+			// else if(!empty($_['username']) AND $_Oli->isExistAccountInfos('ACCOUNTS', array('username' => $_['username']))) $resultCode = 'E:This username is already used.';
+			// else if($_Oli->updateAccountInfos('ACCOUNTS', array('username' => $_['username']), $_Oli->getLoggedUser())) {
+				// $scriptState = 'logged';
+				// $ignoreFormData = true;
+				// $resultCode = 'S:Your username has been successfully set.';
+			// } else $resultCode = 'E:An error occurred when updating your username.';
+		// }
+	
 	} else {
 		/** Redirect the user */
 		// if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_SERVER['HTTP_REFERER']);
@@ -446,8 +459,8 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 
 #module .form { display: block; padding: 40px }
 #module .form ~ .form { display: none }
+#module .form * { margin: 20px 0 0 }
 #module .form h2 { margin: 20px 0; color: #4080c0; font-size: 18px; font-weight: 400; line-height: 1 }
-#module .form p, #module .form ul, #module .form hr, #module .form button, #module .form .btn, #module .form input, #module .form .checkbox, #module .form .radio { margin: 20px 0 0 }
 #module .form p.help-block { padding: 5px 10px; color: #808080; border-left: 3px solid #c9c9c9 }
 #module .form ul { padding-left: 20px }
 #module .form hr { margin-left: 10px; margin-right: 10px; border: 0; border-top: 1px solid #c0c0c0 }
@@ -467,8 +480,9 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 	#module .form input { margin: 0 0 15px; font-size: 12px }
 	#module .form .checkbox, #module .form .radio { margin: 0 0 15px }
 	#module .form button, #module .form .btn { font-size: 12px } }
+#module .form .avatar { display: block; width: 80px; height: 80px; margin-left: auto; margin-right: auto; border: 2px solid #808080; border-radius: 15px }
 #module .form .profile { display: flex; align-items: center }
-#module .form .profile .avatar { width: 80px; height: 80px; border: 2px solid #808080; border-radius: 15px }
+#module .form .profile .avatar { margin-left: 0; margin-right: 0 }
 #module .form .profile .infos { margin: 0 0 0 15px }
 #module .form .profile .infos > * + * { margin-top: 5px }
 #module .form .profile .infos p { font-size: 20px }
@@ -541,7 +555,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<div class="tooltip"></div>
 	</div>
 	
-	<?php if(in_array($scriptState, ['logged', 'recover', 'edit-password', 'recover-password', 'set-username', 'account-settings'])) { ?>
+	<?php if(in_array($scriptState, ['logged', 'recover', 'set-username', 'edit-password', 'recover-password', 'update-avatar', 'account-settings'])) { ?>
 		<?php $showLoggedLinksCTA = true; ?>
 		<?php if($scriptState == 'recover') { ?>
 			<div class="form" data-icon="fa-sync-alt" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
@@ -560,7 +574,29 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			</div>
 		<?php } ?>
 		
-		<?php if(in_array($scriptState, ['recover', 'edit-password', 'recover-password'])) { ?>
+		<?php if($scriptState == 'set-username') { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'set-username') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Set your username</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
+					<?php if(empty($username = $_Oli->getLoggedUsername() ?: '')) { ?>
+						<p>Make your account publicly visible by setting a username.
+						Of course, you can remove or change your username at any time.</p>
+					<?php } else { ?>
+						<p>Be careful, changing or removing your username will allow others to use it, and will make links using it outdated.</p>
+					<?php } ?>
+					
+					<input type="text" name="username" value="<?=$username?>" placeholder="Username" />
+					<?php if(empty($username)) { ?>
+						<button type="submit">Set Username</button>
+					<?php } else { ?>
+						<button type="submit">Update Username</button>
+					<?php } ?>
+					
+					<p>Your username represents your public identity on the platform.</p>
+				</form>
+			</div>
+		
+		<?php } else if(in_array($scriptState, ['recover', 'edit-password', 'recover-password'])) { ?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your password</h2>
 				
@@ -586,25 +622,25 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				</form>
 			</div>
 		
-		<?php } else if($scriptState == 'set-username') { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style=": <?php if($scriptState == 'set-username') { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Set your username</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
-					<?php if(empty($username = $_Oli->getLoggedUsername() ?: '')) { ?>
-						<p>Make your account publicly visible by setting a username.
-						Of course, you can remove or change your username at any time.</p>
-					<?php } else { ?>
-						<p>Be careful, changing or removing your username will allow others to use it, and will make links using it outdated.</p>
-					<?php } ?>
+		<?php } else if($scriptState == 'update-avatar') { ?>
+			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'update-avatar') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Update your avatar</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post">
+					<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
+					<div class="radio mt-1"><label><input type="radio" name="origin" value="default" <?php if(true) { ?>checked<?php } ?> /> Use the default avatar</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="origin" value="gravatar" <?php if(true) { ?>checked<?php } ?> /> Use your Gravatar</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="origin" value="custom" <?php if(true) { ?>checked<?php } ?> /> Use a custom avatar</label></div>
 					
-					<input type="text" name="username" value="<?=$username?>" placeholder="Username" />
-					<?php if(empty($username)) { ?>
-						<button type="submit">Set Username</button>
-					<?php } else { ?>
-						<button type="submit">Update Username</button>
-					<?php } ?>
+					<p>Here's how your avatar will look like:</p>
+					<img class="avatar mt-1 default" src="<?=$_Oli->getMediaUrl()?>default-avatar.png" />
 					
-					<p>Your username represents your public identity on the platform.</p>
+					<div class="custom">
+						<p>You can upload a new custom avatar if you feel like changing it! <br />
+						<b>Max Size</b>: 2 MB, 400x400 pixels.</p>
+						<input type="file" name="custom" class="mt-1" />
+					</div>
+					
+					<button type="submit">Update Avatar</button>
 				</form>
 			</div>
 		
@@ -815,6 +851,10 @@ $(document).on('click', '.toggle', function() {
 $(document).on('click', '.summary', function() {
 	$(this).parent().find('.content').animate({ height: 'toggle', 'padding-top': 'toggle', 'padding-bottom': 'toggle', opacity: 'toggle' }, 'slow');
 });
+
+<?php if($scriptState == 'update-avatar') { ?>
+
+<?php } ?>
 </script>
 
 </body>
