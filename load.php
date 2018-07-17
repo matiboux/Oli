@@ -1,9 +1,10 @@
 <?php
-/** Define Initial Timestamp */
+/** Define Initial Timestamp & Absolute Path */
 if(!defined('INITTIME')) define('INITTIME', $initTimestamp = microtime(true));
-
-/** Define Global Paths */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
+
+/** Prepare Form Data (POST & GET arguments) */
+$_ = array_merge($_GET, $_POST);
 
 /** Get Oli Source Files Path */
 $oliPath = file_exists(ABSPATH . '.olipath') ? file_get_contents(ABSPATH . '.olipath') : null;
@@ -12,7 +13,8 @@ if(!$oliPath OR !file_exists($oliPath . 'includes/')) {
 	else $oliPath = null;
 }
 
-/** Define Oli Source Files Path (if files not found) */
+/** Oli Source Files Path Config Wizard */
+// → If framework folder could not be found.
 if($oliPath == null) {
 	if(!empty($_POST['olipath'])) {
 		$_POST['olipath'] = substr($_POST['olipath'], -1) != '/' ? $_POST['olipath'] . '/' : $_POST['olipath'];
@@ -53,9 +55,30 @@ if(!defined('ADDONSPATH')) define('ADDONSPATH', OLIPATH . 'addons/');
 if(!defined('INCLUDESPATH')) define('INCLUDESPATH', OLIPATH . 'includes/');
 if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 
+/** Get Website Config */
+// if(!file_exists(INCLUDESPATH . 'config/config.json') OR filemtime(ABSPATH . 'config.json') > filemtime(INCLUDESPATH . 'config/config.json')) {
+	// if(!isset($userConfig)) $userConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+	
+	// if(!file_exists(INCLUDESPATH . 'config.default.json')) die('File config.default.json not found (in ' . INCLUDESPATH . 'config/)');
+	// $config = json_decode(file_get_contents(INCLUDESPATH . 'config/config.default.json'), true);
+	// $config['user-config'] = $userConfig;
+	
+	// if(!file_exists(INCLUDESPATH . 'config/')) mkdir(INCLUDESPATH . 'config/');
+	// $handle = fopen(INCLUDESPATH . 'config/config.json', 'w');
+	// fwrite($handle, json_encode($config, JSON_FORCE_OBJECT));
+	// fclose($handle);
+// } else $config = json_decode(file_get_contents(INCLUDESPATH . 'config/config.json'), true);
+
+/** Define Additional Constants */
+// if(!empty($config['user-config']['constants']) AND is_array($config['user-config']['constants'])) {
+	// foreach($config['user-config']['constants'] as $eachName => $eachValue) {
+		// if(!defined($eachName)) define($eachName, $eachValue);
+	// }
+// }
+
 /** Include OliCore & Addons */
 if(file_exists(INCLUDESPATH . 'loader.php')) require_once INCLUDESPATH . 'loader.php';
-else trigger_error('The framework <b>loader.php</b> file countn\'t be found! (in "' . INCLUDESPATH . 'loader.php")', E_USER_ERROR);
+else die('Error: The framework <b>loader.php</b> file countn\'t be found! (in "' . INCLUDESPATH . 'loader.php")');
 
 /** Load OliCore & Addons */
 $_Oli = new \Oli\OliCore(INITTIME);
