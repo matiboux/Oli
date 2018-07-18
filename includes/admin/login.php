@@ -181,15 +181,26 @@ else if($isLoggedIn) {
 	/** Account Avatar Update */
 	} else if($_Oli->getUrlParam(2) == 'update-avatar') {
 		$scriptState = 'update-avatar';
-		// if(!empty($_)) {
-			// if($_Oli->isProhibitedUsername($_['username']) === false) $resultCode = 'E:You\'re not allowed to use this username.';
-			// else if(!empty($_['username']) AND $_Oli->isExistAccountInfos('ACCOUNTS', array('username' => $_['username']))) $resultCode = 'E:This username is already used.';
-			// else if($_Oli->updateAccountInfos('ACCOUNTS', array('username' => $_['username']), $_Oli->getLoggedUser())) {
-				// $scriptState = 'logged';
-				// $ignoreFormData = true;
-				// $resultCode = 'S:Your username has been successfully set.';
-			// } else $resultCode = 'E:An error occurred when updating your username.';
-		// }
+		if(!empty($_)) {
+			if(empty($_['method'])) $resultCode = 'E:Please select a method.';
+			else {
+				$_['method'] = strtolower(trim($_['method']));
+				if(!in_array($_['method'], ['gravatar', 'custom', 'default'], true)) $resultCode = 'E:You selected an invalid method.';
+				else if($_Oli->updateAccountInfos('ACCOUNTS', array('avatar_method' => $_['method']))) {
+					if($_['method'] == 'custom' AND !empty($_['custom']) AND $_['custom']['error'] !== UPLOAD_ERR_NO_FILE) {
+						if($_['custom']['error'] !== UPLOAD_ERR_OK) $resultCode = 'E:An error occurred when uploading your new custom avatar.';
+						else {
+							$imagesize = getimagesize($_['custom']['tmp_name']);
+							if($imagesize === false) $resultCode = 'E:You uploaded a file that is not an image.';
+							else if($_['custom']['size'] > 1024**2) $resultCode = 'E:You uploaded a file that is big.';
+							else if($imagesize[0] > 400 OR $imagesize[1] > 400) $resultCode = 'E:You uploaded an image that is too large.';
+							else if($_Oli->saveUserAvatar($_['custom']['tmp_name'], array_pop(explode('.', $_['custom']['name'])))) $resultCode = 'S:Your new avatar has been successfully saved.';
+							else $resultCode = 'E:An error occurred when saving your new avatar.';
+						}
+					} else $resultCode = 'S:The avatar method has been successfully updated.';
+				} else $resultCode = 'E:An error occurred when saving the method you chose.';
+			}
+		}
 	
 	/** Configure Account 2FA */
 	} else if($_Oli->getUrlParam(2) == 'config-2fa') {
@@ -637,7 +648,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<?php } else if($scriptState == 'update-avatar') { // https://www.gravatar.com/avatar/?>
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'update-avatar') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Update your avatar</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post">
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post" enctype="multipart/form-data">
 					<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
 					
 					<?php $currentMethod = $_Oli->getLoggedAvatarMethod(); ?>
@@ -650,7 +661,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					
 					<div id="custom-info" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
 						<p>You can upload a new custom avatar if you feel like changing it! <br />
-						<b>Max Size</b>: 2 MB, 400x400 pixels.</p>
+						<b>Max Size</b>: 1 MB, 400x400 pixels.</p>
 						<input type="file" name="custom" class="mt-1" />
 					</div>
 					
