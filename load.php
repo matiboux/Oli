@@ -3,8 +3,8 @@
 if(!defined('INITTIME')) define('INITTIME', $initTimestamp = microtime(true));
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
 
-/** Prepare Form Data (POST & GET arguments) */
-$_ = array_merge($_GET, $_POST);
+/** Prepare Form Data (FILES, POST and GET arguments) */
+$_ = array_merge($_GET, $_POST, $_FILES);
 
 /** Get Oli Source Files Path */
 $oliPath = file_exists(ABSPATH . '.olipath') ? file_get_contents(ABSPATH . '.olipath') : null;
