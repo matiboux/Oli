@@ -82,18 +82,6 @@ else die('Error: The framework <b>loader.php</b> file countn\'t be found! (in "'
 
 /** Load OliCore & Addons */
 $_Oli = new \Oli\OliCore(INITTIME);
-// if(!empty($config['user-config']['addons'])) {
-	// foreach($config['user-config']['addons'] as $eachAddon) {
-		// if(!empty($eachAddon['name']) AND !empty($eachAddon['var']) AND !empty($eachAddon['class']) AND !isset(${$eachAddon['var']})) {
-			// $className = (!empty($eachAddon['namespace']) ? str_replace('/', '\\', $eachAddon['namespace']) . '\\' : '\\') . $eachAddon['class'];
-			// ${$eachAddon['var']} = new $className;
-			// $_Oli->addAddon($eachAddon['name'], $eachAddon['var']);
-			// $_Oli->addAddonInfos($eachAddon['name'], $eachAddon);
-		// }
-	// }
-// }
-
-/** Load Addons */
 // if(!empty($_Oli->config['addons'])) {
 	// foreach($_Oli->config['addons'] as $eachAddonInfosName => $eachAddonInfos) {
 		// if(!empty($eachAddonInfosName) AND !empty($eachAddonInfos['var']) AND !empty($eachAddonInfos['class']) AND !isset(${$eachAddonInfos['var']})) {
