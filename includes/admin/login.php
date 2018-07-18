@@ -899,10 +899,10 @@ $(document).on('click', '.summary', function() {
 $('input[type="radio"][name="method"]').change(function() {
 	$('#preview').attr('src', $(this).attr('src'));
 	if(this.value == 'custom') {
-		$('#custom-info').fadeIn();
+		$('#custom-info').slideDown();
 		$('#custom-info input').prop('disabled', false);
 	} else {
-		$('#custom-info').fadeOut();
+		$('#custom-info').slideUp();
 		$('#custom-info input').prop('disabled', true);
 	}
 });
