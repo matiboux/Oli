@@ -4349,6 +4349,26 @@ class OliCore {
 			return $this->getUserAvatar(null, $selector, $size);
 		}
 		
+		/**
+		 * Save User Avatar
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string Returns url.
+		 */
+		public function saveUserAvatar($filename, $filetype, $uid = null) {
+			if(empty($uid)) $uid = $this->getLoggedUser();
+			if(is_uploaded_file($filename)) {
+				if(!file_exists(MEDIAPATH . 'avatars/')) mkdir(MEDIAPATH . 'avatars/');
+				else {
+					$currentFiletype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid);
+					if(!empty($currentFiletype) AND file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
+				}
+				
+				return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype) AND $this->updateAccountInfos('ACCOUNTS', array('avatar_filetype' => $filetype), $uid);
+			} else return false;
+		}
+		
 		/** ----------------------- */
 		/**  VII. 7. Hash Password  */
 		/** ----------------------- */
