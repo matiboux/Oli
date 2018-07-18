@@ -586,7 +586,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				<h2>Recover your account</h2>
 				<?php if(!$isLocalLogin) { ?>
 					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
-						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
+						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" aria-label="Email address" />
 						<button type="submit">Recover</button>
 						
 						<p>An email will be sent to you with instructions to continue.</p>
@@ -609,7 +609,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 						<p>Be careful, changing or removing your username will allow others to use it, and will make links using it outdated.</p>
 					<?php } ?>
 					
-					<input type="text" name="username" value="<?=$username?>" placeholder="Username" />
+					<input type="text" name="username" value="<?=$username?>" placeholder="Username" aria-label="Username" />
 					<?php if(empty($username)) { ?>
 						<button type="submit">Set Username</button>
 					<?php } else { ?>
@@ -627,7 +627,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
 					<?php if($isLoggedIn) { ?>
 						<p>You are logged in as <b><?=$_Oli->getLoggedName() ?: 'unknown user'?></b>.</p>
-						<input type="password" name="password" placeholder="Current password" />
+						<input type="password" name="password" placeholder="Current password" aria-label="Current password" />
 					
 					<?php } else if(!$isLocalLogin) { ?>
 						<?php if(!empty($requestInfos)) { ?>
@@ -639,7 +639,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 						<p>Something went wrong..</p>
 					<?php } ?>
 
-					<input type="password" name="newPassword" placeholder="New password" />
+					<input type="password" name="newPassword" placeholder="New password" aria-label="New password" />
 					<button type="submit">Update Password</button>
 					
 					<p>You'll be disconnected from all your devices.</p>
@@ -739,7 +739,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			<h2>Generate an unlock key</h2>
 			<p>In order to unlock your account, an unlock key will be generated and sent to you by email.</p>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
-				<input type="text" name="username" value="<?=$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" />
+				<input type="text" name="username" value="<?=$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" aria-label="Username" />
 				<button type="submit">Generate</button>
 				
 				<p>An email will be sent to you with instructions to continue.</p>
@@ -749,7 +749,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<div class="form" data-icon="fa-unlock" data-text="Submit Unlock Key" style="display:<?php if($scriptState == 'unlock-submit') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Unlock your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
-				<input type="text" name="unlockKey" value="<?=$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" />
+				<input type="text" name="unlockKey" value="<?=$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" aria-label="Unlock Key" />
 				<button type="submit">Unlock your account</button>
 				
 				<p>This will reset the Anti-BruteForce stats.</p>
@@ -768,8 +768,8 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					<?php } ?>
 					
 					<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
-					<?php if(!$isLocalLogin) { ?><input type="text" name="logid" value="<?=$_['logid']?>" placeholder="Login ID" /><?php } ?>
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<?php if(!$isLocalLogin) { ?><input type="text" name="logid" value="<?=$_['logid']?>" placeholder="Login ID" aria-label="Login ID" /><?php } ?>
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" aria-label="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>
 					
@@ -782,8 +782,8 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($scriptState == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
-					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" />
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
+					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" aria-label="Email address" />
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" aria-label="Password" />
 					
 <?php /*<?php function captcha($captcha) {
 	$width = strlen($captcha) * 10 + 200;
@@ -821,7 +821,7 @@ ob_end_clean(); ?>
 			<div class="form" data-icon="fa-unlock" data-text="Activate" style="display: <?php if($scriptState == 'activate') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Activate your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/activate'?>" method="post">
-					<input type="text" name="activateKey" value="<?=$_['activateKey']?>" placeholder="Activate Key" />
+					<input type="text" name="activateKey" value="<?=$_['activateKey']?>" placeholder="Activate Key" aria-label="Activate Key" />
 					<button type="submit">Activate</button>
 				</form>
 			</div>
@@ -833,10 +833,10 @@ ob_end_clean(); ?>
 				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
 				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshOliSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
-					<?php /*<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" /> */ ?>
-					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" /><?php } ?>
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" />
-					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" />
+					<?php /*<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" aria-label="Username" /> */ ?>
+					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" aria-label="Email address" /><?php } ?>
+					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" aria-label="Password" />
+					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" aria-label="Oli Security Code" />
 					<button type="submit">Register as Root</button>
 				</form>
 			</div>
