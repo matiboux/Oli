@@ -118,8 +118,7 @@
 |*|  │ │ ├ A. File Loaders
 |*|  │ │ └ B. File Minimizers
 |*|  │ ├ 7. Url Functions
-|*|  │ ├ 8. User Language
-|*|  │ └ 9. Utility Tools
+|*|  │ └ 8. Utility Tools
 |*|  │   ├ A. Templates
 |*|  │   ├ B. Generators
 |*|  │   │ ├ a. UUID
@@ -214,9 +213,6 @@ class OliCore {
 	private $contentTypeBeenForced = false;
 	private $htmlLoaderList = [];
 	
-	/** User Language */
-	// private $currentLanguage = '';
-	
 	/** Post Vars Cookie */
 	private $postVarsProtection = false;
 	
@@ -266,7 +262,6 @@ class OliCore {
 		/** Framework Init */
 		$this->initTimestamp = $initTimestamp ?: microtime(true);
 		$this->setContentType('DEFAULT', 'utf-8');
-		// $this->setCurrentLanguage('DEFAULT');
 		
 		/** Define Oli Debug State */
 		if($this->config['debug'] OR $_GET['oli-debug'] == $this->getOliSecurityCode()) $this->debugStatus = true;
@@ -2102,60 +2097,6 @@ class OliCore {
 			else return false;
 		}
 		
-		/** ---------------------------- */
-		/**  VI. 4. Translations & Text  */
-		/** ---------------------------- */
-		
-			/** ---------------- */
-			/**  VI. 4. A. Read  */
-			/** ---------------- */
-			
-			/** Get translations lines */
-			// public function getTranslationLines($where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				// return $this->getLinesMySQL($this->config['translations_table'], $where, $settings, $caseSensitive, $forceArray, $rawResult);
-			// }
-			
-			/** Get translation */
-			// public function getTranslation($whatLanguage, $where, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				// return $this->getInfosMySQL($this->config['translations_table'], $whatLanguage, $where, $settings, $caseSensitive, $forceArray, $rawResult);
-			// }
-			
-			/** Is exist translation */
-			// public function isExistTranslation($where, $caseSensitive = true) {
-				// return $this->isExistInfosMySQL($this->config['translations_table'], $where, $caseSensitive);
-			// }
-			
-			/** ----------------- */
-			/**  VI. 4. B. Write  */
-			/** ----------------- */
-			
-			/** Add translations */
-			// public function addTranslations($translations) {
-				// return $this->insertLineMySQL($this->config['translations_table'], $translations);
-			// }
-			
-			/** Update translations */
-			// public function updateTranslations($what, $where) {
-				// return $this->updateInfosMySQL($this->config['translations_table'], $what, $where);
-			// }
-			
-			/** Delete translations */
-			// public function deleteTranslations($where) {
-				// return $this->deleteLinesMySQL($this->config['translations_table'], $where);
-			// }
-			
-			/** ----------------- */
-			/**  VI. 4. C. Print  */
-			/** ----------------- */
-			
-			/** Echo translated text */
-			// public function __($text, $text_plural = '', $count = 0) {
-				// $text = ($count > 1) ? $text_plural : $text;
-				// if($this->currentLanguage != $this->config['default_language'] AND $translatedText = $this->getTranslation($this->currentLanguage, array($this->config['default_language'] => $text))) echo $translatedText;
-				// else if(!$this->isExistTranslation(array($this->config['default_language'] => $text))) $this->addTranslations(array($this->config['default_language'] => $text));
-				// else echo $text;
-			// }
-		
 		/** ------------------- */
 		/**  VI. 5. HTTP Tools  */
 		/** ------------------- */
@@ -2722,87 +2663,11 @@ class OliCore {
 		public function getCdnUrl() { return $this->config['cdn_url']; }
 		
 		/** ---------------------- */
-		/**  VI. 8. User Language  */
-		/** ---------------------- */
-		
-		/**
-		 * Get default language
-		 * 
-		 * @uses OliCore::$defaultLanguage to get default language
-		 * @return string Returns default language
-		 */
-		// public function getDefaultLanguage() { return $this->config['default_language']; }
-		
-		/**
-		 * Set current language
-		 * 
-		 * @param string|void $language Language to set
-		 * 
-		 * @uses OliCore::$currentLanguage to get current language
-		 * @uses OliCore::$defaultLanguage to get default language
-		 * @return void
-		 */
-		// public function setCurrentLanguage($language = null) {
-			// $this->currentLanguage = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_language'];
-		// }
-		
-		/**
-		 * Get current language
-		 * 
-		 * @uses OliCore::$currentLanguage to get current language
-		 * @return string Returns current language
-		 */
-		// public function getCurrentLanguage() { return $this->currentLanguage; }
-		
-		/**
-		 * Set user language
-		 * 
-		 * @param string|void $language Language to set
-		 * @param string|array|void $where Where to change language
-		 * 
-		 * @uses OliCore::$currentLanguage to get current language
-		 * @uses OliCore::$defaultLanguage to get default language
-		 * @return boo
-		 */
-		// public function setUserLanguage($language = null, $where = null) {
-			// $language = (!empty($language) AND $language != 'DEFAULT') ? strtolower($language) : $this->config['default_language'];
-			
-			// if(!isset($where)) {
-				// if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
-				// else return false;
-			// } else if(!is_array($where)) $where = array('uid' => $where);
-			
-			// if($this->updateAccountInfos('ACCOUNTS', array('language' => $language), $where)) {
-				// $this->currentLanguage = $language;
-				// return true;
-			// }
-			// else return false;
-		// }
-		
-		/**
-		 * Get user language
-		 * 
-		 * @param string|array|void $where Where to get language
-		 * @param boolean|void $caseSensitive Where is case sensitive or not
-		 * 
-		 * @uses OliCore::$currentLanguage to get current language
-		 * @return string Returns current language
-		 */
-		// public function getUserLanguage($where = null, $caseSensitive = true) {
-			// if(!isset($where)) {
-				// if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
-				// else return false;
-			// } else if(!is_array($where)) $where = array('uid' => $where);
-			
-			// return $this->getAccountInfos('ACCOUNTS', 'language', $where, $caseSensitive);
-		// }
-		
-		/** ---------------------- */
-		/**  VI. 9. Utility Tools  */
+		/**  VI. 8. Utility Tools  */
 		/** ---------------------- */
 		
 			/** --------------------- */
-			/**  VI. 9. A. Templates  */
+			/**  VI. 8. A. Templates  */
 			/** --------------------- */
 			
 			/**
@@ -2830,11 +2695,11 @@ class OliCore {
 			}
 		
 			/** ---------------------- */
-			/**  VI. 9. B. Generators  */
+			/**  VI. 8. B. Generators  */
 			/** ---------------------- */
 		
 				/** ------------------- */
-				/**  VI. 9. B. a. UUID  */
+				/**  VI. 8. B. a. UUID  */
 				/** ------------------- */
 				
 				/**
@@ -2911,7 +2776,7 @@ class OliCore {
 				}
 		
 				/** ------------------- */
-				/**  VI. 9. B. b. Misc  */
+				/**  VI. 8. B. b. Misc  */
 				/** ------------------- */
 				
 				/** Random Number generator */
@@ -2947,7 +2812,7 @@ class OliCore {
 				}
 			
 			/** --------------------------- */
-			/**  VI. 9. C. Data Conversion  */
+			/**  VI. 8. C. Data Conversion  */
 			/** --------------------------- */
 		
 			/** Convert Number */
@@ -3048,7 +2913,7 @@ class OliCore {
 			}
 			
 			/** ----------------------- */
-			/**  VI. 9. D. Date & Time  */
+			/**  VI. 8. D. Date & Time  */
 			/** ----------------------- */
 			
 			/**
@@ -3130,7 +2995,7 @@ class OliCore {
 			}
 			
 			/** ------------------------ */
-			/**  VI. 9. E. Client Infos  */
+			/**  VI. 8. E. Client Infos  */
 			/** ------------------------ */
 			
 			/** Get User IP address */
