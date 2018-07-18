@@ -431,6 +431,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html { position: relative; min-height: 100% }
 body { font-family: 'Roboto', sans-serif; background: #f8f8f8; height: 100%; margin: 0; color: #808080; font-size: 14px; overflow-x: hidden }
+@media print { body { background: none } }
 @media (max-width: 420px) { body { font-size: 12px } }
 
 a { color: #50a0f0; text-decoration: none }
