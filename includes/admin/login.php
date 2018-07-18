@@ -676,8 +676,10 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
 					<div class="radio mt-1"><label><input type="radio" name="method" value="none" <?php if(true) { ?>checked<?php } ?> /> Disable 2FA</label></div>
 					<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via email</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via Telegram!</label></div>
-					<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
+					<?php if(!empty($_Oli->config['telegram_bot_token'])) { ?>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via Telegram!</label></div>
+						<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
+					<?php } ?>
 					
 					<button type="submit">Configure 2FA</button>
 				</form>
