@@ -2598,7 +2598,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the assets url.
 		 */
-		public function getAssetsUrl() { return $this->getUrlParam(0) . ($this->config['theme_path'] ?: 'content/theme/') . $this->config['assets_folder'] . '/'; }
+		public function getAssetsUrl() { return $this->getUrlParam(0) . 'content/' . $this->config['assets_folder'] . '/'; }
 		/** * @alias OliCore::getAssetsUrl() */
 		public function getDataUrl() { return $this->getAssetsUrl(); }
 		
@@ -2630,17 +2630,6 @@ class OliCore {
 		public function getOliAdminUrl() { return $this->getUrlParam(0) . ($this->config['admin_alias'] ?: 'oli-admin') . '/'; }
 		/** * @alias OliCore::getOliAdminUrl() */
 		public function getAdminUrl() { return $this->getOliAdminUrl(); }
-		
-		/**
-		 * Get Oli Admin Assets Url
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return string|void Returns the admin assets url.
-		 */
-		public function getAdminAssetsUrl() { return $this->getUrlParam(0) . 'content/admin-assets/'; }
-		/** * @alias OliCore::getAdminAssetsUrl() */
-		public function getAdminDataUrl() { return $this->getAdminAssetsUrl(); }
 		
 		/**
 		 * Get Common Assets Url
