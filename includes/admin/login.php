@@ -639,14 +639,16 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				<h2>Update your avatar</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post">
 					<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
-					<div class="radio mt-1"><label><input type="radio" name="origin" value="default" <?php if(true) { ?>checked<?php } ?> /> Use the default avatar</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="origin" value="gravatar" <?php if(false) { ?>checked<?php } ?> /> Use your Gravatar</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="origin" value="custom" <?php if(false) { ?>checked<?php } ?> /> Use a custom avatar</label></div>
+					
+					<?php $currentMethod = $_Oli->getLoggedAvatarMethod(); ?>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="default" src="<?=$_Oli->getLoggedAvatar('default')?>" <?php if($currentMethod == 'default') { ?>checked<?php } ?> /> Use the default avatar</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="gravatar" src="<?=$_Oli->getLoggedAvatar('gravatar', 200)?>" <?php if($currentMethod == 'gravatar') { ?>checked<?php } ?> /> Use your Gravatar</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="custom" src="<?=$_Oli->getLoggedAvatar('custom')?>" <?php if($currentMethod == 'custom') { ?>checked<?php } ?> /> Use a custom avatar</label></div>
 					
 					<p>Here's how your avatar will look like:</p>
-					<img class="avatar mt-1 default" src="<?=$_Oli->getMediaUrl()?>default-avatar.png" />
+					<img id="preview" class="avatar mt-1" src="<?=$_Oli->getLoggedAvatar()?>" />
 					
-					<div class="custom">
+					<div id="custom-info" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
 						<p>You can upload a new custom avatar if you feel like changing it! <br />
 						<b>Max Size</b>: 2 MB, 400x400 pixels.</p>
 						<input type="file" name="custom" class="mt-1" />
@@ -880,7 +882,16 @@ $(document).on('click', '.summary', function() {
 });
 
 <?php if($scriptState == 'update-avatar') { ?>
-
+$('input[type="radio"][name="method"]').change(function() {
+	$('#preview').attr('src', $(this).attr('src'));
+	if(this.value == 'custom') {
+		$('#custom-info').fadeIn();
+		$('#custom-info input').prop('disabled', false);
+	} else {
+		$('#custom-info').fadeOut();
+		$('#custom-info input').prop('disabled', true);
+	}
+});
 <?php } ?>
 </script>
 
