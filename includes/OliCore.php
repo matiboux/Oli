@@ -152,7 +152,8 @@
 |*|    │ │ ├ a. Management
 |*|    │ │ └ b. Infos
 |*|    │ └ B. Infos
-|*|    └ 6. Hash Password
+|*|    └ 6. User Avatar
+|*|    └ 7. Hash Password
 \*/
 
 namespace Oli {
@@ -4295,8 +4296,61 @@ class OliCore {
 				}
 			}
 		
+		/** --------------------- */
+		/**  VII. 6. User Avatar  */
+		/** --------------------- */
+		
+		/**
+		 * Get User Avatar Method
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string Returns method.
+		 */
+		public function getUserAvatarMethod($uid = null) {
+			return $this->getAccountInfos('ACCOUNTS', 'avatar_method', $uid) ?: 'default';
+		}
+		
+		/**
+		 * Get Logged Avatar Method
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string Returns method.
+		 */
+		public function getLoggedAvatarMethod() {
+			return $this->getUserAvatarMethod();
+		}
+		
+		/**
+		 * Get User Avatar
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string Returns url.
+		 */
+		public function getUserAvatar($uid = null, $selector = null, $size = null) {
+			if(empty($uid)) $uid = $this->getLoggedUser();
+			if(empty($selector)) $selector = $this->getUserAvatarMethod($uid);
+			
+			if($selector == 'gravatar') return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->getAccountInfos('ACCOUNTS', 'email', $uid)))) . (!empty($size) ? '?s=' . $size : null); // File Extension not necessary here.
+			else if($selector == 'custom' AND !empty($filetype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid)) AND file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)) return $this->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
+			else return $this->getMediaUrl() . 'default-avatar.png';
+		}
+		
+		/**
+		 * Get Logged User Avatar
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string Returns url.
+		 */
+		public function getLoggedAvatar($selector = null, $size = null) {
+			return $this->getUserAvatar(null, $selector, $size);
+		}
+		
 		/** ----------------------- */
-		/**  VII. 6. Hash Password  */
+		/**  VII. 7. Hash Password  */
 		/** ----------------------- */
 		
 		/** Hash Password */
