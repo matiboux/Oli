@@ -710,7 +710,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<?php if($scriptState != 'recover') { ?>
 			<div class="form" data-icon="fa-cog" data-text="Account Settings" style="display: <?php if($scriptState == 'account-settings') { ?>block<?php } else { ?>none<?php } ?>">
 				<div class="profile">
-					<img class="avatar" src="<?=$_Oli->getMediaUrl()?>default-avatar.png" />
+					<img class="avatar" src="<?=$_Oli->getLoggedAvatar()?>" />
 					<div class="infos">
 						<span>Welcome,</span>
 						<p><b><?=$_Oli->getLoggedName()?></b>!</p>
