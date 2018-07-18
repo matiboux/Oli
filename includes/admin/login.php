@@ -657,7 +657,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					<div class="radio mt-1"><label><input type="radio" name="method" value="custom" src="<?=$_Oli->getLoggedAvatar('custom')?>" <?php if($currentMethod == 'custom') { ?>checked<?php } ?> /> Use a custom avatar</label></div>
 					
 					<p>Here's how your avatar will look like:</p>
-					<img id="preview" class="avatar mt-1" src="<?=$_Oli->getLoggedAvatar()?>" />
+					<img id="preview" class="avatar mt-1" src="<?=$_Oli->getLoggedAvatar()?>" alt="Preview of your new avatar" />
 					
 					<div id="custom-info" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
 						<p>You can upload a new custom avatar if you feel like changing it! <br />
@@ -675,9 +675,9 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" method="post">
 					<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
 					<div class="radio mt-1"><label><input type="radio" name="method" value="none" <?php if(true) { ?>checked<?php } ?> /> Disable 2FA</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via email</label></div>
+					<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with your email</label></div>
 					<?php if(!empty($_Oli->config['telegram_bot_token'])) { ?>
-						<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Configure 2FA via Telegram!</label></div>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with Telegram!</label></div>
 						<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
 					<?php } ?>
 					
