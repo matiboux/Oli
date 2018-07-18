@@ -1,0 +1,127 @@
+/** ---------------------- */
+/**  OLI ADMIN STYLESHEET  */
+/** ---------------------- */
+
+/** Global Style rules */
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
+@import url("https://fonts.googleapis.com/css?family=Roboto+Mono:400,700");
+html { position: relative; min-height: 100% }
+body { font-family: 'Roboto', sans-serif; background: #f0f0f0; height: 100%; margin: 0; overflow-x: hidden }
+
+h1, h2, h3, h4, h5, h6 { font-weight: normal }
+hr { margin: 15px -5px; border-color: #777 }
+@media (min-width: 768px) { hr { margin-left: -10px; margin-right: -10px } }
+hr.invisible, hr.transparent { margin-top: 15px; margin-bottom: 15px; border-color: transparent }
+
+a, .btn-link { color: #50a0f0 }
+a:hover, a:focus, .btn-link:hover, .btn-link:focus { color: #4080c0 }
+
+pre { background: #f0f0f0; padding: 5px; border: 1px solid #e0e0e0; border-radius: 5px }
+
+/** *** *** */
+
+/** Blocks */
+.inline-block { display: inline-block }
+
+/** Text */
+.word-wrap { word-wrap: break-word }
+.text-white { color: #fff }
+
+/** Float */
+.float-left { float: left !important }
+.float-right { float: right !important }
+.float-none { float: none !important }
+
+/** Link Button */
+.btn { display: block }
+.btn:not(:first-child) { margin-top: 5px }
+
+/** Margin */
+.mt-0 { margin-top: 0 }
+.mt-1 { margin-top: 5px }
+.mt-2 { margin-top: 10px }
+.mb-0 { margin-bottom: 0 }
+.mb-1 { margin-bottom: 5px }
+.mb-2 { margin-bottom: 10px }
+
+/** Avatar */
+/*.avatar { width: 40px; height: 40px; border-radius: 5px }
+.avatar.avatar-120 { width: 120px; height: 120px }
+.avatar.avatar-80 { width: 80px; height: 80px }
+.avatar.avatar-sharp { border-radius: 0 }
+.avatar.avatar-rounded { border-radius: 5px }
+.avatar.avatar-circle { border-radius: 50% }*/
+
+/** *** *** */
+
+/** -------- */
+/**  NAVBAR  */
+/** -------- */
+
+#navbar { background: #306090; min-height: 41px; margin: 0; padding: 0; border-bottom: 1px solid #204060 }
+#navbar, #navbar a { color: #fff }
+#navbar .navbar-nav { margin: 0; padding: 0 }
+#navbar .navbar-nav * { display: inline-block }
+#navbar .navbar-nav > li { min-width: 40px; height: 40px; padding: 0 10px; text-align: center; list-style: none; vertical-align: middle; cursor: pointer }
+#navbar .navbar-nav > li:not(:first-child) { margin-left: -4px }
+#navbar .navbar-nav > li:hover, #navbar .navbar-nav > li:focus { background: #3870a8 }
+#navbar .navbar-nav > li, #navbar .navbar-nav > li * { line-height: 40px }
+#navbar .navbar-nav > li > a { min-width: 40px; margin: 0 -10px; padding: 0 10px }
+#navbar .navbar-nav > li > a:hover, #navbar .navbar-nav > li > a:focus { text-decoration: none }
+#navbar .navbar-nav > li img { width: 30px; height: 30px; margin-right: 2px; border-radius: 50% }
+
+/** *** *** */
+
+/** -------- */
+/**  HEADER  */
+/** -------- */
+
+#header { background: #404040; padding: 15px; color: #fff }
+#header, #header * { font-size: 16px }
+#header h1 { font-size: 24px }
+#header p { font-weight: 300 }
+
+@media (min-width: 768px) { #header { padding: 25px } }
+
+/** Misc. */
+#header *:first-child { margin-top: 0 }
+#header *:last-child { margin-bottom: 0 }
+
+/** *** *** */
+
+/** ------ */
+/**  MAIN  */
+/** ------ */
+
+/** Main General */
+#main { background: #fff; padding: 15px; font-size: 16px; color: #202020 }
+@media (min-width: 768px) { #main { padding: 25px } }
+
+#main table tr { border: 1px solid #c0c0c0 }
+#main table tr.add { background: rgba(80, 160, 240, .2) }
+#main table tr > * { padding: 5px }
+#main table tr > td + td { border-left: 1px solid #c0c0c0 }
+#main table tr > td.empty { background: rgba(80, 80, 80, .1) }
+#main table tr > td.disabled { background: rgba(80, 80, 80, .2) }
+#main table tr > td > * { margin-top: 0; margin-bottom: 0 }
+#main table tr > td > * + *, #main table tr > td form > * + * { margin-top: 5px }
+#main table tr > td form { background: rgba(160, 160, 160, .4); margin: 5px -5px; padding: 10px 5px }
+#main table tr > td form.create { background: rgba(160, 240, 160, .4) }
+#main table tr > td form.update { background: rgba(160, 160, 240, .4) }
+#main table tr > td form:first-child-child { margin-top: -5px }
+#main table tr > td form:last-child { margin-bottom: -5px }
+#main table tr > td textarea { font-family: 'Roboto Mono', sans-serif; width: 100%; font-size: 14px }
+
+/** *** *** */
+
+/** -------- */
+/**  FOOTER  */
+/** -------- */
+
+/** Footer */
+#footer { background: #404040; min-height: 40px; padding: 15px; color: #fff; overflow: hidden; }
+
+/** Misc. */
+#footer .float-left, #footer .float-right { margin-top: 0; margin-bottom: 0 }
+#footer *:first-child { margin-top: 0 }
+#footer *:last-child { margin-bottom: 0 }
