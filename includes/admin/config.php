@@ -172,6 +172,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 								</form>
 							<?php } ?>
 						<?php } else if($globalConfig !== null) { ?>
+							<?php if(is_object($eachValue['global'])) $eachValue['global'] = (array) $eachValue['global']; ?>
 							<pre><?=$eachValue['global'] !== null ? var_export($eachValue['global'], true) : 'null'?></pre>
 							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post" class="update">
 								<textarea name="value"><?=json_encode($eachValue['global'])?></textarea>
@@ -192,6 +193,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 								</form>
 							<?php } ?>
 						<?php } else if($localConfig !== null) { ?>
+							<?php if(is_object($eachValue['local'])) $eachValue['local'] = (array) $eachValue['local']; // There a thing: Right after updting a value, the value is read as an object. After refreshing, it's read as an array.. (wtf? i don't know) ?>
 							<pre><?=$eachValue['local'] !== null ? var_export($eachValue['local'], true) : 'null'?></pre>
 							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post" class="update">
 								<textarea name="value"><?=json_encode($eachValue['local'])?></textarea>
