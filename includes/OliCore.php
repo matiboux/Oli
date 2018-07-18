@@ -4166,7 +4166,8 @@ class OliCore {
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
 			public function loginAccount($uid, $password, $expireDelay = null) {
-				if($this->verifyLogin($uid, $password)) {
+				if($this->isExternalLogin()) return null;
+				else if($this->verifyLogin($uid, $password)) {
 					if(!$this->isLocalLogin()) {
 						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $uid, 'username' => $uid, 'email' => $uid), array('where_or' => true), false);
 						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $uid);
@@ -4178,31 +4179,29 @@ class OliCore {
 						
 						$authKey = $this->keygen($this->config['auth_key_length'] ?: 32);
 						if(!empty($authKey)) {
-							if(!$this->isLocalLogin() OR $this->isExternalLogin()) { //!?
+							$result = null;
+							if(!$this->isLocalLogin()) { //!?
+							// if(!$this->isLocalLogin() OR $this->isExternalLogin()) { //!?
 							// if(!$this->isLocalLogin() AND !$this->isExternalLogin()) { //!?
 								/** Cleanup Process */
 								$this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
 								
+								if($this->isExistAccountInfos('SESSIONS', array('auth_key' => hash('sha512', $authKey)))) $this->deleteAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey)));
+								
 								$now = time();
-								$commonInfos = array(
+								$result = $this->insertAccountLine('SESSIONS', array(
+									'uid' => $uid,
+									'auth_key' => hash('sha512', $authKey),
+									'creation_date' => date('Y-m-d H:i:s', $now),
 									'ip_address' => $this->getUserIP(),
 									'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+									'login_date' => date('Y-m-d H:i:s', $now),
+									'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay),
 									'update_date' => date('Y-m-d H:i:s', $now),
-									'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params')));
-								
-								if(!$sessionInfos = $this->getAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey)))) {
-									if(!empty($sessionInfos)) $this->deleteAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey)));
-									$this->insertAccountLine('SESSIONS', array_merge(array(
-										'auth_key' => hash('sha512', $authKey),
-										'creation_date' => date('Y-m-d H:i:s', $now),
-									), $commonInfos));
-								} else $this->updateAccountInfos('SESSIONS', $commonInfos, array('auth_key' => hash('sha512', $authKey)));
-							}
+									'last_seen_page' => $this->getUrlParam(0) . implode('/', $this->getUrlParam('params'))
+								));
 							
-							$this->setAuthCookie($authKey, $this->config['auth_key_cookie']['expire_delay'] ?: 3600*24*7);
-							$this->cache['authKey'] = $authKey;
-						
-							if($this->isLocalLogin()) {
+							} else {
 								$rootUserInfos = $this->getLocalRootInfos();
 								$handle = fopen(ABSPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array(
@@ -4212,11 +4211,10 @@ class OliCore {
 									'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
 								)), JSON_FORCE_OBJECT));
 								fclose($handle);
-							} else $result = $this->updateAccountInfos('SESSIONS', array(
-								'uid' => $uid,
-								'login_date' => date('Y-m-d H:i:s', $now),
-								'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
-							), array('auth_key' => hash('sha512', $authKey)));
+							}
+							
+							$this->setAuthCookie($authKey, $this->config['auth_key_cookie']['expire_delay'] ?: 3600*24*7);
+							$this->cache['authKey'] = $authKey;
 							
 							return $result ? true : false;
 						} else return false;
