@@ -11,7 +11,6 @@
 	"shortcut_links_table": "shortcut_links",
 	"translations_table": null,
 	
-	
 	"index_file": "index.php",
 	"http_errors": {
 		"404": "404.php",
@@ -21,7 +20,11 @@
 	"admin_alias": null,
 	"login_alias": "login",
 	
-	"assets_folder": "assets",
+	"assets_path": "Const:CONTENTPATH|assets/",
+	"media_path": "Const:CONTENTPATH|media/",
+	"theme_path": "Const:CONTENTPATH|theme/",
+	"scripts_path": "Const:CONTENTPATH|scripts/",
+	"templates_path": "Const:CONTENTPATH|templates/",
 	
 	"default_language": "en",
 	"default_content_type": "html",
@@ -74,8 +77,6 @@
 		"force_https": false,
 		"time_zone": "Europe/Paris",
 		
-		"theme_path": "content/theme/",
-		"media_path": "content/media/",
 		"common_path": null,
 		"common_assets_folder": "assets/",
 		

@@ -206,6 +206,9 @@ class OliCore {
 	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
 	private $contentStatus = null; // Content Status (found, not found, forbidden...) (PUBLIC READONLY)
 	
+	/** Content Links */
+	private $assetsUrl = null; // Url to Assets (PUBLIC READONLY)
+	private $mediaUrl = null; // Url to Media (PUBLIC READONLY)
 	
 	/** Page Settings */
 	private $contentType = null;
@@ -235,19 +238,14 @@ class OliCore {
 	 * @return void
 	 */
 	public function __construct($initTimestamp = null) {
-		/** Primary constants */
-		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.'); // Defined in load.php
-		if(!defined('ADDONSPATH')) die('Oli Error: ADDONSPATH is not defined.'); // Defined in load.php
-		if(!defined('INCLUDESPATH')) define('INCLUDESPATH', __DIR__ . '/'); // SHOULD be defined in load.php
-		if(!defined('CONTENTPATH')) define('INCLUDESPATH', ABSPATH . 'content/'); // SHOULD be defined in load.php
+		/** Primary constants - Should have been defined in /load.php */
+		if(!defined('ABSPATH')) die('Oli Error: ABSPATH is not defined.');
+		if(!defined('ADDONSPATH')) die('Oli Error: ADDONSPATH is not defined.');
+		if(!defined('INCLUDESPATH')) define('INCLUDESPATH', __DIR__ . '/');
+		if(!defined('CONTENTPATH')) define('INCLUDESPATH', ABSPATH . 'content/');
 		
 		/** Secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
-		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
-		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
-		// if(!defined('ASSETSPATH')) define('ASSETSPATH', THEMEPATH . $this->config['assets_folder']);
-		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
-		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
 		
 		/** Load Config */
 		$this->loadConfig();
@@ -258,6 +256,13 @@ class OliCore {
 				$this->config['settings']['url'] = $oliUrl;
 			}
 		}
+		
+		/** User Content constants */
+		if(!defined('ASSETSPATH')) define('ASSETSPATH', CONTENTPATH . 'assets/');
+		if(!defined('MEDIAPATH')) define('MEDIAPATH', CONTENTPATH . 'media/');
+		if(!defined('THEMEPATH')) define('THEMEPATH', CONTENTPATH . 'theme/');
+		if(!defined('SCRIPTSPATH')) define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
+		if(!defined('TEMPLATESPATH')) define('TEMPLATESPATH', CONTENTPATH . 'templates/');
 		
 		/** Framework Init */
 		$this->initTimestamp = $initTimestamp ?: microtime(true);
@@ -591,6 +596,13 @@ class OliCore {
 						}
 					} else if($eachConfig == 'mysql' AND $this->config['allow_mysql'] AND !empty($eachValue)) $this->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
 					// else if($eachConfig == 'settings_tables' AND isset($this->db)) $this->setSettingsTables($eachValue);
+					else if($eachConfig == 'assets_path' AND !defined('ASSETSPATH')) define('ASSETSPATH', $eachValue);
+					else if($eachConfig == 'assets_url') $this->assetsUrl = $eachValue;
+					else if($eachConfig == 'media_path' AND !defined('MEDIAPATH')) define('MEDIAPATH', $eachValue);
+					else if($eachConfig == 'media_url') $this->mediaUrl = $eachValue;
+					else if($eachConfig == 'theme_path' AND !defined('THEMEPATH')) define('THEMEPATH', $eachValue);
+					else if($eachConfig == 'scripts_path' AND !defined('SCRIPTSPATH')) define('SCRIPTSPATH', $eachValue);
+					else if($eachConfig == 'templates_path' AND !defined('TEMPLATESPATH')) define('TEMPLATESPATH', $eachValue);
 					// else if($eachConfig == 'common_path') $this->setCommonPath($eachValue);
 					else if($eachConfig == 'accounts_tables' AND !empty($eachValue) AND is_assoc($eachValue)) {
 						if(!empty($eachValue['accounts'])) $this->accountsTables['ACCOUNTS'] = $eachValue['accounts'];
@@ -2598,7 +2610,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the assets url.
 		 */
-		public function getAssetsUrl() { return $this->getUrlParam(0) . 'content/' . $this->config['assets_folder'] . '/'; }
+		public function getAssetsUrl() { return $this->assetsUrl ?: $this->getUrlParam(0) . (strpos(ABSPATH, ASSETSPATH) == 0 ? str_replace(ABSPATH, '', ASSETSPATH) : 'content/assets/'); }
 		/** * @alias OliCore::getAssetsUrl() */
 		public function getDataUrl() { return $this->getAssetsUrl(); }
 		
@@ -2609,7 +2621,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the media url.
 		 */
-		public function getMediaUrl() { return $this->getUrlParam(0) . ($this->config['media_path'] ?: 'content/media/'); }
+		public function getMediaUrl() { return $this->mediaUrl ?: $this->getUrlParam(0) . (strpos(ABSPATH, MEDIAPATH) == 0 ? str_replace(ABSPATH, '', MEDIAPATH) : 'content/media/'); }
 		
 		/**
 		 * Get Login Url
