@@ -12,7 +12,7 @@
 	"translations_table": null,
 	
 	"admin_alias": null,
-	"login_alias": "login",
+	"login_alias": null,
 	
 	"assets_path": "Const:CONTENTPATH|assets/",
 	"media_path": "Const:CONTENTPATH|media/",
