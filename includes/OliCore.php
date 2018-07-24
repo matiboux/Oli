@@ -381,7 +381,7 @@ class OliCore {
 		 * @return string|boolean Returns Oli Security Code if it was updated, false otherwise.
 		 */
 		public function refreshOliSecurityCode() {
-			if(time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
+			if(!file_exists(ABSPATH . '.olisc') OR time() > filemtime(ABSPATH . '.olisc') + 3600*2 OR empty(file_get_contents(ABSPATH . '.olisc'))) {
 				$handle = fopen(ABSPATH . '.olisc', 'w');
 				fwrite($handle, $olisc = $this->keygen(6, true, false, true));
 				fclose($handle);
