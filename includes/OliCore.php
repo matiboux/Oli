@@ -3927,6 +3927,7 @@ class OliCore {
 								/** Register Account */
 								$this->insertAccountLine('ACCOUNTS', array('uid' => $uid, 'password' => $hashedPassword, 'email' => $email, 'register_date' => date('Y-m-d H:i:s'), 'user_right' => $userRight));
 								$this->insertAccountLine('INFOS', array('uid' => $uid));
+								$this->insertAccountLine('PERMISSIONS', array('uid' => $uid));
 								
 								/** Generate Activate Key (if activation needed) */
 								if($this->config['account_activation']) $activateKey = $this->createRequest($uid, 'activate');
