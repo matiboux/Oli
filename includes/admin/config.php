@@ -55,13 +55,18 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 	} else if($_Oli->getUrlParam(2) == 'update-config') {
 		if(empty($_Oli->getUrlParam(3))) $result = array('error' => 'Error: Url param 3 $level missing.');
 		else if(empty($_Oli->getUrlParam(4))) $result = array('error' => 'Error: Url param 4 $config missing.');
-		else if($_Oli->getUrlParam(3) == 'global') {
-			if($_Oli->saveConfig(array($_Oli->getUrlParam(4) => json_decode($_['value'])), 'global')) $result = array('success' => true);
-			else $result = array('error' => 'Error: An error occurred.');
-		} else if($_Oli->getUrlParam(3) == 'local') {
-			if($_Oli->saveConfig(array($_Oli->getUrlParam(4) => json_decode($_['value'])), 'local')) $result = array('success' => true);
-			else $result = array('error' => 'Error: An error occurred.');
-		} else $result = array('error' => 'Error: $level invalid.');
+		else {
+			if($_['value'] == 'null' OR json_decode($_['value']) !== null) $value = json_decode($_['value']);
+			else $value = $_['value'];
+			
+			if($_Oli->getUrlParam(3) == 'global') {
+				if($_Oli->saveConfig(array($_Oli->getUrlParam(4) => $value), 'global')) $result = array('success' => true);
+				else $result = array('error' => 'Error: An error occurred.');
+			} else if($_Oli->getUrlParam(3) == 'local') {
+				if($_Oli->saveConfig(array($_Oli->getUrlParam(4) => $value), 'local')) $result = array('success' => true);
+				else $result = array('error' => 'Error: An error occurred.');
+			} else $result = array('error' => 'Error: $level invalid.');
+		}
 	}
 }
 ?>
@@ -168,7 +173,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 							<?php if($globalConfig !== null) { ?>
 								<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post" class="create">
 									<textarea name="value"><?=isset($type['default']) ? json_encode($eachValue['default']) : 'null'?></textarea>
-									<button type="submit">Create Config!</button> Format: JSON
+									<button type="submit">Create Config!</button> Format: JSON, or String
 								</form>
 							<?php } ?>
 						<?php } else if($globalConfig !== null) { ?>
@@ -176,7 +181,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 							<pre><?=$eachValue['global'] !== null ? var_export($eachValue['global'], true) : 'null'?></pre>
 							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/global/' . urlencode($eachConfig) . '/'?>" method="post" class="update">
 								<textarea name="value"><?=json_encode($eachValue['global'])?></textarea>
-								<button type="submit">Update Config</button> Format: JSON
+								<button type="submit">Update Config</button> Format: JSON, or String
 							</form>
 							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/global/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
 						<?php } ?>
@@ -189,7 +194,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 							<?php if($localConfig !== null) { ?>
 								<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post" class="create">
 									<textarea name="value"><?=isset($type['global']) ? json_encode($eachValue['global']) : isset($type['default']) ? json_encode($eachValue['default']) : 'null'?></textarea>
-									<button type="submit">Create Config!</button> Format: JSON
+									<button type="submit">Create Config!</button> Format: JSON, or String
 								</form>
 							<?php } ?>
 						<?php } else if($localConfig !== null) { ?>
@@ -197,7 +202,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 							<pre><?=$eachValue['local'] !== null ? var_export($eachValue['local'], true) : 'null'?></pre>
 							<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post" class="update">
 								<textarea name="value"><?=json_encode($eachValue['local'])?></textarea>
-								<button type="submit">Update Config</button> Format: JSON
+								<button type="submit">Update Config</button> Format: JSON, or String
 							</form>
 							<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-config/local/' . urlencode($eachConfig) . '/'?>" class="btn">Delete config</a>
 						<?php } ?>
