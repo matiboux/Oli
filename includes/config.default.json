@@ -74,13 +74,6 @@
 		"common_path": null,
 		"common_assets_folder": "assets/",
 		
-		"post_vars_cookie": {
-			"name": "OliPostVars",
-			"domain": "UrlParam:fulldomain",
-			"secure": false,
-			"http_only": false
-		},
-		
 		
 		"user_management": false,
 		
