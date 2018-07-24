@@ -11,12 +11,6 @@
 	"shortcut_links_table": "shortcut_links",
 	"translations_table": null,
 	
-	"index_file": "index.php",
-	"http_errors": {
-		"404": "404.php",
-		"403": "403.php"
-	},
-	
 	"admin_alias": null,
 	"login_alias": "login",
 	

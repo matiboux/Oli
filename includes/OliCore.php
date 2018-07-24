@@ -1903,9 +1903,9 @@ class OliCore {
 									}
 								
 								/** Home Page */
-								} else if($fileNameParam == 'home' AND file_exists(THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php'))) {
-									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $this->config['index_file'] ?: 'index.php')) {
-										$found = THEMEPATH . ($contentRules['index'] ?: $this->config['index_file'] ?: 'index.php');
+								} else if($fileNameParam == 'home' AND file_exists(THEMEPATH . ($contentRules['index'] ?: 'index.php'))) {
+									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: 'index.php')) {
+										$found = THEMEPATH . ($contentRules['index'] ?: 'index.php');
 										$contentStatus = 'index';
 									}
 								}
