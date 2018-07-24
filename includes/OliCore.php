@@ -2711,7 +2711,7 @@ class OliCore {
 				 * @return string Returns the requested UUID.
 				 */
 				public function uuid($type, ...$args) {
-					if(in_array($type, ['v4', '4'])) call_user_func_array(array($this, 'uuid4'), $args);
+					if(in_array($type, ['v4', '4', 4], true)) call_user_func_array(array($this, 'uuid4'), $args);
 					else if($type == 'alt') call_user_func_array(array($this, 'altuuid'), $args);
 					else return false;
 				}
