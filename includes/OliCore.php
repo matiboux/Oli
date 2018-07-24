@@ -2710,9 +2710,9 @@ class OliCore {
 				 * @updated BETA-2.0.0
 				 * @return string Returns the requested UUID.
 				 */
-				public function uuid(string $type, ...$args) {
+				public function uuid($type, ...$args) {
 					if(in_array($type, ['v4', '4'])) call_user_func_array(array($this, 'uuid4'), $args);
-					else if($type == 'alt') call_user_func_array(array($this, 'uuid4'), $args);
+					else if($type == 'alt') call_user_func_array(array($this, 'altuuid'), $args);
 					else return false;
 				}
 				
@@ -2754,7 +2754,7 @@ class OliCore {
 				 * @version 1.0
 				 * @return string Returns the generated UUID.
 				 */
-				function uuidAlt($tp = null) {
+				function altuuid($tp = null) {
 					if(!empty($tp)) {
 						if(is_array($tp)) $time = ($tp['sec'] * 10000000) + ($tp['usec'] * 10);
 						else if(is_numeric($tp)) $time = (int) ($tp * 10000000);
@@ -3044,8 +3044,8 @@ class OliCore {
 		/**
 		 * Enable accounts management
 		 * 
-		 * Enable full login management
 		 * Allow to log, register and logout users
+		 * Enable full login management
 		 * 
 		 * @uses OliCore::$accountsManagementStatus to set accounts management status
 		 * @return void
