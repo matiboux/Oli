@@ -41,7 +41,7 @@
 	"allow_login": true,
 	"allow_register": false,
 	"account_activation": false,
-	"prohibited_usernames": [],
+	"prohibited_usernames": ["oli"],
 	
 	"request_expire_delay": "Time:2 days",
 	"default_session_duration": "Time:1 day",
