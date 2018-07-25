@@ -1,16 +1,15 @@
 <?php
-$_ = array_merge($_GET, $_POST);
 $result = [];
 
 if(!empty($_)) {
 	if($_['action'] == 'setUserID' OR $_['action'] == 'setLoginInfos') {
 		if(!$_Oli->isAccountsManagementReady()) $result = array('error' => 'Error: User Management is disabled');
 		else if(empty($_['authKey'])) $result = array('error' => 'Error: "authKey" parameter is missing');
-		else if(empty($_['userID'])) $result = array('error' => 'Error: "userID" parameter is missing');
-		else if($_Oli->verifyAuthKey()) $result = array('error' => 'Error: Cannot overwrite a valid authKey');
+		// else if(empty($_['userID'])) $result = array('error' => 'Error: "userID" parameter is missing');
+		else if($_Oli->isLoggedIn()) $result = array('error' => 'Error: Cannot overwrite a valid authKey');
 		else {
-			$_Oli->setUserIDCookie($_['userID'] . '::' . $_['authKey'], $_Oli->config['user_id_cookie']['expire_delay'] ?: 3600*24*7);
-			$result = array('error' => false, 'authKey' => $_['authKey'], 'userID' => $_['userID'], 'expireDelay' => $expireDelay);
+			$_Oli->setAuthKeyCookie($_['authKey'], $_Oli->config['auth_key_cookie']['expire_delay'] ?: 3600*24*7);
+			$result = array('error' => false, 'authKey' => $_['authKey'], 'expireDelay' => $expireDelay);
 		}
 	} else $result = array('error' => 'Error: "Action" parameter is missing');
 	if(!empty($result)) echo json_encode($result);
