@@ -193,7 +193,7 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 							<i>&laquo; Inherit from Global</i>
 							<?php if($localConfig !== null) { ?>
 								<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-config/local/' . urlencode($eachConfig) . '/'?>" method="post" class="create">
-									<textarea name="value"><?=isset($type['global']) ? json_encode($eachValue['global']) : isset($type['default']) ? json_encode($eachValue['default']) : 'null'?></textarea>
+									<textarea name="value"><?=isset($type['global']) ? json_encode($eachValue['global']) : (isset($type['default']) ? json_encode($eachValue['default']) : 'null')?></textarea>
 									<button type="submit">Create Config!</button> Format: JSON, or String
 								</form>
 							<?php } ?>
