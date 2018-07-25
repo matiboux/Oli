@@ -2574,7 +2574,6 @@ class OliCore {
 									if(empty($newFractionedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFractionedUrl);
 								}
 								
-								if($hasUsedHttpHostBase) $countLoop = 1; // Needs more debug..
 								while(isset($fractionedUrl[$countLoop])) {
 									if(!empty($fractionedUrl[$countLoop]) OR isset($fractionedUrl[$countLoop + 1])) {
 										$nextFractionedUrl = urldecode($fractionedUrl[$countLoop]);
