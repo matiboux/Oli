@@ -2549,6 +2549,7 @@ class OliCore {
 							if(!isset($urlSetting) OR !$baseUrlMatch) {
 								$baseUrl = $urlPrefix . $_SERVER['HTTP_HOST'] . '/';
 								$hasUsedHttpHostBase = true;
+								$countLoop = 1; // Fix $countLoop value
 							}
 							
 							if(in_array($param, [0, 'base'], true)) return $baseUrl;
@@ -2559,6 +2560,7 @@ class OliCore {
 								if($param === 'domain') return $matches[3];
 							} else {
 								$newFractionedUrl[] = $baseUrl;
+								$fileName = [];
 								if(!empty($this->fileNameParam)) {
 									while(isset($fractionedUrl[$countLoop])) {
 										if(!empty($fileName) AND implode('/', $fileName) == $this->fileNameParam) break;
