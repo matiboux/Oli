@@ -15,7 +15,9 @@
 	"login_alias": null,
 	
 	"assets_path": "Const:CONTENTPATH|assets/",
+	"assets_url": null,
 	"media_path": "Const:CONTENTPATH|media/",
+	"media_url": null,
 	"theme_path": "Const:CONTENTPATH|theme/",
 	"scripts_path": "Const:CONTENTPATH|scripts/",
 	"templates_path": "Const:CONTENTPATH|templates/",
