@@ -3383,7 +3383,8 @@ class OliCore {
 				$result[] = $this->deleteAccountLines('INFOS', $where);
 				$result[] = $this->deleteAccountLines('SESSIONS', $where);
 				$result[] = $this->deleteAccountLines('REQUESTS', $where);
-				if(in_array(false, $result, true)) return true;
+				$result[] = $this->deleteAccountLines('PERMISSIONS', $where);
+				if(!in_array(false, $result, true)) return true;
 				else return false;
 			}
 			
