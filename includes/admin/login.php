@@ -209,6 +209,17 @@ else if($isLoggedIn) {
 			
 		// }
 	
+	/** Delete Your Account */
+	} else if($_Oli->getUrlParam(2) == 'delete-account') {
+		$scriptState = 'delete-account';
+		if(!empty($_) AND $_['confirm']) {
+			if($_Oli->deleteFullAccount($_Oli->getLoggedUser())) {
+				$scriptState = 'login';
+				$ignoreFormData = true;
+				$resultCode = 'S:Your account has been successfully deleted.';
+			} else $resultCode = 'E:An error occurred while deleting your account.';
+		}
+	
 	} else {
 		/** Redirect the user */
 		// if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_SERVER['HTTP_REFERER']);
@@ -489,9 +500,11 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 #module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
 #module .form .checkbox input[type=checkbox], #module .form .radio input[type=radio] { display: initial; width: 15px; height: 15px; margin: 0 2px; vertical-align: middle }
 #module .form button, #module .form .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
+#module .form button.btn-danger, #module .form .btn.btn-danger { background: #c04040 }
 #module .form button.disabled, #module .form .btn.disabled { background: #c0c0c0; cursor: not-allowed }
 #module .form button { width: 100% }
 #module .form button:not(.disabled):hover, #module .form button:not(.disabled):focus, #module .form .btn:not(.disabled):hover, #module .form .btn:not(.disabled):focus { background: #306090 }
+#module .form button.btn-danger:not(.disabled):hover, #module .form button.btn-danger:not(.disabled):focus, #module .form .btn.btn-danger:not(.disabled):hover, #module .form .btn.btn-danger:not(.disabled):focus { background: #903030 }
 @media (max-width: 420px) {
 	#module .form { padding: 30px }
 	#module .form h2 { margin: 0 0 15px; font-size: 16px }
@@ -574,7 +587,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<div class="tooltip"></div>
 	</div>
 	
-	<?php if(in_array($scriptState, ['logged', 'recover', 'set-username', 'edit-password', 'recover-password', 'update-avatar', 'config-2fa', 'account-settings'])) { ?>
+	<?php if(in_array($scriptState, ['logged', 'recover', 'set-username', 'edit-password', 'recover-password', 'update-avatar', 'config-2fa', 'delete-account', 'account-settings'])) { ?>
 		<?php $showLoggedLinksCTA = true; ?>
 		<?php if($scriptState == 'recover') { ?>
 			<div class="form" data-icon="fa-sync-alt" data-text="Recover" style="display: <?php if($scriptState == 'recover') { ?>block<?php } else { ?>none<?php } ?>">
@@ -681,6 +694,21 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				</form>
 			</div>
 		
+		<?php } else if($scriptState == 'delete-account') { ?>
+			<div class="form" data-icon="fa-trash" data-text="Delete your Account" style="display: <?php if($scriptState == 'delete-account') { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Delete your Account</h2>
+				<p><b>Are you sure about this, <?=$_Oli->getLoggedName()?>? There is not no going back after this.</b></p>
+				<p class="mt-1">Once this account is deleted, you may register again using your email, and people may use your username (if you had set one).</p>
+				<hr />
+				
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" method="post">
+					<input type="hidden" name="confirm" value="true" />
+					<p><b>Are you sure</b> you want to continue?</p>
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>" class="btn mt-1">No, don't delete anything!</a>
+					<button class="btn-danger mt-1" type="submit">Yes, delete my account</button>
+				</form>
+			</div>
+		
 		<?php } else { ?>
 			<?php $showLoggedLinksCTA = false; ?>
 			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout & Links" style="display:<?php if($scriptState == 'logged') { ?>block<?php } else { ?>none<?php } ?>">
@@ -713,13 +741,14 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 				</div>
 				
 				<h2>Account Settings</h2>
+				<p>Manage your basic account settings.</p>
 				
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn mt-1">Edit Password</a>
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" class="btn mt-1">Update Avatar</a>
 				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" class="btn disabled mt-1">Configure 2FA</a>
 				
-				<p>Manage your basic account settings.</p>
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" class="btn btn-danger">Delete your Account</a>
 			</div>
 		<?php } ?>
 		
