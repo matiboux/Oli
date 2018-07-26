@@ -607,7 +607,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<?php } ?>
 		
 		<?php if($scriptState == 'set-username') { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'set-username') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-address-card" data-text="Set Username" style="display: <?php if($scriptState == 'set-username') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Set your username</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
 					<?php if(empty($username = $_Oli->getLoggedUsername() ?: '')) { ?>
@@ -655,7 +655,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			</div>
 		
 		<?php } else if($scriptState == 'update-avatar') { // https://www.gravatar.com/avatar/?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'update-avatar') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-user-circle" data-text="Avatar Updated" style="display: <?php if($scriptState == 'update-avatar') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Update your avatar</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post" enctype="multipart/form-data">
 					<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
@@ -679,7 +679,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			</div>
 		
 		<?php } else if($scriptState == 'config-2fa') { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if($scriptState == 'config-2fa') { ?>block<?php } else { ?>none<?php } ?>">
+			<div class="form" data-icon="fa-key" data-text="2FA Config" style="display: <?php if($scriptState == 'config-2fa') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Configure 2FA</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" method="post">
 					<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
@@ -803,7 +803,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 		<?php } ?>
 		
 		<?php if($isRegisterAllowed) { ?>
-			<div class="form" data-icon="fa-pencil-alt" data-text="Register" style="display: <?php if($scriptState == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
+			<div class="form" data-icon="fa-user-plus" data-text="Register" style="display: <?php if($scriptState == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
 					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
@@ -874,7 +874,7 @@ ob_end_clean(); ?>
 		<?php } ?>
 	
 	<?php } else { ?>
-		<div class="form" data-icon="fa-times" data-text="Error">
+		<div class="form" data-icon="fa-exclamation-triangle" data-text="Error">
 			<h2>An error occurred</h2>
 			<p>Either you're not allowed to do anything on this page or an error occurred. Please report it to the admin.</p>
 			<p>For debug purposes, here's the script state value: <b><?=!empty($scriptState) ? $scriptState : var_dump($scriptState)?></b>.</p>
