@@ -206,13 +206,7 @@ else if($isLoggedIn) {
 	} else if($_Oli->getUrlParam(2) == 'config-2fa') {
 		$scriptState = 'config-2fa';
 		// if(!empty($_)) {
-			// if($_Oli->isProhibitedUsername($_['username']) === false) $resultCode = 'E:You\'re not allowed to use this username.';
-			// else if(!empty($_['username']) AND $_Oli->isExistAccountInfos('ACCOUNTS', array('username' => $_['username']))) $resultCode = 'E:This username is already used.';
-			// else if($_Oli->updateAccountInfos('ACCOUNTS', array('username' => $_['username']), $_Oli->getLoggedUser())) {
-				// $scriptState = 'logged';
-				// $ignoreFormData = true;
-				// $resultCode = 'S:Your username has been successfully set.';
-			// } else $resultCode = 'E:An error occurred when updating your username.';
+			
 		// }
 	
 	} else {
@@ -227,11 +221,12 @@ else if($isLoggedIn) {
 // } else if($_Oli->getUrlParam(2) == 'activate' AND $_Oli->config['account_activation'] AND !$isLocalLogin) {
 } else if($_Oli->getUrlParam(2) == 'activate' AND $isActivateAllowed) {
 	$scriptState = 'activate';
-	if(empty($_['activateKey'] ?: $_Oli->getUrlParam(3))) $resultCode = 'E:Please enter your activate key.';
-	else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'] ?: $_Oli->getUrlParam(3))))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
+	$activateKey = $_['activateKey'] ?: $_Oli->getUrlParam(3);
+	if(empty($activateKey)) $resultCode = 'E:Please enter your activate key.';
+	else if(!$requestInfos = $_Oli->getAccountLines('REQUESTS', array('activate_key' => hash('sha512', $activateKey)))) $resultCode = 'E:Sorry, the request you asked for does not exist.';
 	else if($requestInfos['action'] != 'activate') $resultCode = 'E:The request you triggered does not allow you to activate any account.';
 	else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
-	else if($_Oli->updateUserRight('USER', $requestInfos['username']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'] ?: $_Oli->getUrlParam(3))))) {
+	else if($_Oli->updateUserRight('USER', $requestInfos['uid']) AND $_Oli->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $activateKey)))) {
 		$scriptState = 'login';
 		$resultCode = 'S:Your account has been successfully activated!';
 	} else $resultCode = 'E:An error occurred while activating your account.';
