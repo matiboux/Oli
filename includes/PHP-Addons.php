@@ -16,7 +16,7 @@ namespace {
 /**
  * Finds whether a variable is an associative array
  * 
- * Inspirated by http://stackoverflow.com/a/173479/5255556
+ * Inspired by http://stackoverflow.com/a/173479/5255556
  * 
  * @version BETA-1.7.0
  * @updated BETA-2.0.0
