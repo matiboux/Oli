@@ -8,7 +8,7 @@
 |*|  You can use this SQL template to setup a MySQL database for use with the framework.
 |*|  Created and developed by Matiboux (Mathieu Guérin).
 |*|  
-|*|  Oli Github repository: https://github.com/OliFramework/Oli/
+|*|  Oli Github repository: https://github.com/matiboux/Oli/
 |*|   — see more infos in the README.md file on the repository
 |*|  
 |*|  --- --- ---
@@ -115,7 +115,7 @@ SET time_zone = "+00:00";
 	-- III. 2. B. Insert the data
 
 	INSERT INTO `shortcut_links` (`id`, `name`, `url`) VALUES
-	(1, 'Oli', 'https://github.com/OliFramework/Oli/');
+	(1, 'Oli', 'https://github.com/matiboux/Oli/');
 
 	-- III. 2. C. Extras
 
