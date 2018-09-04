@@ -122,7 +122,7 @@ if(!empty($_)) {
 <?php } else { ?>
 	<h2>Thank you! ♥</h2>
 	<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
-	<p>You can also become a contributor of the project! Check out <a href="https://github.com/OliFramework/Oli/">Oli's Github repository</a>.</p>
+	<p>You can also become a contributor of the project! Check out <a href="https://github.com/matiboux/Oli/">Oli's Github repository</a>.</p>
 	
 	<p><a href="<?=$_Oli->getUrlParam(0)?>">Visit your website! ♥</a>.</p>
 <?php } ?>

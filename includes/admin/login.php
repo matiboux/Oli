@@ -4,11 +4,11 @@
 |*|  --- [  Oli Login page  ] ---
 |*|  ----------------------------
 |*|  
-|*|  Oli Github repository: https://github.com/OliFramework/Oli/
+|*|  Oli Github repository: https://github.com/matiboux/Oli/
 |*|  
 |*|  For Oli version BETA-1.8.0 and prior versions,
 |*|  the source code of the Oli Login page was hosted on a standalone Github repository.
-|*|  → https://github.com/OliFramework/Oli-Login-Page
+|*|  → https://github.com/matiboux/Oli-Login-Page
 |*|  
 |*|  Original Login Page based on Andy Tran's template (http://codepen.io/andytran/pen/PwoQgO)
 |*|  

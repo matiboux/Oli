@@ -8,7 +8,7 @@
 |*|  PHP Addons is a build-in addon for Oli.
 |*|  It is meant to add more general functions to the native PHP ones.
 |*|  
-|*|  For more info on Oli, please see the its Github repository: https://github.com/OliFramework/Oli/
+|*|  For more info on Oli, please see the its Github repository: https://github.com/matiboux/Oli/
 \*/
 
 namespace {

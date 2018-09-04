@@ -45,7 +45,7 @@
 	-- III. 2. B. Insert the data
 
 	INSERT INTO `shortcut_links` (`id`, `name`, `url`) VALUES
-	(1, 'Oli', 'https://github.com/OliFramework/Oli/');
+	(1, 'Oli', 'https://github.com/matiboux/Oli/');
 
 	-- III. 2. C. Extras
 

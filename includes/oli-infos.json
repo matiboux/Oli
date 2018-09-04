@@ -6,11 +6,11 @@
 	"plan": "full",
 	"version": "beta-2.0.0",
 	
-	"url": "https://github.com/OliFramework/Oli/",
+	"url": "https://github.com/matiboux/Oli/",
 	"repository": {
 		"service": "Github",
-		"url": "https://github.com/OliFramework/Oli/",
-		"api": "https://api.github.com/repos/OliFramework/Oli"
+		"url": "https://github.com/matiboux/Oli/",
+		"api": "https://api.github.com/repos/matiboux/Oli"
 	},
 	
 	"team": [
