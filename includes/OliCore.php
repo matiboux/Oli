@@ -2631,7 +2631,7 @@ class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the login url.
 		 */
-		public function getLoginUrl() { return $this->isExternalLogin() ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($this->config['login_alias'] . '/' ?: 'oli-login/'); }
+		public function getLoginUrl() { return $this->isExternalLogin() ? $this->config['external_login_url'] : $this->getUrlParam(0) . ($this->config['login_alias'] ?: 'oli-login') . '/'; }
 		
 		/**
 		 * Get Oli Admin Url
