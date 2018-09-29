@@ -4019,9 +4019,10 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if valid login infos.
 			 */
-			public function verifyLogin($logid, $password) {
-				if(empty($password)) return false;
-				else if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
+			public function verifyLogin($logid, $password = null) {
+				if(empty($password)) $password = [$logid, $logid = null][0];
+				
+				if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
 				else if(!empty($logid)) {
 					$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $logid), array('where_or' => true), false);
 					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
