@@ -1851,10 +1851,11 @@ class OliCore {
 						else {
 							$fileName[] = $eachParam;
 							$fileNameParam = implode('/', $fileName);
+							
 							if(!empty($contentRules)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, implode('/', array_slice($fileName, 0, -1)) . '/'));
 							
 							/** Oli Login */
-							if(($fileName[0] == 'oli-login' OR (!empty($this->config['login_alias']) AND $fileName[0] == $this->config['login_alias'])) AND file_exists(OLIADMINPATH . 'login.php')) {
+							if(($fileName[0] == 'oli-login' OR (!empty($this->config['login_alias']) AND $fileName[0] == $this->config['login_alias'])) AND is_file(OLIADMINPATH . 'login.php')) {
 								$found = OLIADMINPATH . 'login.php';
 								$this->fileNameParam = $fileNameParam;
 								break;
@@ -1862,27 +1863,27 @@ class OliCore {
 							/** Oli Admin */
 							} else if($fileName[0] == 'oli-admin' OR (!empty($this->config['admin_alias']) AND $fileName[0] == $this->config['admin_alias'])) {
 								/** Custom Pages */
-								if(count($fileName) > 1 AND file_exists(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
+								if(count($fileName) > 1 AND is_file(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
 									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
 									$this->fileNameParam = $fileNameParam;
 									break; // Sub-level pages not allowed.
 								
 								/** Home Page */
-								} else if(file_exists(OLIADMINPATH . 'index.php')) {
+								} else if(is_file(OLIADMINPATH . 'index.php')) {
 									$found = OLIADMINPATH . 'index.php';
 									$this->fileNameParam = $fileNameParam;
 									continue; // There may be a requested page.
 								}
 							
 							/** User Scripts */
-							} else if(file_exists(SCRIPTSPATH . $fileNameParam)) {
+							} else if(is_file(SCRIPTSPATH . $fileNameParam)) {
 								$found = SCRIPTSPATH . $fileNameParam;
 								$this->fileNameParam = $fileNameParam;
 								$this->setContentType('JSON');
 								break;
 							
 							/** Oli Scripts */
-							} else if(file_exists(INCLUDESPATH . 'scripts/' . $fileNameParam)) {
+							} else if(is_file(INCLUDESPATH . 'scripts/' . $fileNameParam)) {
 								$found = INCLUDESPATH . 'scripts/' . $fileNameParam;
 								$this->fileNameParam = $fileNameParam;
 								$this->setContentType('JSON');
@@ -1896,24 +1897,25 @@ class OliCore {
 							/** User Pages */
 							} else {
 								/** Custom Page */
-								if(file_exists(THEMEPATH . $fileNameParam . '.php')) {
+								if(is_file(THEMEPATH . $fileNameParam . '.php')) {
 									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
 										$found = THEMEPATH . $fileNameParam . '.php';
 										$this->fileNameParam = $fileNameParam;
 									}
 								
 								/** Home Page */
-								} else if($fileNameParam == 'home' AND file_exists(THEMEPATH . ($contentRules['index'] ?: 'index.php'))) {
+								} else if($fileNameParam == 'home' AND is_file(THEMEPATH . ($contentRules['index'] ?: 'index.php'))) {
 									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: 'index.php')) {
 										$found = THEMEPATH . ($contentRules['index'] ?: 'index.php');
 										$contentStatus = 'index';
 									}
 								}
 								
-								/** Search for sub-directory */
-								if(!file_exists(THEMEPATH . $fileNameParam . '/')) break; // No more to search.
+								/** Check for sub-directory */
+								if(!file_exists(SCRIPTSPATH . $fileNameParam . '/') AND !file_exists(THEMEPATH . $fileNameParam . '/')) break; // No more to search.
+								/** Sub-directory Home Page */
 								else {
-									if(file_exists(THEMEPATH . $fileNameParam . '/index.php')) {
+									if(is_file(THEMEPATH . $fileNameParam . '/index.php')) {
 										$found = THEMEPATH . $fileNameParam . '/index.php';
 										$this->fileNameParam = $fileNameParam;
 									}
