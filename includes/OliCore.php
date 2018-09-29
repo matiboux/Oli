@@ -3959,7 +3959,7 @@ class OliCore {
 								
 								$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
 								
-								if($mailResult) return !empty($activateKey) ? $activateKey : true;
+								if($mailResult AND $activateKey) return !empty($activateKey) ? $activateKey : true;
 								else {
 									$this->deleteFullAccount($uid);
 									return false;
