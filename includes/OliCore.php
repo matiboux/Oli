@@ -4019,11 +4019,11 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if valid login infos.
 			 */
-			public function verifyLogin($uid, $password) {
+			public function verifyLogin($logid, $password) {
 				if(empty($password)) return false;
 				else if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
-				else if(!empty($uid)) {
-					$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $uid, 'username' => $uid, 'email' => $uid), array('where_or' => true), false);
+				else if(!empty($logid)) {
+					$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $logid), array('where_or' => true), false);
 					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
 					else return false;
 				} else return false;
@@ -4036,11 +4036,12 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
-			public function loginAccount($uid, $password, $expireDelay = null, $setCookie = true) {
+			public function loginAccount($logid, $password, $expireDelay = null, $setCookie = true) {
 				if($this->isExternalLogin()) return null;
-				else if($this->verifyLogin($uid, $password)) {
-					if(!$this->isLocalLogin()) {
-						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $uid, 'username' => $uid, 'email' => $uid), array('where_or' => true), false);
+				else if($this->verifyLogin($logid, $password)) {
+					if($this->isLocalLogin()) $uid = $logid;
+					else {
+						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $uid), array('where_or' => true), false);
 						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $uid);
 					}
 					
