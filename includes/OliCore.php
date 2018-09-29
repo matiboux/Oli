@@ -4036,7 +4036,7 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return string|boolean Returns the auth key if logged in successfully, false otherwise.
 			 */
-			public function loginAccount($uid, $password, $expireDelay = null) {
+			public function loginAccount($uid, $password, $expireDelay = null, $setCookie = true) {
 				if($this->isExternalLogin()) return null;
 				else if($this->verifyLogin($uid, $password)) {
 					if(!$this->isLocalLogin()) {
@@ -4084,10 +4084,10 @@ class OliCore {
 								fclose($handle);
 							}
 							
-							$this->setAuthCookie($authKey, $this->config['auth_key_cookie']['expire_delay'] ?: 3600*24*7);
+							if($setCookie) $this->setAuthCookie($authKey, $this->config['auth_key_cookie']['expire_delay'] ?: 3600*24*7);
 							$this->cache['authKey'] = $authKey;
 							
-							return $result ? true : false;
+							return $result ? $authKey : false;
 						} else return false;
 					} else return false;
 				} else return false;
