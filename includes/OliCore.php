@@ -4042,7 +4042,7 @@ class OliCore {
 				else if($this->verifyLogin($logid, $password)) {
 					if($this->isLocalLogin()) $uid = $logid;
 					else {
-						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $uid), array('where_or' => true), false);
+						$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $logid), array('where_or' => true), false);
 						if($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', array('password' => $this->hashPassword($password)), $uid);
 					}
 					
