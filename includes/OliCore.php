@@ -3900,7 +3900,7 @@ class OliCore {
 			 * @return string|boolean Returns the activate key or true if succeeded, false otherwise.
 			 */
 			public function registerAccount($email, $password, $oliSC = null, $mailInfos = []) {
-				if(!empty($password)) {
+				// if(!empty($password)) {
 					if(is_array($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 					
 					if(!empty($oliSC) AND $oliSC == $this->getOliSecurityCode()) $isRootRegister = true;
@@ -3920,7 +3920,10 @@ class OliCore {
 							if($uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('email' => $_['email']), false) AND $this->getUserRightLevel(array('email' => $email)) == $this->translateUserRight('NEW-USER') AND (!$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', array('uid' => $uid, 'action' => 'activate'), false) OR strtotime($expireDate) < time())) $this->deleteFullAccount($uid);
 							unset($uid);
 							
-							if(!$this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false) AND (!$isRootRegister OR !$this->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false)) AND !empty($hashedPassword = $this->hashPassword($password))) {
+							if(!$this->isExistAccountInfos('ACCOUNTS', array('email' => $email), false) AND (!$isRootRegister OR !$this->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false))) {
+								/** Hash the password (may be empty) */
+								$hashedPassword = $this->hashPassword($password);
+								
 								/** Generate a new uid */
 								do { $uid = $this->uuid4();
 								} while($this->isExistAccountInfos('ACCOUNTS', $uid, false));
@@ -3969,7 +3972,7 @@ class OliCore {
 							} else return false; 
 						} else return false;
 					} else return false;
-				} else return false;
+				// } else return false;
 			}
 			
 			/** ------------------ */
@@ -4022,7 +4025,8 @@ class OliCore {
 			public function verifyLogin($logid, $password = null) {
 				if(empty($password)) $password = [$logid, $logid = null][0];
 				
-				if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
+				if(empty($password)) return false;
+				else if($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) AND password_verify($password, $rootUserInfos['password']);
 				else if(!empty($logid)) {
 					$uid = $this->getAccountInfos('ACCOUNTS', 'uid', array('uid' => $logid, 'username' => $logid, 'email' => $logid), array('where_or' => true), false);
 					if($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
@@ -4246,9 +4250,11 @@ class OliCore {
 		
 		/** Hash Password */
 		public function hashPassword($password) {
-			if(!empty($this->config['pw_hash']['salt'])) $hashOptions['salt'] = $this->config['pw_hash']['salt'];
-			if(!empty($this->config['pw_hash']['cost'])) $hashOptions['cost'] = $this->config['pw_hash']['cost'];
-			return password_hash($password, $this->config['pw_hash']['algorithm'], $hashOptions ?: []);
+			if(!empty($password)) {
+				if(!empty($this->config['pw_hash']['salt'])) $hashOptions['salt'] = $this->config['pw_hash']['salt'];
+				if(!empty($this->config['pw_hash']['cost'])) $hashOptions['cost'] = $this->config['pw_hash']['cost'];
+				return password_hash($password, $this->config['pw_hash']['algorithm'], $hashOptions ?: []);
+			} else return null;
 		}
 		
 		public function needsRehashPassword($password) {
