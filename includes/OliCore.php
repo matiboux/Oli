@@ -2715,7 +2715,7 @@ class OliCore {
 				 */
 				public function uuid($type, ...$args) {
 					if(in_array($type, ['v4', '4', 4], true)) call_user_func_array(array($this, 'uuid4'), $args);
-					else if($type == 'alt') call_user_func_array(array($this, 'altuuid'), $args);
+					else if($type == 'alt') call_user_func_array(array($this, 'uuidAlt'), $args);
 					else return false;
 				}
 				
@@ -2757,7 +2757,7 @@ class OliCore {
 				 * @version 1.0
 				 * @return string Returns the generated UUID.
 				 */
-				function altuuid($tp = null) {
+				function uuidAlt($tp = null) {
 					if(!empty($tp)) {
 						if(is_array($tp)) $time = ($tp['sec'] * 10000000) + ($tp['usec'] * 10);
 						else if(is_numeric($tp)) $time = (int) ($tp * 10000000);
@@ -3925,7 +3925,7 @@ class OliCore {
 								$hashedPassword = $this->hashPassword($password);
 								
 								/** Generate a new uid */
-								do { $uid = $this->uuid4();
+								do { $uid = $this->uuidAlt();
 								} while($this->isExistAccountInfos('ACCOUNTS', $uid, false));
 								
 								/** Set other account parameters */
