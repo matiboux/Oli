@@ -1095,7 +1095,7 @@ class OliCore {
 			 * @uses OliCore::$db to execute SQL requests
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
-			public function insertLineMySQL($table, $matches) {
+			public function insertLineMySQL($table, $matches, &$errorInfo = null) {
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					foreach($matches as $matchKey => $matchValue) {
@@ -1106,7 +1106,8 @@ class OliCore {
 						$matches[$matchKey] = $matchValue;
 					}
 					$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
-					return $query->execute($matches) ?: $query->errorInfo();
+					$errorInfo = $query->errorInfo();
+					return $query->execute($matches);
 				}
 			}
 			
@@ -1121,7 +1122,7 @@ class OliCore {
 			 * @uses OliCore::$db to execute SQL requests
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
-			public function updateInfosMySQL($table, $what, $where) {
+			public function updateInfosMySQL($table, $what, $where, &$errorInfo = null) {
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					$matches = [];
@@ -1140,7 +1141,8 @@ class OliCore {
 						}
 					}
 					$query = $this->db->prepare('UPDATE ' . $table . ' SET '  . implode(', ', $queryWhat) . ($where != 'all' ? ' WHERE ' . implode(' AND ', $queryWhere) : ''));
-					return $query->execute($matches) ?: $query->errorInfo();
+					$errorInfo = $query->errorInfo();
+					return $query->execute($matches);
 				}
 			}
 			
@@ -1151,7 +1153,7 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if the request succeeded, false otherwise.
 			 */
-			public function deleteLinesMySQL($table, $where) {
+			public function deleteLinesMySQL($table, $where, &$errorInfo = null) {
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					if(is_array($where)) {
@@ -1165,7 +1167,8 @@ class OliCore {
 					}
 					$query = $this->db->prepare('DELETE FROM ' . $table . ' WHERE ' .
 					(is_array($where) ? implode(' AND ', $queryWhere) : ($where !== 'all' ? $where : '*')));
-					return $query->execute($matches) ?: $query->errorInfo();
+					$errorInfo = $query->errorInfo();
+					return $query->execute($matches);
 				}
 			}
 			
@@ -1187,14 +1190,15 @@ class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function createTableMySQL($table, $columns) {
+				public function createTableMySQL($table, $columns, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						foreach($columns as $matchName => $matchOption) {
 							$queryData[] = $matchName . ' ' . $matchOption;
 						}
 						$query = $this->db->prepare('CREATE TABLE ' . $table . '(' . implode(', ', $queryData) . ')');
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1205,11 +1209,12 @@ class OliCore {
 				 * @updated BETA-2.0.0
 				 * @return boolean Returns true if it exists.
 				 */
-				public function isExistTableMySQL($table) {
+				public function isExistTableMySQL($table, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('SELECT 1 FROM ' . $table);
-						return $query->execute() !== false;
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1224,11 +1229,12 @@ class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function clearTableMySQL($table) {
+				public function clearTableMySQL($table, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1241,11 +1247,12 @@ class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function deleteTableMySQL($table) {
+				public function deleteTableMySQL($table, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('DROP TABLE ' . $table);
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1264,11 +1271,12 @@ class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function addColumnTableMySQL($table, $column, $type) {
+				public function addColumnTableMySQL($table, $column, $type, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1284,11 +1292,12 @@ class OliCore {
 				 * @todo Add PostgreSQL support
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function updateColumnTableMySQL($table, $column, $type) {
+				public function updateColumnTableMySQL($table, $column, $type, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1304,11 +1313,12 @@ class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null) {
+				public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 				
@@ -1323,11 +1333,12 @@ class OliCore {
 				 * @todo Add PostgreSQL support
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function deleteColumnTableMySQL($table, $column) {
+				public function deleteColumnTableMySQL($table, $column, &$errorInfo = null) {
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
-						return $query->execute() ?: $query->errorInfo();
+						$errorInfo = $query->errorInfo();
+						return $query->execute();
 					}
 				}
 	
@@ -3312,8 +3323,8 @@ class OliCore {
 			 * @uses OliCore::translateAccountsTableCode() to translate account table code
 			 * @return boolean Returns true if the request succeeded, false otherwise
 			 */
-			public function insertAccountLine($tableCode, $what) {
-				return $this->insertLineMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what);
+			public function insertAccountLine($tableCode, $what, &$errorInfo = null) {
+				return $this->insertLineMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $errorInfo);
 			}
 			
 			/**
@@ -3330,14 +3341,14 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
-			public function updateAccountInfos($tableCode, $what, $where = null) {
+			public function updateAccountInfos($tableCode, $what, $where = null, &$errorInfo = null) {
 				if(!isset($where)) {
 					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				}
 				else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
 				
-				return $this->updateInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where);
+				return $this->updateInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where, $errorInfo);
 			}
 			
 			/**
@@ -3362,9 +3373,9 @@ class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if the request succeeded, false otherwise.
 			 */
-			public function deleteAccountLines($tableCode, $where) {
+			public function deleteAccountLines($tableCode, $where, &$errorInfo = null) {
 				if(!is_array($where) AND $where !== 'all' AND strpos($where, ' ') === false) $where = array('uid' => $where);
-				return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where);
+				return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $errorInfo);
 			}
 			
 			/**
