@@ -940,7 +940,7 @@ class OliCore {
 						if(!$rawResult) $where = array_map(function($value) {
 							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
 						}, $dataMySQL);
-						return $dataMySQL;
+						return $whatVar ? $dataMySQL[$whatVar] : $dataMySQL;
 					} else return null;
 				}
 			}
@@ -1006,7 +1006,7 @@ class OliCore {
 						/** Data Processing */
 						$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode($whereGlue ?: ' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
 						if(!empty($dataMySQL) AND is_array($dataMySQL)) {
-							if(count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
+							// if(!count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
 							if(!$rawResult) $dataMySQL = array_map(function($value) {
 								if(is_array($value) AND count($value) == 1) $value = array_values($value)[0];
 								if(is_array($value)) return array_map(function($value) {
