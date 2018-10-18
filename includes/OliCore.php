@@ -3912,7 +3912,7 @@ class OliCore {
 			 */
 			public function registerAccount($email, $password, $oliSC = null, $mailInfos = []) {
 				// if(!empty($password)) {
-					if(is_array($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
+					if(is_array($oliSC) OR is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 					
 					if(!empty($oliSC) AND $oliSC == $this->getOliSecurityCode()) $isRootRegister = true;
 					else if($this->isAccountsManagementReady() AND $this->config['allow_register']) $isRootRegister = false;
@@ -3947,33 +3947,36 @@ class OliCore {
 								$this->insertAccountLine('INFOS', array('uid' => $uid));
 								$this->insertAccountLine('PERMISSIONS', array('uid' => $uid));
 								
-								/** Generate Activate Key (if activation needed) */
-								if($this->config['account_activation']) $activateKey = $this->createRequest($uid, 'activate');
-								
-								$subject = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['subject'] : 'Your account has been created!';
-								$message = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['message'] : null;
-								if(!isset($message)) {
-									$message .= '<p><b>Welcome</b>, your account has been successfully created! ♫</p>';
-									if(!empty($activateKey)) {
-										$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
-										$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . ($days = floor($this->config['request_expire_delay'] /3600 /24)) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same email you used.</p>';
-									} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->getUrlParam(0) . 'login/">our login page</a>, using your email, and – of course – your password.</p>';
-									if(!empty($this->config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
+								/** Allow to force-disabled account mail activation */
+								if($mailInfos !== false) {
+									/** Generate Activate Key (if activation needed) */
+									if($this->config['account_activation']) $activateKey = $this->createRequest($uid, 'activate');
 									
-									$message .= '<p>Your user ID: <i>' . $uid . '</i> <br />';
-									$message .= 'Your hashed password (what we keep stored): <i>' . $hashedPassword . '</i> <br />';
-									$message .= 'Your email: <i>' . $email . '</i> <br />';
-									$message .= 'Your rights level: <i>' . $userRight . '</i></p>';
-									$message .= '<p>Your password is kept secret and stored hashed in our database. <b>Do not give your password to anyone</b>, including our staff.</p> <hr />';
+									$subject = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['subject'] : 'Your account has been created!';
+									$message = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['message'] : null;
+									if(!isset($message)) {
+										$message .= '<p><b>Welcome</b>, your account has been successfully created! ♫</p>';
+										if(!empty($activateKey)) {
+											$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
+											$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . ($days = floor($this->config['request_expire_delay'] /3600 /24)) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same email you used.</p>';
+										} else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->getUrlParam(0) . 'login/">our login page</a>, using your email, and – of course – your password.</p>';
+										if(!empty($this->config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
+										
+										$message .= '<p>Your user ID: <i>' . $uid . '</i> <br />';
+										$message .= 'Your hashed password (what we keep stored): <i>' . $hashedPassword . '</i> <br />';
+										$message .= 'Your email: <i>' . $email . '</i> <br />';
+										$message .= 'Your rights level: <i>' . $userRight . '</i></p>';
+										$message .= '<p>Your password is kept secret and stored hashed in our database. <b>Do not give your password to anyone</b>, including our staff.</p> <hr />';
+										
+										$message .= '<p>Go on our website – <a href="' . $this->getUrlParam(0) . '">' . $this->getUrlParam(0) . '</a> <br />';
+										$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/">' . $this->getUrlParam(0) . 'login/</a> <br />';
+										if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover">' . $this->getUrlParam(0) . 'login/recover</a></p>';
+									}
+									$headers = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['headers'] : $this->getDefaultMailHeaders();
+									if(is_array($headers)) $headers = implode("\r\n", $headers);
 									
-									$message .= '<p>Go on our website – <a href="' . $this->getUrlParam(0) . '">' . $this->getUrlParam(0) . '</a> <br />';
-									$message .= 'Login – <a href="' . $this->getUrlParam(0) . 'login/">' . $this->getUrlParam(0) . 'login/</a> <br />';
-									if(!empty($this->config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->getUrlParam(0) . 'login/recover">' . $this->getUrlParam(0) . 'login/recover</a></p>';
+									$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
 								}
-								$headers = (!empty($mailInfos) AND is_assoc($mailInfos)) ? $mailInfos['headers'] : $this->getDefaultMailHeaders();
-								if(is_array($headers)) $headers = implode("\r\n", $headers);
-								
-								$mailResult = mail($email, $subject, $this->getTemplate('mail', array('__URL__' => $this->getUrlParam(0), '__NAME__' => $this->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message)), $headers);
 								
 								if(!$activateKey OR $mailResult) return $uid;
 								else {
