@@ -537,7 +537,7 @@ class OliCore {
 					
 					/** Saving new config */
 					$handle = fopen(ABSPATH . 'app.json', 'w');
-					if($result[] = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)) $this->appConfig = $config;
+					if($result[] = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))) $this->appConfig = $config;
 					fclose($handle);
 				}
 			} else {
