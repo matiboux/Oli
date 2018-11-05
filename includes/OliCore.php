@@ -3921,7 +3921,7 @@ class OliCore {
 					if($isRootRegister !== null) {
 						if($this->isLocalLogin()) {
 							if($isRootRegister AND !empty($hashedPassword = $this->hashPassword($password))) {
-								$handle = fopen(ABSPATH . '.oliauth', 'w');
+								$handle = fopen(OLIPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array('password' => $hashedPassword), JSON_FORCE_OBJECT));
 								fclose($handle);
 								return $result ? true : false;
@@ -4023,8 +4023,8 @@ class OliCore {
 			 * @return array|boolean Returns Local Root User informations if they exist, false otherwise.
 			 */
 			public function getLocalRootInfos($whatVar = null) {
-				if(file_exists(ABSPATH . '.oliauth')) {
-					$localRootInfos = json_decode(file_get_contents(ABSPATH . '.oliauth'), true);
+				if(file_exists(OLIPATH . '.oliauth')) {
+					$localRootInfos = json_decode(file_get_contents(OLIPATH . '.oliauth'), true);
 					return !empty($whatVar) ? $localRootInfos[$whatVar] : $localRootInfos;
 				} else return false;
 			}
@@ -4094,7 +4094,7 @@ class OliCore {
 							
 							} else {
 								$rootUserInfos = $this->getLocalRootInfos();
-								$handle = fopen(ABSPATH . '.oliauth', 'w');
+								$handle = fopen(OLIPATH . '.oliauth', 'w');
 								$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array(
 									'auth_key' => hash('sha512', $authKey),
 									'ip_address' => $this->getUserIP(),
@@ -4128,7 +4128,7 @@ class OliCore {
 				if($this->isLoggedIn($authKey)) {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
-						$handle = fopen(ABSPATH . '.oliauth', 'w');
+						$handle = fopen(OLIPATH . '.oliauth', 'w');
 						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
 						fclose($handle);
 					} else $result = $this->deleteAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey ? : $this->getAuthKey())));
@@ -4148,7 +4148,7 @@ class OliCore {
 			public function logoutAllAccount($uid = null, $deleteCookie = false) {
 				if($this->isLocalLogin()) {
 					$rootUserInfos = $this->getLocalRootInfos();
-					$handle = fopen(ABSPATH . '.oliauth', 'w');
+					$handle = fopen(OLIPATH . '.oliauth', 'w');
 					$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
 					fclose($handle);
 				} else {
