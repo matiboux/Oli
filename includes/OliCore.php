@@ -933,15 +933,18 @@ class OliCore {
 			 * @return array|null Returns last info from specified table.
 			 */
 			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
-				if(!$this->isSetupMySQL()) return null;
+				if(!$this->isSetupMySQL()) return false;
 				else {
-					$dataMySQL = array_reverse($this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null))[0];
-					if(!empty($dataMySQL)) {
-						if(!$rawResult) $where = array_map(function($value) {
-							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
-						}, $dataMySQL);
-						return $whatVar ? $dataMySQL[$whatVar] : $dataMySQL;
-					} else return null;
+					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null);
+					if($dataMySQL !== false) {
+						$dataMySQL = array_reverse($dataMySQL)[0];
+						if(!empty($dataMySQL)) {
+							if(!$rawResult) $where = array_map(function($value) {
+								return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
+							}, $dataMySQL);
+							return $whatVar ? $dataMySQL[$whatVar] : $dataMySQL;
+						} else return null;
+					} else return false;
 				}
 			}
 			/**
