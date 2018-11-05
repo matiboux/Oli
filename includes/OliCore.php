@@ -517,7 +517,7 @@ class OliCore {
 			if($target === 'global') {
 				if(!$replace AND is_array($globalConfig = $this->getGlobalConfig())) $config = array_merge($globalConfig, $config);
 				$handle = fopen(OLIPATH . 'config.global.json', 'w');
-				if($result[] = fwrite($handle, json_encode($config))) $this->globalConfig = $config;
+				if($result[] = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))) $this->globalConfig = $config;
 				fclose($handle);
 			} else if($target === 'app') {
 				if($this->isExistTableMySQL($this->config['settings_tables'][0])) { // Are Settings Managed via MySQL?
@@ -537,13 +537,13 @@ class OliCore {
 					
 					/** Saving new config */
 					$handle = fopen(ABSPATH . 'app.json', 'w');
-					if($result[] = fwrite($handle, json_encode($config))) $this->appConfig = $config;
+					if($result[] = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)) $this->appConfig = $config;
 					fclose($handle);
 				}
 			} else {
 				if(!$replace AND is_array($localConfig = $this->getLocalConfig())) $config = array_merge($localConfig, $config);
 				$handle = fopen(ABSPATH . 'config.json', 'w');
-				if($result[] = fwrite($handle, json_encode($config))) $this->localConfig = $config;
+				if($result[] = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))) $this->localConfig = $config;
 				fclose($handle);
 			}
 			return !in_array(false, $result, true);
@@ -1102,7 +1102,7 @@ class OliCore {
 						$queryVars[] = $matchKey;
 						$queryValues[] = ':' . $matchKey;
 						
-						$matchValue = (is_array($matchValue)) ? json_encode($matchValue, JSON_FORCE_OBJECT) : $matchValue;
+						$matchValue = (is_array($matchValue)) ? json_encode($matchValue) : $matchValue;
 						$matches[$matchKey] = $matchValue;
 					}
 					$query = $this->db->prepare('INSERT INTO ' . $table . '(' . implode(', ', $queryVars) . ') VALUES(' . implode(', ', $queryValues) . ')');
@@ -1129,14 +1129,14 @@ class OliCore {
 					foreach($what as $whatVar => $whatValue) {
 						$queryWhat[] = $whatVar . ' = :what_' . $whatVar;
 						
-						$whatValue = (is_array($whatValue)) ? json_encode($whatValue, JSON_FORCE_OBJECT) : $whatValue;
+						$whatValue = (is_array($whatValue)) ? json_encode($whatValue) : $whatValue;
 						$matches['what_' . $whatVar] = $whatValue;
 					}
 					if($where != 'all') {
 						foreach($where as $whereVar => $whereValue) {
 							$queryWhere[] = $whereVar . ' = :where_' . $whereVar;
 							
-							$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
+							$whereValue = (is_array($whereValue)) ? json_encode($whereValue) : $whereValue;
 							$matches['where_' . $whereVar] = $whereValue;
 						}
 					}
@@ -1161,7 +1161,7 @@ class OliCore {
 						foreach($where as $whereVar => $whereValue) {
 							$queryWhere[] = $whereVar . ' = :' . $whereVar;
 							
-							$whereValue = (is_array($whereValue)) ? json_encode($whereValue, JSON_FORCE_OBJECT) : $whereValue;
+							$whereValue = (is_array($whereValue)) ? json_encode($whereValue) : $whereValue;
 							$matches[$whereVar] = $whereValue;
 						}
 					}
@@ -1725,7 +1725,7 @@ class OliCore {
 				$eachInfo = (!is_array($eachInfo) AND is_array(json_decode($eachInfo, true))) ? json_decode($eachInfo, true) : $eachInfo;
 				$summedInfos += $eachInfo;
 			}
-			return (is_array($summedInfos) AND $rawResult) ? json_encode($summedInfos, JSON_FORCE_OBJECT) : $summedInfos;
+			return (is_array($summedInfos) AND $rawResult) ? json_encode($summedInfos) : $summedInfos;
 		}
 		
 		/**
@@ -2195,7 +2195,7 @@ class OliCore {
 				
 				/** Set cookie */
 				public function setCookie($name, $value, $expireDelay, $path, $domains, $secure = false, $httpOnly = false) {
-					$value = (is_array($value)) ? json_encode($value, JSON_FORCE_OBJECT) : $value;
+					$value = (is_array($value)) ? json_encode($value) : $value;
 					$domains = (!is_array($domains)) ? [$domains] : $domains;
 					foreach($domains as $eachDomain) {
 						if(!setcookie($name, $value, $expireDelay ? time() + $expireDelay : 0, '/', $eachDomain, $secure, $httpOnly)) {
@@ -3922,7 +3922,7 @@ class OliCore {
 						if($this->isLocalLogin()) {
 							if($isRootRegister AND !empty($hashedPassword = $this->hashPassword($password))) {
 								$handle = fopen(OLIPATH . '.oliauth', 'w');
-								$result = fwrite($handle, json_encode(array('password' => $hashedPassword), JSON_FORCE_OBJECT));
+								$result = fwrite($handle, json_encode(array('password' => $hashedPassword), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 								fclose($handle);
 								return $result ? true : false;
 							} else return false;
@@ -4100,7 +4100,7 @@ class OliCore {
 									'ip_address' => $this->getUserIP(),
 									'login_date' => date('Y-m-d H:i:s', $now),
 									'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay)
-								)), JSON_FORCE_OBJECT));
+								)), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 								fclose($handle);
 							}
 							
@@ -4129,7 +4129,7 @@ class OliCore {
 					if($this->isLocalLogin()) {
 						$rootUserInfos = $this->getLocalRootInfos();
 						$handle = fopen(OLIPATH . '.oliauth', 'w');
-						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
+						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 						fclose($handle);
 					} else $result = $this->deleteAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey ? : $this->getAuthKey())));
 					
@@ -4149,7 +4149,7 @@ class OliCore {
 				if($this->isLocalLogin()) {
 					$rootUserInfos = $this->getLocalRootInfos();
 					$handle = fopen(OLIPATH . '.oliauth', 'w');
-					$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT));
+					$result = fwrite($handle, json_encode(array_merge($rootUserInfos, array('login_date' => null, 'expire_date' => null)), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 					fclose($handle);
 				} else {
 					if(empty($uid)) $uid = $this->getLoggedUser();
