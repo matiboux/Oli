@@ -61,11 +61,15 @@ $_Oli = new \Oli\OliCore(INITTIME);
 /** Load Addons */
 if(!empty($_Oli->config['addons']) AND is_array($_Oli->config['addons'])) {
 	foreach($_Oli->config['addons'] as $addonVar => $addonName) {
-		if(file_exists(ADDONSPATH . basename(str_replace('\\', '/', $addonName)) . '/loader.php')) {
+		if(file_exists(ADDONSPATH . basename(str_replace('\\', '/', $addonName)) . '.php')) {
+			include ADDONSPATH . basename(str_replace('\\', '/', $addonName)) . '.php';
+			// $addonName = '\\' . $addonName;
+		} else if(file_exists(ADDONSPATH . basename(str_replace('\\', '/', $addonName)) . '/loader.php')) {
 			include ADDONSPATH . basename(str_replace('\\', '/', $addonName)) . '/loader.php';
 			// $addonName = '\\' . $addonName;
-			${$addonVar} = new $addonName;
 		}
+		
+		if(class_exists($addonName)) ${$addonVar} = new $addonName;
 		
 		// if(!empty($addonInfos) AND is_array($addonInfos)) {
 			
