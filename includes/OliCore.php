@@ -2515,7 +2515,7 @@ class OliCore {
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			if($param === 'get') return $_GET;
 			else {
-				$protocol = (!empty($_SERVER['HTTPS']) OR $this->config['force_https']) ? 'https' : 'http';
+				$protocol = (!empty($_SERVER['HTTPS']) OR (!empty($this->config['force_https']) AND $this->config['force_https'])) ? 'https' : 'http';
 				$urlPrefix = $protocol . '://';
 				
 				if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
