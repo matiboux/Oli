@@ -197,7 +197,13 @@ else if($isLoggedIn) {
 							else if($_Oli->saveUserAvatar($_['custom']['tmp_name'], array_pop(explode('.', $_['custom']['name'])))) $resultCode = 'S:Your new avatar has been successfully saved.';
 							else $resultCode = 'E:An error occurred when saving your new avatar.';
 						}
-					} else $resultCode = 'S:The avatar method has been successfully updated.';
+					} else {
+						$status = $_['delete-custom'] ? $_Oli->deleteUserAvatar() : null;
+						
+						if($status === true) $resultCode = 'S:The avatar method has been successfully updated and your custom avatar has been successfully deleted.';
+						if($status === false) $resultCode = 'S:The avatar method has been successfully updated but an error occurred when deleting your custom avatar.';
+						else $resultCode = 'S:The avatar method has been successfully updated.';
+					}
 				} else $resultCode = 'E:An error occurred when saving the method you chose.';
 			}
 		}
@@ -498,6 +504,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 #module .form input:focus { border: 1px solid #4080c0; color: #303030 }
 #module .form .checkbox, #module .form .radio { display: block; padding: 0 10px; -webkit-transition: border .3s ease; -moz-transition: border .3s ease; -o-transition: border .3s ease; transition: border .3s ease }
 #module .form .checkbox > label, #module .form .radio > label { cursor: pointer }
+#module .form .checkbox > label *, #module .form .radio > label * { margin-top: 0 !important }
 #module .form .checkbox input[type=checkbox], #module .form .radio input[type=radio] { display: initial; width: 15px; height: 15px; margin: 0 2px; vertical-align: middle }
 #module .form button, #module .form .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
 #module .form button.btn-danger, #module .form .btn.btn-danger { background: #c04040 }
@@ -668,12 +675,17 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					<p>Here's how your avatar will look like:</p>
 					<img id="preview" class="avatar mt-1" src="<?=$_Oli->getLoggedAvatar()?>" alt="Preview of your new avatar" />
 					
-					<div id="custom-info" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
+					<div class="custom-info custom" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
 						<p>You can upload a new custom avatar if you feel like changing it! <br />
 						<b>Max Size</b>: 1 MB, 400x400 pixels.</p>
 						<input type="file" name="custom" class="mt-1" />
 					</div>
 					
+					<div class="custom-info not-custom" style="display: contents<?php if($currentMethod == 'custom') { ?>; display: none <?php } ?>">
+						<div class="checkbox"><label><input type="checkbox" name="delete-custom" /> <i class="fas fa-exclamation-triangle fa-fw"></i> Delete your custom avatar (if you have uploaded one)</label></div>
+					</div>
+					
+						<hr />
 					<button type="submit">Update Avatar</button>
 				</form>
 			</div>
@@ -923,11 +935,15 @@ $(document).on('click', '.summary', function() {
 $('input[type="radio"][name="method"]').change(function() {
 	$('#preview').attr('src', $(this).attr('src'));
 	if(this.value == 'custom') {
-		$('#custom-info').slideDown();
-		$('#custom-info input').prop('disabled', false);
+		$('.custom-info.custom').slideDown();
+		$('.custom-info.not-custom').slideUp();
+		$('.custom-info.custom input').prop('disabled', false);
+		$('.custom-info.not-custom input').prop('disabled', true);
 	} else {
-		$('#custom-info').slideUp();
-		$('#custom-info input').prop('disabled', true);
+		$('.custom-info.custom').slideUp();
+		$('.custom-info.not-custom').slideDown();
+		$('.custom-info.custom input').prop('disabled', true);
+		$('.custom-info.not-custom input').prop('disabled', false);
 	}
 });
 <?php } ?>
