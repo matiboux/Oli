@@ -681,7 +681,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 						<input type="file" name="custom" class="mt-1" />
 					</div>
 					
-					<div class="custom-info not-custom" style="display: contents<?php if($currentMethod == 'custom') { ?>; display: none <?php } ?>">
+					<div class="custom-info not-custom" <?php if($currentMethod == 'custom') { ?>style="display: none"<?php } ?>>
 						<div class="checkbox"><label><input type="checkbox" name="delete-custom" /> <i class="fas fa-exclamation-triangle fa-fw"></i> Delete your custom avatar (if you have uploaded one)</label></div>
 					</div>
 					
