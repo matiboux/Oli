@@ -4251,14 +4251,34 @@ class OliCore {
 		public function saveUserAvatar($filename, $filetype, $uid = null) {
 			if(empty($uid)) $uid = $this->getLoggedUser();
 			if(is_uploaded_file($filename)) {
+				// Check if the avatars/ folder exists
 				if(!file_exists(MEDIAPATH . 'avatars/')) mkdir(MEDIAPATH . 'avatars/');
-				else {
-					$currentFiletype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid);
-					if(!empty($currentFiletype) AND file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
-				}
+				else $this->deleteUserAvatar($uid); // Delete the current custom user avatar (if it exists)
 				
+				// Save the new custom user avatar
 				return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype) AND $this->updateAccountInfos('ACCOUNTS', array('avatar_filetype' => $filetype), $uid);
 			} else return false;
+		}
+		
+		/**
+		 * Delete User Avatar
+		 * 
+		 * Return values:
+		 * - true: Successfully deleted the user avatar file (see PHP unlink() docs)
+		 * - false: Failed to delete the file (see PHP unlink() docs)
+		 * - null: Actually did nothing; the file probably does not exists.
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return bool Returns true on success.
+		 */
+		public function deleteUserAvatar($uid = null) {
+			if(file_exists(MEDIAPATH . 'avatars/')) {
+				$currentFiletype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid);
+				if(!empty($currentFiletype) AND file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) return unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
+				else return null;
+			}
+			else return null;
 		}
 		
 		/** ----------------------- */
