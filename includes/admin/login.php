@@ -507,11 +507,14 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 #module .form .checkbox > label *, #module .form .radio > label * { margin-top: 0 !important }
 #module .form .checkbox input[type=checkbox], #module .form .radio input[type=radio] { display: initial; width: 15px; height: 15px; margin: 0 2px; vertical-align: middle }
 #module .form button, #module .form .btn { display: block; background: #4080c0; padding: 10px 15px; color: #fff; font-size: 14px; text-align: center; text-decoration: none; cursor: pointer; border: 0; transition: background .3s ease }
+#module .form button.btn-sm, #module .form .btn.btn-sm { padding: 5px 15px; font-size: 12px }
 #module .form button.btn-danger, #module .form .btn.btn-danger { background: #c04040 }
+#module .form button.btn-warning, #module .form .btn.btn-warning { background: #c08040 }
 #module .form button.disabled, #module .form .btn.disabled { background: #c0c0c0; cursor: not-allowed }
 #module .form button { width: 100% }
 #module .form button:not(.disabled):hover, #module .form button:not(.disabled):focus, #module .form .btn:not(.disabled):hover, #module .form .btn:not(.disabled):focus { background: #306090 }
 #module .form button.btn-danger:not(.disabled):hover, #module .form button.btn-danger:not(.disabled):focus, #module .form .btn.btn-danger:not(.disabled):hover, #module .form .btn.btn-danger:not(.disabled):focus { background: #903030 }
+#module .form button.btn-warning:not(.disabled):hover, #module .form button.btn-warning:not(.disabled):focus, #module .form .btn.btn-warning:not(.disabled):hover, #module .form .btn.btn-warning:not(.disabled):focus { background: #906030 }
 @media (max-width: 420px) {
 	#module .form { padding: 30px }
 	#module .form h2 { margin: 0 0 15px; font-size: 16px }
@@ -710,14 +713,15 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 			<div class="form" data-icon="fa-trash" data-text="Delete your Account" style="display: <?php if($scriptState == 'delete-account') { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Delete your Account</h2>
 				<p><b>Are you sure about this, <?=$_Oli->getLoggedName()?>? There is not no going back after this.</b></p>
+				<p class="mt-1">Personal data associated with your account will be <b>permanently deleted</b>.</p>
 				<p class="mt-1">Once this account is deleted, you may register again using your email, and people may use your username (if you had set one).</p>
 				<hr />
 				
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" method="post">
 					<input type="hidden" name="confirm" value="true" />
 					<p><b>Are you sure</b> you want to continue?</p>
-					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>" class="btn mt-1">No, don't delete anything!</a>
-					<button class="btn-danger mt-1" type="submit">Yes, delete my account</button>
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>" class="btn btn-warning mt-1">No, don't delete anything!</a>
+					<button class="btn-danger btn-sm mt-1" type="submit">Yes, delete my account</button>
 				</form>
 			</div>
 		
