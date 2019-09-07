@@ -1,0 +1,3 @@
+<FilesMatch ".(bmp|jpg|jpeg|png|gif)">
+	allow from all
+</FilesMatch>

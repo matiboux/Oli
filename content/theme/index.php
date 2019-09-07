@@ -1,1 +1,1 @@
-HOME PAGE
+Oli Framrework: Index page (/content/theme/index.php)
