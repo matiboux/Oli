@@ -1,1 +1,43 @@
-theme: jekyll-theme-cayman
+title: Oli Docs
+description: Documentation for Oli, an open source PHP framework.
+#baseurl: "/" # the subpath of your site, e.g. /blog
+#url: "https://docs.olifw.net" # the base hostname & protocol for your site, e.g. http://example.com
+remote_theme: pmarsceill/just-the-docs
+
+permalink: pretty
+exclude: ["node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile"]
+
+# Enable or disable the site search
+search_enabled: true
+
+# Enable or disable heading anchors
+heading_anchors: true
+
+# Aux links for the upper right navigation
+aux_links:
+  "olifw.net":
+    - "//olifw.net/"
+  "Source code":
+    - "//github.com/matiboux/Oli/blob/master/docs"
+
+# Footer content appears at the bottom of every page's main content
+footer_content: "Copyright &copy; 2015-2019 Matiboux (Mathieu Guérin)."
+# footer_content: "Copyright &copy; 2015-2019 Matiboux (Mathieu Guérin). Distributed under the <a href=\"#\">MIT license.</a>"
+
+# Color scheme currently only supports "dark" or nil (default)
+color_scheme: nil
+
+# Google Analytics Tracking (optional)
+# e.g, UA-1234567-89
+#ga_tracking: UA-2709176-10
+
+plugins:
+  - jekyll-seo-tag
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blank_lines: false
+  profile: false
