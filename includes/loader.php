@@ -19,7 +19,14 @@ $_OliConfig = &Oli\Config::$config; // Config alias
 
 /** Load Oli */
 require_once INCLUDESPATH . 'OliCore.php'; // Oli Core
-$_Oli = new \Oli\OliCore(INITTIME);
+
+if(Oli\Config::$rawConfig['oli_mode'] == 'lite') {
+	require_once INCLUDESPATH . 'OliLite.php'; // Oli Lite
+	$_Oli = new \Oli\OliLite(INITTIME);
+} else {
+	require_once INCLUDESPATH . 'OliFramework.php'; // Oli Framework
+	$_Oli = new \Oli\OliFramework(INITTIME);
+}
 
 /** Load Addons files */
 // foreach(array_merge(glob(ADDONSPATH . '*.php'), glob(ADDONSPATH . '*/*.php')) as $filename) {

@@ -4,6 +4,8 @@
 	"constants": {},
 	"addons": {},
 	
+	"oli_mode": "full",
+	
 	"allow_mysql": false,
 	"mysql": null,
 	

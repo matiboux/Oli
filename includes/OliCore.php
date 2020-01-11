@@ -154,7 +154,7 @@
 
 namespace Oli {
 
-class OliCore {
+abstract class OliCore {
 
 	/** -------------- */
 	/**  I. Variables  */
