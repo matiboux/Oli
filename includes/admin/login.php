@@ -22,7 +22,7 @@
 \*/
 
 /** Login management is disabled by the current config */
-// if(!$_Oli->config['user_management'] OR !$_Oli->config['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
+// if(!$_OliConfig['user_management'] OR !$_OliConfig['allow_login']) header('Location: ' . $_Oli->getUrlParam(0));
 
 /** *** *** */
 
@@ -45,18 +45,18 @@ $scriptState = null; // Default value
 /** LIST OF VALUES [$scriptState] - But sometimes uppercased. */
 /** And [Is Script State Allowed?] */
 // - 'LOGIN' Log into your account.
-	$isLoginAllowed = ($isLocalLogin OR $_Oli->config['allow_login']);
+	$isLoginAllowed = ($isLocalLogin OR $_OliConfig['allow_login']);
 // - 'LOGGED' Logged in.
 	// $isLoggedAllowed = $isLoggedIn;
 // - 'REGISTER' Create an account.
-	$isRegisterAllowed = (!$isLocalLogin AND $_Oli->config['allow_register']);
+	$isRegisterAllowed = (!$isLocalLogin AND $_OliConfig['allow_register']);
 // .. 'registered' Account created. (?)
 // - 'ROOT-REGISTER' Create a root account.
 	if($isLocalLogin) $isRootRegisterAllowed = empty($_Oli->getLocalRootInfos());
 	else $isRootRegisterAllowed = !$_Oli->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false);
 // .. 'root-registered' >> 'login' Root account created.
 // - 'ACTIVATE' Activate your account.
-	$isActivateAllowed = (!$isLocalLogin AND $_Oli->config['account_activation'] AND $_Oli->config['allow_register']);
+	$isActivateAllowed = (!$isLocalLogin AND $_OliConfig['account_activation'] AND $_OliConfig['allow_register']);
 // - 'RECOVER' Recover your account.
 	// $isRecoverAllowed = !$isLocalLogin;
 // - 'RECOVER-PASSWORD' Change your password. (through RECOVER request)
@@ -149,9 +149,9 @@ else if($isLoggedIn) {
 	/** Disconnect the user */
 	if($_Oli->getUrlParam(2) == 'logout') {
 		if($_Oli->logoutAccount()) {
-			// if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
+			// if(!empty($_OliConfig['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_OliConfig['associated_websites'][0], $matches)) {
 				// $url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
-				// header('Location: ' . $url . '?' . http_build_query(array('action' => 'removeLoginInfos', 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_Oli->getFullUrl())));
+				// header('Location: ' . $url . '?' . http_build_query(array('action' => 'removeLoginInfos', 'next' => array_slice($_OliConfig['associated_websites'], 1), 'callback' => $_Oli->getFullUrl())));
 			// } else {
 				$scriptState = 'login';
 				$resultCode = 'S:You have been successfully disconnected.';
@@ -235,7 +235,7 @@ else if($isLoggedIn) {
 	}
 
 /** Activate an account */
-// } else if($_Oli->getUrlParam(2) == 'activate' AND $_Oli->config['account_activation'] AND !$isLocalLogin) {
+// } else if($_Oli->getUrlParam(2) == 'activate' AND $_OliConfig['account_activation'] AND !$isLocalLogin) {
 } else if($_Oli->getUrlParam(2) == 'activate' AND $isActivateAllowed) {
 	$scriptState = 'activate';
 	$activateKey = $_['activateKey'] ?: $_Oli->getUrlParam(3);
@@ -369,7 +369,7 @@ else if($isLoggedIn) {
 			if($isRootRegisterState) {
 				$isRootRegisterAllowed = false;
 				$resultCode = 'S:Your account has been successfully created as a root account.';
-			} else if($_Oli->config['account_activation']) $resultCode = 'S:Your account has been successfully created. You received an email to activate your account.';
+			} else if($_OliConfig['account_activation']) $resultCode = 'S:Your account has been successfully created. You received an email to activate your account.';
 			else $resultCode = 'S:Your account has been successfully created. You can now log in.';
 		} else $resultCode = 'E:An error occurred while creating your account..';
 	}
@@ -402,11 +402,11 @@ else if($isLoggedIn) {
 			else if(!$isLocalLogin AND ($uidAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND uid = \'' . $uid . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUidAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $uidAttempts . '), this account has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
 			
 			else if($_Oli->verifyLogin($_['logid'], $_['password'])) {
-				$loginDuration = $_['rememberMe'] ? $_Oli->config['extended_session_duration'] : $_Oli->config['default_session_duration'];
+				$loginDuration = $_['rememberMe'] ? $_OliConfig['extended_session_duration'] : $_OliConfig['default_session_duration'];
 				if($_Oli->loginAccount($_['logid'], $_['password'], $loginDuration)) {
-					if(!empty($_Oli->config['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_Oli->config['associated_websites'][0], $matches)) {
+					if(!empty($_OliConfig['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_OliConfig['associated_websites'][0], $matches)) {
 						$url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
-						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'authKey' => $_Oli->getAuthKey(), 'extendedDelay' => $_['rememberMe'] ? true : false, 'next' => array_slice($_Oli->config['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
+						header('Location: ' . $url . '?' . http_build_query(array('action' => 'setLoginInfos', 'authKey' => $_Oli->getAuthKey(), 'extendedDelay' => $_['rememberMe'] ? true : false, 'next' => array_slice($_OliConfig['associated_websites'], 1), 'callback' => $_['referer'] ?: $_Oli->getFullUrl())));
 					} else if(!empty($_['referer']) AND !strstr($_['referer'], '/' . $_Oli->getUrlParam(1))) header('Location: ' . $_['referer']);
 					// else header('Location: ' . $_Oli->getUrlParam(0));
 					
@@ -700,7 +700,7 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 					<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
 					<div class="radio mt-1"><label><input type="radio" name="method" value="none" <?php if(true) { ?>checked<?php } ?> /> Disable 2FA</label></div>
 					<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with your email</label></div>
-					<?php if(!empty($_Oli->config['telegram_bot_token'])) { ?>
+					<?php if(!empty($_OliConfig['telegram_bot_token'])) { ?>
 						<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with Telegram!</label></div>
 						<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
 					<?php } ?>

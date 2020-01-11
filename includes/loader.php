@@ -13,6 +13,10 @@ if(!defined('PHP_VERSION_ID')) {
 require_once INCLUDESPATH . 'PHP-Addons.php';
 require_once INCLUDESPATH . 'ErrorManager.php';
 
+/** Load Config */
+require_once INCLUDESPATH . 'Config.php'; // Oli Config Registry
+$_OliConfig = &Oli\Config::$config; // Config alias
+
 /** Load Oli */
 require_once INCLUDESPATH . 'OliCore.php'; // Oli Core
 $_Oli = new \Oli\OliCore(INITTIME);
