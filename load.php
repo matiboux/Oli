@@ -56,7 +56,6 @@ if(!defined('CONTENTPATH')) define('CONTENTPATH', ABSPATH . 'content/');
 /** Load Oli */
 if(file_exists(INCLUDESPATH . 'loader.php')) require INCLUDESPATH . 'loader.php';
 else die('Error: The framework <b>loader.php</b> file countn\'t be found! (in "' . INCLUDESPATH . 'loader.php")');
-$_Oli = new \Oli\OliCore(INITTIME);
 
 /** Load Addons */
 if(!empty($_Oli->config['addons']) AND is_array($_Oli->config['addons'])) {
