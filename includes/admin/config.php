@@ -97,9 +97,9 @@ if($_Oli->getUrlParam(2) == 'create-file') {
 	<?php /*<button type="submit">Submit</button>*/ ?>
 	
 	<?php $config = [];
-	$defaultConfig = $_Oli->getDefaultConfig();
-	$globalConfig = $_Oli->getGlobalConfig();
-	$localConfig = $_Oli->getLocalConfig();
+	$defaultConfig = Oli\Config::getDefaultConfig();
+	$globalConfig = Oli\Config::getGlobalConfig();
+	$localConfig = Oli\Config::getLocalConfig();
 	
 	if(is_array($defaultConfig)) {
 		foreach ($defaultConfig as $key => $value) {
