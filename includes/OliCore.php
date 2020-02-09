@@ -215,6 +215,7 @@ abstract class OliCore {
 		
 		/** Secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
+		if(!defined('OLISETUPPATH')) define('OLISETUPPATH', INCLUDESPATH . 'setup/');
 		
 		/** Load Config */
 		Config::loadConfig($this);
@@ -773,7 +774,7 @@ abstract class OliCore {
 			 */
 			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
 				$result = $this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive);
-				return $result === null ? null : (int) $result ?: false;
+				return $result !== null ? ((int) $result ?: false) : null;
 			}
 			
 			/**
@@ -1550,130 +1551,145 @@ abstract class OliCore {
 		 * @return string|void Returns the path to the file to include.
 		 */
 		public function loadContent(array $params = null) {
-			if(Config::$config['setup_wizard'] AND !Config::$config['debug']) $found = INCLUDESPATH . 'admin/setup.php';
-			else {
-				$params = !empty($params) ? $params : $this->getUrlParam('params');
-				$contentStatus = null;
-				$found = null;
+			$params = !empty($params) ? $params : $this->getUrlParam('params');
+			$contentStatus = null;
+			$found = null;
+			
+			$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
+			$contentRules = array('access' => array('*' => array('ALLOW' => '*')));
+			$contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile) ?: []);
+			
+			if(!empty($params)) {
+				$accessAllowed = null;
+				$fileName = [];
+				$countFileName = 0;
 				
-				$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
-				$contentRules = array('access' => array('*' => array('ALLOW' => '*')));
-				$contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile) ?: []);
-				
-				if(!empty($params)) {
-					$accessAllowed = null;
-					$fileName = [];
-					
-					foreach($params as $eachParam) {
-						if(empty($eachParam)) break; // Filename can't be empty.
-						else {
-							$fileName[] = $eachParam;
-							$fileNameParam = implode('/', $fileName);
-							
-							if(!empty($contentRules)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, implode('/', array_slice($fileName, 0, -1)) . '/'));
-							
-							/** Oli Login */
-							if(($fileName[0] == 'oli-login' OR (!empty(Config::$config['login_alias']) AND $fileName[0] == Config::$config['login_alias'])) AND is_file(OLIADMINPATH . 'login.php')) {
-								$found = OLIADMINPATH . 'login.php';
+				foreach($params as $eachParam) {
+					if(empty($eachParam)) break; // Filename can't be empty.
+					else {
+						$fileName[] = $eachParam;
+						$countFileName++;
+						$fileNameParam = implode('/', $fileName);
+						
+						if(!empty($contentRules)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, implode('/', array_slice($fileName, 0, -1)) . '/'));
+						
+						/** Oli Setup */
+						if($fileName[0] == 'oli-setup' OR (Config::$config['setup_wizard'] AND !Config::$config['debug'])) {
+							/** Assets */
+							if($countFileName > 1 AND is_file(OLISETUPPATH . implode('/', array_slice($fileName, 1)))) {
+								$found = OLISETUPPATH . implode('/', array_slice($fileName, 1));
 								$this->fileNameParam = $fileNameParam;
-								break;
+								$this->setAutoContentType($fileNameParam);
+								break; // Sub-level pages not allowed.
 							
-							/** Oli Admin */
-							} else if($fileName[0] == 'oli-admin' OR (!empty(Config::$config['admin_alias']) AND $fileName[0] == Config::$config['admin_alias'])) {
-								/** Custom Pages */
-								if(count($fileName) > 1 AND is_file(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
-									$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
+							/** Setup Page */
+							} else if(is_file(OLISETUPPATH . 'setup.php')) {
+								$found = OLISETUPPATH . 'setup.php';
+								$this->fileNameParam = 'oli-setup';
+								continue; // There may be a requested page.
+							}
+						
+						/** Oli Login */
+						} else if(($fileName[0] == 'oli-login' OR (!empty(Config::$config['login_alias']) AND $fileName[0] == Config::$config['login_alias'])) AND is_file(OLIADMINPATH . 'login.php')) {
+							$found = OLIADMINPATH . 'login.php';
+							$this->fileNameParam = $fileNameParam;
+							break;
+						
+						/** Oli Admin */
+						} else if($fileName[0] == 'oli-admin' OR (!empty(Config::$config['admin_alias']) AND $fileName[0] == Config::$config['admin_alias'])) {
+							/** Custom Pages */
+							if($countFileName > 1 AND is_file(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
+								$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
+								$this->fileNameParam = $fileNameParam;
+								break; // Sub-level pages not allowed.
+							
+							/** Home Page */
+							} else if(is_file(OLIADMINPATH . 'index.php')) {
+								$found = OLIADMINPATH . 'index.php';
+								$this->fileNameParam = $fileNameParam;
+								continue; // There may be a requested page.
+							}
+						
+						/** User Scripts */
+						} else if(is_file(SCRIPTSPATH . $fileNameParam)) {
+							$found = SCRIPTSPATH . $fileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setContentType('JSON');
+							break;
+						
+						/** Oli Scripts */
+						} else if(is_file(INCLUDESPATH . 'scripts/' . $fileNameParam)) {
+							$found = INCLUDESPATH . 'scripts/' . $fileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setContentType('JSON');
+							break;
+						
+						/** User Assets */
+						} else if($fileNameParam == (Config::$config['assets_folder'] ?: 'assets')) {
+							$accessAllowed = false; // 403 Forbidden
+							break;
+						
+						/** User Pages */
+						} else {
+							/** Custom Page */
+							if(is_file(THEMEPATH . $fileNameParam . '.php')) {
+								if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
+									$found = THEMEPATH . $fileNameParam . '.php';
 									$this->fileNameParam = $fileNameParam;
-									break; // Sub-level pages not allowed.
-								
-								/** Home Page */
-								} else if(is_file(OLIADMINPATH . 'index.php')) {
-									$found = OLIADMINPATH . 'index.php';
-									$this->fileNameParam = $fileNameParam;
-									continue; // There may be a requested page.
 								}
 							
-							/** User Scripts */
-							} else if(is_file(SCRIPTSPATH . $fileNameParam)) {
-								$found = SCRIPTSPATH . $fileNameParam;
-								$this->fileNameParam = $fileNameParam;
-								$this->setContentType('JSON');
-								break;
-							
-							/** Oli Scripts */
-							} else if(is_file(INCLUDESPATH . 'scripts/' . $fileNameParam)) {
-								$found = INCLUDESPATH . 'scripts/' . $fileNameParam;
-								$this->fileNameParam = $fileNameParam;
-								$this->setContentType('JSON');
-								break;
-							
-							/** User Assets */
-							} else if($fileNameParam == (Config::$config['assets_folder'] ?: 'assets')) {
-								$accessAllowed = false; // 403 Forbidden
-								break;
-							
-							/** User Pages */
-							} else {
-								/** Custom Page */
-								if(is_file(THEMEPATH . $fileNameParam . '.php')) {
-									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
-										$found = THEMEPATH . $fileNameParam . '.php';
-										$this->fileNameParam = $fileNameParam;
-									}
-								
-								/** Home Page */
-								} else if($fileNameParam == 'home' AND is_file(THEMEPATH . ($contentRules['index'] ?: 'index.php'))) {
-									if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: 'index.php')) {
-										$found = THEMEPATH . ($contentRules['index'] ?: 'index.php');
-										$contentStatus = 'index';
-									}
+							/** Home Page */
+							} else if($fileNameParam == 'home' AND is_file(THEMEPATH . ($contentRules['index'] ?: 'index.php'))) {
+								if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: 'index.php')) {
+									$found = THEMEPATH . ($contentRules['index'] ?: 'index.php');
+									$contentStatus = 'index';
 								}
-								
-								/** Check for sub-directory */
-								if(!file_exists(SCRIPTSPATH . $fileNameParam . '/') AND !file_exists(THEMEPATH . $fileNameParam . '/')) break; // No more to search.
-								/** Sub-directory Home Page */
-								else {
-									if(is_file(THEMEPATH . $fileNameParam . '/index.php')) {
-										$found = THEMEPATH . $fileNameParam . '/index.php';
-										$this->fileNameParam = $fileNameParam;
-									}
-									continue; // There may be another level.
-								}
-							
 							}
 							
-							// CODE FOR Config::$config['index_file'] AS AN ARRAY.
-							// else {
-								// if(!empty(Config::$config['index_file'])) $indexFiles = !is_array(Config::$config['index_file']) ? [Config::$config['index_file']] : Config::$config['index_file'];
-								
-								// if(!empty($indexFiles)) {
-									// foreach(array_slice($indexFiles, 1) as $eachValue) {
-										// $eachValue = explode('/', $eachValue);
-										// $indexFilePath = implode('/', array_slice($eachValue, 0, -1));
-										// $indexFileName = implode('/', array_slice($eachValue, -1));
-										
-										// if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
-											// $found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
-											// $this->fileNameParam = $indexFilePath;
-										// }
-										// /** Sub-directory Content Rules Indexes */
-										// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
-											// $found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
-											// $this->fileNameParam = implode('/', $fileName);
-										// }
-										// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
-											// $found = THEMEPATH . implode('/', $fileName) . '/index.php';
-											// $this->fileNameParam = implode('/', $fileName);
-										// }
+							/** Check for sub-directory */
+							if(!file_exists(SCRIPTSPATH . $fileNameParam . '/') AND !file_exists(THEMEPATH . $fileNameParam . '/')) break; // No more to search.
+							/** Sub-directory Home Page */
+							else {
+								if(is_file(THEMEPATH . $fileNameParam . '/index.php')) {
+									$found = THEMEPATH . $fileNameParam . '/index.php';
+									$this->fileNameParam = $fileNameParam;
+								}
+								continue; // There may be another level.
+							}
+						
+						}
+						
+						// CODE FOR Config::$config['index_file'] AS AN ARRAY.
+						// else {
+							// if(!empty(Config::$config['index_file'])) $indexFiles = !is_array(Config::$config['index_file']) ? [Config::$config['index_file']] : Config::$config['index_file'];
+							
+							// if(!empty($indexFiles)) {
+								// foreach(array_slice($indexFiles, 1) as $eachValue) {
+									// $eachValue = explode('/', $eachValue);
+									// $indexFilePath = implode('/', array_slice($eachValue, 0, -1));
+									// $indexFileName = implode('/', array_slice($eachValue, -1));
+									
+									// if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
+										// $found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
+										// $this->fileNameParam = $indexFilePath;
+									// }
+									// /** Sub-directory Content Rules Indexes */
+									// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
+										// $found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
+										// $this->fileNameParam = implode('/', $fileName);
+									// }
+									// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
+										// $found = THEMEPATH . implode('/', $fileName) . '/index.php';
+										// $this->fileNameParam = implode('/', $fileName);
 									// }
 								// }
-								
-								// if(empty($found) AND $fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) {
-									// $found = THEMEPATH . ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php');
-									// $contentStatus = 'index';
-								// }
 							// }
-						}
+							
+							// if(empty($found) AND $fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) {
+								// $found = THEMEPATH . ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php');
+								// $contentStatus = 'index';
+							// }
+						// }
 					}
 				}
 			}
@@ -1865,6 +1881,15 @@ abstract class OliCore {
 					$this->charset = $charset;
 					return $newContentType;
 				} else return false;
+			}
+			
+			/** Set Content Type Automatically */
+			public function setAutoContentType($filename = null, $charset = null, $force = false) {
+				$contentType = null;
+				if(!empty($filename) AND preg_match('/\.([^.]+)$/', $filename, $matches))
+					$contentType = $matches[1];
+				
+				return $this->setContentType($contentType, $charset, $force);
 			}
 			
 			/** Reset Content Type */
@@ -2218,107 +2243,128 @@ abstract class OliCore {
 		 */
 		public function getUrlParam($param = null, &$hasUsedHttpHostBase = false) {
 			if($param === 'get') return $_GET;
-			else {
-				$protocol = (!empty($_SERVER['HTTPS']) OR (!empty(Config::$config['force_https']) AND Config::$config['force_https'])) ? 'https' : 'http';
-				$urlPrefix = $protocol . '://';
+			
+			$protocol = (!empty($_SERVER['HTTPS']) OR (!empty(Config::$config['force_https']) AND Config::$config['force_https'])) ? 'https' : 'http';
+			$urlPrefix = $protocol . '://';
+			
+			if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			else if($param === 'protocol') return $protocol;
+			
+			$urlSetting = $this->getSetting('url');
+			$urlSetting = !empty($urlSetting) ? (!is_array($urlSetting) ? [$urlSetting] : $urlSetting) : null;
+			
+			if(in_array($param, ['allbases', 'alldomains'], true)) {
+				$allBases = $allDomains = [];
+				foreach($urlSetting as $eachUrl) {
+					preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
+					$allBases[] = ($matches[1] ?: $urlPrefix) . $matches[2];
+					$allDomains[] = $matches[3];
+				}
 				
-				if(!isset($param) OR $param < 0 OR $param === 'full') return $urlPrefix . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-				else if($param === 'protocol') return $protocol;
+				if($param === 'allbases') return $allBases;
+				else if($param === 'alldomains') return $allDomains;
+			} else {
+				$httpParams = explode('?', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], 2);
+				if($param === 'getvars' AND !empty($httpParams[1])) return explode('&', $httpParams[1]);
 				else {
-					$urlSetting = $this->getSetting('url');
-					$urlSetting = !empty($urlSetting) ? (!is_array($urlSetting) ? [$urlSetting] : $urlSetting) : null;
+					$fractionedUrl = explode('/', $httpParams[0]);
+					$lenFractionedUrl = count($fractionedUrl);
+					unset($httpParams);
 					
-					if(in_array($param, ['allbases', 'alldomains'], true)) {
-						$allBases = $allDomains = [];
-						foreach($urlSetting as $eachUrl) {
-							preg_match('/^(https?:\/\/)?(((?:[w]{3}\.)?(?:[\da-z\.-]+\.)*(?:[\da-z-]+\.(?:[a-z\.]{2,6})))\/?(?:.)*)/', $eachUrl, $matches);
-							$allBases[] = ($matches[1] ?: $urlPrefix) . $matches[2];
-							$allDomains[] = $matches[3];
-						}
-						
-						if($param === 'allbases') return $allBases;
-						else if($param === 'alldomains') return $allDomains;
-					} else {
-						$httpParams = explode('?', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], 2);
-						if($param === 'getvars' AND !empty($httpParams[1])) return explode('&', $httpParams[1]);
-						else {
-							$fractionedUrl = explode('/', $httpParams[0]);
-							unset($httpParams);
-							
-							$baseUrlMatch = false;
-							$baseUrl = $urlPrefix;
-							$shortBaseUrl = ''; // IS THIS USEFULL? - It seems.
-							$countLoop = 0;
-							
-							if(isset($urlSetting)) {
-								foreach($fractionedUrl as $eachPart) {
-									if(in_array($baseUrl, $urlSetting) OR in_array($shortBaseUrl, $urlSetting)) {
-									// if(in_array($baseUrl, $urlSetting)) {
-										$baseUrlMatch = true;
-										break;
-									} else {
-										$baseUrlMatch = false;
-										$baseUrl .= urldecode($eachPart) . '/';
-										$shortBaseUrl .= urldecode($eachPart) . '/';
-										$countLoop++;
-									}
-								}
-							}
-							
-							$hasUsedHttpHostBase = false;
-							if(!isset($urlSetting) OR !$baseUrlMatch) {
-								$baseUrl = $urlPrefix . $_SERVER['HTTP_HOST'] . '/';
-								$hasUsedHttpHostBase = true;
-								$countLoop = 1; // Fix $countLoop value
-							}
-							
-							if(in_array($param, [0, 'base'], true)) return $baseUrl;
-							else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
-								preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/', $baseUrl, $matches);
-								if($param === 'fulldomain') return $matches[1];
-								if($param === 'subdomain') return $matches[2];
-								if($param === 'domain') return $matches[3];
+					// Parse escaped slashes
+					for($i = 0; $i < $lenFractionedUrl - 2; )
+						if(empty($fractionedUrl[$i])) {
+							$replacement = $fractionedUrl[$i] . '/' . $fractionedUrl[$i + 1];
+							array_splice($fractionedUrl, $i - 1, 3, $replacement);
+							$lenFractionedUrl -= 2;
+						} else $i++;
+					
+					$baseUrlMatch = false;
+					$baseUrl = $urlPrefix;
+					$shortBaseUrl = ''; // IS THIS USEFULL? - It seems.
+					$countLoop = 0;
+					
+					if(isset($urlSetting)) {
+						foreach($fractionedUrl as $eachPart) {
+							if(in_array($baseUrl, $urlSetting) OR in_array($shortBaseUrl, $urlSetting)) {
+								$baseUrlMatch = true;
+								break;
 							} else {
-								$newFractionedUrl[] = $baseUrl;
-								$fileName = [];
-								if(!empty($this->fileNameParam)) {
-									while(isset($fractionedUrl[$countLoop])) {
-										if(!empty($fileName) AND implode('/', $fileName) == $this->fileNameParam) break;
-										else {
-											$fileName[] = urldecode($fractionedUrl[$countLoop]);
-											$countLoop++;
-										}
-									}
-									
-									preg_match('/^([^?]*)(?:\?(.*))?$/', implode('/', $fileName), $matches);
-									if(empty($newFractionedUrl[] = !empty($matches) ? $matches[1] : implode('/', $fileName))) array_pop($newFractionedUrl);
-								}
-								
-								while(isset($fractionedUrl[$countLoop])) {
-									if(!empty($fractionedUrl[$countLoop]) OR isset($fractionedUrl[$countLoop + 1])) {
-										$nextFractionedUrl = urldecode($fractionedUrl[$countLoop]);
-										while(isset($fractionedUrl[$countLoop + 1]) AND empty($fractionedUrl[$countLoop + 1]) AND isset($fractionedUrl[$countLoop + 2])) {
-											$nextFractionedUrl .= '/' . urldecode($fractionedUrl[$countLoop + 2]);
-											$countLoop += 2;
-										}
-										
-										if(empty($newFractionedUrl[] = (preg_match('/^([^?]*)(?:\?(.*))?$/', $nextFractionedUrl, $matches) AND !empty($matches)) ? $matches[1] : !$nextFractionedUrl)) array_pop($newFractionedUrl);
-									}
-									$countLoop++;
-								}
-								
-								$newFractionedUrl[1] = $newFractionedUrl[1] ?: 'home';
-								
-								if($param === 'all') return $newFractionedUrl;
-								else if($param === 'params') return array_slice($newFractionedUrl, 1);
-								else if($param === 'last') return $newFractionedUrl[count($newFractionedUrl) - 1];
-								else if(isset($newFractionedUrl[$param])) return $newFractionedUrl[$param];
-								else return null;
+								$baseUrlMatch = false;
+								$baseUrl .= urldecode($eachPart) . '/';
+								$shortBaseUrl .= urldecode($eachPart) . '/';
+								$countLoop++;
 							}
 						}
 					}
+					
+					$hasUsedHttpHostBase = false;
+					if(!isset($urlSetting) OR !$baseUrlMatch) {
+						$baseUrl = $urlPrefix . $_SERVER['HTTP_HOST'] . '/';
+						$hasUsedHttpHostBase = true;
+						$countLoop = 1; // Fix $countLoop value
+					}
+					
+					if(in_array($param, [0, 'base'], true)) return $baseUrl;
+					else if(in_array($param, ['fulldomain', 'subdomain', 'domain'], true)) {
+						if(preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?/', $baseUrl, $matches)) {
+							if($param === 'fulldomain') return $matches[1];
+							if($param === 'subdomain') return $matches[2];
+							if($param === 'domain') return $matches[3];
+						}
+					} else {
+						$newFractionedUrl[] = $baseUrl;
+						if(!empty($this->fileNameParam)) {
+							$i = $countLoop;
+							
+							$fileName = [];
+							while($i < $lenFractionedUrl) {
+								if(!empty($fileName) AND implode('/', $fileName) == $this->fileNameParam)
+									break;
+								else {
+									$fileName[] = urldecode($fractionedUrl[$countLoop]);
+									$i++;
+								}
+							}
+							
+							// fileNameParam found!
+							if($i < $lenFractionedUrl) {
+								$newFragment = explode('?', implode('/', $fileName), 2)[0];
+								if(!empty($newFragment)) $newFractionedUrl[] = $newFragment;
+								
+								$countLoop = $i;
+							
+							// Not found
+							} else {
+								// Override the first element to match fileNameParam
+								$newFractionedUrl[] = $this->fileNameParam;
+								
+								// Next fragments will be left as-is
+								$countLoop++;
+							}
+							
+						}
+						
+						while($countLoop < $lenFractionedUrl) {
+							$nextFractionedUrl = urldecode($fractionedUrl[$countLoop]);
+							
+							$newFragment = explode('?', $nextFractionedUrl, 2)[0];
+							if(!empty($newFragment)) $newFractionedUrl[] = $newFragment;
+							
+							$countLoop++;
+						}
+						
+						if(empty($newFractionedUrl[1])) $newFractionedUrl[1] = 'home';
+						
+						if($param === 'all') return $newFractionedUrl;
+						else if($param === 'params') return array_slice($newFractionedUrl, 1);
+						else if($param === 'last') return $newFractionedUrl[count($newFractionedUrl) - 1];
+						else if(isset($newFractionedUrl[$param])) return $newFractionedUrl[$param];
+					}
 				}
 			}
+			
+			return null;
 		}
 		
 		/** Get Full Url */

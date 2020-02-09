@@ -15,12 +15,13 @@ require_once INCLUDESPATH . 'ErrorManager.php';
 
 /** Load Config */
 require_once INCLUDESPATH . 'Config.php'; // Oli Config Registry
-$_OliConfig = &Oli\Config::$config; // Config alias
+\Oli\Config::loadRawConfig();
+$_OliConfig = &\Oli\Config::$config; // Config alias
 
 /** Load Oli */
 require_once INCLUDESPATH . 'OliCore.php'; // Oli Core
 
-if(Oli\Config::$rawConfig['oli_mode'] == 'lite') {
+if(\Oli\Config::$rawConfig['oli_mode'] == 'lite') {
 	require_once INCLUDESPATH . 'OliLite.php'; // Oli Lite
 	$_Oli = new \Oli\OliLite(INITTIME);
 } else {
