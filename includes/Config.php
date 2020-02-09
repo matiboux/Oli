@@ -157,10 +157,10 @@ class Config {
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if the config is updated.
 		 */
-		public static function updateConfig($config, $target = false, $replace = false) {
-			if(!$target OR self::saveConfig($config, $target, $replace)) {
+		public static function updateConfig($_Oli, $config, $target = false, $replace = false) {
+			if(!$target OR self::saveConfig($_Oli, $config, $target, $replace)) {
 				self::$rawConfig = array_merge(self::$rawConfig, $config);
-				return self::reloadConfig();
+				return self::reloadConfig($_Oli);
 			} else return false;
 		}
 		
@@ -176,7 +176,7 @@ class Config {
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
-		public static function saveConfig($config, $target = null, $replace = false) {
+		public static function saveConfig($_Oli, $config, $target = null, $replace = false) {
 			$result = [];
 			if($target === 'global') {
 				if(!$replace AND is_array($globalConfig = self::getGlobalConfig())) $config = array_merge($globalConfig, $config);
@@ -184,9 +184,9 @@ class Config {
 				if($result[] = fwrite($handle, json_encode($config, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))) self::$globalConfig = $config;
 				fclose($handle);
 			} else if($target === 'app') {
-				if(self::isExistTableMySQL(self::$config['settings_tables'][0])) { // Are Settings Managed via MySQL?
+				if($_Oli->isExistTableMySQL(self::$config['settings_tables'][0])) { // Are Settings Managed via MySQL?
 					foreach($config as $name => $value) {
-						$result[] = self::updateInfosMySQL(self::$config['settings_tables'][0], array('name' => $name), array('value' => $value));
+						$result[] = $_Oli->updateInfosMySQL(self::$config['settings_tables'][0], array('name' => $name), array('value' => $value));
 					}
 					if(!in_array(false, $result, true)) self::$appConfig = $config;
 				} else {

@@ -1,36 +1,67 @@
-// TODO: Disable submit by enter
-var step = 1;
-var nextStep = function(next) {
-	var error = null;
-	var last = 4;
-	next = next || step+1;
+$(document).ready(() => {
+	// TODO: Disable submit by enter
+	// let step = 1;
+	var totalSteps = $('.step-wrapper').length;
 	
-	if(next <= 0 || next > 4) return false;
-	else if(next > 1 && document.querySelector('[name="olisc"]').value == '') error = 'Step 1 error';
-	else if(next > 2 && document.querySelector('[name="baseurl"]').value == '') error = 'Step 2 error';
-	else if(next > 3 && document.querySelector('[name="name"]').value == '') error = 'Step 3 error';
-	
-	if(error) {
-		alert(error);
-		return false;
-	} else {
-		var nextStepElem = document.querySelector('[step="' + next + '"]')
-		if(nextStepElem !== null) {
-			for(var elem of document.querySelectorAll('.step')) {
-				elem.style.display = "none";
-			}
-			
-			if(next == last) {
-				nextStepElem.querySelector('.data-summary').innerHTML = '';
-				for(var pair of (new FormData(document.querySelector('#form'))).entries()) {
-					var node = document.createElement('li');
-					node.appendChild(document.createTextNode(pair[0] + ' → "' + pair[1] + '"'));
-					document.querySelector('.data-summary').appendChild(node);
-				}
-			}
-			
-			document.querySelector('[step="' + next + '"]').style.display = "block";
-			step = next;
-		} else alert('An error occurred!');
+	const $progressBar = $('#progress-bar');
+	const changeProgress = step => {
+		const value = step / totalSteps * 100;
+		
+		$progressBar.css({ width: value + '%' });
+		$progressBar.attr({ 'aria-valuenow': value });
+		$progressBar.html('Step ' + step + ' / ' + totalSteps);
 	}
-}
+	changeProgress(1);
+	
+	const $alert = $('#alert');
+	const showError = alert => {
+		$alert.html('<b>Error:</b> ' + alert).show();
+		return false;
+	}
+	
+	const changeStep = nextStep => {
+		const $thisWrapper = $('.step-wrapper:visible');
+		
+		if(nextStep <= 0) return false;
+		if(nextStep > totalSteps) return $('#form').submit();
+		if(nextStep > 1 && $('[name="olisc"]').val() == '') return showError('Step 1 error');
+		if(nextStep > 2 && $('[name="baseurl"]').val() == '') return showError('Step 2 error');
+		if(nextStep > 3 && $('[name="name"]').val() == '') return showError('Step 3 error');
+		
+		const $nextWrapper = $('.step-wrapper[step="' + nextStep + '"]');
+		if(!$nextWrapper.length) return showError('An error occurred!');
+		
+		if(nextStep == totalSteps) {
+			const $dataSummary = $nextWrapper.find('.data-summary');
+			$dataSummary.html('');
+			
+			for(var pair of (new FormData(document.querySelector('#form'))).entries()) {
+				var node = $('<tr>');
+				node.append($('<td>').html(pair[0]));
+				node.append($('<td>').append($('<code>').html(pair[1])));
+				$dataSummary.append(node);
+			}
+		}
+		
+		$thisWrapper.hide();
+		$nextWrapper.show();
+		changeProgress(nextStep);
+	}
+
+	$(document).on('keydown', '#form', event => {
+		if (event.key == 'Enter') {
+			event.preventDefault();
+			return false;
+		}
+	});
+	
+	$(document).on('click', '.step-wrapper [type="submit"]', event => {
+		event.preventDefault();
+		changeStep(parseInt($(event.target).parents('.step-wrapper').attr('step')) + 1);
+	});
+	
+	$(document).on('click', '[gotoStep]', event => {
+		event.preventDefault();
+		changeStep(parseInt($(event.target).attr('gotoStep')));
+	});
+});
