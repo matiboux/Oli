@@ -1805,7 +1805,7 @@ abstract class OliCore {
 					} else $isExist[] = false;
 				}
 			}
-			if(!in_array(true, $isExist, true)) return $this->getAppConfig($setting);
+			if(!in_array(true, $isExist, true)) return Config::getAppConfig($setting);
 		}
 		/** * @alias OliCore::getSetting() */
 		public function getOption($setting, $depth = 0) { return $this->getSetting($setting, $depth); }

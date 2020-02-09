@@ -336,7 +336,7 @@ class Config {
 					$isArray = true;
 				} else {
 					$result = [];
-					if($eachValue === null) $result = null;
+					if($eachValue === null) $result[] = null;
 					else {
 						foreach(explode('|', $eachValue) as $eachPart) {
 							$partResult = '';
