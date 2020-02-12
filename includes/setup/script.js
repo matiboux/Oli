@@ -19,14 +19,33 @@ $(document).ready(() => {
 		return false;
 	}
 	
+	const stepCheck = {
+		1: function() {
+			return $('[name="olisc"]').val() != '';
+		},
+		2: function() {
+			return $('[name="baseurl"]').val() != '';
+		},
+		3: function() {
+			if($('[name="use_db"]:checked').val() != 'yes') return true;
+			return $('[name="use_db"]:checked').val() != 'yes' || $('[name="db_name"]').val() != '';
+		},
+		4: function() {
+			return $('[name="name"]').val() != '';
+		}
+	};
+	
 	const changeStep = nextStep => {
 		const $thisWrapper = $('.step-wrapper:visible');
 		
 		if(nextStep <= 0) return false;
 		if(nextStep > totalSteps) return $('#form').submit();
-		if(nextStep > 1 && $('[name="olisc"]').val() == '') return showError('Step 1 error');
-		if(nextStep > 2 && $('[name="baseurl"]').val() == '') return showError('Step 2 error');
-		if(nextStep > 3 && $('[name="name"]').val() == '') return showError('Step 3 error');
+		for (let i = 1; i < nextStep; i++)
+			if (!stepCheck[i]()) return showError('Step ' + i + ' error');
+		
+		// if(nextStep > 1 && $('[name="olisc"]').val() == '') return showError('Step 1 error');
+		// if(nextStep > 2 && $('[name="baseurl"]').val() == '') return showError('Step 2 error');
+		// if(nextStep > 4 && $('[name="name"]').val() == '') return showError('Step 4 error');
 		
 		const $nextWrapper = $('.step-wrapper[step="' + nextStep + '"]');
 		if(!$nextWrapper.length) return showError('An error occurred!');
@@ -44,7 +63,9 @@ $(document).ready(() => {
 		}
 		
 		$thisWrapper.hide();
+		$('[gotoStep]').removeClass('btn-primary').addClass('btn-secondary');
 		$nextWrapper.show();
+		$('[gotoStep="' + nextStep + '"]').removeClass('btn-secondary').addClass('btn-primary');
 		changeProgress(nextStep);
 	}
 
@@ -63,5 +84,12 @@ $(document).ready(() => {
 	$(document).on('click', '[gotoStep]', event => {
 		event.preventDefault();
 		changeStep(parseInt($(event.target).attr('gotoStep')));
+	});
+	
+	// Step 3
+	$(document).on('change', '[name="use_db"]', event => {
+		const $mysqlform = $('#mysql-form');
+		if (event.target.value == 'yes') $mysqlform.show();
+		else $mysqlform.hide();
 	});
 });

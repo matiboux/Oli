@@ -157,9 +157,10 @@ class Config {
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if the config is updated.
 		 */
-		public static function updateConfig($_Oli, $config, $target = false, $replace = false) {
+		public static function updateConfig($_Oli, $config, $target = null, $replace = false) {
 			if(!$target OR self::saveConfig($_Oli, $config, $target, $replace)) {
-				self::$rawConfig = array_merge(self::$rawConfig, $config);
+				if($target === 'app') self::$appConfig = array_merge(self::$appConfig ?: self::getAppConfig(), $config);
+				else self::$rawConfig = array_merge(self::$rawConfig, $config);
 				return self::reloadConfig($_Oli);
 			} else return false;
 		}
@@ -186,9 +187,9 @@ class Config {
 			} else if($target === 'app') {
 				if($_Oli->isExistTableMySQL(self::$config['settings_tables'][0])) { // Are Settings Managed via MySQL?
 					foreach($config as $name => $value) {
-						$result[] = $_Oli->updateInfosMySQL(self::$config['settings_tables'][0], array('name' => $name), array('value' => $value));
+						$result[] = $_Oli->updateInfosMySQL(self::$config['settings_tables'][0], array('value' => $value), array('name' => $name));
 					}
-					if(!in_array(false, $result, true)) self::$appConfig = $config;
+					// if(!in_array(false, $result, true)) self::$appConfig = $config;
 				} else {
 					/** Merging with existing config */
 					if(!$replace AND is_array($appConfig = self::getAppConfig())) $config = array_merge(array(

@@ -807,8 +807,12 @@ a:hover, a:focus { color: #4080c0; text-decoration: underline }
 						<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
 					<?php } ?>
 					
-					<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
-					<?php if(!$isLocalLogin) { ?><input type="text" name="logid" value="<?=$_['logid']?>" placeholder="Login ID" autocomplete="username" aria-label="Login ID" /><?php } ?>
+					<?php if(!$isLocalLogin) { ?>
+						<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
+						<input type="text" name="logid" value="<?=$_['logid']?>" placeholder="Login ID" autocomplete="username" aria-label="Login ID" />
+					<?php } else { ?>
+						<p>Log in using <b>the root password</b> (if set).</p>
+					<?php } ?>
 					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" autocomplete="current-password" aria-label="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run you clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>

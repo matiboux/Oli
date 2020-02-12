@@ -1,6 +1,4 @@
 <?php
-$result = [];
-
 if(!$_Oli->config['setup_wizard']) die('Sorry. The initial config seem to have been done already.');
 
 if(!empty($_['formdata'])) $formdata = json_decode(base64_decode($_['formdata']), true);
@@ -8,33 +6,47 @@ else $formdata = null;
 
 $success = false;
 $confirmed = false;
+$error = null;
 
 if(!empty($_)) {
-	if(empty($_['olisc'])) $result = array('error' => 'Error: The "olisc" parameter is missing');
-	else if($_['olisc'] != $_Oli->getOliSecurityCode()) $result = array('error' => 'Error: The Oli Security Code is incorrect.');
-	else {
-		if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
-			if(\Oli\Config::updateConfig($_Oli, array('setup_wizard' => false), true)) {
-				$result = array('error' => false);
-				$confirmed = true;
-			} else $result = array('error' => 'Error: An error occurred.');
-		} else if(empty($_['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter is missing');
-		// else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['baseurl'])) $result = array('error' => 'Error: The "baseurl" parameter syntax is incorrect.');
-		else if(empty($_['name'])) $result = array('error' => 'Error: The "name" parameter is missing');
-		else {
-			$newConfig = array(
-				'url' => $_['baseurl'],
-				'name' => $_['name'],
-				'description' => $_['description'],
-				'creation_date' => $_['creation_date'],
-				'owner' => $_['owner']);
-			
-			if(\Oli\Config::updateConfig($_Oli, $newConfig, 'app')) {
-				$result = array('error' => false);
-				$success = true;
-			} else $result = array('error' => 'Error: An error occurred.');
-		}
+
+	if(empty($_['olisc'])) $error = 'The "olisc" parameter is missing';
+	else if($_['olisc'] != $_Oli->getOliSecurityCode()) $error = 'The Oli security code is incorrect.';
+	
+	// Confirmed Changes
+	else if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
+		if(\Oli\Config::updateConfig($_Oli, array('setup_wizard' => false), 'local')) $confirmed = true;
+		else $error = 'An error occurred.';
 	}
+	
+	// Setup Wizard Form
+	else if(empty($_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter is missing';
+	// else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter syntax is incorrect.';
+	else if(empty($_['ws_name'])) $error = 'The "ws_name" parameter is missing';
+	else {
+		$newAppConfig = array(
+			'url' => $_['ws_baseurl'],
+			'name' => $_['ws_name'],
+			'description' => $_['ws_description'],
+			'creation_date' => $_['ws_creation_date'],
+			'owner' => $_['ws_owner']);
+		
+		$newConfig = array(
+			'allow_mysql' => $_['use_db'] == 'yes',
+			'mysql' => $_['use_db'] == 'yes' ? array(
+				'database' => $_['db_name'],
+				'username' => $_['db_username'],
+				'password' => $_['db_password'],
+				'hostname' => $_['db_hostname'],
+				'charset' => $_['db_charset']) : null);
+		
+		if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local')) $error = 'An error occurred while updating local config.';
+		else if(!$_Oli->isSetupMySQL()) $error = 'The MySQL configuration has failed. PDO Error: ' . $_Oli->dbError;
+		else if(!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app')) $error = 'An error occurred while updating app config.';
+		else if($_['import_db'] && $_Oli->runQueryMySQL(file_get_contents(OLISETUPPATH . 'default.sql')) === false) $error = 'Couldn\'t import the default SQL configuration. PDO Error: ' . $_Oli->dbError;
+		else $success = true;
+	}
+
 }
 ?>
 
@@ -45,8 +57,7 @@ if(!empty($_)) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="author" content="Matiboux" />
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-	integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
 
 <title>Oli Setup</title>
 
@@ -99,22 +110,23 @@ if(!empty($_)) {
 
 		<div class="d-flex align-items-center">
 			<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-				<button type="button" class="btn btn-secondary btn-sm" gotoStep="1">1</button>
+				<button type="button" class="btn btn-primary btn-sm" gotoStep="1">1</button>
 				<button type="button" class="btn btn-secondary btn-sm" gotoStep="2">2</button>
 				<button type="button" class="btn btn-secondary btn-sm" gotoStep="3">3</button>
 				<button type="button" class="btn btn-secondary btn-sm" gotoStep="4">4</button>
+				<button type="button" class="btn btn-secondary btn-sm" gotoStep="5">5</button>
 			</div>
 			
 			<div id="alert" class="alert alert-danger small ml-3 mb-0 px-2 py-1" role="alert"
-				<?php if(empty($result['error'])) { ?>style="display: none">
-				<?php } else { ?>><b>Script error:</b> <?=$result['error']?><?php } ?>
+				<?php if(empty($error)) { ?>style="display: none">
+				<?php } else { ?>><b>Script error:</b> <?=$error?><?php } ?>
 			</div>
 		</div>
 		<hr />
 
 		<form action="#" method="post" id="form">
 			<div class="step-wrapper" step="1">
-				<h2>Step 1/4 – Verify your identity</h2>
+				<h2>Step 1/5 – Verify your identity</h2>
 				<?php $_Oli->refreshOliSecurityCode(); ?>
 				
 				<p>Welcome on the setup wizard for Oli.</p>
@@ -133,19 +145,19 @@ if(!empty($_)) {
 			</div>
 				
 			<div class="step-wrapper" step="2" style="display: none">
-				<h2>Step 2/4 – Define the base url</h2>
-				<?php $baseurl = $_Oli->getUrlParam(0); ?>
+				<h2>Step 2/5 – Define the base url</h2>
+				<?php $ws_baseurl = $_Oli->getUrlParam(0); ?>
 				
 				<p>To ensure that your website works properly, please select which one of these addresses should be the base url (or home page) of your website.</p>
 				<p><i>By default, Oli uses the full domain name as the website base url. The base url currently used by the framework is "<?=$_Oli->getUrlParam('base')?>".</i></p>
 				
 				<div class="form-group row">
 					<div class="col-sm-10">
-						<select class="form-control" name="baseurl" />
-							<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+						<select class="form-control" name="ws_baseurl" />
+							<option value="<?=implode(array_slice(explode('://', $ws_baseurl), 1))?>"><?=$ws_baseurl?></option>
 							<?php foreach($_Oli->getUrlParam('params') as $eachUrlPart) {
-								$baseurl .= $eachUrlPart . '/'; ?>
-								<option value="<?=implode(array_slice(explode('://', $baseurl), 1))?>"><?=$baseurl?></option>
+								$ws_baseurl .= $eachUrlPart . '/'; ?>
+								<option value="<?=implode(array_slice(explode('://', $ws_baseurl), 1))?>"><?=$ws_baseurl?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -154,46 +166,102 @@ if(!empty($_)) {
 			</div>
 				
 			<div class="step-wrapper" step="3" style="display: none">
-				<h2>Step 3/4 – Your website basic infos</h2>
+				<h2>Step 3/5 – Database configuration</h2>
 				
-				<p>Finally, let's add some basic information that makes the identity of your website.</p>
+				<p>A website usually comes with a database. Do you have one?</p>
 				
-				<div class="form-group row">
-					<label for="name" class="col-sm-2 col-form-label">Website Name</label>
-					<div class="col-sm-10">
-						<input type="text" class="form-control" name="name" placeholder="Name" value="<?=$_['name'] ?: $_Oli->getSetting('name')?>" />
-					</div>
+				<div class="form-check">
+					<input class="form-check-input" type="radio" name="use_db" id="use_db_yes" value="yes" <?php if(!isset($_['use_db']) || $_['use_db'] == 'yes') { ?>checked<?php } ?> />
+					<label class="form-check-label" for="use_db_yes">
+						Yes, I want to use a MySQL database!
+					</label>
 				</div>
-				<div class="form-group row">
-					<label for="description" class="col-sm-2 col-form-label">Description</label>
-					<div class="col-sm-10">
-						<input type="text" class="form-control" name="description" placeholder="Description" value="<?=$_POST['description'] ?: $_Oli->getSetting('description')?>" />
-					</div>
+				<div class="form-check mb-3">
+					<input class="form-check-input" type="radio" name="use_db" id="use_db_no" value="no" <?php if(isset($_['use_db']) && $_['use_db'] != 'yes') { ?>checked<?php } ?> />
+					<label class="form-check-label" for="use_db_no">
+						No, keep the website without one for now.
+					</label>
 				</div>
-				<div class="form-group row">
-					<label for="creation_date" class="col-sm-2 col-form-label">Creation date</label>
-					<div class="input-group col-sm-10">
-						<input type="date" class="form-control" name="creation_date" placeholder="Creation date" value="<?=$_POST['creation_date'] ?: $_Oli->getSetting('creation_date')?>" />
-						<div class="input-group-append">
-							<button class="btn btn-secondary" type="button" onclick="document.querySelector('[name=\'creation_date\']').value = (new Date()).toJSON().substr(0, 10);">Today</button>
+				
+				<div id="mysql-form" class="card mb-3">
+					<div class="card-body">
+						<div class="form-group">
+							<label for="db_name">Database Name</label>
+							<input type="text" class="form-control" name="db_name" value="<?=$_['db_name'] ?: $_OliConfig['mysql']['database']?>" />
+						</div>
+						<div class="form-group">
+							<label for="db_username">Username</label>
+							<input type="text" class="form-control" name="db_username" placeholder="root" value="<?=$_POST['db_username'] ?: $_OliConfig['mysql']['username']?>" />
+						</div>
+						<div class="form-group">
+							<label for="db_password">Password</label>
+							<input type="password" class="form-control" name="db_password" value="<?=$_POST['db_password'] ?: $_OliConfig['mysql']['password']?>" />
+						</div>
+						<div class="form-group">
+							<label for="db_hostname">Hostname</label>
+							<input type="text" class="form-control" name="db_hostname" placeholder="localhost" value="<?=$_POST['db_hostname'] ?: $_OliConfig['mysql']['hostname']?>" />
+						</div>
+						<div class="form-group">
+							<label for="db_charset">Charset</label>
+							<input type="text" class="form-control" name="db_charset" placeholder="utf8" value="<?=$_POST['db_charset'] ?: $_OliConfig['mysql']['charset']?>" />
+						</div>
+						<hr />
+						
+						<p>Do you want to import the default SQL configuration for Oli?</p>
+						
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="import_db" id="import_db_yes" value="yes" <?php if(!isset($_['import_db']) || $_['import_db'] == 'yes') { ?>checked<?php } ?> />
+							<label class="form-check-label" for="import_db_yes">
+								Yes, load the default SQL configuration for Oli!
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="import_db" id="import_db_no" value="no" <?php if(isset($_['import_db']) && $_['import_db'] != 'yes') { ?>checked<?php } ?> />
+							<label class="form-check-label" for="import_db_no">
+								No, my database is already set up.
+							</label>
 						</div>
 					</div>
 				</div>
-				<div class="form-group row">
-					<label for="owner" class="col-sm-2 col-form-label">Owner</label>
-					<div class="col-sm-10">
-						<input type="text" class="form-control" name="owner" placeholder="Owner" value="<?=$_POST['owner'] ?: $_Oli->getSetting('owner')?>" />
-					</div>
-				</div>
-				<div class="form-group row">
-					<div class="col-sm-10 offset-sm-2">
-						<button class="btn btn-primary" type="submit">Confirm</button>
-					</div>
+				
+				<div class="form-group">
+					<button class="btn btn-primary" type="submit">Confirm</button>
 				</div>
 			</div>
 				
 			<div class="step-wrapper" step="4" style="display: none">
-				<h2>Step 4/4 – Confirm</h2>
+				<h2>Step 4/5 – Your website basic infos</h2>
+				
+				<p>Finally, let's add some basic information that makes the identity of your website.</p>
+				
+				<div class="form-group">
+					<label for="ws_name">Website Name</label>
+					<input type="text" class="form-control" name="ws_name" placeholder="Name" value="<?=$_['ws_name'] ?: $_Oli->getSetting('name')?>" />
+				</div>
+				<div class="form-group">
+					<label for="ws_description">Description</label>
+					<input type="text" class="form-control" name="ws_description" placeholder="Description" value="<?=$_['ws_description'] ?: $_Oli->getSetting('description')?>" />
+				</div>
+				<div class="form-group">
+					<label for="ws_creation_date">Creation date</label>
+					<div class="input-group">
+						<input type="date" class="form-control" name="ws_creation_date" placeholder="Creation date" value="<?=$_['ws_creation_date'] ?: $_Oli->getSetting('creation_date')?>" />
+						<div class="input-group-append">
+							<button class="btn btn-secondary" type="button" onclick="document.querySelector('[name=\'ws_creation_date\']').value = (new Date()).toJSON().substr(0, 10);">Today</button>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="ws_owner">Owner</label>
+					<input type="text" class="form-control" name="ws_owner" placeholder="Owner" value="<?=$_['ws_owner'] ?: $_Oli->getSetting('owner')?>" />
+				</div>
+				<div class="form-group">
+					<button class="btn btn-primary" type="submit">Confirm</button>
+				</div>
+			</div>
+				
+			<div class="step-wrapper" step="5" style="display: none">
+				<h2>Step 5/5 – Confirm</h2>
 				<p>Please confirm that the information below in correct. If not, please go back and fix the errors.</p>
 				
 				<h3>Summary of the data you're sending</h3>
