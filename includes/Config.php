@@ -186,10 +186,8 @@ class Config {
 				fclose($handle);
 			} else if($target === 'app') {
 				if($_Oli->isExistTableMySQL(self::$config['settings_tables'][0])) { // Are Settings Managed via MySQL?
-					foreach($config as $name => $value) {
+					foreach($config as $name => $value)
 						$result[] = $_Oli->updateInfosMySQL(self::$config['settings_tables'][0], array('value' => $value), array('name' => $name));
-					}
-					// if(!in_array(false, $result, true)) self::$appConfig = $config;
 				} else {
 					/** Merging with existing config */
 					if(!$replace AND is_array($appConfig = self::getAppConfig())) $config = array_merge(array(

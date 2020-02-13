@@ -42,8 +42,8 @@ if(!empty($_)) {
 		
 		if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local')) $error = 'An error occurred while updating local config.';
 		else if(!$_Oli->isSetupMySQL()) $error = 'The MySQL configuration has failed. PDO Error: ' . $_Oli->dbError;
-		else if(!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app')) $error = 'An error occurred while updating app config.';
 		else if($_['import_db'] && $_Oli->runQueryMySQL(file_get_contents(OLISETUPPATH . 'default.sql')) === false) $error = 'Couldn\'t import the default SQL configuration. PDO Error: ' . $_Oli->dbError;
+		else if(!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app')) $error = 'An error occurred while updating app config.';
 		else $success = true;
 	}
 
