@@ -216,6 +216,7 @@ abstract class OliCore {
 		/** Secondary constants */
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
 		if(!defined('OLISETUPPATH')) define('OLISETUPPATH', INCLUDESPATH . 'setup/');
+		if(!defined('OLILOGINPATH')) define('OLILOGINPATH', INCLUDESPATH . 'login/');
 		
 		/** Load Config */
 		Config::loadConfig($this);
@@ -1590,10 +1591,20 @@ abstract class OliCore {
 							}
 						
 						/** Oli Login */
-						} else if(($fileName[0] == 'oli-login' OR (!empty(Config::$config['login_alias']) AND $fileName[0] == Config::$config['login_alias'])) AND is_file(OLIADMINPATH . 'login.php')) {
-							$found = OLIADMINPATH . 'login.php';
-							$this->fileNameParam = $fileNameParam;
-							break;
+						} else if($fileName[0] == 'oli-login' OR (!empty(Config::$config['login_alias']) AND $fileName[0] == Config::$config['login_alias'])) {
+							/** Assets */
+							if($countFileName > 1 AND is_file(OLILOGINPATH . implode('/', array_slice($fileName, 1)))) {
+								$found = OLILOGINPATH . implode('/', array_slice($fileName, 1));
+								$this->fileNameParam = $fileNameParam;
+								$this->setAutoContentType($fileNameParam);
+								break; // Sub-level pages not allowed.
+							
+							/** Setup Page */
+							} else if(is_file(OLILOGINPATH . 'login.php')) {
+								$found = OLILOGINPATH . 'login.php';
+								$this->fileNameParam = $fileNameParam;
+								continue; // There may be a requested page.
+							}
 						
 						/** Oli Admin */
 						} else if($fileName[0] == 'oli-admin' OR (!empty(Config::$config['admin_alias']) AND $fileName[0] == Config::$config['admin_alias'])) {
