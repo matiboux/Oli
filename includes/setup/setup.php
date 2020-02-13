@@ -1,53 +1,84 @@
 <?php
-if(!$_Oli->config['setup_wizard']) die('Sorry. The initial config seem to have been done already.');
-
-if(!empty($_['formdata'])) $formdata = json_decode(base64_decode($_['formdata']), true);
-else $formdata = null;
+if(!$_Oli->config['setup_wizard'])
+	die('Sorry. The initial config seem to have been done already.');
 
 $success = false;
 $confirmed = false;
 $error = null;
 
+$step = 1;
+$totalSteps = 3;
+
 if(!empty($_)) {
 
+	// $newAppConfig = [];
+	// $newConfig = [];
+
+	// Check for valid Oli Security Code
 	if(empty($_['olisc'])) $error = 'The "olisc" parameter is missing';
-	else if($_['olisc'] != $_Oli->getOliSecurityCode()) $error = 'The Oli security code is incorrect.';
-	
-	// Confirmed Changes
-	else if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
-		if(\Oli\Config::updateConfig($_Oli, array('setup_wizard' => false), 'local')) $confirmed = true;
-		else $error = 'An error occurred.';
+	else if($_['olisc'] != $_Oli->getOliSecurityCode()) {
+		unset($_['olisc']);
+		$error = 'The Oli security code is incorrect.';
 	}
 	
-	// Setup Wizard Form
-	else if(empty($_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter is missing';
-	// else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter syntax is incorrect.';
-	else if(empty($_['ws_name'])) $error = 'The "ws_name" parameter is missing';
-	else {
-		$newAppConfig = array(
-			'url' => $_['ws_baseurl'],
-			'name' => $_['ws_name'],
-			'description' => $_['ws_description'],
-			'creation_date' => $_['ws_creation_date'],
-			'owner' => $_['ws_owner']);
+	// Database configuration
+	else if(isset($_['use_db'])) {
+		$step = 1;
+		$newConfig = array('allow_mysql' => $_['use_db'] == 'yes');
+		if($_['use_db'] == 'yes') $newConfig['mysql'] = array(
+			'database' => $_['db_name'],
+			'username' => $_['db_username'],
+			'password' => $_['db_password'],
+			'hostname' => $_['db_hostname'],
+			'charset' => $_['db_charset']);
 		
-		$newConfig = array(
-			'allow_mysql' => $_['use_db'] == 'yes',
-			'mysql' => $_['use_db'] == 'yes' ? array(
-				'database' => $_['db_name'],
-				'username' => $_['db_username'],
-				'password' => $_['db_password'],
-				'hostname' => $_['db_hostname'],
-				'charset' => $_['db_charset']) : null);
+		// if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local'))
+			// $error = 'An error occurred while updating local config.';
+		// else
+			if($_['use_db'] == 'yes' AND !$_Oli->isSetupMySQL())
+			$error = 'The MySQL configuration has failed. PDO Error: ' . $_Oli->dbError;
+		else if($_['import_db'] AND $_Oli->runQueryMySQL(file_get_contents(OLISETUPPATH . 'default.sql')) === false)
+			$error = 'Couldn\'t import the default SQL configuration. PDO Error: ' . $_Oli->dbError;
+		else
+			$step++;
+	}
+	
+	// Website information
+	else if(isset($_['ws_baseurl'])) {
+		$step = 2;
 		
-		if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local')) $error = 'An error occurred while updating local config.';
-		else if(!$_Oli->isSetupMySQL()) $error = 'The MySQL configuration has failed. PDO Error: ' . $_Oli->dbError;
-		else if($_['import_db'] && $_Oli->runQueryMySQL(file_get_contents(OLISETUPPATH . 'default.sql')) === false) $error = 'Couldn\'t import the default SQL configuration. PDO Error: ' . $_Oli->dbError;
-		else if(!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app')) $error = 'An error occurred while updating app config.';
-		else $success = true;
+		if(empty($_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter is missing';
+		// else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter syntax is incorrect.';
+		else if(empty($_['ws_name'])) $error = 'The "ws_name" parameter is missing';
+		else {
+			$newAppConfig = array(
+				'url' => $_['ws_baseurl'],
+				'name' => $_['ws_name'],
+				'description' => $_['ws_description'],
+				'creation_date' => $_['ws_creation_date'],
+				'owner' => $_['ws_owner']);
+			
+			if(!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app'))
+				$error = 'An error occurred while updating app config.';
+			else
+				$step++;
+		}
+	}
+	
+	// Confirm Changes
+	else if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
+		$step = 3;
+		$newConfig = array('setup_wizard' => false);
+		
+		if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local'))
+			$error = 'An error occurred while updating local config.';
+		else
+			$step++;
 	}
 
 }
+
+$progress = $step / $totalSteps * 100;
 ?>
 
 <html>
@@ -64,32 +95,10 @@ if(!empty($_)) {
 </head>
 <body>
 
-<div class="container">
-	<h1>— <b>Oli</b> Setup</h1>
+<div class="container pt-3 pb-5">
+	<h1 class="mb-3">— <b>Oli</b> Setup</h1>
 
-	<?php if($success) { ?>
-		<h2>Confirm that everything works!</h2>
-		<p>Verify that the default home page is properly displayed in the preview below</p>
-		
-		<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug=<?=$_['olisc']?>" style="width: 100%; max-height: 200px"></iframe>
-		
-		<p>Does it work? If not, something wrong happened..</p>
-		
-		<form action="#" method="post" id="form">
-			<input type="hidden" name="olisc" value="<?=$_['olisc']?>" />
-			
-			<div class="form-group row">
-				<div class="col-sm-10">
-					<select class="form-control" name="confirm" />
-						<option selected disabled>Choose...</option>
-						<option value="yes">Yes!</option>
-						<option value="no">No..</option>
-					</select>
-				</div>
-				<button class="btn btn-primary col-sm-2" type="submit">Confirm</button>
-			</div>
-		</form>
-	<?php } else if($confirmed) { ?>
+	<?php if($step > $totalSteps) { ?>
 		<h2>Thank you! ♥</h2>
 		
 		<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
@@ -97,18 +106,20 @@ if(!empty($_)) {
 		
 		<p><a href="<?=$_Oli->getUrlParam(0)?>">Visit your website! ♥</a>.</p>
 	<?php } else { ?>
-		<p>
-			It looks like your website lacks basic config.
-			Please follow the instructions below to setup your website.
-		</p>
-
 		<div class="progress">
 			<div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar"
-				style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+				style="width: <?=$progress ?: 0?>%" aria-valuenow="<?=$progress ?: 0?>" aria-valuemin="0" aria-valuemax="100">
+				Step <?=$step ?: 0?> / <?=$totalSteps?>
+			</div>
+		</div>
+		
+		<div id="alert" class="alert alert-danger small mt-3 px-2 py-1" role="alert"
+			<?php if(empty($error)) { ?>style="display: none">
+			<?php } else { ?>><b>Script error:</b> <?=$error?><?php } ?>
 		</div>
 		<hr />
 
-		<div class="d-flex align-items-center">
+		<!--<div class="d-flex align-items-center">
 			<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
 				<button type="button" class="btn btn-primary btn-sm" gotoStep="1">1</button>
 				<button type="button" class="btn btn-secondary btn-sm" gotoStep="2">2</button>
@@ -122,51 +133,39 @@ if(!empty($_)) {
 				<?php } else { ?>><b>Script error:</b> <?=$error?><?php } ?>
 			</div>
 		</div>
-		<hr />
+		<hr />-->
 
 		<form action="#" method="post" id="form">
-			<div class="step-wrapper" step="1">
-				<h2>Step 1/5 – Verify your identity</h2>
-				<?php $_Oli->refreshOliSecurityCode(); ?>
-				
+		
+			<?php if(empty($_['olisc'])) { ?>
 				<p>Welcome on the setup wizard for Oli.</p>
 				<p>
-					For obvious security reasons, please verify that you are the owner of this website.
-					Type in below the generated security codeare required to verify that you own this website by typing in the generated secondary code.
-					You can find it in this file: <code>/.olisc</code> (located in the main folder of your website).
+					It looks like your website lacks basic config.
+					Please follow the instructions below to setup your website and get started!
 				</p>
+				<hr />
 				
-				<div class="form-group row">
-					<div class="col-sm-10">
-						<input class="form-control" type="password" name="olisc" placeholder="Oli Security Code" value="<?=$_POST['olisc']?>" />
-					</div>
-					<button class="btn btn-primary col-sm-2" type="submit">Confirm</button>
+				<h2>&raquo; Verify your identity</h2>
+				
+				<p>For obvious security reasons, please verify that you are the owner of this website.</p>
+				
+				<div class="form-group">
+					<label for="oliscInput">Oli Security Code</label>
+					<input id="oliscInput" class="form-control" name="olisc" type="password" placeholder="Oli Security Code" value="<?=$_['olisc']?>" />
+					
+					<?php if($_Oli->refreshOliSecurityCode()) { ?>
+						<small id="oliscHelp" class="form-text text-muted">Type in the new security code generated in <code>/.olisc</code> (located in the main folder of your website).</small>
+					<?php } else { ?>
+						<small id="oliscHelp" class="form-text text-muted">Type in the security code previously generated in <code>/.olisc</code> (located in the main folder of your website).</small>
+					<?php } ?>
 				</div>
-			</div>
-				
-			<div class="step-wrapper" step="2" style="display: none">
-				<h2>Step 2/5 – Define the base url</h2>
-				<?php $ws_baseurl = $_Oli->getUrlParam(0); ?>
-				
-				<p>To ensure that your website works properly, please select which one of these addresses should be the base url (or home page) of your website.</p>
-				<p><i>By default, Oli uses the full domain name as the website base url. The base url currently used by the framework is "<?=$_Oli->getUrlParam('base')?>".</i></p>
-				
-				<div class="form-group row">
-					<div class="col-sm-10">
-						<select class="form-control" name="ws_baseurl" />
-							<option value="<?=implode(array_slice(explode('://', $ws_baseurl), 1))?>"><?=$ws_baseurl?></option>
-							<?php foreach($_Oli->getUrlParam('params') as $eachUrlPart) {
-								$ws_baseurl .= $eachUrlPart . '/'; ?>
-								<option value="<?=implode(array_slice(explode('://', $ws_baseurl), 1))?>"><?=$ws_baseurl?></option>
-							<?php } ?>
-						</select>
-					</div>
-					<button class="btn btn-primary col-sm-2" type="submit">Confirm</button>
-				</div>
-			</div>
-				
-			<div class="step-wrapper" step="3" style="display: none">
-				<h2>Step 3/5 – Database configuration</h2>
+			<?php } else { ?>
+				<p>The Oli Security Code was good and memorized. Keep going!</p>
+				<input id="oliscInput" name="olisc" type="hidden" value="<?=$_['olisc']?>" />
+			<?php } ?> <hr />
+			
+			<?php if($step == 1) { ?>
+				<h2>&raquo; Database configuration</h2>
 				
 				<p>A website usually comes with a database. Do you have one?</p>
 				
@@ -223,14 +222,31 @@ if(!empty($_)) {
 						</div>
 					</div>
 				</div>
+				<hr />
 				
 				<div class="form-group">
 					<button class="btn btn-primary" type="submit">Confirm</button>
 				</div>
-			</div>
+			
+			<?php } else if($step == 2) { ?>
+				<h2>&raquo; Define the base url</h2>
+				<?php $ws_baseurl = $_Oli->getUrlParam(0); ?>
 				
-			<div class="step-wrapper" step="4" style="display: none">
-				<h2>Step 4/5 – Your website basic infos</h2>
+				<p>To ensure that your website works properly, please select which one of these addresses should be the base url (or home page) of your website.</p>
+				<p><i>By default, Oli uses the full domain name as the website base url. The base url currently used by the framework is "<?=$_Oli->getUrlParam('base')?>".</i></p>
+				
+				<div class="form-group">
+					<select class="form-control" name="ws_baseurl" />
+						<option value="<?=implode(array_slice(explode('://', $ws_baseurl), 1))?>"><?=$ws_baseurl?></option>
+						<?php foreach($_Oli->getUrlParam('params') as $eachUrlPart) {
+							$ws_baseurl .= $eachUrlPart . '/'; ?>
+							<option value="<?=implode(array_slice(explode('://', $ws_baseurl), 1))?>"><?=$ws_baseurl?></option>
+						<?php } ?>
+					</select>
+				</div>
+				<hr />
+				
+				<h2>&raquo; Your website basic infos</h2>
 				
 				<p>Finally, let's add some basic information that makes the identity of your website.</p>
 				
@@ -255,14 +271,20 @@ if(!empty($_)) {
 					<label for="ws_owner">Owner</label>
 					<input type="text" class="form-control" name="ws_owner" placeholder="Owner" value="<?=$_['ws_owner'] ?: $_Oli->getSetting('owner')?>" />
 				</div>
+				<hr />
+				
 				<div class="form-group">
 					<button class="btn btn-primary" type="submit">Confirm</button>
 				</div>
-			</div>
+			
+			<?php } else if($step == 3) { ?>
+				<h2>&raquo; Confirm that everything works</h2>
 				
-			<div class="step-wrapper" step="5" style="display: none">
-				<h2>Step 5/5 – Confirm</h2>
-				<p>Please confirm that the information below in correct. If not, please go back and fix the errors.</p>
+				<p>Verify that the default home page is properly displayed in the preview below</p>
+				
+				<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug=<?=$_['olisc']?>" style="width: 100%; max-height: 200px"></iframe>
+				
+				<!--<p>Please confirm that the information below in correct. If not, please go back and fix the errors.</p>
 				
 				<h3>Summary of the data you're sending</h3>
 				<table class="table table-sm">
@@ -273,10 +295,26 @@ if(!empty($_)) {
 						</tr>
 					</thead>
 					<tbody class="data-summary"></tbody>
-				</table>
+				</table>-->
 				
-				<button class="btn btn-primary" type="submit">Confirm</button>
-			</div>
+				<p>Does it work? If not, something wrong happened..</p>
+				
+				<div class="form-group row">
+					<div class="col-sm-10">
+						<select class="form-control" name="confirm" />
+							<option selected disabled>Choose...</option>
+							<option value="yes">Yes!</option>
+							<option value="no">No..</option>
+						</select>
+					</div>
+					<button class="btn btn-primary col-sm-2" type="submit">Confirm</button>
+				</div>
+			
+			<?php } else { ?>
+				<h2>&raquo; An error occurred</h2>
+				
+				<p>Something went wrong. Please <a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>">try again</a>.</p>
+			<?php } ?>
 			
 		</form>
 	<?php } ?>

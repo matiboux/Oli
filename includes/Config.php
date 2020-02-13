@@ -65,13 +65,13 @@ class Config {
 	
 	/** *** *** */
 	
-	/** ------------------- */
-	/**  II. Configuration  */
-	/** ------------------- */
+	/** -------------------- */
+	/**  III. Configuration  */
+	/** -------------------- */
 		
-		/** ------------------- */
-		/**  IV. 1. Get Config  */
-		/** ------------------- */
+		/** -------------------- */
+		/**  III. 1. Get Config  */
+		/** -------------------- */
 		
 		/**
 		 * Get Default Config
@@ -81,14 +81,18 @@ class Config {
 		 * @return mixed Array or requested value.
 		 */
 		public static function getDefaultConfig($index = null, $reload = false) {
-			if(is_bool($index)) $reload = $index;
-			if(($reload OR !isset(self::$defaultConfig)) AND file_exists(INCLUDESPATH . 'config.default.json'))
-				self::$defaultConfig = json_decode(file_get_contents(INCLUDESPATH . 'config.default.json'), true);
+			if(is_bool($index)) {
+				$reload = $index;
+				$index = null;
+			}
 			
-			if(self::$defaultConfig !== null) {
-				if(!empty($index)) return self::$defaultConfig[$index] ?: null;
-				else return self::$defaultConfig ?: [];
-			} else return null;
+			if(($reload OR !isset(self::$defaultConfig))
+				AND ($defaultConfig = @file_get_contents(INCLUDESPATH . 'config.default.json')) !== null)
+				self::$defaultConfig = json_decode($defaultConfig, true);
+			
+			if(self::$defaultConfig === null) return null;
+			if($index !== null) return @self::$defaultConfig[$index];
+			return self::$defaultConfig ?: [];
 		}
 		
 		/**
@@ -99,14 +103,18 @@ class Config {
 		 * @return mixed Array or requested value.
 		 */
 		public static function getGlobalConfig($index = null, $reload = false) {
-			if(is_bool($index)) $reload = $index;
-			if(($reload OR !isset(self::$globalConfig)) AND file_exists(OLIPATH . 'config.global.json'))
-				self::$globalConfig = json_decode(file_get_contents(OLIPATH . 'config.global.json'), true);
+			if(is_bool($index)) {
+				$reload = $index;
+				$index = null;
+			}
 			
-			if(self::$globalConfig !== null) {
-				if(!empty($index)) return self::$globalConfig[$index] ?: null;
-				else return self::$globalConfig ?: [];
-			} else return null;
+			if(($reload OR !isset(self::$globalConfig))
+				AND ($globalConfig = @file_get_contents(OLIPATH . 'config.global.json')) !== null)
+				self::$globalConfig = json_decode($globalConfig, true);
+			
+			if(self::$globalConfig === null) return null;
+			if($index !== null) return @self::$globalConfig[$index];
+			return self::$globalConfig ?: [];
 		}
 		
 		/**
@@ -117,14 +125,18 @@ class Config {
 		 * @return mixed Array or requested value.
 		 */
 		public static function getLocalConfig($index = null, $reload = false) {
-			if(is_bool($index)) $reload = $index;
-			if(($reload OR !isset(self::$localConfig)) AND file_exists(ABSPATH . 'config.json'))
-				self::$localConfig = json_decode(file_get_contents(ABSPATH . 'config.json'), true);
+			if(is_bool($index)) {
+				$reload = $index;
+				$index = null;
+			}
 			
-			if(self::$localConfig !== null) {
-				if(!empty($index)) return self::$localConfig[$index] ?: null;
-				else return self::$localConfig ?: [];
-			} else return null;
+			if(($reload OR !isset(self::$localConfig))
+				AND ($localConfig = @file_get_contents(ABSPATH . 'config.json')) !== null)
+				self::$localConfig = json_decode($localConfig, true);
+			
+			if(self::$localConfig === null) return null;
+			if($index !== null) return @self::$localConfig[$index];
+			return self::$localConfig ?: [];
 		}
 		
 		/**
@@ -137,18 +149,69 @@ class Config {
 		public static function getAppConfig($index = null, $reload = false) {
 			if(is_bool($index)) $reload = $index;
 			
-			if(($reload OR !isset(self::$appConfig)) AND file_exists(ABSPATH . 'app.json'))
-				self::$appConfig = json_decode(file_get_contents(ABSPATH . 'app.json'), true);
+			if(($reload OR !isset(self::$appConfig))
+				AND ($appConfig = @file_get_contents(ABSPATH . 'app.json')) !== null)
+				self::$appConfig = json_decode($appConfig, true);
 			
-			if(self::$appConfig !== null) {
-				if(!empty($index)) return self::$appConfig[$index] ?: null;
-				else return self::$appConfig ?: [];
-			} else return null;
+			if(self::$appConfig === null) return null;
+			if($index !== null) return @self::$appConfig[$index];
+			return self::$appConfig ?: [];
 		}
 		
-		/** -------------------- */
-		/**  IV. 2. Load Config  */
-		/** -------------------- */
+		/** --------------------- */
+		/**  III. 2. Load Config  */
+		/** --------------------- */
+		
+		/**
+		 * Load Oli Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
+		 */
+		public static function loadRawConfig() {
+			/** Load Config */
+			$defaultConfig = self::getDefaultConfig();
+			$globalConfig = self::getGlobalConfig();
+			$localConfig = self::getLocalConfig();
+			
+			// Merge Default, Global & Local configs together
+			self::$rawConfig = [];
+			if(!empty($defaultConfig) AND is_array($defaultConfig)) self::$rawConfig = array_merge(self::$rawConfig, $defaultConfig);
+			if(!empty($globalConfig) AND is_array($globalConfig)) self::$rawConfig = array_merge(self::$rawConfig, $globalConfig);
+			if(!empty($localConfig) AND is_array($localConfig)) self::$rawConfig = array_merge(self::$rawConfig, $localConfig);
+			
+			// Update the last update timestamp
+			self::$lastUpdateTimestamp = microtime(true);
+			
+			return !empty(self::$rawConfig);
+		}
+		
+		/**
+		 * Load Oli Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
+		 */
+		public static function loadConfig($_Oli) {
+			return (!empty(self::$rawConfig) OR self::loadRawConfig()) AND self::parseConfig($_Oli);
+		}
+		
+		/**
+		 * Reload Oli Config
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
+		 */
+		public static function reloadConfig($_Oli) {
+			return self::loadRawConfig() AND self::parseConfig($_Oli);
+		}
+		
+		/** --------------------- */
+		/**  III. 3. Save Config  */
+		/** --------------------- */
 		
 		/**
 		 * Update Config
@@ -212,56 +275,9 @@ class Config {
 			return !in_array(false, $result, true);
 		}
 		
-		/**
-		 * Load Oli Config
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
-		 */
-		public static function loadRawConfig() {
-			/** Load Config */
-			$defaultConfig = self::getDefaultConfig();
-			$globalConfig = self::getGlobalConfig();
-			$localConfig = self::getLocalConfig();
-			
-			// Merge Default, Global & Local configs together
-			self::$rawConfig = [];
-			if(!empty($defaultConfig) AND is_array($defaultConfig)) self::$rawConfig = array_merge(self::$rawConfig, $defaultConfig);
-			if(!empty($globalConfig) AND is_array($globalConfig)) self::$rawConfig = array_merge(self::$rawConfig, $globalConfig);
-			if(!empty($localConfig) AND is_array($localConfig)) self::$rawConfig = array_merge(self::$rawConfig, $localConfig);
-			
-			// Update the last update timestamp
-			self::$lastUpdateTimestamp = microtime(true);
-			
-			return !empty(self::$rawConfig);
-		}
-		
-		/**
-		 * Load Oli Config
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
-		 */
-		public static function loadConfig($_Oli) {
-			return (!empty(self::$rawConfig) OR self::loadRawConfig()) AND self::parseConfig($_Oli);
-		}
-		
-		/**
-		 * Reload Oli Config
-		 * 
-		 * @version BETA-2.0.0
-		 * @updated BETA-2.0.0
-		 * @return boolean Returns true if the config was successfully loaded, false otherwise.
-		 */
-		public static function reloadConfig($_Oli) {
-			return self::loadRawConfig() AND self::parseConfig($_Oli);
-		}
-		
-		/** --------------------- */
-		/**  IV. 3. Parse Config  */
-		/** --------------------- */
+		/** ---------------------- */
+		/**  III. 4. Parse Config  */
+		/** ---------------------- */
 		
 		/**
 		 * Parse Oli Config
@@ -308,9 +324,9 @@ class Config {
 			return !empty(self::$config);
 		}
 		
-		/** ----------------------- */
-		/**  IV. 4. Process Config  */
-		/** ----------------------- */
+		/** ------------------------ */
+		/**  III. 5. Process Config  */
+		/** ------------------------ */
 		
 		/** Decode config arrays */
 		public static function decodeConfigArray($array, $currentConfig = null) {

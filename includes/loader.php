@@ -16,7 +16,7 @@ require_once INCLUDESPATH . 'ErrorManager.php';
 /** Load Config */
 require_once INCLUDESPATH . 'Config.php'; // Oli Config Registry
 \Oli\Config::loadRawConfig();
-$_OliConfig = &\Oli\Config::$config; // Config alias
+$_OliConfig = &\Oli\Config::$config; // Config array alias
 
 /** Load Oli */
 require_once INCLUDESPATH . 'OliCore.php'; // Oli Core
