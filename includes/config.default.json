@@ -1,10 +1,9 @@
 {
 	"setup_wizard": true,
+	"oli_mode": "full",
 	
 	"constants": {},
 	"addons": {},
-	
-	"oli_mode": "full",
 	
 	"allow_mysql": false,
 	"mysql": null,
@@ -13,23 +12,25 @@
 	"shortcut_links_table": "shortcut_links",
 	"translations_table": null,
 	
-	"admin_alias": null,
-	"login_alias": null,
-	
 	"assets_path": "Const:CONTENTPATH|assets/",
-	"assets_url": null,
 	"media_path": "Const:CONTENTPATH|media/",
-	"media_url": null,
-	"theme_path": "Const:CONTENTPATH|theme/",
 	"scripts_path": "Const:CONTENTPATH|scripts/",
+	"theme_path": "Const:CONTENTPATH|theme/",
 	"templates_path": "Const:CONTENTPATH|templates/",
+	
+	"admin_alias": "oli-admin",
+	"setup_alias": "oli-setup",
+	"login_alias": "oli-login",
+	"assets_alias": "assets",
+	"media_alias": "media",
+	"scripts_alias": "scripts",
+	
+	"cdn_url": null,
+	"media_url": null,
 	
 	"default_language": "en",
 	"default_content_type": "html",
 	"default_charset": "utf-8",
-	
-	"cdn_url": null,
-	
 	
 	"accounts_tables": {
 		"accounts": "accounts",

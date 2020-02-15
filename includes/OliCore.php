@@ -217,6 +217,7 @@ abstract class OliCore {
 		if(!defined('OLIADMINPATH')) define('OLIADMINPATH', INCLUDESPATH . 'admin/');
 		if(!defined('OLISETUPPATH')) define('OLISETUPPATH', INCLUDESPATH . 'setup/');
 		if(!defined('OLILOGINPATH')) define('OLILOGINPATH', INCLUDESPATH . 'login/');
+		if(!defined('OLISCRIPTPATH')) define('OLISCRIPTPATH', INCLUDESPATH . 'scripts/');
 		
 		/** Load Config */
 		Config::loadConfig($this);
@@ -242,6 +243,9 @@ abstract class OliCore {
 		// Check for debug stutus override
 		if(!Config::$config['debug'] AND $_GET['oli-debug'] == $this->getOliSecurityCode())
 			Config::$config['debug'] = true;
+		
+		// Error reporting configuration
+		error_reporting(Config::$config['debug'] ? E_ALL : E_ALL & ~E_NOTICE);
 	}
 	
 	/**
@@ -1553,245 +1557,289 @@ abstract class OliCore {
 		 */
 		public function loadContent(array $params = null) {
 			$params = !empty($params) ? $params : $this->getUrlParam('params');
+			
+			$accessAllowed = null;
 			$contentStatus = null;
 			$found = null;
 			
-			$contentRulesFile = file_exists(THEMEPATH . '.olicontent') ? file_get_contents(THEMEPATH . '.olicontent') : [];
-			$contentRules = array('access' => array('*' => array('ALLOW' => '*')));
-			$contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile) ?: []);
+			// Default content rules
+			$contentRules = array(
+				'index' => 'index.php',
+				'error' => array('403' => '403.php', '404' => '404.php'),
+				'access' => array('*' => array('allow' => '*'))
+			);
+			
+			// Replace with custom content rules
+			if(($contentRulesFile = @file_get_contents(THEMEPATH . '.olicontent')) !== false)
+				$contentRules = array_replace_recursive($contentRules, $this->decodeContentRules($contentRulesFile));
 			
 			if(!empty($params)) {
-				$accessAllowed = null;
 				$fileName = [];
 				$countFileName = 0;
 				
 				foreach($params as $eachParam) {
 					if(empty($eachParam)) break; // Filename can't be empty.
-					else {
-						$fileName[] = $eachParam;
-						$countFileName++;
-						$fileNameParam = implode('/', $fileName);
+					
+					$fileName[] = $eachParam;
+					$countFileName++;
+					$fileNameParam = implode('/', $fileName);
+					$slicedFileNameParam = implode('/', array_slice($fileName, 1));
+					
+					// Oli Setup
+					if($fileName[0] == Config::$config['setup_alias'] OR (Config::$config['setup_wizard'] AND !Config::$config['debug'])) {
+						// Assets
+						if($countFileName > 1 AND is_file(OLISETUPPATH . $slicedFileNameParam)) {
+							$found = OLISETUPPATH . $slicedFileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setAutoContentType($fileNameParam);
+							break; // Sub-level pages not allowed.
 						
-						if(!empty($contentRules)) $contentRules = array_merge($contentRules, $this->decodeContentRules($contentRulesFile, implode('/', array_slice($fileName, 0, -1)) . '/'));
+						// Setup Page
+						} else if(is_file(OLISETUPPATH . 'setup.php')) {
+							$found = OLISETUPPATH . 'setup.php';
+							$this->fileNameParam = Config::$config['setup_alias'];
+							continue; // There may be a requested page.
+						}
+					
+					// Oli Login
+					} else if($fileName[0] == Config::$config['login_alias']) {
+						// Assets
+						if($countFileName > 1 AND is_file(OLILOGINPATH . $slicedFileNameParam)) {
+							$found = OLILOGINPATH . $slicedFileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setAutoContentType($fileNameParam);
+							break; // Sub-level pages not allowed.
 						
-						/** Oli Setup */
-						if($fileName[0] == 'oli-setup' OR (Config::$config['setup_wizard'] AND !Config::$config['debug'])) {
-							/** Assets */
-							if($countFileName > 1 AND is_file(OLISETUPPATH . implode('/', array_slice($fileName, 1)))) {
-								$found = OLISETUPPATH . implode('/', array_slice($fileName, 1));
-								$this->fileNameParam = $fileNameParam;
-								$this->setAutoContentType($fileNameParam);
-								break; // Sub-level pages not allowed.
-							
-							/** Setup Page */
-							} else if(is_file(OLISETUPPATH . 'setup.php')) {
-								$found = OLISETUPPATH . 'setup.php';
-								$this->fileNameParam = 'oli-setup';
-								continue; // There may be a requested page.
-							}
+						// Login Page
+						} else if(is_file(OLILOGINPATH . 'login.php')) {
+							$found = OLILOGINPATH . 'login.php';
+							$this->fileNameParam = $fileNameParam;
+							continue; // There may be a requested page.
+						}
+					
+					// Oli Admin
+					} else if($fileName[0] == Config::$config['admin_alias']) {
+						// Assets
+						if($countFileName > 1 AND is_file(OLIADMINPATH . $slicedFileNameParam)) {
+							$found = OLIADMINPATH . $slicedFileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setAutoContentType($fileNameParam);
+							break; // Sub-level pages not allowed.
 						
-						/** Oli Login */
-						} else if($fileName[0] == 'oli-login' OR (!empty(Config::$config['login_alias']) AND $fileName[0] == Config::$config['login_alias'])) {
-							/** Assets */
-							if($countFileName > 1 AND is_file(OLILOGINPATH . implode('/', array_slice($fileName, 1)))) {
-								$found = OLILOGINPATH . implode('/', array_slice($fileName, 1));
-								$this->fileNameParam = $fileNameParam;
-								$this->setAutoContentType($fileNameParam);
-								break; // Sub-level pages not allowed.
-							
-							/** Setup Page */
-							} else if(is_file(OLILOGINPATH . 'login.php')) {
-								$found = OLILOGINPATH . 'login.php';
-								$this->fileNameParam = $fileNameParam;
-								continue; // There may be a requested page.
-							}
+						// Custom Pages
+						} else if($countFileName > 1 AND is_file(OLIADMINPATH . $slicedFileNameParam . '.php')) {
+							$found = OLIADMINPATH . $slicedFileNameParam . '.php';
+							$this->fileNameParam = $fileNameParam;
+							break; // Sub-level pages not allowed.
 						
-						/** Oli Admin */
-						} else if($fileName[0] == 'oli-admin' OR (!empty(Config::$config['admin_alias']) AND $fileName[0] == Config::$config['admin_alias'])) {
-							/** Custom Pages */
-							if($countFileName > 1 AND is_file(OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php')) {
-								$found = OLIADMINPATH . implode('/', array_slice($fileName, 1)) . '.php';
-								$this->fileNameParam = $fileNameParam;
-								break; // Sub-level pages not allowed.
-							
-							/** Home Page */
-							} else if(is_file(OLIADMINPATH . 'index.php')) {
-								$found = OLIADMINPATH . 'index.php';
-								$this->fileNameParam = $fileNameParam;
-								continue; // There may be a requested page.
-							}
-						
-						/** User Scripts */
-						} else if(is_file(SCRIPTSPATH . $fileNameParam)) {
+						// Home Page
+						} else if(is_file(OLIADMINPATH . 'index.php')) {
+							$found = OLIADMINPATH . 'index.php';
+							$this->fileNameParam = $fileNameParam;
+							continue; // There may be a requested page.
+						}
+					
+					// Scripts
+					} else if($fileName[0] == Config::$config['scripts_alias']) {
+						// User Scripts
+						if(is_file(SCRIPTSPATH . $fileNameParam)) {
 							$found = SCRIPTSPATH . $fileNameParam;
 							$this->fileNameParam = $fileNameParam;
 							$this->setContentType('JSON');
 							break;
 						
-						/** Oli Scripts */
-						} else if(is_file(INCLUDESPATH . 'scripts/' . $fileNameParam)) {
-							$found = INCLUDESPATH . 'scripts/' . $fileNameParam;
+						// Oli Scripts
+						} else if(is_file(OLISCRIPTPATH . $fileNameParam)) {
+							$found = OLISCRIPTPATH . $fileNameParam;
 							$this->fileNameParam = $fileNameParam;
 							$this->setContentType('JSON');
 							break;
-						
-						/** User Assets */
-						} else if($fileNameParam == (Config::$config['assets_folder'] ?: 'assets')) {
-							$accessAllowed = false; // 403 Forbidden
-							break;
-						
-						/** User Pages */
-						} else {
-							/** Custom Page */
-							if(is_file(THEMEPATH . $fileNameParam . '.php')) {
-								if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
-									$found = THEMEPATH . $fileNameParam . '.php';
-									$this->fileNameParam = $fileNameParam;
-								}
-							
-							/** Home Page */
-							} else if($fileNameParam == 'home' AND is_file(THEMEPATH . ($contentRules['index'] ?: 'index.php'))) {
-								if($accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: 'index.php')) {
-									$found = THEMEPATH . ($contentRules['index'] ?: 'index.php');
-									$contentStatus = 'index';
-								}
-							}
-							
-							/** Check for sub-directory */
-							if(!file_exists(SCRIPTSPATH . $fileNameParam . '/') AND !file_exists(THEMEPATH . $fileNameParam . '/')) break; // No more to search.
-							/** Sub-directory Home Page */
-							else {
-								if(is_file(THEMEPATH . $fileNameParam . '/index.php')) {
-									$found = THEMEPATH . $fileNameParam . '/index.php';
-									$this->fileNameParam = $fileNameParam;
-								}
-								continue; // There may be another level.
-							}
-						
 						}
+					
+					// User Assets
+					} else if($fileName[0] == Config::$config['assets_alias']) {
+						if(is_file(ASSETSPATH . $slicedFileNameParam)) {
+							$found = ASSETSPATH . $slicedFileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setAutoContentType($slicedFileNameParam);
+							break;
+						}
+					
+					// User Media
+					} else if($fileName[0] == Config::$config['media_alias']) {
+						if(is_file(MEDIAPATH . $slicedFileNameParam)) {
+							$found = MEDIAPATH . $slicedFileNameParam;
+							$this->fileNameParam = $fileNameParam;
+							$this->setAutoContentType($slicedFileNameParam);
+							break;
+						}
+					
+					// User Pages
+					} else {
+						// Custom Page (supports sub-directory)
+						if(is_file(THEMEPATH . $fileNameParam . '.php')) {
+							if($accessAllowed = $this->isAccessAllowed($contentRules['access'], $fileNameParam . '.php')) {
+								$found = THEMEPATH . $fileNameParam . '.php';
+								$this->fileNameParam = $fileNameParam;
+							}
 						
-						// CODE FOR Config::$config['index_file'] AS AN ARRAY.
-						// else {
-							// if(!empty(Config::$config['index_file'])) $indexFiles = !is_array(Config::$config['index_file']) ? [Config::$config['index_file']] : Config::$config['index_file'];
-							
-							// if(!empty($indexFiles)) {
-								// foreach(array_slice($indexFiles, 1) as $eachValue) {
-									// $eachValue = explode('/', $eachValue);
-									// $indexFilePath = implode('/', array_slice($eachValue, 0, -1));
-									// $indexFileName = implode('/', array_slice($eachValue, -1));
-									
-									// if(implode('/', $fileName) == $indexFilePath AND file_exists(THEMEPATH . $indexFilePath . '/' . $indexFileName) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $indexFilePath . '/' . $indexFileName)) {
-										// $found = THEMEPATH . $indexFilePath . '/' . $indexFileName;
-										// $this->fileNameParam = $indexFilePath;
-									// }
-									// /** Sub-directory Content Rules Indexes */
-									// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0]) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/' . $indexFiles[0])) {
-										// $found = THEMEPATH . implode('/', $fileName) . '/' . $indexFiles[0];
-										// $this->fileNameParam = implode('/', $fileName);
-									// }
-									// else if(file_exists(THEMEPATH . implode('/', $fileName) . '/index.php') AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], implode('/', $fileName) . '/index.php')) {
-										// $found = THEMEPATH . implode('/', $fileName) . '/index.php';
-										// $this->fileNameParam = implode('/', $fileName);
-									// }
-								// }
-							// }
-							
-							// if(empty($found) AND $fileName[0] == 'home' AND file_exists(THEMEPATH .  ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) AND $accessAllowed = $this->fileAccessAllowed($contentRules['access'], $contentRules['index'] ?: $indexFiles[0] ?: 'index.php')) {
-								// $found = THEMEPATH . ($contentRules['index'] ?: $indexFiles[0] ?: 'index.php');
-								// $contentStatus = 'index';
-							// }
-						// }
+						// Sub-directory Home Page 
+						} else if(is_file(THEMEPATH . $fileNameParam . '/' . $contentRules['index'])) {
+							if($accessAllowed = $this->isAccessAllowed($contentRules['access'], $fileNameParam . '/' . $contentRules['index'])) {
+								$found = THEMEPATH . $fileNameParam . '/' . $contentRules['index'];
+								$contentStatus = 'index';
+							}
+						
+						// Home Page 
+						} else if($fileName[0] == 'home' AND is_file(THEMEPATH . $contentRules['index'])) {
+							if($accessAllowed = $this->isAccessAllowed($contentRules['access'], $contentRules['index'])) {
+								$found = THEMEPATH . $contentRules['index'];
+								$contentStatus = 'index';
+							}
+						}
 					}
 				}
 			}
 			
 			// if($this->contentType == 'text/html') echo '<!-- ' . $this . ' -->' . "\n\n";
-			if(!empty($found)) {
-				http_response_code(200); // 200 OK
-				$this->contentStatus = $contentStatus ?: 'found';
-				return $found;
-			} else if(isset($accessAllowed) AND !$accessAllowed) {
+			
+			// Forbidden
+			if($accessAllowed === false) {
 				http_response_code(403); // 403 Forbidden
 				$this->contentStatus = '403';
 				
-				if(file_exists(THEMEPATH . ($contentRules['error']['403'] ?: Config::$config['error_files']['403'] ?: '403.php'))) return THEMEPATH . ($contentRules['error']['403'] ?: Config::$config['error_files']['403'] ?: '403.php');
-				else die('Error 403: Access forbidden');
+				if(file_exists(THEMEPATH . $contentRules['error']['403']))
+					return THEMEPATH . $contentRules['error']['403'];
+				
+				die('Error 403: Access forbidden');
+			
+			// Found
+			} else if(!empty($found)) {
+				http_response_code(200); // 200 OK
+				$this->contentStatus = $contentStatus ?: 'found';
+				return $found;
+			
+			// Not Found
 			} else {
 				http_response_code(404); // 404 Not Found
 				$this->contentStatus = '404';
 				
-				if(file_exists(THEMEPATH .  ($contentRules['error']['404'] ?: Config::$config['error_files']['404'] ?: '404.php')) AND $this->fileAccessAllowed($contentRules['access'], $contentRules['error']['404'] ?: Config::$config['error_files']['404'] ?: '404.php')) return THEMEPATH . ($contentRules['error']['404'] ?: Config::$config['error_files']['404'] ?: '404.php');
-				else die('Error 404: File not found');
+				if(file_exists(THEMEPATH . $contentRules['error']['404']) AND $this->isAccessAllowed($contentRules['access'], $contentRules['error']['404']))
+					return THEMEPATH . $contentRules['error']['404'];
+				
+				die('Error 404: File not found');
 			}
 		}
 		
-		/** Get content status — Deprecated */
-		public function getContentStatus() { return $this->contentStatus; }
-		
 		/** Decode content rules */
-		// NEED UPDATE
-		public function decodeContentRules($rules, $pathTo = null) {
+		public function decodeContentRules($rules) {
 			if(empty($rules)) return [];
 			
 			$results = [];
 			$rules = explode("\n", $rules);
 			foreach((!is_array($rules) ? [$rules] : $rules) as $eachRule) {
-				if(!empty($eachRule)) {
-					list($ruleType, $ruleValue) = explode(': ', $eachRule);
-					$ruleType = strtolower($ruleType);
+				if(empty($eachRule)) continue;
+				if(!preg_match('/^([^\s]+):\s*(.+)$/', $eachRule, $matches)) continue;
+				
+				$ruleType = strtolower($matches[1]);
+				$ruleValue = trim($matches[2]);
+				
+				// Error
+				if($ruleType == 'error') {
+					if(!preg_match('/^(\d{3})\s+(.*)$/', $ruleValue, $matches)) continue;
 					
-					if($ruleType == 'index' AND preg_match('/^["\'](.*)["\']$/', $ruleValue, $matches)) $results['index'] = $matches[1];
-					else if($ruleType == 'error' AND preg_match('/^(\d{3})\s["\'](.*)["\']$/', $ruleValue, $matches)) $results['error'][$matches[1]] = $matches[2];
-					else if($ruleType == 'access' AND preg_match('/^(?:((?:\[.+\])|(?:\*))\s)?([a-zA-Z]{4,5})\s(.*)$/', $ruleValue, $matches)) {
-						$files = $matches[1] == '*' ? '*' : json_decode($matches[1], true);
-						foreach((!is_array($files) ? [$files] : $files) as $eachFile) {
-							if(is_string($eachFile)) {
-								if(preg_match('/^(?:\*|all|(?:from\s([a-zA-Z]+))?\s?(?:to\s([a-zA-Z]+))?)$/', $matches[3], $rights)) {
-									if($rights[0] == 'all' OR $rights[0] == '*') {
-										$results['access'][$pathTo . $eachFile][$matches[2]] = '*';
-										$results['access'][$eachFile][$matches[2]] = '*';
-									} else {
-										$results['access'][$pathTo . $eachFile][$matches[2]]['from'] = $this->translateUserRight($rights[1]);
-										$results['access'][$pathTo . $eachFile][$matches[2]]['to'] = $this->translateUserRight($rights[2]);
-										$results['access'][$eachFile][$matches[2]]['from'] = $this->translateUserRight($rights[1]);
-										$results['access'][$eachFile][$matches[2]]['to'] = $this->translateUserRight($rights[2]);
-									}
-								}
-							}
-						}
-					} else $results[$ruleType] = $ruleValue;
+					$results['error'][$matches[1]] = $matches[2];
 				}
+				
+				// Access
+				else if($ruleType == 'access') {
+					if(!preg_match('/^(?:"?((?:(?<=")[^"]*(?="))|\S*)"?\s+)?(\w+)(?:\s+(.*))?$/', $ruleValue, $matches)) continue;
+					
+					$file = $matches[1] ?: '*';
+					$access = strtolower($matches[2]);
+					$scope = $matches[3] ?: '*';
+					
+					// Global rule
+					if($scope == '*') $results['access'][$file][$access] = '*';
+					
+					// Complex rule
+					else if(preg_match('/^(?:from\s+(\w+))?\s*(?:to\s+(\w+))?$/', $scope, $rights)) {
+						if(!is_array($results['access'][$file][$access]))
+							$results['access'][$file][$access] = [];
+						
+						$results['access'][$file][$access]['from'] = $this->translateUserRight($rights[1]);
+						$results['access'][$file][$access]['to'] = $this->translateUserRight($rights[2]);
+					
+					// Simple rule
+					} else $results['access'][$file][$access] = $this->translateUserRight($scope);
+				
+				// Index & Unknown
+				} else $results[$ruleType] = $ruleValue;
 			}
 			return $results;
 		}
 		
-		/** File Access Allowed */
-		public function fileAccessAllowed($accessRules, $fileName) {
-			$result = null;
-			$defaultResult = false;
+		/**
+		 * Access rules check for a file
+		 * 
+		 * @version BETA
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns whether or not access to the file is allowed
+		 */
+		public function isAccessAllowed($accessRules, $filename) {
+			if(empty($accessRules)) return false;
 			
-			if(empty($accessRules)) return $defaultResult;
-			else {
-				if(!empty($fileName) AND !empty($accessRules[$fileName])) {
-					if(in_array($accessRules[$fileName]['DENY'], ['*', 'all'])) $result = false;
-					else if(in_array($accessRules[$fileName]['ALLOW'], ['*', 'all'])) $result = true;
-					else if($this->isAccountsManagementReady() AND $userRight = $this->getUserRightLevel()) {
-						if(!empty($accessRules[$fileName]['DENY']) AND ((empty($accessRules[$fileName]['DENY']['from']) OR (!empty($accessRules[$fileName]['DENY']['from']) AND $accessRules[$fileName]['DENY']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['DENY']['to']) OR (!empty($accessRules[$fileName]['DENY']['to']) AND $accessRules[$fileName]['DENY']['to'] >= $userRight)))) $result = false;
-						else if(!empty($accessRules[$fileName]['ALLOW']) AND ((empty($accessRules[$fileName]['ALLOW']['from']) OR (!empty($accessRules[$fileName]['ALLOW']['from']) AND $accessRules[$fileName]['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules[$fileName]['ALLOW']['to']) OR (!empty($accessRules[$fileName]['ALLOW']['to']) AND $accessRules[$fileName]['ALLOW']['to'] >= $userRight)))) $result = true;
-					}
-				}
-				
-				if(!isset($result) AND !empty($accessRules['*'])) {
-					if(in_array($accessRules['*']['DENY'], ['*', 'all'])) $result = false;
-					else if(in_array($accessRules['*']['ALLOW'], ['*', 'all'])) $result = true;
-					else if($this->isAccountsManagementReady() AND $userRight = $this->getUserRightLevel()) {
-						if(!empty($accessRules['*']['DENY']) AND ((empty($accessRules['*']['DENY']['from']) OR (!empty($accessRules['*']['DENY']['from']) AND $accessRules['*']['DENY']['from'] <= $userRight)) XOR (!empty($accessRules['*']['DENY']['to']) OR (!empty($accessRules['*']['DENY']['to']) AND $accessRules['*']['DENY']['to'] >= $userRight)))) $result = false;
-						else if(!empty($accessRules['*']['ALLOW']) AND ((empty($accessRules['*']['ALLOW']['from']) OR (!empty($accessRules['*']['ALLOW']['from']) AND $accessRules['*']['ALLOW']['from'] <= $userRight)) XOR (!empty($accessRules['*']['ALLOW']['to']) OR (!empty($accessRules['*']['ALLOW']['to']) AND $accessRules['*']['ALLOW']['to'] >= $userRight)))) $result = true;
-						else $result = $defaultResult;
-					} else $result = $defaultResult;
-				}
-				return $result;
+			// File access rules
+			if(!empty($accessRules[$filename])) {
+				$access = $this->isAccessAllowedExplicit($accessRules, $filename);
+				if($access !== null) return $access;
 			}
+			
+			// Folder access rules
+			while(!empty($accessRules[$filename = substr($filename, 0, strrpos($filename, '/'))])) {
+				$access = $this->isAccessAllowedExplicit($accessRules, $filename . '/*');
+				if($access !== null) return $access;
+			}
+			
+			// Global access rules
+			if(!empty($accessRules['*'])) {
+				$access = $this->isAccessAllowedExplicit($accessRules, '*');
+				if($access !== null) return $access;
+			}
+			
+			// Default access: denied
+			return false;
+		}
+		
+		/**
+		 * Explicit access rules check for a file
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return boolean|null Returns whether or not access to the file is explicitly allowed, null if implicit
+		 */
+		private function isAccessAllowedExplicit($accessRules, $identifier) {
+			if(@$accessRules[$identifier] === null) return null; // Implicit access rule
+			
+			if(@$accessRules[$identifier]['deny'] === $identifier) return false;
+			if(@$accessRules[$identifier]['allow'] === $identifier) return true;
+			if($this->isAccountsManagementReady() AND ($userRight = $this->getUserRightLevel())) {
+				echo $userRight;
+				
+				$denyfrom = @$accessRules[$identifier]['deny']['from'];
+				$denyto = @$accessRules[$identifier]['deny']['to'];
+				
+				// Deny checks
+				if(($denyfrom = @$accessRules[$identifier]['deny']['from']) !== null AND $denyfrom <= $userRight) return false;
+				if(($denyto = @$accessRules[$identifier]['deny']['to']) !== null AND $denyto >= $userRight) return false;
+				
+				// Allow checks
+				if(($allowfrom = @$accessRules[$identifier]['allow']['from']) !== null AND $allowfrom <= $userRight) return true;
+				if(($allowto = @$accessRules[$identifier]['allow']['to']) !== null AND $allowto >= $userRight) return true;
+			}
+			
+			// Implicit access rule
+			return null;
 		}
 		
 		/** ----------------- */
@@ -1885,7 +1933,7 @@ abstract class OliCore {
 					if(isset($charset)) $charset = strtolower($charset);
 					if(!isset($charset) OR $charset == 'default') $charset = Config::$config['default_charset'];
 					
-					error_reporting($contentType == 'debug' ? E_ALL : E_ALL & ~E_NOTICE);
+					// error_reporting($contentType == 'debug' || Config::$config['debug'] ? E_ALL : E_ALL & ~E_NOTICE);
 					header('Content-Type: ' . $newContentType . ';charset=' . $charset);
 					
 					$this->contentType = $newContentType;
@@ -2388,9 +2436,7 @@ abstract class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the assets url.
 		 */
-		public function getAssetsUrl() { return Config::$config['assets_url'] ?: $this->getUrlParam(0) . (strpos(ABSPATH, ASSETSPATH) == 0 ? str_replace(ABSPATH, '', ASSETSPATH) : 'content/assets/'); }
-		/** * @alias OliCore::getAssetsUrl() */
-		public function getDataUrl() { return $this->getAssetsUrl(); }
+		public function getAssetsUrl() { return $this->getUrlParam(0) . Config::$config['assets_url']; }
 		
 		/**
 		 * Get Media Url
@@ -2417,7 +2463,7 @@ abstract class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the admin url.
 		 */
-		public function getOliAdminUrl() { return $this->getUrlParam(0) . (Config::$config['admin_alias'] ?: 'oli-admin') . '/'; }
+		public function getOliAdminUrl() { return $this->getUrlParam(0) . Config::$config['admin_alias'] . '/'; }
 		/** * @alias OliCore::getOliAdminUrl() */
 		public function getAdminUrl() { return $this->getOliAdminUrl(); }
 		
