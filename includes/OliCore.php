@@ -2437,7 +2437,9 @@ abstract class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the assets url.
 		 */
-		public function getAssetsUrl() { return $this->getUrlParam(0) . Config::$config['assets_url']; }
+		public function getAssetsUrl() {
+			return $this->getUrlParam(0) . Config::$config['assets_alias'] . '/';
+		}
 		
 		/**
 		 * Get Media Url
@@ -2446,7 +2448,9 @@ abstract class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return string|void Returns the media url.
 		 */
-		public function getMediaUrl() { return Config::$config['media_url'] ?: $this->getUrlParam(0) . (strpos(ABSPATH, MEDIAPATH) == 0 ? str_replace(ABSPATH, '', MEDIAPATH) : 'content/media/'); }
+		public function getMediaUrl() {
+			return $this->getUrlParam(0) . Config::$config['media_alias'] . '/';
+		}
 		
 		/**
 		 * Get Login Url
