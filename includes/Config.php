@@ -332,7 +332,7 @@ class Config {
 		public static function decodeConfigArray($array, $currentConfig = null) {
 			$output = [];
 			foreach((!is_array($array) ? [$array] : $array) as $eachKey => $eachValue) {
-				if(is_assoc($eachValue)) $output[$eachKey] = self::decodeConfigArray($eachValue, $currentConfig[$eachKey]);
+				if(is_assoc($eachValue)) $output[$eachKey] = self::decodeConfigArray($eachValue, @$currentConfig[$eachKey]);
 				else if(isset($currentConfig) AND $eachValue === null) $output[$eachKey] = (is_array($array) AND is_array($currentConfig)) ? $currentConfig[$eachKey] : $currentConfig;
 				else if($eachValue == 'NULL') $output[$eachKey] = null;
 				else $output[$eachKey] = $eachValue;
