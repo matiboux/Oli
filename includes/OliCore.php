@@ -3543,7 +3543,7 @@ abstract class OliCore {
 					}
 					if($name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) {
 						$type = 'email';
-						return substr($name, 0, strchr($name, '@'));
+						return substr($name, 0, strpos($name, '@'));
 					}
 					
 					$type = 'uid';
@@ -3566,9 +3566,9 @@ abstract class OliCore {
 						return 'root';
 					}
 					if($uid = $this->getLoggedUser($authKey))
-						$this->getName($uid, $type);
+						return $this->getName($uid, $type);
 				}
-				return false;
+				return null;
 			}
 			
 			/**
