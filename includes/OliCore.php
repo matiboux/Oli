@@ -1569,9 +1569,8 @@ abstract class OliCore {
 				'access' => array('*' => array('allow' => '*'))
 			);
 			
-			// Replace with custom content rules
-			if(($contentRulesFile = @file_get_contents(THEMEPATH . '.olicontent')) !== false)
-				$contentRules = array_replace_recursive($contentRules, $this->decodeContentRules($contentRulesFile));
+			// Update with custom content rules
+			$this->updateContentRules($contentRules, THEMEPATH . '.olicontent');
 			
 			if(!empty($params)) {
 				$fileName = [];
@@ -1731,13 +1730,18 @@ abstract class OliCore {
 			}
 		}
 		
-		/** Decode content rules */
-		public function decodeContentRules($rules) {
-			if(empty($rules)) return [];
+		/**
+		 * Update content rules
+		 * 
+		 * @version BETA
+		 * @updated BETA-2.0.0
+		 * @return boolean Returns whether or not access to the file is allowed
+		 */
+		public function updateContentRules(&$contentRules, $contentRulesFilename) {
+			if(($rawContentRules = @file_get_contents($contentRulesFilename)) === false) return;
 			
-			$results = [];
-			$rules = explode("\n", $rules);
-			foreach((!is_array($rules) ? [$rules] : $rules) as $eachRule) {
+			$rawContentRules = explode("\n", $rawContentRules);
+			foreach($rawContentRules as $eachRule) {
 				if(empty($eachRule)) continue;
 				if(!preg_match('/^([^\s]+):\s*(.+)$/', $eachRule, $matches)) continue;
 				
@@ -1748,7 +1752,7 @@ abstract class OliCore {
 				if($ruleType == 'error') {
 					if(!preg_match('/^(\d{3})\s+(.*)$/', $ruleValue, $matches)) continue;
 					
-					$results['error'][$matches[1]] = $matches[2];
+					$contentRules['error'][$matches[1]] = $matches[2];
 				}
 				
 				// Access
@@ -1759,24 +1763,26 @@ abstract class OliCore {
 					$access = strtolower($matches[2]);
 					$scope = $matches[3] ?: '*';
 					
+					// Initialize the access rules array for the file
+					if(@$contentRules['access'][$file] === null) $contentRules['access'][$file] = [];
+					
 					// Global rule
-					if($scope == '*') $results['access'][$file][$access] = '*';
+					if($scope == '*') $contentRules['access'][$file][$access] = '*';
 					
 					// Complex rule
 					else if(preg_match('/^(?:from\s+(\w+))?\s*(?:to\s+(\w+))?$/', $scope, $rights)) {
-						if(!is_array($results['access'][$file][$access]))
-							$results['access'][$file][$access] = [];
+						if(!is_array(@$contentRules['access'][$file][$access]))
+							$contentRules['access'][$file][$access] = [];
 						
-						$results['access'][$file][$access]['from'] = $this->translateUserRight($rights[1]);
-						$results['access'][$file][$access]['to'] = $this->translateUserRight($rights[2]);
+						$contentRules['access'][$file][$access]['from'] = $this->translateUserRight($rights[1]);
+						$contentRules['access'][$file][$access]['to'] = $this->translateUserRight($rights[2]);
 					
 					// Simple rule
-					} else $results['access'][$file][$access] = $this->translateUserRight($scope);
+					} else $contentRules['access'][$file][$access] = $this->translateUserRight($scope);
 				
 				// Index & Unknown
-				} else $results[$ruleType] = $ruleValue;
+				} else $contentRules[$ruleType] = $ruleValue;
 			}
-			return $results;
 		}
 		
 		/**
@@ -1821,21 +1827,16 @@ abstract class OliCore {
 		private function isAccessAllowedExplicit($accessRules, $identifier) {
 			if(@$accessRules[$identifier] === null) return null; // Implicit access rule
 			
-			if(@$accessRules[$identifier]['deny'] === $identifier) return false;
-			if(@$accessRules[$identifier]['allow'] === $identifier) return true;
-			if($this->isAccountsManagementReady() AND ($userRight = $this->getUserRightLevel())) {
-				echo $userRight;
-				
-				$denyfrom = @$accessRules[$identifier]['deny']['from'];
-				$denyto = @$accessRules[$identifier]['deny']['to'];
-				
+			if(@$accessRules[$identifier]['deny'] === '*') return false;
+			if(@$accessRules[$identifier]['allow'] === '*') return true;
+			if($this->isAccountsManagementReady() AND ($userRightLevel = $this->getUserRightLevel())) {
 				// Deny checks
-				if(($denyfrom = @$accessRules[$identifier]['deny']['from']) !== null AND $denyfrom <= $userRight) return false;
-				if(($denyto = @$accessRules[$identifier]['deny']['to']) !== null AND $denyto >= $userRight) return false;
+				if(($denyfrom = @$accessRules[$identifier]['deny']['from']) !== null AND $denyfrom <= $userRightLevel) return false;
+				if(($denyto = @$accessRules[$identifier]['deny']['to']) !== null AND $denyto >= $userRightLevel) return false;
 				
 				// Allow checks
-				if(($allowfrom = @$accessRules[$identifier]['allow']['from']) !== null AND $allowfrom <= $userRight) return true;
-				if(($allowto = @$accessRules[$identifier]['allow']['to']) !== null AND $allowto >= $userRight) return true;
+				if(($allowfrom = @$accessRules[$identifier]['allow']['from']) !== null AND $allowfrom <= $userRightLevel) return true;
+				if(($allowto = @$accessRules[$identifier]['allow']['to']) !== null AND $allowto >= $userRightLevel) return true;
 			}
 			
 			// Implicit access rule
@@ -3044,8 +3045,9 @@ abstract class OliCore {
 			public function getAccountInfos($tableCode, $whatVar, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
 				if(!isset($where)) {
 					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
-					else return false;
-				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);		
+					else return null;
+				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);	
+				
 				return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
@@ -3095,6 +3097,7 @@ abstract class OliCore {
 					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
+				
 				return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 			}
 			
@@ -3117,6 +3120,7 @@ abstract class OliCore {
 					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
 					else return false;
 				} else if(!is_array($where) AND $where != 'all') $where = array('uid' => $where);
+				
 				return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 			}
 			
@@ -3172,9 +3176,10 @@ abstract class OliCore {
 			 * @return boolean Return true if the requests succeeded, false otherwise
 			 */
 			public function updateAccountUsername($newUsername, $oldUsername) {
-				if($this->updateAccountInfos('ACCOUNTS', array('username' => $newUsername), $oldUsername) AND $this->updateAccountInfos('INFOS', array('username' => $newUsername), $oldUsername) AND $this->updateAccountInfos('SESSIONS', array('username' => $newUsername), $oldUsername) AND $this->updateAccountInfos('REQUESTS', array('username' => $newUsername), $oldUsername))
-					return true;
-				else return false;
+				return ($this->updateAccountInfos('ACCOUNTS', array('username' => $newUsername), $oldUsername)
+					AND $this->updateAccountInfos('INFOS', array('username' => $newUsername), $oldUsername)
+					AND $this->updateAccountInfos('SESSIONS', array('username' => $newUsername), $oldUsername)
+					AND $this->updateAccountInfos('REQUESTS', array('username' => $newUsername), $oldUsername));
 			}
 			
 			/**
@@ -3202,14 +3207,11 @@ abstract class OliCore {
 			 * @return boolean Returns true if the requests succeeded, false otherwise
 			 */
 			public function deleteFullAccount($where) {
-				$result = [];
-				$result[] = $this->deleteAccountLines('ACCOUNTS', $where);
-				$result[] = $this->deleteAccountLines('INFOS', $where);
-				$result[] = $this->deleteAccountLines('SESSIONS', $where);
-				$result[] = $this->deleteAccountLines('REQUESTS', $where);
-				$result[] = $this->deleteAccountLines('PERMISSIONS', $where);
-				if(!in_array(false, $result, true)) return true;
-				else return false;
+				return ($this->deleteAccountLines('ACCOUNTS', $where)
+					AND $this->deleteAccountLines('INFOS', $where)
+					AND $this->deleteAccountLines('SESSIONS', $where)
+					AND $this->deleteAccountLines('REQUESTS', $where)
+					AND $this->deleteAccountLines('PERMISSIONS', $where));
 			}
 			
 		/** ----------------------------------- */
@@ -3230,8 +3232,7 @@ abstract class OliCore {
 			 * @return boolean Returns true if the requests succeeded, false otherwise
 			 */
 			public function verifyUserRight($userRight, $caseSensitive = true) {
-				if(!empty($userRight)) return $this->isExistAccountInfos('RIGHTS', array('user_right' => $userRight), $caseSensitive);
-				else return false;
+				return !empty($userRight) AND $this->isExistAccountInfos('RIGHTS', array('user_right' => $userRight), $caseSensitive);
 			}
 			
 			/**
@@ -3239,25 +3240,31 @@ abstract class OliCore {
 			 * 
 			 * @version BETA
 			 * @updated BETA-2.0.0
-			 * @return string|boolean Returns translated user right if succeeded.
+			 * @return string|null Returns translated user right if succeeded.
 			 */
 			public function translateUserRight($userRight, $caseSensitive = true) {
+				// Local user rights management
 				if($this->isLocalLogin()) {
-					if($userRight == 'ROOT') return 1;
-					else if($userRight == 1) return 'ROOT';
-					else if($userRight == 'VISITOR') return 0;
-					else if($userRight == 0) return 'VISITOR';
-					else return false;
+					// Check for Level -> User Right translation
+					$userRightsTable = ['VISITOR', 'ROOT']; // Index starts at 0
+					if(@$userRightsTable[$userRight] !== null) return $userRightsTable[$userRight];
+					
+					if(!$caseSensitive) $caseSensitive = strtoupper($caseSensitive);
+					
+					// Check for User Right -> Level translation
+					array_flip($userRightsTable);
+					if(@$userRightsTable[$userRight] !== null) return $userRightsTable[$userRight];
+				
+				// Database user rights management
 				} else if($this->isAccountsManagementReady() AND !empty($userRight)) {
-					if($returnValue = $this->getAccountInfos('RIGHTS', 'level', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
-					else if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('level' => $userRight), $caseSensitive)) return $returnValue;
-					else return false;
-				} else return false;
-			}
-			
-			/** DEPRECATED Get Right Level */
-			public function getRightLevel($userRight, $caseSensitive = true) {
-				return $this->translateUserRight($userRight, $caseSensitive);
+					// Check for Level -> User Right translation
+					if($returnValue = $this->getAccountInfos('RIGHTS', 'user_right', array('level' => $userRight), $caseSensitive)) return $returnValue;
+					
+					// Check for User Right -> Level translation
+					if($returnValue = $this->getAccountInfos('RIGHTS', 'level', array('user_right' => $userRight), $caseSensitive)) return (int) $returnValue;
+				}
+				
+				return null; // Failure
 			}
 			
 			/**
@@ -3267,11 +3274,10 @@ abstract class OliCore {
 			 * @param boolean|void $caseSensitive Translate is case sensitive or not
 			 * 
 			 * @uses OliCore::getAccountInfos() to get infos from account table
-			 * @return integer Returns user right permissions
+			 * @return array Returns user right permissions
 			 */
 			public function getRightPermissions($userRight, $caseSensitive = true) {
-				if($returnValue = $this->getAccountInfos('RIGHTS', 'permissions', array('user_right' => $userRight), $caseSensitive)) return $returnValue;
-				else if($returnValue = $this->getAccountInfos('RIGHTS', 'permissions', array('acronym' => $userRight), $caseSensitive)) return $returnValue;
+				return $this->getAccountInfos('RIGHTS', 'permissions', array('user_right' => $userRight), $caseSensitive) ?: null;
 			}
 			
 			/**
@@ -3318,15 +3324,13 @@ abstract class OliCore {
 			 */
 			public function getUserRight($where = null, $caseSensitive = true) {
 				if($this->isLocalLogin() AND !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
-				else {
-					if(empty($where)) {
-						if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
-						else return false;
-					} else if(!is_array($where)) $where = array('uid' => $where);
-					
-					if(!empty($where)) return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
-					else return false;
+				
+				if(empty($where)) {
+					if($this->isLoggedIn()) $where = array('uid' => $this->getLoggedUser());
+					else return $this->translateUserRight(0); // Default user right (visitor)
 				}
+				
+				return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
 			}
 			
 			/**
@@ -3336,11 +3340,11 @@ abstract class OliCore {
 			 * @param boolean|void $caseSensitive Translate is case sensitive or not
 			 * 
 			 * @uses OliCore::getUserRight() to get user right
-			 * @return integer Returns user right level
+			 * @return string Returns user right level (integer as string)
 			 */
 			public function getUserRightLevel($where = null, $caseSensitive = true) {
-				if($userRight = $this->getUserRight($where, $caseSensitive)) return $this->translateUserRight($userRight);
-				else return false;
+				if($userRight = $this->getUserRight($where, $caseSensitive)) return (int) $this->translateUserRight($userRight);
+				return 0; // Default user right level (visitor)
 			}
 			
 			/**
@@ -3370,6 +3374,7 @@ abstract class OliCore {
 			 */
 			public function updateUserRight($userRight, $where = null) {
 				$userRight = strtoupper($userRight);
+				
 				if($this->verifyUserRight($userRight)) return $this->updateAccountInfos('ACCOUNTS', array('user_right' => $userRight), $where);
 				else return false;
 			}
@@ -3382,7 +3387,7 @@ abstract class OliCore {
 				|*|      -[ WORK IN PROGRESS ]-
 				|*|  USER PERMISSIONS WILL BE ADDED
 				|*|        IN A FUTURE UPDATE
-				|*|     (SCHEDULED FOR BETA 1.8)
+				|*|    (RESCHEDULED FOR BETA 2.1)
 				\*/
 				
 				/** ----------------------- */
@@ -3500,10 +3505,10 @@ abstract class OliCore {
 			public function isLoggedIn($authKey = null) {
 				if(!isset($authKey)) $authKey = $this->getAuthKey();
 				
-				if(!empty($authKey)) {
-					$sessionInfos = ($this->isLocalLogin() AND !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey)));
-					return strtotime($sessionInfos['expire_date']) >= time();
-				} else return false;
+				if(empty($authKey)) return false;
+				
+				$sessionInfos = ($this->isLocalLogin() AND !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey)));
+				return strtotime($sessionInfos['expire_date']) >= time();
 			}
 			/** @alias OliCore::isLoggedIn() */
 			public function verifyAuthKey($authKey = null) { return $this->isLoggedIn($authKey); }
@@ -3518,10 +3523,9 @@ abstract class OliCore {
 			public function getLoggedUser($authKey = null) {
 				if(empty($authKey)) $authKey = $this->getAuthKey();
 				
-				if($this->isLoggedIn($authKey)) {
-					if($this->isLocalLogin() AND !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
-					else return $this->getAccountInfos('SESSIONS', 'uid', array('auth_key' => hash('sha512', $authKey)));
-				} else return false;
+				if(!$this->isLoggedIn($authKey)) return null;
+				if($this->isLocalLogin() AND !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
+				return $this->getAccountInfos('SESSIONS', 'uid', array('auth_key' => hash('sha512', $authKey)));
 			}
 			
 			/**
@@ -3536,14 +3540,16 @@ abstract class OliCore {
 					if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) {
 						$type = 'username';
 						return $name;
-					} else if(!$strictUsername AND $name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) {
-						$type = 'email';
-						return explode('@', $name, 2)[0];
-					} else {
-						$type = 'uid';
-						return $uid;
 					}
-				} else return false;
+					if($name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) {
+						$type = 'email';
+						return substr($name, 0, strchr($name, '@'));
+					}
+					
+					$type = 'uid';
+					return $uid;
+				}
+				return null;
 			}
 			
 			/**
@@ -3558,19 +3564,11 @@ abstract class OliCore {
 					if($this->isLocalLogin()) {
 						$type = 'local';
 						return 'root';
-					} else if($uid = $this->getLoggedUser($authKey)) {
-						if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) {
-							$type = 'username';
-							return $name;
-						} else if(!$strictUsername AND $name = $this->getAccountInfos('ACCOUNTS', 'email', $uid)) {
-							$type = 'email';
-							return explode('@', $name, 2)[0];
-						} else {
-							$type = 'uid';
-							return $uid;
-						}
-					} else return false;
-				} else return false;
+					}
+					if($uid = $this->getLoggedUser($authKey))
+						$this->getName($uid, $type);
+				}
+				return false;
 			}
 			
 			/**
@@ -3594,11 +3592,10 @@ abstract class OliCore {
 			public function getLoggedUsername($authKey = null) {
 				if($this->isLoggedIn($authKey)) {
 					if($this->isLocalLogin()) return 'root';
-					else if($uid = $this->getLoggedUser($authKey)) {
-						if($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
-						else return false;
-					} else return false;
-				} else return false;
+					if($uid = $this->getLoggedUser($authKey)
+						AND $name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
+				}
+				return null;
 			}
 			/**
 			 * Get Auth Key Owner
@@ -3652,11 +3649,19 @@ abstract class OliCore {
 				/** --------------------- */
 				
 				/** Get Auth Cookie name */
-				public function getAuthIDCookieName() { return Config::$config['auth_key_cookie']['name']; }
+				public function getAuthIDCookieName() {
+					return Config::$config['auth_key_cookie']['name'];
+				}
 				
-				/** Auth Cookie content */
-				public function isExistAuthID() { return $this->isExistCookie(Config::$config['auth_key_cookie']['name']); }
-				public function isEmptyAuthID() { return $this->isEmptyCookie(Config::$config['auth_key_cookie']['name']); }
+				/** Is exist Auth Cookie */
+				public function isExistAuthID() {
+					return $this->isExistCookie(Config::$config['auth_key_cookie']['name']);
+				}
+				
+				/** Is empty Auth Cookie */
+				public function isEmptyAuthID() {
+					return $this->isEmptyCookie(Config::$config['auth_key_cookie']['name']);
+				}
 				
 				/**
 				 * Get Auth Key
