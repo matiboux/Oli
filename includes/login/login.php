@@ -439,7 +439,8 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 <title>Login - <?php echo $_Oli->getSetting('name') ?: 'Oli'; ?></title>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous" />
-<link rel="stylesheet" href="<?=$_Oli->getLoginUrl()?>style.css" />
+<link rel="stylesheet" href="<?=$_Oli->getLoginUrl()?>oli-login.css" />
+<link rel="stylesheet" href="<?=$_Oli->getAssetsUrl()?>oli-login.css" />
 
 </head>
 <body>
@@ -799,7 +800,7 @@ ob_end_clean(); ?>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script src="<?=$_Oli->getLoginUrl()?>script.js"></script>
+<script src="<?=$_Oli->getLoginUrl()?>oli-login.js"></script>
 <?php if($scriptState == 'update-avatar') { ?>
 <script>
 $('input[type="radio"][name="method"]').change(function() {
