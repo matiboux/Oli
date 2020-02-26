@@ -3,12 +3,6 @@
 //  Oli loader  //
 // ------------ //
 
-// Define PHP_VERSION_ID if not defined (PHP < 5.2.7)
-if(!defined('PHP_VERSION_ID')) {
-	$phpVersion = explode('.', PHP_VERSION);
-	define('PHP_VERSION_ID', $phpVersion[0] * 10000 + $phpVersion[1] * 100 + $phpVersion[2]);
-}
-
 // Load librairies
 require_once INCLUDESPATH . 'PHP-Addons.php';
 require_once INCLUDESPATH . 'ErrorManager.php';
@@ -39,7 +33,8 @@ foreach($_OliConfig['addons'] as $var => $infos) {
 	if(!is_file(ADDONSPATH . $infos['include']))
 		die('Addon Error: File "' . ADDONSPATH . $infos['include'] . '" does not exist.');
 	
-	include_once ADDONSPATH . $infos['include'];
-	${$var} = new $infos['class']();
+	require_once ADDONSPATH . $infos['include'];
+	
+	${$var} = @$infos['args'] !== null ? new $infos['class'](...$infos['args']) : new $infos['class']();
 }
 ?>
