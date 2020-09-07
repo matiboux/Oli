@@ -684,7 +684,8 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 		</div>
 		
 		<div class="cta">
-		<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a></div>
+			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a>
+		</div>
 	
 	<?php } else if(in_array($scriptState, ['login', 'register', 'activate', 'root-register'])) { ?>
 		<?php if($isLoginAllowed) { ?>
