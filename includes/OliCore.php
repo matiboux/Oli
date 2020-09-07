@@ -1612,7 +1612,7 @@ abstract class OliCore {
 						// Login Page
 						} else if(is_file(OLILOGINPATH . 'login.php')) {
 							$found = OLILOGINPATH . 'login.php';
-							$this->fileNameParam = $fileNameParam;
+							$this->fileNameParam = $fileName[0];
 							continue; // There may be a requested page.
 						}
 					
@@ -2402,7 +2402,6 @@ abstract class OliCore {
 								// Next fragments will be left as-is
 								$countLoop++;
 							}
-							
 						}
 						
 						while($countLoop < $lenFractionedUrl) {
