@@ -241,11 +241,11 @@ abstract class OliCore {
 		$this->setContentType('DEFAULT', 'utf-8');
 		
 		// Check for debug stutus override
-		if(!Config::$config['debug'] AND $_GET['oli-debug'] == $this->getOliSecurityCode())
+		if(@Config::$config['debug'] === false AND @$_GET['oli-debug'] == $this->getOliSecurityCode())
 			Config::$config['debug'] = true;
 		
 		// Error reporting configuration
-		error_reporting(Config::$config['debug'] ? E_ALL : E_ALL & ~E_NOTICE);
+		error_reporting(@Config::$config['debug'] === true ? E_ALL : E_ALL & ~E_NOTICE);
 	}
 	
 	/**
@@ -2418,6 +2418,10 @@ abstract class OliCore {
 						if($param === 'all') return $newFractionedUrl;
 						else if($param === 'params') return array_slice($newFractionedUrl, 1);
 						else if($param === 'last') return $newFractionedUrl[count($newFractionedUrl) - 1];
+						else if(preg_match('/^(.+)\+$/', $param, $matches)) {
+							$slice = array_slice($newFractionedUrl, $matches[1]);
+							return implode('/', $slice);
+						}
 						else if(isset($newFractionedUrl[$param])) return $newFractionedUrl[$param];
 					}
 				}
