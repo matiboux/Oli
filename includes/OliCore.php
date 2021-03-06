@@ -38,8 +38,6 @@
 |*|  You'll find a copy of the GNU AGPL v3 license in the LICENSE file.
 |*|  
 |*|  --- --- ---
-|*|  Project dedicated to Maliott..
-|*|  --- --- ---
 |*|  
 |*|  Releases date:
 |*|  - PRE-DEV: November 15, 2014
