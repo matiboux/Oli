@@ -7,6 +7,8 @@
 require_once INCLUDESPATH . 'PHP-Addons.php';
 require_once INCLUDESPATH . 'ErrorManager.php';
 
+require_once INCLUDESPATH . 'SQLWrapper.php';
+
 // Load Config
 require_once INCLUDESPATH . 'Config.php'; // Oli Config Registry
 \Oli\Config::loadRawConfig();
@@ -27,6 +29,7 @@ if($_OliConfig === null)
 	die('Oli Error: Failed initializing Oli or loading the configuration.');
 
 // Load Addons
+// print_r($_OliConfig['addons']);
 foreach($_OliConfig['addons'] as $var => $infos) {
 	if(isset(${$var}))
 		die('Addon Error: Variable $' . $var . ' is already set.');

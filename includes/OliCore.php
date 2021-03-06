@@ -164,7 +164,7 @@ abstract class OliCore {
 	private $readOnlyVars = [
 		'initTimestamp',
 		'oliInfos', 'addonsInfos',
-		'db', 'dbError',
+		// 'db', 'dbError',
 		'fileNameParam', 'contentStatus'];
 	
 	/** Components infos */
@@ -172,9 +172,11 @@ abstract class OliCore {
 	private $oliInfos = []; // Oli Infos (SPECIAL PUBLIC READONLY)
 	private $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
 	
-	/** Database Management */
-	private $db = null; // MySQL PDO Object (PUBLIC READONLY)
-	private $dbError = null; // MySQL PDO Error (PUBLIC READONLY)
+	/** Databases Management */
+	private $dbs = []; // SQL Wrappers
+	private $defaultdb = null; // SQL Wrappers
+	// private $db = null; // MySQL PDO Object (PUBLIC READONLY)
+	// private $dbError = null; // MySQL PDO Error (PUBLIC READONLY)
 	
 	/** Content Management */
 	private $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
@@ -396,15 +398,32 @@ abstract class OliCore {
 		 * @updated BETA-2.0.0
 		 * @return boolean Returns true if succeeded.
 		 */
-		public function setupMySQL($database, $username = null, $password = null, $hostname = null, $charset = null) {
-			if(Config::$config['allow_mysql'] AND !empty($database)) {
-				try {
-					$this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
-				} catch(\PDOException $e) {
-					$this->dbError = $e->getMessage();
-					return false;
-				}
-			} else return false;
+		public function setupSQL($args)
+		{
+			if (!Config::$config['allow_mysql'] || !is_array($args)) // OR empty($database))
+				return false;
+			
+			$dbms = array_pull($args, 'dbms');
+			$dbname = array_pull($args, 'dbname');
+			if ($dbname === null)
+				$dbname = array_pull($args, 'database');
+			
+			$this->dbs[$dbname] = new SQLWrapper($dbms, $dbname, $args);
+			
+			if ($this->defaultdb === null)
+				$this->defaultdb = $dbname;
+			
+			return true;
+			
+			// if(Config::$config['allow_mysql'] AND !empty($database)) {
+				// try {
+					// $this->db = new \PDO('mysql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';charset=' . ($charset ?: 'utf8'), $username ?: 'root', $password ?: '');
+					// $this->db = new \PDO('pgsql:dbname=' . $database . ';host=' . ($hostname ?: 'localhost') . ';port=' . ($port ?: '5432'), $username ?: 'root', $password ?: '');
+				// } catch(\PDOException $e) {
+					// $this->dbError = $e->getMessage();
+					// return false;
+				// }
+			// } else return false;
 		}
 		
 		/**
@@ -415,8 +434,11 @@ abstract class OliCore {
 		 * @return boolean Returns true if succeeded.
 		 */
 		public function resetMySQL() {
-			$this->db = null;
-			$this->dbError = null;
+			$this->dbs = [];
+			$this->defaultdb = null;
+			
+			// $this->db = null;
+			// $this->dbError = null;
 		}
 	
 		/** ---------------- */
@@ -535,7 +557,8 @@ abstract class OliCore {
 			 * @return boolean Returns the MySQL connection status
 			 */
 			public function isSetupMySQL() {
-				return isset($this->db);
+				return $this->getDB()->isSetupSQL();
+				// return isset($this->db);
 			}
 			
 			/**
@@ -547,6 +570,20 @@ abstract class OliCore {
 			 * @removed BETA-1.8.0
 			 * @return object Returns current MySQL PDO object
 			 */ // public function getRawMySQL() {}
+			
+			/**
+			 * Get raw MySQL PDO Object
+			 * 
+			 * @version BETA
+			 * @deprecated BETA OliCore::$db can be directly accessed
+			 * @updated BETA-1.8.0
+			 * @removed BETA-1.8.0
+			 * @return object Returns current MySQL PDO object
+			 */
+			 public function getDB($dbname = null)
+			 {
+				 return @$this->dbs[!empty($dbname) ? $dbname : $this->defaultdb];
+			 }
 		
 			/** --------------- */
 			/**  V. 2. B. Read  */
@@ -559,7 +596,10 @@ abstract class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|boolean Returns the query result content or true if succeeded.
 			 */
-			public function runQueryMySQL($query, $fetchStyle = true) {
+			// public function runQueryMySQL($query, $fetchStyle = true) {
+			public function runQueryMySQL(...$args) {
+				return $this->getDB()->runQuerySQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					$query = $this->db->prepare($query);
@@ -569,6 +609,7 @@ abstract class OliCore {
 						return false;
 					}
 				}
+				*/
 			}
 			
 			/**
@@ -578,21 +619,24 @@ abstract class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|boolean|void Returns data from the requested table if succeeded.
 			 */
-			public function getDataMySQL($table, ...$params) {
+			// public function getDataMySQL($table, ...$params) {
+			public function getDataMySQL(...$args) {
+				return $this->getDB()->getDataSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
-					/** Select rows */
+					// Select rows
 					if(!empty($params[0])) {
 						if(is_array($params[0]) AND preg_grep("/^\S+$/", $params[0]) == $params[0]) $select = implode(', ', array_shift($params));
 						else if(strpos($params[0], ' ') === false) $select = array_shift($params);
 					}
 					if(empty($select)) $select = '*';
 					
-					/** Fetch Style */
+					// Fetch Style
 					if(!empty($params[count($params) - 1]) AND is_integer($params[count($params) - 1])) $fetchStyle = implode(', ', array_pop($params));
 					else $fetchStyle = true;
 					
-					/** Custom parameters */
+					// Custom parameters
 					$queryParams = null;
 					if(!empty($params)) {
 						foreach($params as $eachKey => $eachParam) {
@@ -602,6 +646,7 @@ abstract class OliCore {
 					
 					return $this->runQueryMySQL('SELECT ' . $select . ' FROM ' . $table . $queryParams, $fetchStyle);
 				}
+				*/
 			}
 			
 			/**
@@ -611,10 +656,14 @@ abstract class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|null Returns first info from specified table.
 			 */
-			public function getFirstInfoMySQL($table, $whatVar = null, $sortBy = null, $rawResult = false) {
+			// public function getFirstInfoMySQL($table, $whatVar = null, $sortBy = null, $rawResult = false) {
+			public function getFirstInfoMySQL(...$args) {
+				return $this->getDB()->getFirstInfoSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
-					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
+					// $dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY `' . $sortBy . '` ASC' : null, 'LIMIT 1')[0];
+					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY "' . $sortBy . '" ASC' : null, 'LIMIT 1')[0];
 					if(!empty($dataMySQL)) {
 						if(!$rawResult) $where = array_map(function($value) {
 							return (!is_array($value) AND is_array($decodedValue = json_decode($value, true))) ? $decodedValue : $value;
@@ -622,6 +671,7 @@ abstract class OliCore {
 						return $dataMySQL;
 					} else return null;
 				}
+				*/
 			}
 			/**
 			 * Get first line from table
@@ -631,8 +681,10 @@ abstract class OliCore {
 			 * @related OliCore::getFirstInfoMySQL()
 			 * @return array|null Returns first line from specified table.
 			 */
-			public function getFirstLineMySQL($table, $sortBy = null, $rawResult = false) {
-				return $this->getFirstInfoMySQL($table, null, $sortBy, $rawResult);
+			// public function getFirstLineMySQL($table, $sortBy = null, $rawResult = false) {
+			public function getFirstLineMySQL(...$args) {
+				return $this->getDB()->getFirstLineSQL(...$args);
+				// return $this->getFirstInfoMySQL($table, null, $sortBy, $rawResult);
 			}
 			
 			/**
@@ -642,10 +694,14 @@ abstract class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|null Returns last info from specified table.
 			 */
-			public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
+			// public function getLastInfoMySQL($table, $whatVar, $rawResult = false) {
+			public function getLastInfoMySQL(...$args) {
+				return $this->getDB()->getLastInfoSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return false;
 				else {
-					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY  `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null);
+					// $dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY `' . $sortBy . '` DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null);
+					$dataMySQL = $this->getDataMySQL($table, $whatVar, !empty($sortBy) ? 'ORDER BY "' . $sortBy . '" DESC' : null, !empty($sortBy) ? 'LIMIT 1' : null);
 					if($dataMySQL !== false) {
 						$dataMySQL = array_reverse($dataMySQL)[0];
 						if(!empty($dataMySQL)) {
@@ -656,6 +712,7 @@ abstract class OliCore {
 						} else return null;
 					} else return false;
 				}
+				*/
 			}
 			/**
 			 * Get last line from table
@@ -665,8 +722,10 @@ abstract class OliCore {
 			 * @related OliCore::getLastInfoMySQL()
 			 * @return array|null Returns last line from specified table.
 			 */
-			public function getLastLineMySQL($table, $rawResult = false) {
-				return $this->getLastInfoMySQL($table, null, $sortBy, $rawResult);
+			// public function getLastLineMySQL($table, $rawResult = false) {
+			public function getLastLineMySQL(...$args) {
+				return $this->getDB()->getLastLineSQL(...$args);
+				// return $this->getLastInfoMySQL($table, null, $sortBy, $rawResult);
 			}
 			
 			/**
@@ -676,10 +735,13 @@ abstract class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return array|null Returns infos from specified table.
 			 */
-			public function getInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+			// public function getInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+			public function getInfosMySQL(...$args) {
+				return $this->getDB()->getInfosSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
-					/** Parameters Management */
+					// Parameters Management
 					if(is_bool($settings)) {
 						$rawResult = $forceArray;
 						$forceArray = $caseSensitive;
@@ -690,15 +752,18 @@ abstract class OliCore {
 					if(!isset($forceArray)) $forceArray = false;
 					if(!isset($rawResult)) $rawResult = false;
 					
-					/** Where Condition */
-					if(in_array($where, [null, 'all', '*'], true)) $where = '1';
+					// Where Condition
+					// if(in_array($where, [null, 'all', '*'], true)) $where = '1';
+					if(in_array($where, [null, 'all', '*'], true)) $where = 'TRUE';
 					else if(is_assoc($where)) $where = array_map(function($key, $value) use ($caseSensitive) {
-						if(!$caseSensitive) return 'LOWER(`' . $key . '`) = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
-						else return '`' . $key . '` = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
+						// if(!$caseSensitive) return 'LOWER(`' . $key . '`) = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
+						if(!$caseSensitive) return 'LOWER("' . $key . '") = \'' . strtolower(is_array($value) ? json_encode($value) : $value) . '\'';
+						// else return '`' . $key . '` = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
+						else return '"' . $key . '" = \'' . (is_array($value) ? json_encode($value) : $value) . '\'';
 					}, array_keys($where), array_values($where));
 					
 					if(!empty($where)) {
-						/** Additional Settings */
+						// Additional Settings
 						$whereGlue = [];
 						if(!empty($settings)) {
 							if(is_assoc($settings)) {
@@ -716,7 +781,7 @@ abstract class OliCore {
 							} else if(!is_array($settings)) $settings = [$settings];
 						}
 						
-						/** Data Processing */
+						// Data Processing
 						$dataMySQL = $this->getDataMySQL($table, $whatVar, 'WHERE ' . (is_array($where) ? implode($whereGlue ?: ' AND ', $where) : $where), !empty($settings) ? implode(' ', $settings) : null);
 						if(!empty($dataMySQL) AND is_array($dataMySQL)) {
 							// if(!count($dataMySQL) == 1) $dataMySQL = $dataMySQL[0];
@@ -733,6 +798,7 @@ abstract class OliCore {
 						} else return null;
 					} else return null;
 				}
+				*/
 			}
 			
 			/**
@@ -743,8 +809,10 @@ abstract class OliCore {
 			 * @related OliCore::getInfosMySQL()
 			 * @return array|null Returns lines from specified table.
 			 */
-			public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
-				return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
+			// public function getLinesMySQL($table, $where = null, $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null) {
+			public function getLinesMySQL(...$args) {
+				return $this->getDB()->getLinesSQL(...$args);
+				// return $this->getInfosMySQL($table, null, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 			}
 			
 			/**
@@ -755,7 +823,10 @@ abstract class OliCore {
 			 * @related OliCore::getInfosMySQL()
 			 * @return numeric|boolean|null Returns summed infos if numeric values are found, false otherwise. Returns null if no MySQL infos is found.
 			 */
-			public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
+			// public function getSummedInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
+			public function getSummedInfosMySQL(...$args) {
+				return $this->getDB()->getSummedInfosSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					$infosMySQL = $this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive, true);
@@ -767,6 +838,7 @@ abstract class OliCore {
 					} else $summedInfos = false;
 					return $summedInfos;
 				}
+				*/
 			}
 			
 			/**
@@ -777,9 +849,11 @@ abstract class OliCore {
 			 * @related OliCore::getInfosMySQL()
 			 * @return integer|boolean Returns the number of infos found, false if none found.
 			 */
-			public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
-				$result = $this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive);
-				return $result !== null ? ((int) $result ?: false) : null;
+			// public function isExistInfosMySQL($table, $where = null, $settings = null, $caseSensitive = null) {
+			public function isExistInfosMySQL(...$args) {
+				return $this->getDB()->isExistInfosSQL(...$args);
+				// $result = $this->getInfosMySQL($table, 'COUNT(1)', $where, $settings, $caseSensitive);
+				// return $result !== null ? ((int) $result ?: false) : null;
 			}
 			
 			/**
@@ -790,8 +864,10 @@ abstract class OliCore {
 			 * @related OliCore::getInfosMySQL()
 			 * @return array|null Returns true if infos are empty, false otherwise.
 			 */
-			public function isEmptyInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
-				return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
+			// public function isEmptyInfosMySQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null) {
+			public function isEmptyInfosMySQL(...$args) {
+				return $this->getDB()->isEmptyInfosSQL(...$args);
+				// return empty($this->getInfosMySQL($table, $whatVar, $where, $settings, $caseSensitive));
 			}
 			
 			/** ---------------- */
@@ -808,7 +884,10 @@ abstract class OliCore {
 			 * @uses OliCore::$db to execute SQL requests
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
-			public function insertLineMySQL($table, $matches, &$errorInfo = null) {
+			// public function insertLineMySQL($table, $matches, &$errorInfo = null) {
+			public function insertLineMySQL(...$args) {
+				return $this->getDB()->insertLineSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					foreach($matches as $matchKey => $matchValue) {
@@ -822,6 +901,7 @@ abstract class OliCore {
 					$errorInfo = $query->errorInfo();
 					return $query->execute($matches);
 				}
+				*/
 			}
 			
 			/**
@@ -835,7 +915,10 @@ abstract class OliCore {
 			 * @uses OliCore::$db to execute SQL requests
 			 * @return boolean Return true if the request succeeded, false otherwise
 			 */
-			public function updateInfosMySQL($table, $what, $where, &$errorInfo = null) {
+			// public function updateInfosMySQL($table, $what, $where, &$errorInfo = null) {
+			public function updateInfosMySQL(...$args) {
+				return $this->getDB()->updateInfosSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					$matches = [];
@@ -857,6 +940,7 @@ abstract class OliCore {
 					$errorInfo = $query->errorInfo();
 					return $query->execute($matches);
 				}
+				*/
 			}
 			
 			/**
@@ -866,7 +950,10 @@ abstract class OliCore {
 			 * @updated BETA-2.0.0
 			 * @return boolean Returns true if the request succeeded, false otherwise.
 			 */
-			public function deleteLinesMySQL($table, $where, &$errorInfo = null) {
+			// public function deleteLinesMySQL($table, $where, &$errorInfo = null) {
+			public function deleteLinesMySQL(...$args) {
+				return $this->getDB()->deleteLinesSQL(...$args);
+				/*
 				if(!$this->isSetupMySQL()) return null;
 				else {
 					if(is_array($where)) {
@@ -883,6 +970,7 @@ abstract class OliCore {
 					$errorInfo = $query->errorInfo();
 					return $query->execute($matches);
 				}
+				*/
 			}
 			
 			/** ------------------------- */
@@ -903,7 +991,10 @@ abstract class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function createTableMySQL($table, $columns, &$errorInfo = null) {
+				// public function createTableMySQL($table, $columns, &$errorInfo = null) {
+				public function createTableMySQL(...$args) {
+					return $this->getDB()->createTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						foreach($columns as $matchName => $matchOption) {
@@ -913,6 +1004,7 @@ abstract class OliCore {
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/**
@@ -922,13 +1014,17 @@ abstract class OliCore {
 				 * @updated BETA-2.0.0
 				 * @return boolean Returns true if it exists.
 				 */
-				public function isExistTableMySQL($table, &$errorInfo = null) {
+				// public function isExistTableMySQL($table, &$errorInfo = null) {
+				public function isExistTableMySQL(...$args) {
+					return $this->getDB()->isExistTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('SELECT 1 FROM ' . $table);
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/**
@@ -942,13 +1038,17 @@ abstract class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function clearTableMySQL($table, &$errorInfo = null) {
+				// public function clearTableMySQL($table, &$errorInfo = null) {
+				public function clearTableMySQL(...$args) {
+					return $this->getDB()->clearTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('TRUNCATE TABLE ' . $table);
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/**
@@ -960,13 +1060,17 @@ abstract class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function deleteTableMySQL($table, &$errorInfo = null) {
+				// public function deleteTableMySQL($table, &$errorInfo = null) {
+				public function deleteTableMySQL(...$args) {
+					return $this->getDB()->deleteTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('DROP TABLE ' . $table);
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/** --------------------- */
@@ -984,13 +1088,17 @@ abstract class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function addColumnTableMySQL($table, $column, $type, &$errorInfo = null) {
+				// public function addColumnTableMySQL($table, $column, $type, &$errorInfo = null) {
+				public function addColumnTableMySQL(...$args) {
+					return $this->getDB()->addColumnTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . ' ADD ' . $column . ' ' . $type);
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/**
@@ -1005,13 +1113,17 @@ abstract class OliCore {
 				 * @todo Add PostgreSQL support
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function updateColumnTableMySQL($table, $column, $type, &$errorInfo = null) {
+				// public function updateColumnTableMySQL($table, $column, $type, &$errorInfo = null) {
+				public function updateColumnTableMySQL(...$args) {
+					return $this->getDB()->updateColumnTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . ' MODIFY ' . $column . ' ' . $type);
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/**
@@ -1026,13 +1138,17 @@ abstract class OliCore {
 				 * @uses OliCore::$db to execute SQL requests
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null, &$errorInfo = null) {
+				// public function renameColumnTableMySQL($table, $oldColumn, $newColumn, $type = null, &$errorInfo = null) {
+				public function renameColumnTableMySQL(...$args) {
+					return $this->getDB()->renameColumnTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . (isset($type) ? ' CHANGE ' : ' RENAME COLUMN ') . $oldColumn . (isset($type) ? ' ' : ' TO ') . $newColumn . (isset($type) ? ' ' . $type : ''));
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 				
 				/**
@@ -1046,13 +1162,17 @@ abstract class OliCore {
 				 * @todo Add PostgreSQL support
 				 * @return boolean Return true if the request succeeded, false otherwise
 				 */
-				public function deleteColumnTableMySQL($table, $column, &$errorInfo = null) {
+				// public function deleteColumnTableMySQL($table, $column, &$errorInfo = null) {
+				public function deleteColumnTableMySQL(...$args) {
+					return $this->getDB()->deleteColumnTableSQL(...$args);
+					/*
 					if(!$this->isSetupMySQL()) return null;
 					else {
 						$query = $this->db->prepare('ALTER TABLE ' . $table . ' DROP ' . $column . ')');
 						$errorInfo = $query->errorInfo();
 						return $query->execute();
 					}
+					*/
 				}
 	
 		/** ------------------------------------- */
@@ -3898,7 +4018,8 @@ abstract class OliCore {
 							// if(!$this->isLocalLogin() OR $this->isExternalLogin()) { //!?
 							// if(!$this->isLocalLogin() AND !$this->isExternalLogin()) { //!?
 								/** Cleanup Process */
-								$this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
+								// $this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
+								$this->deleteAccountLines('SESSIONS', '"update_date" < NOW() - INTERVAL \'2 DAY\'');
 								
 								if($this->isExistAccountInfos('SESSIONS', array('auth_key' => hash('sha512', $authKey)))) $this->deleteAccountLines('SESSIONS', array('auth_key' => hash('sha512', $authKey)));
 								

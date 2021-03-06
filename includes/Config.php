@@ -298,7 +298,7 @@ class Config {
 						if(!defined($eachConstantName)) define($eachConstantName, $eachConstantValue);
 					}
 				} else if($eachConfig == 'mysql' AND self::$config['allow_mysql'] AND !empty($eachValue))
-					$_Oli->setupMySQL($eachValue['database'], $eachValue['username'], $eachValue['password'], $eachValue['hostname'], $eachValue['charset']);
+					$_Oli->setupSQL($eachValue);
 				// else if($eachConfig == 'settings_tables' AND isset(self::$db)) self::setSettingsTables($eachValue);
 				else if($eachConfig == 'assets_path' AND !defined('ASSETSPATH')) define('ASSETSPATH', $eachValue);
 				// else if($eachConfig == 'assets_url') $_Oli->assetsUrl = $eachValue;
