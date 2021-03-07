@@ -480,13 +480,18 @@ class SQLWrapper {
 			return $summedInfos;
 		}
 		
-		public function isExistInfosSQL($table, $where = null, $settings = null, $caseSensitive = null)
+		public function countInfosSQL($table, $where = null, $settings = null, $caseSensitive = null)
 		{
 			$result = $this->getInfosSQL($table, "COUNT(1)", $where, $settings, $caseSensitive);
 			if ($result === null)
 				return null;
 			
 			return (int) $result;
+		}
+		
+		public function isExistInfosSQL($table, $where = null, $settings = null, $caseSensitive = null)
+		{
+			return $this->countInfosSQL($table, $where, $settings, $caseSensitive);
 		}
 		
 		public function isEmptyInfosSQL($table, $whatVar = null, $where = null, $settings = null, $caseSensitive = null)
