@@ -2552,6 +2552,17 @@ abstract class OliCore {
 		public function getFullUrl() { return $this->getUrlParam('full'); }
 		
 		/**
+		 * Get Scripts Url
+		 * 
+		 * @version BETA-2.0.0
+		 * @updated BETA-2.0.0
+		 * @return string|void Returns the assets url.
+		 */
+		public function getScriptsUrl() {
+			return $this->getUrlParam(0) . Config::$config['scripts_alias'] . '/';
+		}
+		
+		/**
 		 * Get Assets Url
 		 * 
 		 * @version BETA-2.0.0
