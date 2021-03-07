@@ -1759,15 +1759,15 @@ abstract class OliCore {
 					// Scripts
 					} else if($fileName[0] == Config::$config['scripts_alias']) {
 						// User Scripts
-						if(is_file(SCRIPTSPATH . $fileNameParam)) {
-							$found = SCRIPTSPATH . $fileNameParam;
+						if(is_file(SCRIPTSPATH . $slicedFileNameParam)) {
+							$found = SCRIPTSPATH . $slicedFileNameParam;
 							$this->fileNameParam = $fileNameParam;
 							$this->setContentType('JSON');
 							break;
 						
 						// Oli Scripts
-						} else if(is_file(OLISCRIPTPATH . $fileNameParam)) {
-							$found = OLISCRIPTPATH . $fileNameParam;
+						} else if(is_file(OLISCRIPTPATH . $slicedFileNameParam)) {
+							$found = OLISCRIPTPATH . $slicedFileNameParam;
 							$this->fileNameParam = $fileNameParam;
 							$this->setContentType('JSON');
 							break;
