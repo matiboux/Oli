@@ -1,9 +1,11 @@
-# Oli BETA 1.8.1
+# Oli BETA 2.0.0 – development branch
 
-**Oli** is an *open source PHP framework* made to help you creating your website.  
-The framework brings up various development tools such as database and user management, and more. ♪
+**Oli** is an *open source PHP framework* designed to help you create your website.  
+The framework brings up various development tools such as database and user management, and more.
 
 Want to know more about the project team? [Check out the "Team" section](#team)!
+
+If you like the project, or are interested in it, please consider giving some feedback and leaving a star! ★
 
 ## Get started!
 
@@ -55,7 +57,7 @@ You can check out the ["Team" section](#team) to contact us directly or [open a 
 
 ## License
 
-Copyright (C) 2015-2017 Matiboux (Mathieu Guérin)
+Copyright (C) 2015-2018 Matiboux (Mathieu Guérin)
 > This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.  
 > 
 > This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
@@ -69,19 +71,21 @@ Copyright (C) 2015-2017 Matiboux (Mathieu Guérin)
 This license applies to the...
 - **/index.php** file
 - **/load.php** file
-- **/form.php** file
-- files in **/includes/...** – and in its sub-directories
+- Files in **/includes/...** – and in sub-directories
 
-This license does not applies to the...
-- **/config.json** and **/mysql.json** config files
-- **/.gitignore** file
-- **/oli.default.sql** file (which is licensed under the MIT license)
-- New API files that might be created in the **/** directory
+This license does not apply to the...
+- Website configuration files: **/config.json**, **/config.global.json**, and **/app.json**
+- Git configuration files such as **/.gitignore**
 - **.htaccess** files
+- **/oli.default.sql** file (licensed under the MIT license)
+- Admin panel: files in **/includes/admin/...** (licensed under the MIT license)
 
-These directories may contains content that might be licensed under another license:
-- files in **/content/...** – and in its sub-directories
-- files in **/addons/...** – and in its sub-directories
+This license does not apply either to your own files and other libraries:
+- The **/content/** folder should contain files of your website. We believe your website and its files are not derivative work as long as they only use the framework as-is without modifying it, and thus files in **/content/...** (and in sub-directories) **do not inherit** the AGPL license.  
+Files in **/content/...** are files you should own or have the right to use. You're responsible for how you use them.
+- The **/addons/** folder consists of an "aggregate" of libraries, and thus files in **/addons/...** (and in sub-directories) **do not inherit** the AGPL license.
+
+ℹ️ The website pages (files in **/content/...**), as they are in this repository, are **not licensed**. They're here for the example and you're free to edit them and re-use them.
 
 *Paths beginning with **/** are relative to the main directory of this repository.*
 
@@ -92,7 +96,7 @@ These directories may contains content that might be licensed under another lice
 **Creator & Developer**: Matiboux (Mathieu Guérin)  
 Want to get in touch with me? Here's how:
  - **Email**: [matiboux@gmail.com](mailto:matiboux@gmail.com)
- - **Github**: [@matiboux](https://github.com/Matiboux)
+ - **Github**: [@matiboux](https://github.com/matiboux)
  - **Twitter**: [@Matiboux](https://twitter.com/Matiboux)
  - **Telegram**: [@Matiboux](https://t.me/Matiboux)
  

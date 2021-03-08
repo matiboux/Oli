@@ -1,5 +1,5 @@
 <?php
-/** Load Oli Framework */
+/** Load Oli */
 if(!defined('ABSPATH')) define('ABSPATH', dirname(__FILE__) . '/');
 require_once ABSPATH . 'load.php';
 

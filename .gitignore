@@ -1,8 +1,10 @@
-# Oli: Framework Files
+# Oli Files
+/.olipath 
+/.oliurl
+/.olisc
 
-#/form.php
-#/index.php
-#/load.php
-
-#/config.json
-/mysql.json
+# Website Config Files
+/.oliauth
+/app.json
+/config.json
+/config.global.json
