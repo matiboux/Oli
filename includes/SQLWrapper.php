@@ -516,7 +516,8 @@ class SQLWrapper {
 				if (is_array($value))
 					$value = json_encode($value);
 				
-				$matches[$row] = $value;
+				// $matches[$row] = $value;
+				$matches[] = $value;
 			}
 			
 			// Prepare query
