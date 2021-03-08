@@ -503,28 +503,43 @@ class SQLWrapper {
 		/**  V. 3. Write  */
 		/** ------------- */
 		
-		public function insertLineSQL($table, $matches, &$errorInfo = null)
+		public function insertLineSQL($table, $what, &$errorInfo = null)
 		{
 			if (!$this->isSetupSQL())
 				return null;
 			
-			foreach($matches as $row => $value)
+			$matches = null;
+			
+			// What to insert
+			if (is_assoc($what))
 			{
-				$queryVars[] = $this->formatIdentifier($row);
-				$queryValues[] = '?'; // ':' . $row;
+				$queryVars = [];
+				$queryValues = [];
+				$matches = [];
 				
-				if (is_array($value))
-					$value = json_encode($value);
+				foreach($what as $row => $value)
+				{
+					$queryVars[] = $this->formatIdentifier($row);
+					$queryValues[] = '?'; // ':' . $row;
+					
+					if (is_array($value))
+						$value = json_encode($value);
+					
+					// $matches[$row] = $value;
+					$matches[] = $value;
+				}
 				
-				// $matches[$row] = $value;
-				$matches[] = $value;
+				$what = '(' . implode(', ', $queryVars) . ')' .
+					' VALUES (' . implode(', ', $queryValues) . ')';
 			}
+			
+			if (empty($what))
+				return false; // Nothing to update
 			
 			// Prepare query
 			$query = $this->db->prepare(
 				'INSERT INTO ' . $this->formatIdentifier($table) .
-				' (' . implode(', ', $queryVars) . ')' .
-				' VALUES(' . implode(', ', $queryValues) . ')');
+				' ' . $what);
 			if ($query === false)
 				return false; // Query failed
 			
