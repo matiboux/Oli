@@ -1,43 +1,95 @@
 <?php
-// ------------ //
-//  Oli loader  //
-// ------------ //
+/*\
+|*|  Oli Source files loader
+\*/
 
-// Load librairies
-require_once INCLUDESPATH . 'src/PHP-Addons.php';
-require_once INCLUDESPATH . 'src/ErrorManager.php';
+use Oli\Config;
+use Oli\Oli;
+use Oli\OliFramework;
+use Oli\OliLite;
 
-require_once INCLUDESPATH . 'src/SQLWrapper.php';
+// *** First step is defining all path constants
+
+// Primary constants - These should have been defined in /load.php
+if (!defined('ABSPATH'))
+	die('Oli Error: ABSPATH is not defined.');
+if (!defined('ADDONSPATH'))
+	die('Oli Error: ADDONSPATH is not defined.');
+if (!defined('INCLUDESPATH'))
+	define('INCLUDESPATH', __DIR__ . '/');
+if (!defined('CONTENTPATH'))
+	define('CONTENTPATH', ABSPATH . 'content/');
+
+// Secondary constants
+if (!defined('OLIADMINPATH'))
+	define('OLIADMINPATH', INCLUDESPATH . 'admin/');
+if (!defined('OLILOGINPATH'))
+	define('OLILOGINPATH', INCLUDESPATH . 'login/');
+if (!defined('OLIPAGESPATH'))
+	define('OLIPAGESPATH', INCLUDESPATH . 'pages/');
+if (!defined('OLISCRIPTPATH'))
+	define('OLISCRIPTPATH', INCLUDESPATH . 'scripts/');
+if (!defined('OLISETUPPATH'))
+	define('OLISETUPPATH', INCLUDESPATH . 'setup/');
+if (!defined('OLISRCPATH'))
+	define('OLISRCPATH', INCLUDESPATH . 'src/');
+if (!defined('OLITEMPLATESPATH'))
+	define('OLITEMPLATESPATH', INCLUDESPATH . 'templates/');
+
+// User Content constants
+if (!defined('ASSETSPATH'))
+	define('ASSETSPATH', CONTENTPATH . 'assets/');
+if (!defined('MEDIAPATH'))
+	define('MEDIAPATH', CONTENTPATH . 'media/');
+if (!defined('THEMEPATH'))
+	define('THEMEPATH', CONTENTPATH . 'theme/'); // Legacy
+if (!defined('PAGESPATH'))
+	define('PAGESPATH', CONTENTPATH . 'pages/');
+if (!defined('SCRIPTSPATH'))
+	define('SCRIPTSPATH', CONTENTPATH . 'scripts/');
+if (!defined('TEMPLATESPATH'))
+	define('TEMPLATESPATH', CONTENTPATH . 'templates/');
+
+// *** Second step is including Oli source files
+
+// Load libraries
+require OLISRCPATH . 'PHP-Addons.php';
+require OLISRCPATH . 'ErrorManager.php';
+
+require OLISRCPATH . 'db/DBMS.php';
+require OLISRCPATH . 'db/DBWrapper.php';
+require OLISRCPATH . 'db/MySQL.php';
+require OLISRCPATH . 'db/PostgreSQL.php';
+require OLISRCPATH . 'db/SQLServer.php';
+
+require OLISRCPATH . 'AccountsManager.php';
+
+// *** Final step is initializing Oli
 
 // Load Config
-require_once INCLUDESPATH . 'src/Config.php'; // Oli Config Registry
-\Oli\Config::loadRawConfig();
-$_OliConfig = &\Oli\Config::$config; // Config array alias
+require OLISRCPATH . 'config/Config.php'; // Oli Config Registry
+Config::loadRawConfig();
+$_OliConfig = &Config::$config; // Config array alias
 
 // Load Oli
-require_once INCLUDESPATH . 'src/OliCore.php'; // Oli Core
-if(\Oli\Config::$rawConfig['oli_mode'] == 'lite') {
-	require_once INCLUDESPATH . 'src/OliLite.php'; // Oli Lite
-	$_Oli = new \Oli\OliLite(INITTIME);
-} else {
-	require_once INCLUDESPATH . 'src/OliFramework.php'; // Oli Framework
-	$_Oli = new \Oli\OliFramework(INITTIME);
-}
+require OLISRCPATH . 'OliCore.php';
+require OLISRCPATH . 'Oli.php';
+$_Oli = Oli::getInstance(INITTIME);
 
 // Check for error
-if($_OliConfig === null)
+if ($_OliConfig === null)
 	die('Oli Error: Failed initializing Oli or loading the configuration.');
 
 // Load Addons
 // print_r($_OliConfig['addons']);
-foreach($_OliConfig['addons'] as $var => $infos) {
-	if(isset(${$var}))
+foreach ($_OliConfig['addons'] as $var => $infos)
+{
+	if (isset(${$var}))
 		die('Addon Error: Variable $' . $var . ' is already set.');
-	if(!is_file(ADDONSPATH . $infos['include']))
+	if (!is_file(ADDONSPATH . $infos['include']))
 		die('Addon Error: File "' . ADDONSPATH . $infos['include'] . '" does not exist.');
-	
+
 	require_once ADDONSPATH . $infos['include'];
-	
+
 	${$var} = @$infos['args'] !== null ? new $infos['class'](...$infos['args']) : new $infos['class']();
 }
-?>

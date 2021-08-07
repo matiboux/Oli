@@ -1,5 +1,5 @@
 <?php
-if(!$_Oli->config['setup_wizard'])
+if (!$_Oli->config['setup_wizard'])
 	die('Sorry. The initial config seem to have been done already.');
 
 $success = false;
@@ -9,48 +9,59 @@ $error = null;
 $step = 1;
 $totalSteps = 3;
 
-if(!empty($_)) {
-
+if (!empty($_))
+{
 	// $newAppConfig = [];
 	// $newConfig = [];
 
 	// Check for valid Oli Security Code
-	if(empty($_['olisc'])) $error = 'The "olisc" parameter is missing';
-	else if($_['olisc'] != $_Oli->getOliSecurityCode()) {
+	if (empty($_['olisc']))
+		$error = 'The "olisc" parameter is missing';
+	else if ($_['olisc'] != $_Oli->getOliSecurityCode())
+	{
 		unset($_['olisc']);
 		$error = 'The Oli security code is incorrect.';
 	}
 	
 	// Database configuration
-	else if(isset($_['use_db'])) {
+	else if (isset($_['use_db']))
+	{
 		$step = 1;
 		$newConfig = array('allow_mysql' => $_['use_db'] == 'yes');
-		if($_['use_db'] == 'yes') $newConfig['mysql'] = array(
-			'database' => $_['db_name'],
-			'username' => $_['db_username'],
-			'password' => $_['db_password'],
-			'hostname' => $_['db_hostname'],
-			'charset' => $_['db_charset']);
+
+		if ($_['use_db'] == 'yes')
+			$newConfig['mysql'] = array(
+				'database' => $_['db_name'],
+				'username' => $_['db_username'],
+				'password' => $_['db_password'],
+				'hostname' => $_['db_hostname'],
+				'charset' => $_['db_charset']
+			);
 		
 		// if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local'))
 			// $error = 'An error occurred while updating local config.';
 		// else
-			if($_['use_db'] == 'yes' AND !$_Oli->isSetupMySQL())
+		if ($_['use_db'] == 'yes' AND !$_Oli->isSetupMySQL())
 			$error = 'The MySQL configuration has failed. PDO Error: ' . $_Oli->dbError;
-		else if($_['import_db'] AND $_Oli->runQueryMySQL(file_get_contents(OLISETUPPATH . 'default.sql')) === false)
+		else if ($_['import_db'] AND $_Oli->runQueryMySQL(file_get_contents(OLISETUPPATH . 'default.sql')) === false)
 			$error = 'Couldn\'t import the default SQL configuration. PDO Error: ' . $_Oli->dbError;
 		else
 			$step++;
 	}
 	
 	// Website information
-	else if(isset($_['ws_baseurl'])) {
+	else if (isset($_['ws_baseurl']))
+	{
 		$step = 2;
 		
-		if(empty($_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter is missing';
-		// else if(!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['ws_baseurl'])) $error = 'The "ws_baseurl" parameter syntax is incorrect.';
-		else if(empty($_['ws_name'])) $error = 'The "ws_name" parameter is missing';
-		else {
+		if (empty($_['ws_baseurl']))
+			$error = 'The "ws_baseurl" parameter is missing';
+		// else if (!preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^\/]+)*\/$/i', $_['ws_baseurl']))
+			// $error = 'The "ws_baseurl" parameter syntax is incorrect.';
+		else if (empty($_['ws_name']))
+			$error = 'The "ws_name" parameter is missing';
+		else
+		{
 			$newAppConfig = array(
 				'url' => $_['ws_baseurl'],
 				'name' => $_['ws_name'],
@@ -58,7 +69,7 @@ if(!empty($_)) {
 				'creation_date' => $_['ws_creation_date'],
 				'owner' => $_['ws_owner']);
 			
-			if(!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app'))
+			if (!\Oli\Config::updateConfig($_Oli, $newAppConfig, 'app'))
 				$error = 'An error occurred while updating app config.';
 			else
 				$step++;
@@ -66,16 +77,15 @@ if(!empty($_)) {
 	}
 	
 	// Confirm Changes
-	else if(!empty($_['confirm']) AND $_['confirm'] == 'yes') {
+	else if (!empty($_['confirm']) AND $_['confirm'] == 'yes') {
 		$step = 3;
 		$newConfig = array('setup_wizard' => false);
 		
-		if(!\Oli\Config::updateConfig($_Oli, $newConfig, 'local'))
+		if (!\Oli\Config::updateConfig($_Oli, $newConfig, 'local'))
 			$error = 'An error occurred while updating local config.';
 		else
 			$step++;
 	}
-
 }
 
 $progress = $step / $totalSteps * 100;
@@ -98,7 +108,7 @@ $progress = $step / $totalSteps * 100;
 <div class="container pt-3 pb-5">
 	<h1 class="mb-3">— <b>Oli</b> Setup</h1>
 
-	<?php if($step > $totalSteps) { ?>
+	<?php if ($step > $totalSteps) { ?>
 		<h2>Thank you! ♥</h2>
 		
 		<p>Huge thanks for using my framework! Please consider supporting my work and checking out my other projects.</p>
@@ -114,7 +124,7 @@ $progress = $step / $totalSteps * 100;
 		</div>
 		
 		<div id="alert" class="alert alert-danger small mt-3 px-2 py-1" role="alert"
-			<?php if(empty($error)) { ?>style="display: none">
+			<?php if (empty($error)) { ?>style="display: none">
 			<?php } else { ?>><b>Script error:</b> <?=$error?><?php } ?>
 		</div>
 		<hr />
@@ -129,7 +139,7 @@ $progress = $step / $totalSteps * 100;
 			</div>
 			
 			<div id="alert" class="alert alert-danger small ml-3 mb-0 px-2 py-1" role="alert"
-				<?php if(empty($error)) { ?>style="display: none">
+				<?php if (empty($error)) { ?>style="display: none">
 				<?php } else { ?>><b>Script error:</b> <?=$error?><?php } ?>
 			</div>
 		</div>
@@ -137,7 +147,7 @@ $progress = $step / $totalSteps * 100;
 
 		<form action="#" method="post" id="form">
 		
-			<?php if(empty($_['olisc'])) { ?>
+			<?php if (empty($_['olisc'])) { ?>
 				<p>Welcome on the setup wizard for Oli.</p>
 				<p>
 					It looks like your website lacks basic config.
@@ -151,9 +161,9 @@ $progress = $step / $totalSteps * 100;
 				
 				<div class="form-group">
 					<label for="oliscInput">Oli Security Code</label>
-					<input id="oliscInput" class="form-control" name="olisc" type="password" placeholder="Oli Security Code" value="<?=$_['olisc']?>" />
+					<input id="oliscInput" class="form-control" name="olisc" type="password" placeholder="Oli Security Code" value="<?=@$_['olisc']?>" />
 					
-					<?php if($_Oli->refreshOliSecurityCode()) { ?>
+					<?php if ($_Oli->refreshOliSecurityCode()) { ?>
 						<small id="oliscHelp" class="form-text text-muted">Type in the new security code generated in <code>/.olisc</code> (located in the main folder of your website).</small>
 					<?php } else { ?>
 						<small id="oliscHelp" class="form-text text-muted">Type in the security code previously generated in <code>/.olisc</code> (located in the main folder of your website).</small>
@@ -164,21 +174,27 @@ $progress = $step / $totalSteps * 100;
 				<input id="oliscInput" name="olisc" type="hidden" value="<?=$_['olisc']?>" />
 			<?php } ?> <hr />
 			
-			<?php if($step == 1) { ?>
+			<?php if ($step == 1) { ?>
 				<h2>&raquo; Database configuration</h2>
 				
 				<p>A website usually comes with a database. Do you have one?</p>
 				
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="use_db" id="use_db_yes" value="yes" <?php if(!isset($_['use_db']) || $_['use_db'] == 'yes') { ?>checked<?php } ?> />
-					<label class="form-check-label" for="use_db_yes">
-						Yes, I want to use a MySQL database!
+					<input class="form-check-input" type="radio" name="use_db" id="use_db_mysql" value="mysql" <?php if (!isset($_['use_db']) || $_['use_db'] === 'mysql') { ?>checked<?php } ?> />
+					<label class="form-check-label" for="use_db_mysql">
+						Yes, I want to use a <b>MySQL</b> database!
+					</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="radio" name="use_db" id="use_db_pgsql" value="pgsql" <?php if (@$_['use_db'] === 'pgsql') { ?>checked<?php } ?> />
+					<label class="form-check-label" for="use_db_pgsql">
+						Yes, I want to use a <b>PostgreSQL</b> database!
 					</label>
 				</div>
 				<div class="form-check mb-3">
-					<input class="form-check-input" type="radio" name="use_db" id="use_db_no" value="no" <?php if(isset($_['use_db']) && $_['use_db'] != 'yes') { ?>checked<?php } ?> />
+					<input class="form-check-input" type="radio" name="use_db" id="use_db_no" value="no" <?php if (isset($_['use_db']) && $_['use_db'] !== 'yes') { ?>checked<?php } ?> />
 					<label class="form-check-label" for="use_db_no">
-						No, keep the website without one for now.
+						No, I don't want to use a database for now.
 					</label>
 				</div>
 				
@@ -186,36 +202,36 @@ $progress = $step / $totalSteps * 100;
 					<div class="card-body">
 						<div class="form-group">
 							<label for="db_name">Database Name</label>
-							<input type="text" class="form-control" name="db_name" value="<?=$_['db_name'] ?: $_OliConfig['mysql']['database']?>" />
+							<input type="text" class="form-control" name="db_name" value="<?=@$_['db_name'] ?: @$_OliConfig['mysql']['database']?>" />
 						</div>
 						<div class="form-group">
 							<label for="db_username">Username</label>
-							<input type="text" class="form-control" name="db_username" placeholder="root" value="<?=$_POST['db_username'] ?: $_OliConfig['mysql']['username']?>" />
+							<input type="text" class="form-control" name="db_username" value="<?=@$_['db_username'] ?: @$_OliConfig['mysql']['username'] ?: 'root'?>" placeholder="root" />
 						</div>
 						<div class="form-group">
 							<label for="db_password">Password</label>
-							<input type="password" class="form-control" name="db_password" value="<?=$_POST['db_password'] ?: $_OliConfig['mysql']['password']?>" />
+							<input type="password" class="form-control" name="db_password" value="<?=@$_['db_password'] ?: @$_OliConfig['mysql']['password']?>" />
 						</div>
 						<div class="form-group">
 							<label for="db_hostname">Hostname</label>
-							<input type="text" class="form-control" name="db_hostname" placeholder="localhost" value="<?=$_POST['db_hostname'] ?: $_OliConfig['mysql']['hostname']?>" />
+							<input type="text" class="form-control" name="db_hostname" value="<?=@$_['db_hostname'] ?: @$_OliConfig['mysql']['hostname'] ?: 'localhost'?>" placeholder="localhost" />
 						</div>
 						<div class="form-group">
 							<label for="db_charset">Charset</label>
-							<input type="text" class="form-control" name="db_charset" placeholder="utf8" value="<?=$_POST['db_charset'] ?: $_OliConfig['mysql']['charset']?>" />
+							<input type="text" class="form-control" name="db_charset" value="<?=@$_['db_charset'] ?: @$_OliConfig['mysql']['charset'] ?: 'utf8'?>" placeholder="utf8" />
 						</div>
 						<hr />
 						
 						<p>Do you want to import the default SQL configuration for Oli?</p>
 						
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="import_db" id="import_db_yes" value="yes" <?php if(!isset($_['import_db']) || $_['import_db'] == 'yes') { ?>checked<?php } ?> />
+							<input class="form-check-input" type="radio" name="import_db" id="import_db_yes" value="yes" <?php if (!isset($_['import_db']) || $_['import_db'] == 'yes') { ?>checked<?php } ?> />
 							<label class="form-check-label" for="import_db_yes">
 								Yes, load the default SQL configuration for Oli!
 							</label>
 						</div>
 						<div class="form-check">
-							<input class="form-check-input" type="radio" name="import_db" id="import_db_no" value="no" <?php if(isset($_['import_db']) && $_['import_db'] != 'yes') { ?>checked<?php } ?> />
+							<input class="form-check-input" type="radio" name="import_db" id="import_db_no" value="no" <?php if (isset($_['import_db']) && $_['import_db'] != 'yes') { ?>checked<?php } ?> />
 							<label class="form-check-label" for="import_db_no">
 								No, my database is already set up.
 							</label>
@@ -228,7 +244,7 @@ $progress = $step / $totalSteps * 100;
 					<button class="btn btn-primary" type="submit">Confirm</button>
 				</div>
 			
-			<?php } else if($step == 2) { ?>
+			<?php } else if ($step == 2) { ?>
 				<h2>&raquo; Define the base url</h2>
 				<?php $ws_baseurl = $_Oli->getUrlParam(0); ?>
 				
@@ -256,12 +272,12 @@ $progress = $step / $totalSteps * 100;
 				</div>
 				<div class="form-group">
 					<label for="ws_description">Description</label>
-					<input type="text" class="form-control" name="ws_description" placeholder="Description" value="<?=$_['ws_description'] ?: $_Oli->getSetting('description')?>" />
+					<input type="text" class="form-control" name="ws_description" placeholder="Description" value="<?=@$_['ws_description'] ?: $_Oli->getSetting('description')?>" />
 				</div>
 				<div class="form-group">
 					<label for="ws_creation_date">Creation date</label>
 					<div class="input-group">
-						<input type="date" class="form-control" name="ws_creation_date" placeholder="Creation date" value="<?=$_['ws_creation_date'] ?: $_Oli->getSetting('creation_date')?>" />
+						<input type="date" class="form-control" name="ws_creation_date" placeholder="Creation date" value="<?=@$_['ws_creation_date'] ?: $_Oli->getSetting('creation_date')?>" />
 						<div class="input-group-append">
 							<button class="btn btn-secondary" type="button" onclick="document.querySelector('[name=\'ws_creation_date\']').value = (new Date()).toJSON().substr(0, 10);">Today</button>
 						</div>
@@ -269,7 +285,7 @@ $progress = $step / $totalSteps * 100;
 				</div>
 				<div class="form-group">
 					<label for="ws_owner">Owner</label>
-					<input type="text" class="form-control" name="ws_owner" placeholder="Owner" value="<?=$_['ws_owner'] ?: $_Oli->getSetting('owner')?>" />
+					<input type="text" class="form-control" name="ws_owner" placeholder="Owner" value="<?=@$_['ws_owner'] ?: $_Oli->getSetting('owner')?>" />
 				</div>
 				<hr />
 				
@@ -277,12 +293,12 @@ $progress = $step / $totalSteps * 100;
 					<button class="btn btn-primary" type="submit">Confirm</button>
 				</div>
 			
-			<?php } else if($step == 3) { ?>
+			<?php } else if ($step == 3) { ?>
 				<h2>&raquo; Confirm that everything works</h2>
 				
 				<p>Verify that the default home page is properly displayed in the preview below</p>
 				
-				<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug=<?=$_['olisc']?>" style="width: 100%; max-height: 200px"></iframe>
+				<iframe src="<?=$_Oli->getUrlParam(0)?>?oli-debug=<?=@$_['olisc']?>" style="width: 100%; max-height: 200px"></iframe>
 				
 				<!--<p>Please confirm that the information below in correct. If not, please go back and fix the errors.</p>
 				
@@ -320,7 +336,7 @@ $progress = $step / $totalSteps * 100;
 	<?php } ?>
 	<hr />
 	
-	<p>Powered by <a href="<?=$_Oli->getOliInfos('url')?>"><b><?=$_Oli->getOliInfos('name')?></b></a>, Bootstrap, jQuery.</p>
+	<p>Powered by <a href="<?=$_Oli->getOliInfos('url')?>"><b><?=$_Oli->getOliInfos('name')?></b></a> <?=$_Oli->getOliInfos('version')?>, Bootstrap, jQuery.</p>
 
 </div>
 

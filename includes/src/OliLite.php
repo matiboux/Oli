@@ -17,13 +17,8 @@
 |*|  │
 \*/
 
-namespace Oli {
+namespace Oli;
 
-class OliLite extends OliCore {
-
-
-
+class OliLite extends OliCore
+{
 }
-
-}
-?>

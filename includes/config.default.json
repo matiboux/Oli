@@ -1,36 +1,34 @@
 {
-	"setup_wizard": true,
-	"oli_mode": "full",
-	
 	"constants": {},
 	"addons": {},
-	
-	"allow_mysql": false,
-	"mysql": null,
-	
+
+	"allow_dbs": false,
+	"dbs": [
+	],
+
 	"settings_tables": ["settings"],
 	"shortcut_links_table": "shortcut_links",
 	"translations_table": null,
-	
+
 	"assets_path": "Const:CONTENTPATH|assets/",
 	"media_path": "Const:CONTENTPATH|media/",
 	"scripts_path": "Const:CONTENTPATH|scripts/",
 	"theme_path": "Const:CONTENTPATH|theme/",
 	"templates_path": "Const:CONTENTPATH|templates/",
-	
+
 	"admin_alias": "oli-admin",
 	"setup_alias": "oli-setup",
 	"login_alias": "oli-login",
 	"assets_alias": "assets",
 	"media_alias": "media",
 	"scripts_alias": "scripts",
-	
+
 	"cdn_url": null,
-	
+
 	"default_language": "en",
 	"default_content_type": "html",
 	"default_charset": "utf-8",
-	
+
 	"accounts_tables": {
 		"accounts": "accounts",
 		"infos": "accounts_infos",
@@ -40,19 +38,19 @@
 		"rights": "accounts_rights",
 		"permissions": "accounts_permissions"
 	},
-	
+
 	"external_login_url": null,
 	"allow_login": true,
 	"allow_register": false,
 	"account_activation": false,
 	"prohibited_usernames": ["oli"],
-	
+
 	"request_expire_delay": "Time:2 days",
 	"default_session_duration": "Time:1 day",
 	"extended_session_duration": "Time:7 days",
-		
+
 	"associated_websites": [],
-	
+
 	"auth_key_length": 32,
 	"auth_key_cookie": {
 		"name": "OliAuthKey",
@@ -61,26 +59,23 @@
 		"secure": false,
 		"http_only": false
 	},
-	
+
 	"password_hash": {
 		"algorithm": "Const:PASSWORD_DEFAULT",
 		"salt": null,
 		"cost": 10
 	},
-	
-	
-	
+
 	"#": {
-		
+
 		"force_https": false,
 		"time_zone": "Europe/Paris",
-		
+
 		"common_path": null,
 		"common_assets_folder": "assets/",
-		
-		
+
 		"user_management": false,
-		
+
 		"allow_recover": true,
 		"default_user_right": "USER",
 		"account_activation_method": "email"
