@@ -19,25 +19,39 @@
 
 namespace Oli;
 
-class Oli extends OliCore
+class Oli
 {
 	// region I. Variables
 
-	private static ?Oli $instance = null;
+	private static ?OliCore $instance = null;
+	private static ?string $className = null;
 
 	// endregion
 
 	// region II. Singleton constructor
 
-	private function __construct(?float $initTimestamp = null)
+	private function __construct()
 	{
-		parent::__construct($initTimestamp);
-	}
+	} // Non-instantiable
 
-	public static function getInstance(?float $initTimestamp = null): ?Oli
+	/**
+	 * @param string|null $className
+	 * @param float|null $initTimestamp
+	 *
+	 * @return OliCore|null
+	 */
+	public static function getInstance(?string $className = null, ?float $initTimestamp = null): ?OliCore
 	{
-		if (self::$instance === null)
-			self::$instance = new self($initTimestamp);
+		if ($className !== null)
+		{
+			if (self::$instance === null)
+			{
+				self::$instance = new $className($initTimestamp);
+				self::$className = $className;
+				return self::$instance;
+			}
+			if (self::$className !== $className) return null;
+		}
 
 		return self::$instance;
 	}

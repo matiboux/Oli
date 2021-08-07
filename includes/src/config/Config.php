@@ -186,11 +186,11 @@ class Config
 	 * @param mixed|null $index
 	 * @param bool $reload
 	 *
-	 * @return array|null Array or requested value.
+	 * @return array|string|null Array or requested value.
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public static function getAppConfig(mixed $index = null, bool $reload = false): ?array
+	public static function getAppConfig(mixed $index = null, bool $reload = false): array|string|null
 	{
 		if (is_bool($index))
 		{
@@ -284,16 +284,15 @@ class Config
 	 */
 	public static function updateConfig($_Oli, $config, $target = null, $replace = false): bool
 	{
-		if (!$target || self::saveConfig($_Oli, $config, $target, $replace))
-		{
-			if ($target === 'app')
-				self::$appConfig = array_merge(self::$appConfig ?: self::getAppConfig(), $config);
-			else
-				self::$rawConfig = array_merge(self::$rawConfig, $config);
+		if ($target && !self::saveConfig($_Oli, $config, $target, $replace))
+			return false;
 
-			return self::reloadConfig($_Oli);
-		}
-		else return false;
+		if ($target === 'app')
+			self::$appConfig = array_merge(self::$appConfig ?: self::getAppConfig(), $config);
+		else
+			self::$rawConfig = array_merge(self::$rawConfig, $config);
+
+		return self::reloadConfig($_Oli);
 	}
 
 	/**
@@ -405,17 +404,19 @@ class Config
 					{
 						try
 						{
-							$db = null;
-							if ($dbConfig['dbms'] === 'mysql')
-								$db = new MySQL($dbConfig);
-							else if ($dbConfig['dbms'] === 'pgsql')
-								$db = new PostgreSQL($dbConfig);
-							else if (in_array($dbConfig['dbms'], ['mssql', 'srvsql'], true))
-								$db = new SQLServer($dbConfig);
+							$dbms = ['mysql' => MySQL::class, // MySQL
+							         'pgsql' => PostgreSQL::class, // PostgreSQL
+							         'mssql' => SQLServer::class, // Microsoft SQL Server
+							         'srvsql' => SQLServer::class,
+							];
+							$dbClass = @$dbms[$dbConfig['dbms']];
+							if ($dbClass !== null)
+							{
+								$db = new $dbClass($dbConfig);
+								$Oli->addDB($db);
+							}
 							else
 								trigger_error("DBMS '" . $dbConfig['dbms'] . "' is not recognized or not supported", E_USER_ERROR);
-
-							$Oli->addDB($db);
 						}
 						catch (Exception $e)
 						{
@@ -434,11 +435,6 @@ class Config
 				if (!defined('MEDIAPATH')) define('MEDIAPATH', $eachValue);
 			}
 //			else if ($eachConfig == 'media_url') $_Oli->mediaUrl = $eachValue;
-			else if ($eachConfig == 'theme_path')
-			{
-				// LEGACY
-				if (!defined('THEMEPATH')) define('THEMEPATH', $eachValue);
-			}
 			else if ($eachConfig == 'pages_path')
 			{
 				if (!defined('PAGESPATH')) define('PAGESPATH', $eachValue);
@@ -463,9 +459,10 @@ class Config
 //				if (!empty($eachValue['permissions'])) $_Oli->accountsTables['PERMISSIONS'] = $eachValue['permissions'];
 //			}
 
-			self::$config[$eachConfig] = self::decodeConfigArray($eachValue,
-			                                                     array_key_exists($eachConfig, self::$config ?: [])
-				                                                     ? self::$config[$eachConfig] : null);
+			self::$config[$eachConfig] =
+				self::decodeConfigArray($eachValue,
+				                        array_key_exists($eachConfig, self::$config ?: [])
+					                        ? self::$config[$eachConfig] : null);
 		}
 
 		return !empty(self::$config);

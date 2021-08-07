@@ -67,14 +67,23 @@ require OLISRCPATH . 'AccountsManager.php';
 // *** Final step is initializing Oli
 
 // Load Config
-require OLISRCPATH . 'config/Config.php'; // Oli Config Registry
+require_once OLISRCPATH . 'config/Config.php'; // Oli Config Registry
 Config::loadRawConfig();
 $_OliConfig = &Config::$config; // Config array alias
 
 // Load Oli
 require OLISRCPATH . 'OliCore.php';
 require OLISRCPATH . 'Oli.php';
-$_Oli = Oli::getInstance(INITTIME);
+if (Config::$rawConfig['oli_mode'] === 'lite')
+{
+	require OLISRCPATH . 'OliLite.php'; // Oli Lite
+	$_Oli = Oli::getInstance(OliLite::class, INITTIME);
+}
+else
+{
+	require OLISRCPATH . 'OliFramework.php'; // Oli Framework
+	$_Oli = Oli::getInstance(OliFramework::class, INITTIME);
+}
 
 // Check for error
 if ($_OliConfig === null)

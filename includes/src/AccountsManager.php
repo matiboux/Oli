@@ -1277,7 +1277,7 @@ class AccountsManager
 		// if(!empty($password)) {
 		if (is_array($oliSC) or is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 
-		if (!empty($oliSC) and $oliSC == $this->Oli->getOliSecurityCode()) $isRootRegister = true;
+		if (!empty($oliSC) and $oliSC == $this->Oli->getSecurityCode()) $isRootRegister = true;
 		else if ($this->isAccountsManagementReady() and Config::$config['allow_register']) $isRootRegister = false;
 		else $isRootRegister = null;
 

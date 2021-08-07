@@ -1,4 +1,6 @@
 {
+	"oli_mode": "full",
+
 	"constants": {},
 	"addons": {},
 
@@ -13,7 +15,7 @@
 	"assets_path": "Const:CONTENTPATH|assets/",
 	"media_path": "Const:CONTENTPATH|media/",
 	"scripts_path": "Const:CONTENTPATH|scripts/",
-	"theme_path": "Const:CONTENTPATH|theme/",
+	"pages_path": "Const:CONTENTPATH|pages/",
 	"templates_path": "Const:CONTENTPATH|templates/",
 
 	"admin_alias": "oli-admin",

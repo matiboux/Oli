@@ -199,7 +199,7 @@ abstract class OliCore
 		$this->setContentType('DEFAULT', 'utf-8');
 
 		// Check for debug stutus override
-		if (@Config::$config['debug'] === false && @$_GET['oli-debug'] === $this->getOliSecurityCode())
+		if (@Config::$config['debug'] === false && @$_GET['oli-debug'] === $this->getSecurityCode())
 			Config::$config['debug'] = true;
 
 		// Debug configuration
@@ -232,7 +232,7 @@ abstract class OliCore
 	public function __get($whatVar)
 	{
 		if ($whatVar == 'config') return Config::$config;
-		if (!in_array($whatVar, $this->readOnlyVars)) return null;
+		if (!in_array($whatVar, self::$readOnlyVars)) return null;
 		if ($whatVar == 'oliInfos') return $this->getOliInfos();
 		return $this->$whatVar;
 	}
@@ -319,19 +319,13 @@ abstract class OliCore
 	/**
 	 * Get Oli Security Code
 	 *
-	 * @return string Returns Oli Security Code.
+	 * @return bool|string Returns Oli Security Code.
 	 * @version BETA-2.0.0
-	 * @updated BETA-2.0.0
+	 * @updated GAMMA-1.0.0
 	 */
-	public function getOliSecurityCode()
+	public function getSecurityCode(): bool|string
 	{
-		return $this->refreshOliSecurityCode() ?: file_get_contents(ABSPATH . '.olisc');
-	}
-
-	/** * @alias OliCore::getOliSecurityCode() */
-	public function getOliSC()
-	{
-		return $this->getOliSecurityCode();
+		return $this->refreshSecurityCode() ?: file_get_contents(ABSPATH . '.olisc');
 	}
 
 	/**
@@ -339,45 +333,39 @@ abstract class OliCore
 	 *
 	 * @return string|boolean Returns Oli Security Code if it was updated, false otherwise.
 	 * @version BETA-2.0.0
-	 * @updated BETA-2.0.0
+	 * @updated GAMMA-1.0.0
 	 */
-	public function refreshOliSecurityCode()
+	public function refreshSecurityCode()
 	{
-		if (!file_exists(ABSPATH . '.olisc') or time() > filemtime(ABSPATH . '.olisc') + 3600 * 2 or empty(file_get_contents(ABSPATH . '.olisc')))
+		if (!file_exists(ABSPATH . '.olisc')
+		    || time() > filemtime(ABSPATH . '.olisc') + 3600 * 2 // TODO: Add a config for this?
+		    || empty(file_get_contents(ABSPATH . '.olisc')))
 		{
 			$handle = fopen(ABSPATH . '.olisc', 'w');
-			fwrite($handle, $olisc = $this->keygen(6, true, false, true));
+			$sc = $this->keygen(6, true, false, true);
+			fwrite($handle, $sc);
 			fclose($handle);
-			return $olisc;
+			return $sc;
 		}
-		else return false;
+
+		return false;
 	}
 
-	/** * @alias OliCore::refreshOliSecurityCode() */
-	public function refreshOliSC()
-	{
-		return $this->refreshOliSecurityCode();
-	}
-
-	/** -------------- */
+	/** --------------- */
 	/**  III. 3. Tools  */
-	/** -------------- */
+	/** --------------- */
 
-	/** Get Execution Time */
-	public function getExecutionTime($fromRequest = false)
+	/**
+	 * Get Execution Time
+	 *
+	 * @param bool $sinceRequest If true, return the execution time since the request.
+	 *
+	 * @return float Returns the execution time.
+	 */
+	public function getExecutionTime(bool $sinceRequest = false): float
 	{
-		if ($fromRequest) return microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
-		else return microtime(true) - Config::$config['init_timestamp'];
-	}
-
-	public function getExecutionDelay($fromRequest = false)
-	{
-		return $this->getExecutionTime($fromRequest);
-	}
-
-	public function getExecuteDelay($fromRequest = false)
-	{
-		return $this->getExecutionTime($fromRequest);
+		if ($sinceRequest) return microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'];
+		return microtime(true) - Config::$config['init_timestamp'];
 	}
 
 	/** *** *** */
@@ -386,9 +374,9 @@ abstract class OliCore
 	/**  IV. Configuration  */
 	/** ------------------- */
 
-	/** -------------- */
-	/**  IV. 1. MySQL  */
-	/** -------------- */
+	/** ----------- */
+	/**  IV. 1. DB  */
+	/** ----------- */
 
 	/**
 	 * Add a SQL database
@@ -411,11 +399,13 @@ abstract class OliCore
 	/**
 	 * Remove a SQL database
 	 *
-	 * @return bool Returns true if successfully removed the database.
+	 * @param string $dbname The name of the database to remove.
+	 *
+	 * @return bool Returns true if the database was successfully removed.
 	 * @version GAMMA-1.0.0
 	 * @updated GAMMA-1.0.0
 	 */
-	public function removeDB($dbname): bool
+	public function removeDB(string $dbname): bool
 	{
 		if (array_key_exists($dbname, $this->dbs)) return false;
 		unset($this->dbs[$dbname]);
@@ -444,35 +434,33 @@ abstract class OliCore
 		$hasArray = false;
 		foreach ($tables as $eachTableGroup)
 		{
-			if (is_array($eachTableGroup) or $hasArray)
-			{
-				$hasArray = true;
-				Config::$config['settings_tables'] = $eachTableGroup;
-				$this->getUrlParam('base', $hasUsedHttpHostBase);
+			if (!is_array($eachTableGroup) && !$hasArray) continue;
 
-				if (!$hasUsedHttpHostBase) break;
-			}
+			$hasArray = true;
+			Config::$config['settings_tables'] = $eachTableGroup;
+			$this->getUrlParam('base', $hasUsedHttpHostBase);
+
+			if (!$hasUsedHttpHostBase) break;
 		}
 
 		$i = 1;
-		while ($i <= strlen(Config::$config['media_path']) and $i <= strlen(Config::$config['theme_path']) and substr(Config::$config['media_path'], 0, $i) == substr(Config::$config['theme_path'], 0, $i))
+		while ($i <= strlen(Config::$config['media_path']) && $i <= strlen(Config::$config['pages_path']) && substr(Config::$config['media_path'], 0, $i) == substr(Config::$config['pages_path'], 0, $i))
 		{
 			$contentPath = substr(Config::$config['media_path'], 0, $i);
 			$i++;
 		}
+
 		define('CONTENTPATH', ABSPATH . ($contentPath ?: 'content/'));
 		define('MEDIAPATH', Config::$config['media_path'] ? ABSPATH . Config::$config['media_path'] : CONTENTPATH . 'media/');
-		define('PAGESPATH', Config::$config['theme_path'] ? ABSPATH . Config::$config['theme_path'] : CONTENTPATH . 'theme/');
+		define('PAGESPATH', Config::$config['pages_path'] ? ABSPATH . Config::$config['pages_path'] : CONTENTPATH . 'pages/');
 	}
 
 	/** Set Common Files Path */
 	public function setCommonPath($path)
 	{
-		if (!empty($path))
-		{
-			Config::$config['common_path'] = $path;
-			if (!defined('COMMONPATH')) define('COMMONPATH', ABSPATH . $path);
-		}
+		if (empty($path)) return;
+		Config::$config['common_path'] = $path;
+		if (!defined('COMMONPATH')) define('COMMONPATH', ABSPATH . $path);
 	}
 
 	/** --------------- */
@@ -613,13 +601,13 @@ abstract class OliCore
 	/**
 	 * Load page content
 	 *
-	 * @return string|void Returns the path to the file to include.
+	 * @return string Returns the path to the file to include.
 	 * @version BETA
 	 * @updated GAMMA-1.0.0
 	 */
-	public function loadContent(?array $params = null)
+	public function loadContent(?array $params = null): string
 	{
-		if (empty($params))
+		if (!is_array($params))
 			$params = $this->getUrlParam('params');
 
 		$accessAllowed = null;
@@ -691,7 +679,7 @@ abstract class OliCore
 					{
 						$found = OLILOGINPATH . 'login.php';
 						$this->fileNameParam = $fileName[0];
-						continue; // There may be a requested page.
+						// continue; // There may be a requested page.
 					}
 				}
 
@@ -720,7 +708,7 @@ abstract class OliCore
 					{
 						$found = OLIADMINPATH . 'index.php';
 						$this->fileNameParam = $fileNameParam;
-						continue; // There may be a requested page.
+						// continue; // There may be a requested page.
 					}
 				}
 
@@ -854,14 +842,12 @@ abstract class OliCore
 
 			// User 404 error page
 			if (file_exists(PAGESPATH . $rules['error']['404'])
-			    && $this->isAccessAllowed($rules['access'],
-			                              $rules['error']['404']))
+			    && $this->isAccessAllowed($rules['access'], $rules['error']['404']))
 				return PAGESPATH . $rules['error']['404'];
 
 			// Oli 404 error page
 			if (file_exists(OLIPAGESPATH . $defaultRules['error']['404'])
-			    && $this->isAccessAllowed($defaultRules['access'],
-			                              $defaultRules['error']['404']))
+			    && $this->isAccessAllowed($defaultRules['access'], $defaultRules['error']['404']))
 				return OLIPAGESPATH . $defaultRules['error']['404'];
 
 			die('Error 404: File not found');
@@ -1062,6 +1048,7 @@ abstract class OliCore
 			}
 		}
 		if (!in_array(true, $isExist, true)) return Config::getAppConfig($setting);
+		return null;
 	}
 
 	/** * @alias OliCore::getSetting() */
@@ -1086,8 +1073,10 @@ abstract class OliCore
 	 */
 	public function getShortcutLink($shortcut, $caseSensitive = false)
 	{
-		if (!empty(Config::$config['shortcut_links_table']) and $this->isExistTableMySQL(Config::$config['shortcut_links_table'])) return $this->getInfosMySQL(Config::$config['shortcut_links_table'], 'url', ['name' => $shortcut], $caseSensitive);
-		else return false;
+		$db = $this->getDB();
+		if (!empty(Config::$config['shortcut_links_table']) and $db->isExistTableSQL(Config::$config['shortcut_links_table']))
+			return $db->getInfosSQL(Config::$config['shortcut_links_table'], 'url', ['name' => $shortcut], $caseSensitive);
+		return false;
 	}
 
 	/** ------------------- */
@@ -1344,7 +1333,7 @@ abstract class OliCore
 		if (!isset($loadNow)) $loadNow = true;
 		if (!isset($minimize)) $minimize = false;
 
-		if ($minimize and empty($tags)) $codeLine = '<style type="text/css">' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
+		if ($minimize and empty($tags)) $codeLine = '<style>' . $this->minimizeStyle(file_get_contents($url)) . '</style>';
 		else $codeLine = '<link rel="stylesheet" type="text/css" href="' . $url . '" ' . ($tags ?: '') . '>';
 
 		if ($loadNow) echo $codeLine . PHP_EOL;
@@ -2244,22 +2233,20 @@ abstract class OliCore
 	/**
 	 * Check if the database is ready for user management
 	 *
-	 * @return boolean Returns true if local.
+	 * @return bool Returns true if local.
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function isAccountsManagementReady()
+	public function isAccountsManagementReady(): bool
 	{
-		if ($this->isSetupDB())
-		{
-			$status = [];
-			foreach (Config::$config['accounts_tables'] as $eachTable)
-			{
-				if (!$status[] = $this->isExistTableMySQL($eachTable)) break;
-			}
-			return !in_array(false, $status, true);
-		}
-		else return false;
+		if (!$this->isSetupDB()) return false;
+
+		$status = [];
+		$db = $this->getDB();
+		foreach (Config::$config['accounts_tables'] as $eachTable)
+			if (!$status[] = $db->isExistTableSQL($eachTable)) break;
+
+		return !in_array(false, $status, true);
 	}
 
 	/** --------------- */
@@ -2312,7 +2299,8 @@ abstract class OliCore
 	 */
 	public function getFirstAccountInfo($tableCode, $whatVar, $rawResult = false)
 	{
-		return $this->getFirstInfoMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $rawResult);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getFirstInfoSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $rawResult);
 	}
 
 	/**
@@ -2327,7 +2315,8 @@ abstract class OliCore
 	 */
 	public function getFirstAccountLine($tableCode, $rawResult = false)
 	{
-		return $this->getFirstLineMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $rawResult);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getFirstLineSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $rawResult);
 	}
 
 	/**
@@ -2343,7 +2332,8 @@ abstract class OliCore
 	 */
 	public function getLastAccountInfo($tableCode, $whatVar, $rawResult = false)
 	{
-		return $this->getLastInfoMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $rawResult);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getLastInfoSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $rawResult);
 	}
 
 	/**
@@ -2358,7 +2348,8 @@ abstract class OliCore
 	 */
 	public function getLastAccountLine($tableCode, $rawResult = false)
 	{
-		return $this->getLastLineMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, null, $rawResult);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getLastLineSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, null, $rawResult);
 	}
 
 	/**
@@ -2386,7 +2377,9 @@ abstract class OliCore
 			else return false;
 		}
 		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
-		return $this->getLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
+
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getLinesSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 	}
 
 	/**
@@ -2416,7 +2409,8 @@ abstract class OliCore
 		}
 		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
 
-		return $this->getInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 	}
 
 	/**
@@ -2444,7 +2438,9 @@ abstract class OliCore
 			else return false;
 		}
 		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
-		return $this->getSummedInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
+
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->getSummedInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $caseSensitive, $forceArray, $rawResult);
 	}
 
 	/**
@@ -2472,7 +2468,8 @@ abstract class OliCore
 		}
 		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
 
-		return $this->isEmptyInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->isEmptyInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $whatVar, $where, $settings, $caseSensitive);
 	}
 
 	/**
@@ -2498,7 +2495,8 @@ abstract class OliCore
 		}
 		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
 
-		return $this->isExistInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->isExistInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $caseSensitive);
 	}
 
 	/** ------------------ */
@@ -2517,7 +2515,8 @@ abstract class OliCore
 	 */
 	public function insertAccountLine($tableCode, $what, &$errorInfo = null)
 	{
-		return $this->insertLineMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $errorInfo);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->insertLineSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $errorInfo);
 	}
 
 	/**
@@ -2543,7 +2542,8 @@ abstract class OliCore
 		}
 		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
 
-		return $this->updateInfosMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where, $errorInfo);
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->updateInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $what, $where, $errorInfo);
 	}
 
 	/**
@@ -2558,9 +2558,9 @@ abstract class OliCore
 	public function updateAccountUsername($newUsername, $oldUsername)
 	{
 		return ($this->updateAccountInfos('ACCOUNTS', ['username' => $newUsername], $oldUsername)
-		        and $this->updateAccountInfos('INFOS', ['username' => $newUsername], $oldUsername)
-		            and $this->updateAccountInfos('SESSIONS', ['username' => $newUsername], $oldUsername)
-		                and $this->updateAccountInfos('REQUESTS', ['username' => $newUsername], $oldUsername));
+		        && $this->updateAccountInfos('INFOS', ['username' => $newUsername], $oldUsername)
+		        && $this->updateAccountInfos('SESSIONS', ['username' => $newUsername], $oldUsername)
+		        && $this->updateAccountInfos('REQUESTS', ['username' => $newUsername], $oldUsername));
 	}
 
 	/**
@@ -2573,7 +2573,9 @@ abstract class OliCore
 	public function deleteAccountLines($tableCode, $where, &$errorInfo = null)
 	{
 		if (!is_array($where) and $where !== 'all' and strpos($where, ' ') === false) $where = ['uid' => $where];
-		return $this->deleteLinesMySQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $errorInfo);
+
+		$db = $this->getDB(); // TODO: Config for the DB to use
+		return $db->deleteLinesSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode, $where, $errorInfo);
 	}
 
 	/**
@@ -2591,10 +2593,10 @@ abstract class OliCore
 	public function deleteFullAccount($where)
 	{
 		return ($this->deleteAccountLines('ACCOUNTS', $where)
-		        and $this->deleteAccountLines('INFOS', $where)
-		            and $this->deleteAccountLines('SESSIONS', $where)
-		                and $this->deleteAccountLines('REQUESTS', $where)
-		                    and $this->deleteAccountLines('PERMISSIONS', $where));
+		        && $this->deleteAccountLines('INFOS', $where)
+		        && $this->deleteAccountLines('SESSIONS', $where)
+		        && $this->deleteAccountLines('REQUESTS', $where)
+		        && $this->deleteAccountLines('PERMISSIONS', $where));
 	}
 
 	/** ----------------------------------- */
@@ -2667,12 +2669,12 @@ abstract class OliCore
 	 * Get right permissions
 	 *
 	 * @param string $userRight User right to get permissions of
-	 * @param boolean|void $caseSensitive Translate is case sensitive or not
+	 * @param bool $caseSensitive Translate is case sensitive or not
 	 *
 	 * @return array Returns user right permissions
 	 * @uses OliCore::getAccountInfos() to get infos from account table
 	 */
-	public function getRightPermissions($userRight, $caseSensitive = true)
+	public function getRightPermissions(string $userRight, bool $caseSensitive = true): ?array
 	{
 		return $this->getAccountInfos('RIGHTS', 'permissions', ['user_right' => $userRight], $caseSensitive) ?: null;
 	}
@@ -2717,11 +2719,14 @@ abstract class OliCore
 	/**
 	 * Get User Right
 	 *
-	 * @return string Returns the user right.
+	 * @param null $where
+	 * @param bool $caseSensitive
+	 *
+	 * @return int|string|null Returns the user right.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function getUserRight($where = null, $caseSensitive = true)
+	public function getUserRight($where = null, bool $caseSensitive = true): int|string|null
 	{
 		if ($this->isLocalLogin() and !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
 
@@ -2752,14 +2757,14 @@ abstract class OliCore
 	/**
 	 * Get user right permissions
 	 *
-	 * @param string|array|void $where Where to get data from
-	 * @param boolean|void $caseSensitive Translate is case sensitive or not
+	 * @param null $where Where to get data from
+	 * @param bool $caseSensitive Translate is case sensitive or not
 	 *
-	 * @return integer Returns user right permissions
+	 * @return array|null Returns user right permissions
 	 * @uses OliCore::getUserRight() to get user right
 	 * @uses OliCore::getRightPermissions() to get right permissions
 	 */
-	public function getUserRightPermissions($where = null, $caseSensitive = true)
+	public function getUserRightPermissions($where = null, bool $caseSensitive = true): ?array
 	{
 		return $this->getRightPermissions($this->getUserRight($where, $caseSensitive));
 	}
@@ -3185,7 +3190,7 @@ abstract class OliCore
 		// if(!empty($password)) {
 		if (is_array($oliSC) or is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 
-		if (!empty($oliSC) and $oliSC == $this->getOliSecurityCode()) $isRootRegister = true;
+		if (!empty($oliSC) and $oliSC == $this->getSecurityCode()) $isRootRegister = true;
 		else if ($this->isAccountsManagementReady() and Config::$config['allow_register']) $isRootRegister = false;
 		else $isRootRegister = null;
 
