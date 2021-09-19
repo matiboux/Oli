@@ -131,7 +131,7 @@ namespace Oli;
 
 abstract class OliCore
 {
-	// region I. Variables
+	#region I. Variables
 
 	/** List of public variables accessible publicly in read-only */
 	private static array $readOnlyVars = [
@@ -169,9 +169,9 @@ abstract class OliCore
 	/** Data Cache */
 	private array $cache = [];
 
-	// endregion
+	#endregion
 
-	// region II. Constructor & Destructor
+	#region II. Constructor & Destructor
 
 	/**
 	 * OliCore Class Construct function
@@ -218,9 +218,9 @@ abstract class OliCore
 		$this->loadEndHtmlFiles();
 	}
 
-	// endregion
+	#endregion
 
-	// region III. Magic Methods
+	#region III. Magic Methods
 
 	/**
 	 * OliCore Class Read-only variables management
@@ -264,7 +264,7 @@ abstract class OliCore
 		return $this->getOliInfos('name') . ' (v. ' . $this->getOliInfos('version') . ')';
 	}
 
-	// endregion
+	#endregion
 
 	/** *** *** */
 
