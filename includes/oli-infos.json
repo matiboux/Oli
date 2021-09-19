@@ -2,8 +2,9 @@
 	"name": "Oli",
 	"alt_names": ["Oli Framework", "Oli PHP Framework"],
 	"short_description": "an open source PHP framework",
-	"description": "Oli is an open source PHP framework made to help web developers creating their website",
-	"version": "beta-1.8.1",
+	"description": "Oli is an open source PHP framework designed to help you create your website.",
+	"plan": "full",
+	"version": "beta-2.0.0",
 	
 	"url": "https://github.com/matiboux/Oli/",
 	"repository": {
@@ -14,10 +15,11 @@
 	
 	"team": [
 		{
-			"name": "Mathieu Guérin",
-			"nicknames": ["Matiboux", "Mati"],
+			"name": "Matiboux",
+			"real_name": "Mathieu Guérin",
+			"nickname": "Mati",
 			"role": "Creator / Developer",
-			"website": "http://matiboux.com/"
+			"website": "https://matiboux.com/"
 		}
 	]
 }

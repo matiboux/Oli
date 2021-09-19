@@ -4,4 +4,5 @@
 
 ---
 
-**Thanks to all our contributors. Help is always appreciated! <3**
+**Thanks to all the contributors. Help is always appreciated! <3**
+*(but i'm all alone)*
