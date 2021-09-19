@@ -281,11 +281,11 @@ abstract class OliCore
 	 *
 	 * @param mixed|null $whatInfo
 	 *
-	 * @return array|null Returns a short description of Oli.
+	 * @return array|string|null Returns a short description of Oli.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function getOliInfos(mixed $whatInfo = null): ?array
+	public function getOliInfos(mixed $whatInfo = null): array|string|null
 	{
 		// Load Oli Infos if not already loaded
 		if (empty($this->oliInfos))
@@ -1159,7 +1159,8 @@ abstract class OliCore
 	/** Get cookie content */
 	public function getCookie($name, $rawResult = false)
 	{
-		return (!$rawResult and ($arr = json_decode($_COOKIE[$name], true)) !== null) ? $arr : $_COOKIE[$name];
+		$cookieValue = @$_COOKIE[$name];
+		return (!$rawResult && ($arr = json_decode($cookieValue, true)) !== null) ? $arr : $cookieValue;
 	}
 
 	public function getCookieContent($name, $rawResult = false)

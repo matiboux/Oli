@@ -378,6 +378,10 @@ else if($isLoggedIn) {
 } else if($isLoginAllowed) {
 	$scriptState = 'login';
 	
+	$userIdAttempts = 0;
+	$userIPAttempts = 0;
+	$uidAttempts = 0;
+	
 	/** Want to log out, but not logged in */
 	if($_Oli->getUrlParam(2) == 'logout') $resultCode = 'I:You are already disconnected.';
 	
@@ -385,7 +389,7 @@ else if($isLoggedIn) {
 	else if(!empty($_)) {
 		if(!$isLocalLogin) $_Oli->deleteAccountLines('LOG_LIMITS', 'action = \'login\' AND last_trigger < date_sub(now(), INTERVAL 1 HOUR)');
 		
-		$_['logid'] = $_['logid'] ? trim($_['logid']) : null;
+		$_['logid'] = @$_['logid'] ? trim($_['logid']) : null;
 		if(!$isLocalLogin AND empty($_['logid'])) $resultCode = 'E:Please enter your login ID.';
 		// else if(!$isLocalLogin AND ($userIdAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_Oli->getAuthID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIdAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIdAttempts . '), your user ID has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
 		else if(!$isLocalLogin AND ($userIPAttempts = $_Oli->runQueryMySQL('SELECT COUNT(1) as attempts FROM `' . $_Oli->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0) >= $config['maxUserIPAttempts']) $resultCode = 'E:<b>Anti brute-force</b> – Due to too many login attempts (' . $userIPAttempts . '), your IP address has been blocked and therefore you cannot login. Please try again later, or <a href="' . $_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock' . '">unlock your account</a>.';
@@ -491,7 +495,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 				<h2>Recover your account</h2>
 				<?php if(!$isLocalLogin) { ?>
 					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
-						<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
+						<input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
 						<button type="submit">Recover</button>
 						
 						<p>An email will be sent to you with instructions to continue.</p>
@@ -529,7 +533,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, ['edit-password', 'recover-password'])) { ?>block<?php } else { ?>none<?php } ?>">
 				<h2>Edit your password</h2>
 				
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: $_['activateKey'])?><?php } ?>" method="post">
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: @$_['activateKey'])?><?php } ?>" method="post">
 					<?php if($isLoggedIn) { ?>
 						<p>You are logged in as <b><?=$_Oli->getLoggedName() ?: 'unknown user'?></b>.</p>
 						<input type="password" name="password" placeholder="Current password" autocomplete="current-password" aria-label="Current password" />
@@ -538,7 +542,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 						<?php if(!empty($requestInfos)) { ?>
 							<p>Request for <b><?=$_Oli->getName($requestInfos['uid'])?></b>.</p>
 						<?php } ?>
-						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: $_['activateKey']?>" placeholder="Activation Key" <?php if(!empty($requestInfos)) { ?>disabled<?php } ?> autocomplete="off" />
+						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: @$_['activateKey']?>" placeholder="Activation Key" <?php if(!empty($requestInfos)) { ?>disabled<?php } ?> autocomplete="off" />
 					
 					<?php } else { ?>
 						<p>Something went wrong..</p>
@@ -666,7 +670,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 			<h2>Generate an unlock key</h2>
 			<p>In order to unlock your account, an unlock key will be generated and sent to you by email.</p>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
-				<input type="text" name="username" value="<?=$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" autocomplete="username" aria-label="Username" />
+				<input type="text" name="username" value="<?=@$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" autocomplete="username" aria-label="Username" />
 				<button type="submit">Generate</button>
 				
 				<p>An email will be sent to you with instructions to continue.</p>
@@ -676,7 +680,7 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 		<div class="form" data-icon="fa-unlock" data-text="Submit Unlock Key" style="display:<?php if($scriptState == 'unlock-submit') { ?>block<?php } else { ?>none<?php } ?>">
 			<h2>Unlock your account</h2>
 			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
-				<input type="text" name="unlockKey" value="<?=$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" autocomplete="off" aria-label="Unlock Key" />
+				<input type="text" name="unlockKey" value="<?=@$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" autocomplete="off" aria-label="Unlock Key" />
 				<button type="submit">Unlock your account</button>
 				
 				<p>This will reset the Anti-BruteForce stats.</p>
@@ -693,17 +697,17 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 				<h2>Log into your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
 					<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
-						<input type="hidden" name="referer" value="<?=$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
+						<input type="hidden" name="referer" value="<?=@$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
 					<?php } ?>
 					
 					<?php if(!$isLocalLogin) { ?>
 						<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
-						<input type="text" name="logid" value="<?=$_['logid']?>" placeholder="Login ID" autocomplete="username" aria-label="Login ID" />
+						<input type="text" name="logid" value="<?=@$_['logid']?>" placeholder="Login ID" autocomplete="username" aria-label="Login ID" />
 					<?php } else { ?>
 						<p>Log in using <b>the root password</b> (if set).</p>
 						<input type="text" name="logid" value="root" placeholder="Login ID" autocomplete="username" aria-label="Login ID" disabled />
 					<?php } ?>
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" autocomplete="current-password" aria-label="Password" />
+					<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="current-password" aria-label="Password" />
 					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run you clever boy, and remember me »</label></div>
 					<button type="submit">Login</button>
 					
@@ -716,8 +720,8 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 			<div class="form" data-icon="fa-user-plus" data-text="Register" style="display: <?php if($scriptState == 'register') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Create a new account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
-					<input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
+					<input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
+					<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
 					
 <?php /*<?php function captcha($captcha) {
 	$width = strlen($captcha) * 10 + 200;
@@ -755,7 +759,7 @@ ob_end_clean(); ?>
 			<div class="form" data-icon="fa-unlock" data-text="Activate" style="display: <?php if($scriptState == 'activate') { ?>block<?php } else { ?>none<?php } ?>;">
 				<h2>Activate your account</h2>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/activate'?>" method="post">
-					<input type="text" name="activateKey" value="<?=$_['activateKey']?>" placeholder="Activate Key" autocomplete="off" aria-label="Activate Key" />
+					<input type="text" name="activateKey" value="<?=@$_['activateKey']?>" placeholder="Activate Key" autocomplete="off" aria-label="Activate Key" />
 					<button type="submit">Activate</button>
 				</form>
 			</div>
@@ -767,10 +771,10 @@ ob_end_clean(); ?>
 				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
 				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshOliSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
 				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
-					<?php /*<input type="text" name="username" value="<?=$_['username']?>" placeholder="Username" autocomplete="username" aria-label="Username" /> */ ?>
-					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" /><?php } ?>
-					<input type="password" name="password" value="<?=$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
-					<input type="text" name="olisc" value="<?=$_['olisc']?>" placeholder="Oli Security Code" autocomplete="off" aria-label="Oli Security Code" />
+					<?php /*<input type="text" name="username" value="<?=@$_['username']?>" placeholder="Username" autocomplete="username" aria-label="Username" /> */ ?>
+					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" /><?php } ?>
+					<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
+					<input type="text" name="olisc" value="<?=@$_['olisc']?>" placeholder="Oli Security Code" autocomplete="off" aria-label="Oli Security Code" />
 					<button type="submit">Register as Root</button>
 				</form>
 			</div>
