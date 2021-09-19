@@ -17,95 +17,46 @@
 |*|  │
 |*|  ├ I. Variables
 |*|  ├ II. Magic Methods
-|*|  ├ III. Oli
-|*|  │ ├ 1. Oli Infos
-|*|  │ ├ 2. Oli Security Code
-|*|  │ └ 3. Tools
 |*|  │
-|*|  ├ IV. Configuration
-|*|  │ ├ 1. MySQL
-|*|  │ ├ 2. General
-|*|  │ └ 3. Addons
-|*|  │   ├ A. Management
-|*|  │   └ B. Infos
+|*|  ├ III. Configuration
 |*|  │
-|*|  ├ V. MySQL
-|*|  │ ├ 1. Regular MySQL Functions
-|*|  │ │ ├ A. Status
-|*|  │ │ ├ B. Read
-|*|  │ │ ├ C. Write
-|*|  │ │ └ D. Database Edits
-|*|  │ │   ├ a. Tables
-|*|  │ │   └ b. Columns
-|*|  │ └ 2. Legacy (Read) MySQL Functions
+|*|  ├ IV. DB Status
 |*|  │
-|*|  ├ VI. General
-|*|  │ ├ 1. Load Website
-|*|  │ ├ 2. Settings
-|*|  │ ├ 3. Custom Content
-|*|  │ ├ 4. Translations & Text
-|*|  │ │ ├ A. Read
-|*|  │ │ ├ B. Write
-|*|  │ │ └ C. Print
-|*|  │ ├ 5. HTTP Tools
-|*|  │ │ ├ A. Content Type
-|*|  │ │ ├ B. Cookie Management
-|*|  │ │ │ ├ a. Read Functions
-|*|  │ │ │ └ b. Write Functions
-|*|  │ │ ├ C. _POST vars
-|*|  │ │ │ ├ a. Read Functions
-|*|  │ │ │ └ b. Write Functions
-|*|  │ │ └ D. Mail Management
-|*|  │ ├ 6. HTML Tools
-|*|  │ │ ├ A. File Loaders
-|*|  │ │ └ B. File Minimizers
-|*|  │ ├ 7. Url Functions
-|*|  │ └ 8. Utility Tools
-|*|  │   ├ A. Templates
-|*|  │   ├ B. Generators
-|*|  │   │ ├ a. UUID
-|*|  │   │ └ b. Misc
-|*|  │   ├ C. Data Conversion
-|*|  │   ├ D. Date & Time
-|*|  │   └ E. Client Infos
-|*|  │
-|*|  └ VII. Accounts
+|*|  └ V. Accounts
 |*|    ├ 1. Status
 |*|    ├ 2. MySQL
-|*|    │ ├ A. Read
+|*|    │ ├ A. Table Codes
 |*|    │ ├ B. Read
-|*|    │ ├ C. Write
-|*|    │ └ D. Client Infos
+|*|    │ └ C. Write
 |*|    ├ 3. User Rights & Permissions
 |*|    │ ├ A. User Rights
 |*|    │ └ B. User Permissions
 |*|    │   ├ a. General
 |*|    │   ├ b. Rights Permissions
-|*|    │   ├ c. User Permissions
-|*|    │   ├ a. General
-|*|    │   └ b. Write Functions
-|*|    ├ -. Auth Key Cookie //*!
+|*|    │   └ c. User Permissions
+|*|    ├ 4. Auth Key Cookie
 |*|    │ ├ A. Create & Delete
 |*|    │ └ B. Infos
 |*|    ├ 5. User Sessions
 |*|    │ ├ A. General
-|*|    │ ├ B. Cookie
-|*|    │ │ ├ a. Management
-|*|    │ │ └ b. Infos
-|*|    │ └ B. Infos
-|*|    ├ 6. User Avatar
-|*|    └ 7. Hash Password
+|*|    │ └ B. Auth Cookie
+|*|    │   ├ a. Management
+|*|    │   └ b. Infos
+|*|    ├ 6. User Accounts
+|*|    │ ├ A. Requests
+|*|    │ ├ B. Register
+|*|    │ ├ C. Login
+|*|    │ ├ D. Logout
+|*|    │ └ E. Accounts Restrictions
+|*|    ├ 7. User Avatar
+|*|    └ 8. Hash Password
 \*/
 
 namespace Oli;
 
-use JetBrains\PhpStorm\Pure;
-
 class AccountsManager
 {
-	/** -------------- */
-	/**  I. Variables  */
-	/** -------------- */
+	#region I. Variables
 
 	/** List of public variables accessible publicly in read-only */
 	private array $readOnlyVars = [
@@ -144,12 +95,10 @@ class AccountsManager
 
 	/** Data Cache */
 	private array $cache = [];
+	
+	#endregion
 
-	/** *** *** */
-
-	/** ------------------- */
-	/**  II. Magic Methods  */
-	/** ------------------- */
+	#region II. Magic Methods
 
 	/**
 	 * AccountsManager Class Construct function
@@ -162,18 +111,6 @@ class AccountsManager
 	public function __construct(OliCore $_Oli)
 	{
 		$this->Oli = $_Oli;
-	}
-
-	/**
-	 * OliCore Class Destruct function
-	 *
-	 * @return void
-	 * @version BETA
-	 * @updated BETA-2.0.0
-	 */
-	public function __destruct()
-	{
-		$this->loadEndHtmlFiles();
 	}
 
 	/**
@@ -216,15 +153,9 @@ class AccountsManager
 		return 'Accounts Manager for ' . $this->Oli;
 	}
 
-	/** *** *** */
+	#endregion
 
-	/** ------------------- */
-	/**  IV. Configuration  */
-	/** ------------------- */
-
-	/** -------------- */
-	/**  IV. 1. MySQL  */
-	/** -------------- */
+	#region III. Configuration
 
 	/**
 	 * Add DB connection
@@ -251,11 +182,9 @@ class AccountsManager
 		$this->db = null;
 	}
 
-	/** *** *** */
+	#endregion
 
-	/** -------------- */
-	/**  V. DB Status  */
-	/** -------------- */
+	#region IV. DB Status
 
 	/**
 	 * Is set up DB connection
@@ -264,7 +193,6 @@ class AccountsManager
 	 * @version GAMMA-1.0.0
 	 * @updated GAMMA-1.0.0
 	 */
-	#[Pure]
 	public function isSetupDB(): bool
 	{
 		return $this->db?->isSetupDB() === true;
@@ -278,21 +206,16 @@ class AccountsManager
 	 * @version GAMMA-1.0.0
 	 * @updated GAMMA-1.0.0
 	 */
-	#[Pure]
 	public function getDB(): ?DBWrapper
 	{
 		return $this->db;
 	}
 
-	/** *** *** */
+	#endregion
 
-	/** --------------- */
-	/**  VII. Accounts  */
-	/** --------------- */
+	#region V. Accounts
 
-	/** ---------------- */
-	/**  VII. 1. Status  */
-	/** ---------------- */
+	#region V. 1. Status
 
 	/**
 	 * Enable accounts management
@@ -336,13 +259,11 @@ class AccountsManager
 		return !in_array(false, $status, true);
 	}
 
-	/** --------------- */
-	/**  VII. 2. MySQL  */
-	/** --------------- */
+	#endregion
 
-	/** ------------------------ */
-	/**  VII. 2. A. Table Codes  */
-	/** ------------------------ */
+	#region V. 2. MySQL
+
+	#region V. 2. A. Table Codes
 
 	/**
 	 * Translate Accounts Table Codes
@@ -369,9 +290,9 @@ class AccountsManager
 		return @Config::$config['accounts_tables'][$tableCode];
 	}
 
-	/** ----------------- */
-	/**  VII. 2. B. Read  */
-	/** ----------------- */
+	#endregion
+
+	#region V. 2. B. Read
 
 	/**
 	 * Get first info from account table
@@ -585,9 +506,9 @@ class AccountsManager
 		                                  $where, $caseSensitive);
 	}
 
-	/** ------------------ */
-	/**  VII. 2. C. Write  */
-	/** ------------------ */
+	#endregion
+
+	#region V. 2. C. Write
 
 	/**
 	 * Insert line in account table
@@ -684,13 +605,13 @@ class AccountsManager
 		        && $this->deleteAccountLines('PERMISSIONS', $where));
 	}
 
-	/** ----------------------------------- */
-	/**  VII. 3. User Rights & Permissions  */
-	/** ----------------------------------- */
+	#endregion
 
-	/** ------------------------ */
-	/**  VII. 3. A. User Rights  */
-	/** ------------------------ */
+	#endregion
+
+	#region V. 3. User Rights & Permissions
+
+	#region V. 3. A. User Rights
 
 	/**
 	 * Verify user right syntax
@@ -875,20 +796,18 @@ class AccountsManager
 		else return false;
 	}
 
-	/** ----------------------------- */
-	/**  VII. 3. B. User Permissions  */
-	/** ----------------------------- */
+	#endregion
+
+	#region V. 3. B. User Permissions
 
 	/*\
-				|*|      -[ WORK IN PROGRESS ]-
-				|*|  USER PERMISSIONS WILL BE ADDED
-				|*|        IN A FUTURE UPDATE
-				|*|    (RESCHEDULED FOR BETA 2.1)
-				\*/
+	|*|      -[ WORK IN PROGRESS ]-
+	|*|  USER PERMISSIONS WILL BE ADDED
+	|*|        IN A FUTURE UPDATE
+	|*|    (RESCHEDULED FOR BETA 2.1)
+	\*/
 
-	/** ----------------------- */
-	/**  VII. 3. B. a. General  */
-	/** ----------------------- */
+	#region V. 3. B. a. General
 
 	/** Get user own permissions */
 	public function getUserOwnPermissions($permission)
@@ -905,9 +824,9 @@ class AccountsManager
 	{
 	}
 
-	/** ---------------------------------- */
-	/**  VII. 3. B. b. Rights Permissions  */
-	/** ---------------------------------- */
+	#endregion
+
+	#region V. 3. B. b. Rights Permissions
 
 	/** Set Right Permissions */
 	public function setRightPermissions($permissions, $userRight)
@@ -934,9 +853,9 @@ class AccountsManager
 	{
 	}
 
-	/** -------------------------------- */
-	/**  VII. 3. B. c. User Permissions  */
-	/** -------------------------------- */
+	#endregion
+
+	#region V. 3. B. c. User Permissions
 
 	/** Set User Permissions */
 	public function setUserPermissions($permissions, $userRight)
@@ -958,13 +877,15 @@ class AccountsManager
 	{
 	}
 
-	/** ------------------------- */
-	/**  VII. -. Auth Key Cookie  */
-	/** ------------------------- */
+	#endregion
 
-	/** ---------------------------- */
-	/**  VII. -. A. Create & Delete  */
-	/** ---------------------------- */
+	#endregion
+
+	#endregion
+
+	#region V. 4. Auth Key Cookie
+
+	#region V. 4. A. Create & Delete
 
 	/** Set Auth Key cookie */
 	public function setAuthKeyCookie($authKey, $expireDelay)
@@ -978,9 +899,9 @@ class AccountsManager
 		return $this->Oli->deleteCookie(Config::$config['auth_key_cookie']['name'], '/', Config::$config['auth_key_cookie']['domain'], Config::$config['auth_key_cookie']['secure'], Config::$config['auth_key_cookie']['http_only']);
 	}
 
-	/** ------------------------------- */
-	/**  VII. -. B. Get Auth Key Infos  */
-	/** ------------------------------- */
+	#endregion
+
+	#region V. 4. B. Get Auth Key Infos
 
 	/** Get Auth Key cookie name */
 	public function getAuthKeyCookieName()
@@ -1134,21 +1055,19 @@ class AccountsManager
 		return $this->getLoggedUsername($authKey);
 	}
 
-	/** ----------------------- */
-	/**  VII. 5. User Sessions  */
-	/** ----------------------- */
+	#endregion
 
-	/** -------------------- */
-	/**  VII. 5. A. General  */
-	/** -------------------- */
+	#endregion
 
-	/** ------------------------ */
-	/**  VII. 5. B. Auth Cookie  */
-	/** ------------------------ */
+	#region V. 5. User Sessions
 
-	/** -------------------------- */
-	/**  VII. 5. B. a. Management  */
-	/** -------------------------- */
+	#region V. 5. A. General
+
+	#endregion
+
+	#region V. 5. B. Auth Cookie
+
+	#region V. 5. B. a. Management
 
 	/**
 	 * Set Auth Cookie
@@ -1174,9 +1093,9 @@ class AccountsManager
 		return $this->Oli->deleteCookie(Config::$config['auth_key_cookie']['name'], '/', Config::$config['auth_key_cookie']['domain'], Config::$config['auth_key_cookie']['secure'], Config::$config['auth_key_cookie']['http_only']);
 	}
 
-	/** --------------------- */
-	/**  VII. 5. B. a. Infos  */
-	/** --------------------- */
+	#endregion
+
+	#region V. 5. B. b. Infos
 
 	/** Get Auth Cookie name */
 	public function getAuthIDCookieName()
@@ -1209,13 +1128,15 @@ class AccountsManager
 		return $this->cache['authKey'];
 	}
 
-	/** ----------------------- */
-	/**  VII. 6. User Accounts  */
-	/** ----------------------- */
+	#endregion
 
-	/** --------------------- */
-	/**  VII. 5. A. Requests  */
-	/** --------------------- */
+	#endregion
+
+	#endregion
+
+	#region V. 6. User Accounts
+
+	#region V. 6. A. Requests
 
 	/** Get the requests expire delay */
 	// -- Deprecated --
@@ -1247,9 +1168,9 @@ class AccountsManager
 		}
 	}
 
-	/** --------------------- */
-	/**  VII. 5. B. Register  */
-	/** --------------------- */
+	#endregion
+
+	#region V. 6. B. Register
 
 	/** Is register verification enabled */
 	// -- Deprecated --
@@ -1369,9 +1290,9 @@ class AccountsManager
 		// } else return false;
 	}
 
-	/** ------------------ */
-	/**  VII. 5. C. Login  */
-	/** ------------------ */
+	#endregion
+
+	#region V. 6. C. Login
 
 	/**
 	 * Check if the login process is considered to be local
@@ -1512,9 +1433,9 @@ class AccountsManager
 		else return false;
 	}
 
-	/** ------------------- */
-	/**  VII. 5. D. Logout  */
-	/** ------------------- */
+	#endregion
+
+	#region V. 6. D. Logout
 
 	/**
 	 * Log out from a session
@@ -1568,9 +1489,9 @@ class AccountsManager
 		return $result ? true : false;
 	}
 
-	/** ---------------------------------- */
-	/**  VII. 5. E. Accounts Restrictions  */
-	/** ---------------------------------- */
+	#endregion
+
+	#region V. 6. E. Accounts Restrictions
 
 	/** Get prohibited usernames */
 	public function getProhibitedUsernames()
@@ -1598,9 +1519,11 @@ class AccountsManager
 		}
 	}
 
-	/** --------------------- */
-	/**  VII. 6. User Avatar  */
-	/** --------------------- */
+	#endregion
+
+	#endregion
+
+	#region V. 7. User Avatar
 
 	/**
 	 * Get User Avatar Method
@@ -1700,9 +1623,9 @@ class AccountsManager
 		else return null;
 	}
 
-	/** ----------------------- */
-	/**  VII. 7. Hash Password  */
-	/** ----------------------- */
+	#endregion
+
+	#region V. 8. Hash Password
 
 	/** Hash Password */
 	public function hashPassword($password)
@@ -1722,4 +1645,8 @@ class AccountsManager
 		if (!empty(Config::$config['password_hash']['cost'])) $hashOptions['cost'] = Config::$config['password_hash']['cost'];
 		return password_needs_rehash($password, Config::$config['password_hash']['algorithm'], $hashOptions);
 	}
+
+	#endregion
+
+	#endregion
 }
