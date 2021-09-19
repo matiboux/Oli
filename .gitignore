@@ -3,6 +3,10 @@
 /.oliurl
 /.olisc
 
+# Addons
+/addons/*
+!/addons/.htaccess
+
 # Website Config Files
 /.oliauth
 /app.json
