@@ -59,8 +59,9 @@ class AccountsManager
 	#region I. Variables
 
 	/** List of public variables accessible publicly in read-only */
-	private array $readOnlyVars = [
-		//'initTimestamp',
+	private static array $readOnlyVars = [
+		'Oli',
+		'db',
 	];
 
 	/** Reference to Oli */
@@ -68,30 +69,6 @@ class AccountsManager
 
 	/** Reference to the database used for accounts management */
 	private ?DBWrapper $db = null;
-
-	/** Components infos */
-	private ?float $initTimestamp = null; // (PUBLIC READONLY)
-	private array $oliInfos = []; // Oli Infos (SPECIAL PUBLIC READONLY)
-	private array $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
-
-	/** Databases Management */
-	private array $dbs = []; // SQL Wrappers
-	// private $defaultdb = null; // SQL Wrappers
-	// private $sql = null; // MySQL PDO Object (PUBLIC READONLY)
-	// private $dbError = null; // MySQL PDO Error (PUBLIC READONLY)
-
-	/** Content Management */
-	private ?string $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
-	private ?string $contentStatus = null; // Content Status (found, not found, forbidden...) (PUBLIC READONLY)
-
-	/** Page Settings */
-	private ?string $contentType = null;
-	private ?string $charset = null;
-	private bool $contentTypeBeenForced = false;
-	private array $htmlLoaderList = [];
-
-	/** Post Vars Cookie */
-	private bool $postVarsProtection = false;
 
 	/** Data Cache */
 	private array $cache = [];
