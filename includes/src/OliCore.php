@@ -45,31 +45,21 @@
 |*|  ├ II. Constructor & Destructor
 |*|  ├ III. Magic Methods
 |*|  │
-|*|  ///
-|*|  │
-|*|  ├ III. Oli
+|*|  ├ IV. Oli
 |*|  │ ├ 1. Oli Infos
 |*|  │ ├ 2. Oli Security Code
 |*|  │ └ 3. Tools
 |*|  │
-|*|  ├ IV. Configuration
-|*|  │ ├ 1. MySQL
+|*|  ├ V. Configuration
+|*|  │ ├ 1. DB
 |*|  │ ├ 2. General 
 |*|  │ └ 3. Addons
 |*|  │   ├ A. Management
 |*|  │   └ B. Infos
 |*|  │
-|*|  ├ V. MySQL
-|*|  │ ├ 1. Regular MySQL Functions
-|*|  │ │ ├ A. Status
-|*|  │ │ ├ B. Read
-|*|  │ │ ├ C. Write
-|*|  │ │ └ D. Database Edits
-|*|  │ │   ├ a. Tables
-|*|  │ │   └ b. Columns
-|*|  │ └ 2. Legacy (Read) MySQL Functions
+|*|  ├ VI. DB
 |*|  │
-|*|  ├ VI. General
+|*|  ├ VII. General
 |*|  │ ├ 1. Load Website
 |*|  │ ├ 2. Settings
 |*|  │ ├ 3. Custom Content
@@ -99,7 +89,7 @@
 |*|  │   ├ D. Date & Time
 |*|  │   └ E. Client Infos
 |*|  │
-|*|  └ VII. Accounts
+|*|  └ VIII. Accounts
 |*|    ├ 1. Status
 |*|    ├ 2. MySQL
 |*|    │ ├ A. Read
@@ -186,12 +176,12 @@ abstract class OliCore
 		Config::loadConfig($this);
 		// if (file_exists(ABSPATH . '.oliurl'))
 		// {
-		// $oliUrl = file_get_contents(ABSPATH . '.oliurl');
-		// if (!empty($oliUrl) && preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^/]+)*\/$/i', $oliUrl) && !empty(Config::$config['settings']) && $oliUrl != Config::$config['settings']['url'])
-		// {
-		// $this->updateConfig(array('settings' => array_merge(Config::$config['settings'], array('url' => $oliUrl))), true);
-		// Config::$config['settings']['url'] = $oliUrl;
-		// }
+		// 	$oliUrl = file_get_contents(ABSPATH . '.oliurl');
+		// 	if (!empty($oliUrl) && preg_match('/^(?:[a-z0-9-]+\.)+[a-z.]+(?:\/[^/]+)*\/$/i', $oliUrl) && !empty(Config::$config['settings']) && $oliUrl != Config::$config['settings']['url'])
+		// 	{
+		// 		$this->updateConfig(array('settings' => array_merge(Config::$config['settings'], array('url' => $oliUrl))), true);
+		// 		Config::$config['settings']['url'] = $oliUrl;
+		// 	}
 		// }
 
 		// Framework Initialization
@@ -266,15 +256,9 @@ abstract class OliCore
 
 	#endregion
 
-	/** *** *** */
+	#region IV. Oli
 
-	/** ---------- */
-	/**  III. Oli  */
-	/** ---------- */
-
-	/** ------------------- */
-	/**  III. 1. Oli Infos  */
-	/** ------------------- */
+	#region IV. 1. Oli Infos
 
 	/**
 	 * Get Oli Infos
@@ -312,9 +296,9 @@ abstract class OliCore
 		return null;
 	}
 
-	/** --------------------------- */
-	/**  III. 2. Oli Security Code  */
-	/** --------------------------- */
+	#endregion
+
+	#region IV. 2. Oli Security Code
 
 	/**
 	 * Get Oli Security Code
@@ -351,9 +335,9 @@ abstract class OliCore
 		return false;
 	}
 
-	/** --------------- */
-	/**  III. 3. Tools  */
-	/** --------------- */
+	#endregion
+
+	#region IV. 3. Tools
 
 	/**
 	 * Get Execution Time
@@ -368,15 +352,13 @@ abstract class OliCore
 		return microtime(true) - Config::$config['init_timestamp'];
 	}
 
-	/** *** *** */
+	#endregion
 
-	/** ------------------- */
-	/**  IV. Configuration  */
-	/** ------------------- */
+	#endregion
 
-	/** ----------- */
-	/**  IV. 1. DB  */
-	/** ----------- */
+	#region V. Configuration
+
+	#region V. 1. DB
 
 	/**
 	 * Add a SQL database
@@ -423,9 +405,9 @@ abstract class OliCore
 		$this->dbs = [];
 	}
 
-	/** ---------------- */
-	/**  IV. 2. General  */
-	/** ---------------- */
+	#endregion
+
+	#region V. 2. General
 
 	/** Set Settings Tables */
 	public function setSettingsTables($tables)
@@ -463,13 +445,11 @@ abstract class OliCore
 		if (!defined('COMMONPATH')) define('COMMONPATH', ABSPATH . $path);
 	}
 
-	/** --------------- */
-	/**  IV. 3. Addons  */
-	/** --------------- */
+	#endregion
 
-	/** ---------------------- */
-	/**  IV. 3. A. Management  */
-	/** ---------------------- */
+	#region V. 3. Addons
+
+	#region V. 3. A. Management
 
 	/** Add Addon */
 	public function addAddon($id, $varname)
@@ -502,9 +482,9 @@ abstract class OliCore
 		else return false;
 	}
 
-	/** ----------------- */
-	/**  IV. 5. B. Infos  */
-	/** ----------------- */
+	#endregion
+
+	#region V. 3. B. Infos
 
 	/** Add Addon Infos */
 	public function addAddonInfos($id, $infos)
@@ -548,17 +528,13 @@ abstract class OliCore
 
 	/** *** *** */
 
-	/** ---------- */
-	/**  V. MySQL  */
-	/** ---------- */
+	#endregion
 
-	/** ------------------------------- */
-	/**  V. 1. Regular MySQL Functions  */
-	/** ------------------------------- */
+	#endregion
 
-	/** ----------------- */
-	/**  V. 1. A. Status  */
-	/** ----------------- */
+	#endregion
+
+	#region VI. DB
 
 	/**
 	 * Is setup DB connection
@@ -588,15 +564,11 @@ abstract class OliCore
 		return @$this->dbs[$dbname !== null ? $dbname : array_key_first($this->dbs)];
 	}
 
-	/** *** *** */
+	#endregion
 
-	/** ------------- */
-	/**  VI. General  */
-	/** ------------- */
+	#region VII. General
 
-	/** --------------------- */
-	/**  VI. 1. Load Website  */
-	/** --------------------- */
+	#region VII. 1. Load Website
 
 	/**
 	 * Load page content
@@ -998,9 +970,9 @@ abstract class OliCore
 		return null;
 	}
 
-	/** ----------------- */
-	/**  VI. 2. Settings  */
-	/** ----------------- */
+	#endregion
+
+	#region VII. 2. Settings
 
 	/**
 	 * Get Settings Tables
@@ -1060,9 +1032,9 @@ abstract class OliCore
 	/** [WIP] Get All Settings */
 	// public function getAllSettings() { return $this->getSetting(null); }
 
-	/** ----------------------- */
-	/**  VI. 3. Custom Content  */
-	/** ----------------------- */
+	#endregion
+
+	#region VII. 3. Custom Content
 
 	/**
 	 * Get Shortcut Link
@@ -1079,13 +1051,11 @@ abstract class OliCore
 		return false;
 	}
 
-	/** ------------------- */
-	/**  VI. 5. HTTP Tools  */
-	/** ------------------- */
+	#endregion
 
-	/** ------------------------ */
-	/**  VI. 5. A. Content Type  */
-	/** ------------------------ */
+	#region VII. 5. HTTP Tools
+
+	#region VII. 5. A. Content Type
 
 	/** Set Content Type */
 	public function setContentType($contentType = null, $charset = null, $force = false)
@@ -1148,13 +1118,11 @@ abstract class OliCore
 		return $this->charset;
 	}
 
-	/** ----------------------------- */
-	/**  VI. 5. B. Cookie Management  */
-	/** ----------------------------- */
+	#endregion
 
-	/** ----------------------------- */
-	/**  VI. 5. B. a. Read Functions  */
-	/** ----------------------------- */
+	#region VII. 5. B. Cookie Management
+
+	#region VII. 5. B. a. Read Functions
 
 	/** Get cookie content */
 	public function getCookie($name, $rawResult = false)
@@ -1180,9 +1148,9 @@ abstract class OliCore
 		return empty($_COOKIE[$name]);
 	}
 
-	/** ------------------------------ */
-	/**  VI. 5. B. b. Write Functions  */
-	/** ------------------------------ */
+	#endregion
+
+	#region VII. 5. B. b. Write Functions
 
 	/** Set cookie */
 	public function setCookie($name, $value, $expireDelay, $path, $domains, $secure = false, $httpOnly = false)
@@ -1216,13 +1184,13 @@ abstract class OliCore
 		return !$cookieError ? true : false;
 	}
 
-	/** ---------------------- */
-	/**  VI. 5. C. _POST vars  */
-	/** ---------------------- */
+	#endregion
 
-	/** ----------------------------- */
-	/**  VI. 5. C. a. Read Functions  */
-	/** ----------------------------- */
+	#endregion
+
+	#region VII. 5. C. _POST vars
+
+	#region VII. 5. C. a. Read Functions
 
 	/** Get post vars cookie name */
 	public function getPostVarsCookieName()
@@ -1255,9 +1223,9 @@ abstract class OliCore
 		return $this->postVarsProtection;
 	}
 
-	/** ------------------------------ */
-	/**  VI. 5. C. b. Write Functions  */
-	/** ------------------------------ */
+	#endregion
+
+	#region VII. 5. C. b. Write Functions
 
 	/** Set post vars cookie */
 	public function setPostVarsCookie($postVars)
@@ -1280,9 +1248,11 @@ abstract class OliCore
 		return $this->setCookie(Config::$config['post_vars_cookie']['name'], $this->getRawPostVars(), 1, '/', Config::$config['post_vars_cookie']['domain'], Config::$config['post_vars_cookie']['secure'], Config::$config['post_vars_cookie']['http_only']);
 	}
 
-	/** --------------------------- */
-	/**  VI. 5. D. Mail Management  */
-	/** --------------------------- */
+	#endregion
+
+	#endregion
+
+	#region VII. 5. D. Mail Management
 
 	/**
 	 * Get default mail headers
@@ -1304,13 +1274,13 @@ abstract class OliCore
 		else return $mailHeaders;
 	}
 
-	/** ------------------- */
-	/**  VI. 6. HTML Tools  */
-	/** ------------------- */
+	#endregion
 
-	/** ------------------------ */
-	/**  VI. 6. A. File Loaders  */
-	/** ------------------------ */
+	#endregion
+
+	#region VII. 6. HTML Tools
+
+	#region VII. 6. A. File Loaders
 
 	/**
 	 * Load CSS stylesheet
@@ -1466,9 +1436,9 @@ abstract class OliCore
 		}
 	}
 
-	/** --------------------------- */
-	/**  VI. 6. B. File Minimizers  */
-	/** --------------------------- */
+	#endregion
+
+	#region VII. 6. B. File Minimizers
 
 	/**
 	 * Minimize stylesheet
@@ -1505,9 +1475,11 @@ abstract class OliCore
 		return $scriptCode;
 	}
 
-	/** ---------------------- */
-	/**  VI. 7. Url Functions  */
-	/** ---------------------- */
+	#endregion
+
+	#endregion
+
+	#region VII. 7. Url Functions
 
 	/**
 	 * Get Url Parameter
@@ -1790,13 +1762,11 @@ abstract class OliCore
 		return Config::$config['cdn_url'];
 	}
 
-	/** ---------------------- */
-	/**  VI. 8. Utility Tools  */
-	/** ---------------------- */
+	#endregion
 
-	/** --------------------- */
-	/**  VI. 8. A. Templates  */
-	/** --------------------- */
+	#region VII. 8. Utility Tools
+
+	#region VII. 8. A. Templates
 
 	/**
 	 * Get Template
@@ -1829,13 +1799,11 @@ abstract class OliCore
 		else return null;
 	}
 
-	/** ---------------------- */
-	/**  VI. 8. B. Generators  */
-	/** ---------------------- */
+	#endregion
 
-	/** ------------------- */
-	/**  VI. 8. B. a. UUID  */
-	/** ------------------- */
+	#region VII. 8. B. Generators
+
+	#region VII. 8. B. a. UUID
 
 	/**
 	 * UUID Generator Gateway
@@ -1915,9 +1883,9 @@ abstract class OliCore
 		return strlen($uuid) == 36 ? $uuid : false;
 	}
 
-	/** ------------------- */
-	/**  VI. 8. B. b. Misc  */
-	/** ------------------- */
+	#endregion
+
+	#region VII. 8. B. b. Misc
 
 	/** Random Number generator */
 	public function rand($min = 1, $max = 100)
@@ -1961,9 +1929,11 @@ abstract class OliCore
 		}
 	}
 
-	/** --------------------------- */
-	/**  VI. 8. C. Data Conversion  */
-	/** --------------------------- */
+	#endregion
+
+	#endregion
+
+	#region VII. 8. C. Data Conversion
 
 	/** Convert Number */
 	public function convertNumber($value, $toUnit = null, $precision = null)
@@ -2070,9 +2040,9 @@ abstract class OliCore
 		else return $size;
 	}
 
-	/** ----------------------- */
-	/**  VI. 8. D. Date & Time  */
-	/** ----------------------- */
+	#endregion
+
+	#region VII. 8. D. Date & Time
 
 	/**
 	 * Get difference between two dates
@@ -2157,9 +2127,9 @@ abstract class OliCore
 		}
 	}
 
-	/** ------------------------ */
-	/**  VI. 8. E. Client Infos  */
-	/** ------------------------ */
+	#endregion
+
+	#region VII. 8. E. Client Infos
 
 	/** Get User IP address */
 	public function getUserIP()
@@ -2197,11 +2167,13 @@ abstract class OliCore
 		return $client_ip;
 	}
 
-	/** *** *** */
+	#endregion
 
-	/** --------------- */
-	/**  VII. Accounts  */
-	/** --------------- */
+	#endregion
+
+	#endregion
+
+	#region VIII. Accounts
 
 	/** ---------------- */
 	/**  VII. 1. Status  */
@@ -3636,4 +3608,6 @@ abstract class OliCore
 		if (!empty(Config::$config['password_hash']['cost'])) $hashOptions['cost'] = Config::$config['password_hash']['cost'];
 		return password_needs_rehash($password, Config::$config['password_hash']['algorithm'], $hashOptions);
 	}
+
+	#endregion
 }
