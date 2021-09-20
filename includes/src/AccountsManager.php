@@ -134,16 +134,29 @@ class AccountsManager
 	#region III. Configuration
 
 	/**
-	 * Add DB connection
+	 * Set DB connection
 	 *
 	 * @param DBWrapper $db
 	 *
+	 * @return void
 	 * @version GAMMA-1.0.0
 	 * @updated GAMMA-1.0.0
 	 */
-	public function addDB(DBWrapper $db): void
+	public function setDB(DBWrapper $db): void
 	{
 		$this->db = $db;
+	}
+
+	/**
+	 * Is set DB connection
+	 *
+	 * @return bool Returns whether a DB connection is set.
+	 * @version GAMMA-1.0.0
+	 * @updated GAMMA-1.0.0
+	 */
+	public function issetDB(): bool
+	{
+		return isset($this->db);
 	}
 
 	/**

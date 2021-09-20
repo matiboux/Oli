@@ -141,6 +141,8 @@ abstract class OliCore
 	// private $sql = null; // MySQL PDO Object (PUBLIC READONLY)
 	// private $dbError = null; // MySQL PDO Error (PUBLIC READONLY)
 
+	private ?AccountsManager $accountsManager = null;
+
 	/** Content Management */
 	private ?string $fileNameParam = null; // Define Url Param #0 (PUBLIC READONLY)
 	private ?string $contentStatus = null; // Content Status (found, not found, forbidden...) (PUBLIC READONLY)
@@ -192,6 +194,10 @@ abstract class OliCore
 
 		// Debug configuration
 		if (@Config::$config['debug'] === true) error_reporting(E_ALL);
+
+		// Accounts Manager
+		// TODO: If accounts management is enabled (add config)
+		$this->accountsManager = new AccountsManager($this);
 	}
 
 	/**
@@ -377,6 +383,9 @@ abstract class OliCore
 			$dbname = $db->getDBname();
 
 		$this->dbs[$dbname] = $db;
+
+		if (!$this->accountsManager->issetDB())
+			$this->accountsManager->setDB($db);
 	}
 
 	/**
@@ -2179,6 +2188,17 @@ abstract class OliCore
 	/** ---------------- */
 	/**  VII. 1. Status  */
 	/** ---------------- */
+
+	/**
+	 * Get the accounts manager
+	 *
+	 * @return AccountsManager|null Returns the accounts manager if enabled
+	 * @version GAMMA-1.0.0
+	 */
+	public function getAccountsManager(): ?AccountsManager
+	{
+		return $this->accountsManager;
+	}
 
 	/**
 	 * Enable accounts management
