@@ -126,7 +126,6 @@ abstract class OliCore
 	/** List of public variables accessible publicly in read-only */
 	private static array $readOnlyVars = [
 		'initTimestamp',
-		'oliInfos',
 		'addonsInfos',
 		'fileNameParam',
 		'contentStatus',
@@ -134,7 +133,6 @@ abstract class OliCore
 
 	/** Components infos */
 	private ?float $initTimestamp = null; // (PUBLIC READONLY)
-	private array $oliInfos = []; // Oli Infos (SPECIAL PUBLIC READONLY)
 	private array $addonsInfos = []; // Addons Infos (PUBLIC READONLY)
 
 	/** Databases Management */
@@ -219,27 +217,27 @@ abstract class OliCore
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function __get($whatVar)
+	public function __get($name): mixed
 	{
-		if ($whatVar == 'config') return Config::$config;
-		if (!in_array($whatVar, self::$readOnlyVars)) return null;
-		if ($whatVar == 'oliInfos') return $this->getOliInfos();
-		return $this->$whatVar;
+		if ($name === 'config') return Config::$config;
+		if ($name === 'oliInfos') return $this->getOliInfos();
+		if (!in_array($name, self::$readOnlyVars, true)) return null;
+		return $this->$name;
 	}
 
 	/**
 	 * OliCore Class Is Set variables management
 	 * This fix the empty() false negative issue on inaccessible variables.
 	 *
-	 * @return mixed Returns true if the requested variable isn't empty and if is allowed to read, null otherwise.
+	 * @return bool Returns true if the requested variable isn't empty and if is allowed to read, null otherwise.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function __isset($name)
+	public function __isset($name): bool
 	{
-		if (in_array($name, self::$readOnlyVars, true)) return isset($this->$name);
-
-		return false;
+		if (in_array($name, ['config', 'oliInfos'], true)) return true;
+		if (!in_array($name, self::$readOnlyVars, true)) return false;
+		return isset($this->$name);
 	}
 
 	/**
@@ -269,27 +267,30 @@ abstract class OliCore
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function getOliInfos(mixed $whatInfo = null): array|string|null
+	public function getOliInfos(mixed $info = null): array|string|null
 	{
 		// Load Oli Infos if not already loaded
-		if (empty($this->oliInfos))
-			$this->oliInfos = file_exists(INCLUDESPATH . 'oli-infos.json')
+		if (empty($this->cache['oliInfos']))
+			$this->cache['oliInfos'] = file_exists(INCLUDESPATH . 'oli-infos.json')
 				? json_decode(file_get_contents(INCLUDESPATH . 'oli-infos.json'), true) : null;
 
-		return !empty($whatInfo) ? @$this->oliInfos[$whatInfo] : $this->oliInfos;
+		return !empty($info) ? @$this->cache['oliInfos'][$info] : $this->cache['oliInfos'];
 	}
 
 	/** Get Team Infos */
-	public function getTeamInfos($who = null, $whatInfo = null): mixed
+	public function getTeamInfos($who = null, $info = null): mixed
 	{
-		if (empty($who)) return $this->oliInfos['team'];
+		$oliTeam = @$this->cache['oliInfos']['team'];
+		if (empty($oliTeam)) return null;
 
-		foreach ($this->oliInfos['team'] as $eachMember)
+		if (empty($who)) return $oliTeam;
+
+		foreach ($oliTeam as $member)
 		{
-			if ($eachMember['name'] == $who or in_array($who, !is_array($eachMember['nicknames']) ? [$eachMember['nicknames']] : $eachMember['nicknames']))
+			if ($member['name'] == $who or in_array($who, !is_array($member['nicknames']) ? [$member['nicknames']] : $member['nicknames']))
 			{
-				if (!empty($whatInfo)) return $eachMember[$whatInfo];
-				else return $eachMember;
+				if (!empty($info)) return $member[$info];
+				else return $member;
 			}
 		}
 

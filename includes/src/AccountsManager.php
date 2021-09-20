@@ -67,7 +67,7 @@ class AccountsManager
 	private OliCore $Oli;
 
 	/** Reference to the database used for accounts management */
-	private ?DBWrapper $db;
+	private ?DBWrapper $db = null;
 
 	/** Components infos */
 	private ?float $initTimestamp = null; // (PUBLIC READONLY)
@@ -103,14 +103,14 @@ class AccountsManager
 	/**
 	 * AccountsManager Class Construct function
 	 *
-	 * @param OliCore $_Oli
+	 * @param OliCore $Oli
 	 *
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function __construct(OliCore $_Oli)
+	public function __construct(OliCore $Oli)
 	{
-		$this->Oli = $_Oli;
+		$this->Oli = $Oli;
 	}
 
 	/**
@@ -120,25 +120,24 @@ class AccountsManager
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function __get($whatVar)
+	public function __get($name): mixed
 	{
-		if ($whatVar == 'config') return Config::$config;
-		if (in_array($whatVar, $this->readOnlyVars, true)) return $this->$whatVar;
-		return null;
+		if (!in_array($name, self::$readOnlyVars, true)) return null;
+		return $this->$name;
 	}
 
 	/**
 	 * OliCore Class Is Set variables management
 	 * This fix the empty() false negative issue on inaccessible variables.
 	 *
-	 * @return mixed Returns true if the requested variable isn't empty and if is allowed to read, null otherwise.
+	 * @return boolean Returns true if the requested variable isn't empty and if is allowed to read, null otherwise.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function __isset($whatVar)
+	public function __isset($name): bool
 	{
-		if (in_array($whatVar, $this->readOnlyVars)) return empty($this->$whatVar) === false;
-		return null;
+		if (!in_array($name, self::$readOnlyVars, true)) return false;
+		return isset($this->$name);
 	}
 
 	/**
