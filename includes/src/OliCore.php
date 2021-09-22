@@ -2185,10 +2185,6 @@ abstract class OliCore
 
 	#region VIII. Accounts
 
-	/** ---------------- */
-	/**  VII. 1. Status  */
-	/** ---------------- */
-
 	/**
 	 * Get the accounts manager
 	 *
@@ -2199,6 +2195,21 @@ abstract class OliCore
 	{
 		return $this->accountsManager;
 	}
+
+	/**
+	 * Get the accounts manager
+	 *
+	 * @return bool Returns whether the accounts manager is enabled or not
+	 * @version GAMMA-1.0.0
+	 */
+	public function isAccountsManaged(): bool
+	{
+		return $this->accountsManager !== null;
+	}
+
+	/** ---------------- */
+	/**  VII. 1. Status  */
+	/** ---------------- */
 
 	/**
 	 * Enable accounts management
