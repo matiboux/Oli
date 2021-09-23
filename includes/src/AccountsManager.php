@@ -148,18 +148,6 @@ class AccountsManager
 	}
 
 	/**
-	 * Is set DB connection
-	 *
-	 * @return bool Returns whether a DB connection is set.
-	 * @version GAMMA-1.0.0
-	 * @updated GAMMA-1.0.0
-	 */
-	public function issetDB(): bool
-	{
-		return isset($this->db);
-	}
-
-	/**
 	 * Reset DB connection
 	 *
 	 * @return void
@@ -174,6 +162,18 @@ class AccountsManager
 	#endregion
 
 	#region IV. DB Status
+
+	/**
+	 * Is set DB connection
+	 *
+	 * @return bool Returns whether a DB connection is set.
+	 * @version GAMMA-1.0.0
+	 * @updated GAMMA-1.0.0
+	 */
+	public function issetDB(): bool
+	{
+		return $this->db !== null;
+	}
 
 	/**
 	 * Is set up DB connection
@@ -207,37 +207,12 @@ class AccountsManager
 	#region V. 1. Status
 
 	/**
-	 * Enable accounts management
-	 *
-	 * Allow to log, register and logout users
-	 * Enable full login management
-	 *
-	 * @return void
-	 * @uses OliCore::$accountsManagementStatus to set accounts management status
-	 */
-	// public function enableAccountsManagement() {
-	// $this->accountsManagementStatus = true;
-	// }
-
-	/**
-	 * Is accounts management enabled
-	 *
-	 * @return boolean Accounts management status
-	 * @uses OliCore::$accountsManagementStatus to get accounts management status
-	 */
-	public function getAccountsManagementStatus()
-	{
-		return $this->isAccountsManagementReady();
-	}
-
-	/**
 	 * Check if the database is ready for user management
 	 *
 	 * @return boolean Returns true if local.
-	 * @version BETA-2.0.0
-	 * @updated BETA-2.0.0
+	 * @version GAMMA-1.0.0
 	 */
-	public function isAccountsManagementReady(): bool
+	public function isReady(): bool
 	{
 		if (!$this->isSetupDB()) return false;
 
@@ -649,7 +624,7 @@ class AccountsManager
 					if (strtolower($rightName) === strtolower($userRight)) return $level;
 			}
 		}
-		else if ($this->isAccountsManagementReady() && !empty($userRight))
+		else if ($this->isReady() && !empty($userRight))
 		{
 			// Check for Level -> User Right translation
 			$returnValue = $this->getAccountInfos('RIGHTS', 'user_right', ['level' => $userRight], $caseSensitive);
@@ -1143,7 +1118,7 @@ class AccountsManager
 	 */
 	public function createRequest($uid, $action, &$requestTime = null)
 	{
-		if (!$this->isAccountsManagementReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+		if (!$this->isReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 		else
 		{
 			$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->Oli->keygen(6, true, false, true));
@@ -1188,7 +1163,7 @@ class AccountsManager
 		if (is_array($oliSC) or is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 
 		if (!empty($oliSC) and $oliSC == $this->Oli->getSecurityCode()) $isRootRegister = true;
-		else if ($this->isAccountsManagementReady() and Config::$config['allow_register']) $isRootRegister = false;
+		else if ($this->isReady() and Config::$config['allow_register']) $isRootRegister = false;
 		else $isRootRegister = null;
 
 		if ($isRootRegister !== null)
@@ -1204,7 +1179,7 @@ class AccountsManager
 				}
 				else return false;
 			}
-			else if (!empty($email) and $this->isAccountsManagementReady() and (Config::$config['allow_register'] or $isRootRegister))
+			else if (!empty($email) and $this->isReady() and (Config::$config['allow_register'] or $isRootRegister))
 			{
 				/** Account Clean-up Process */
 				if ($uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['email' => $email], false) and $this->getUserRightLevel(['email' => $email]) == $this->translateUserRight('NEW-USER') and (!$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', ['uid' => $uid, 'action' => 'activate'], false) or strtotime($expireDate) < time())) $this->deleteFullAccount($uid);
@@ -1292,7 +1267,7 @@ class AccountsManager
 	 */
 	public function isLocalLogin()
 	{
-		return !$this->isAccountsManagementReady() or !Config::$config['allow_login'];
+		return !$this->isReady() or !Config::$config['allow_login'];
 	}
 
 	/**
