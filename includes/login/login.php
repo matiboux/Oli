@@ -496,290 +496,295 @@ else $resultCode = 'E:It seems you are not allowed to do anything here.';
 <body>
 
 <!-- ScriptState: <?php var_dump($scriptState); ?> -->
+
 <div id="header">
 	<h1><a href="<?php echo $_Oli->getUrlParam(0); ?>"><?php echo $_Oli->getSetting('name'); ?></a></h1>
 	<p class="description"><?php echo $_Oli->getSetting('description'); ?></p>
-	<?php if($isLocalLogin) { ?><p><b>Local login</b> (restricted to the root user)</p><?php } ?>
+	<?php if($scriptState !== $STATE[STATE_DISABLED] && $isLocalLogin) { ?>
+		<p><b>Local login</b> (restricted to the root user)</p>
+	<?php } ?>
 </div>
 
-<?php if($showAntiBruteForce) { ?>
-	<div class="message">
-		<div class="summary">Anti brute-force system</div>
-		<div class="content">
-			Your login attempts in the last hour: <br />
-			<?php /*- by user id: <b><?=$userIdAttempts ?: ($_AM->db->runQuerySQL('SELECT COUNT(1) as attempts FROM `' . $_AM->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_AM->getAuthID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIdAttempts']?>) <br />*/ ?>
-			- by IP address: <b><?=$userIPAttempts ?: ($_AM->db->runQuerySQL('SELECT COUNT(1) as attempts FROM `' . $_AM->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIPAttempts']?>) <br />
-			<?php if(!empty($_['uid'])) { ?>- by uid (<?=$_['uid']?>): <b><?=$uidAttempts ?: ($_AM->db->runQuerySQL('SELECT COUNT(1) as attempts FROM `' . $_AM->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND uid = \'' . $_['uid'] . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUidAttempts']?>)<?php } ?>
+<?php if($scriptState !== $STATE[STATE_DISABLED]) { ?>
+
+	<?php if($showAntiBruteForce) { ?>
+		<div class="message">
+			<div class="summary">Anti brute-force system</div>
+			<div class="content">
+				Your login attempts in the last hour: <br />
+				<?php /*- by user id: <b><?=$userIdAttempts ?: ($_AM->db->runQuerySQL('SELECT COUNT(1) as attempts FROM `' . $_AM->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND user_id = \'' . $_AM->getAuthID() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIdAttempts']?>) <br />*/ ?>
+				- by IP address: <b><?=$userIPAttempts ?: ($_AM->db->runQuerySQL('SELECT COUNT(1) as attempts FROM `' . $_AM->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND ip_address = \'' . $_Oli->getUserIP() . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUserIPAttempts']?>) <br />
+				<?php if(!empty($_['uid'])) { ?>- by uid (<?=$_['uid']?>): <b><?=$uidAttempts ?: ($_AM->db->runQuerySQL('SELECT COUNT(1) as attempts FROM `' . $_AM->translateAccountsTableCode('LOG_LIMITS') . '` WHERE action = \'login\' AND uid = \'' . $_['uid'] . '\' AND last_trigger >= date_sub(now(), INTERVAL 1 HOUR)')[0]['attempts'] ?: 0)?></b> (max. <?=$config['maxUidAttempts']?>)<?php } ?>
+			</div>
 		</div>
-	</div>
-<?php } ?>
+	<?php } ?>
 
-<?php if(isset($resultCode)) { ?>
-	<?php
-	list($prefix, $message) = explode(':', $resultCode, 2);
-	if($prefix == 'I') $type = 'message-info';
-	else if($prefix == 'S') $type = 'message-success';
-	else if($prefix == 'E') $type = 'message-error';
-	?>
-	<div class="message <?php echo $type; ?>">
-		<div class="content"><?php echo $message; ?></div>
-	</div>
-<?php } ?>
+	<?php if(isset($resultCode)) { ?>
+		<?php
+		list($prefix, $message) = explode(':', $resultCode, 2);
+		if($prefix == 'I') $type = 'message-info';
+		else if($prefix == 'S') $type = 'message-success';
+		else if($prefix == 'E') $type = 'message-error';
+		?>
+		<div class="message <?php echo $type; ?>">
+			<div class="content"><?php echo $message; ?></div>
+		</div>
+	<?php } ?>
 
-<?php if($ignoreFormData) $_ = []; ?>
+	<?php if($ignoreFormData) $_ = []; ?>
 
-<div id="module">
-	<div class="toggle" style="display: none">
-		<i class="fas"></i>
-		<div class="tooltip"></div>
-	</div>
-	
-	<?php if(in_array($scriptState, [$STATE[STATE_LOGGED],
-	                                 $STATE[STATE_RECOVER],
-	                                 $STATE[STATE_SET_USERNAME],
-	                                 $STATE[STATE_EDIT_PASSWORD],
-	                                 $STATE[STATE_RECOVER_PASSWORD],
-	                                 $STATE[STATE_UPDATE_AVATAR],
-	                                 $STATE[STATE_CONFIG_2FA],
-	                                 $STATE[STATE_DELETE_ACCOUNT],
-	                                 $STATE[STATE_ACCOUNT_SETTINGS],
-	                                ], true)) { ?>
-		<?php $showLoggedLinksCTA = true; ?>
-		<?php if($scriptState === $STATE[STATE_RECOVER]) { ?>
-			<div class="form" data-icon="fa-sync-alt" data-text="Recover" style="display: <?php if($scriptState === $STATE[STATE_RECOVER]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Recover your account</h2>
-				<?php if(!$isLocalLogin) { ?>
-					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
-						<input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
-						<button type="submit">Recover</button>
-						
-						<p>An email will be sent to you with instructions to continue.</p>
-					</form>
-				<?php } else { ?>
-					<p>Sorry, but you <span class="text-error">can't</span> recover a local account.</p>
-					<p>If you are the owner of the website, delete the <code>/content/.oliauth</code> file and <span class="text-info">create a new local root account</span>.</p>
-				<?php } ?>
-			</div>
-		<?php } ?>
-		
-		<?php if($scriptState === $STATE[STATE_SET_USERNAME]) { ?>
-			<div class="form" data-icon="fa-address-card" data-text="Set Username" style="display: <?php if($scriptState === $STATE[STATE_SET_USERNAME]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Set your username</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
-					<?php if(empty($username = $_AM->getLoggedUsername() ?: '')) { ?>
-						<p>Make your account publicly visible by setting a username.
-						Of course, you can remove or change your username at any time.</p>
-					<?php } else { ?>
-						<p>Be careful, changing or removing your username will allow others to use it, and will make links using it outdated.</p>
-					<?php } ?>
-					
-					<input type="text" name="username" value="<?=$username?>" placeholder="Username" autocomplete="new-username" aria-label="Username" />
-					<?php if(empty($username)) { ?>
-						<button type="submit">Set Username</button>
-					<?php } else { ?>
-						<button type="submit">Update Username</button>
-					<?php } ?>
-					
-					<p>Your username represents your public identity on the platform.</p>
-				</form>
-			</div>
-		
-		<?php } else if(in_array($scriptState, [$STATE[STATE_RECOVER],
-		                                        $STATE[STATE_EDIT_PASSWORD],
-		                                        $STATE[STATE_RECOVER_PASSWORD],
-		                                       ], true)) { ?>
-			<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, [$STATE[STATE_EDIT_PASSWORD], $STATE[STATE_RECOVER_PASSWORD]], true)) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Edit your password</h2>
-				
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: @$_['activateKey'])?><?php } ?>" method="post">
-					<?php if($isLoggedIn) { ?>
-						<p>You are logged in as <b><?=$_AM->getLoggedName() ?: 'unknown user'?></b>.</p>
-						<input type="password" name="password" placeholder="Current password" autocomplete="current-password" aria-label="Current password" />
-					
-					<?php } else if(!$isLocalLogin) { ?>
-						<?php if(!empty($requestInfos)) { ?>
-							<p>Request for <b><?=$_AM->getName($requestInfos['uid'])?></b>.</p>
-						<?php } ?>
-						<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: @$_['activateKey']?>" placeholder="Activation Key" <?php if(!empty($requestInfos)) { ?>disabled<?php } ?> autocomplete="off" />
-					
-					<?php } else { ?>
-						<p>Something went wrong..</p>
-					<?php } ?>
-
-					<input type="password" name="newPassword" placeholder="New password" autocomplete="new-password" aria-label="New password" />
-					<button type="submit">Update Password</button>
-					
-					<p>You'll be disconnected from all your devices.</p>
-				</form>
-			</div>
-		
-		<?php } else if($scriptState === $STATE[STATE_UPDATE_AVATAR]) { // https://www.gravatar.com/avatar/ ?>
-			<div class="form" data-icon="fa-user-circle" data-text="Avatar Updated" style="display: <?php if($scriptState === $STATE[STATE_UPDATE_AVATAR]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Update your avatar</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post" enctype="multipart/form-data">
-					<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
-					
-					<?php $currentMethod = $_AM->getLoggedAvatarMethod(); ?>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="default" src="<?=$_AM->getLoggedAvatar('default')?>" <?php if($currentMethod == 'default') { ?>checked<?php } ?> /> Use the default avatar</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="gravatar" src="<?=$_AM->getLoggedAvatar('gravatar', 200)?>" <?php if($currentMethod == 'gravatar') { ?>checked<?php } ?> /> Use your Gravatar</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="custom" src="<?=$_AM->getLoggedAvatar('custom')?>" <?php if($currentMethod == 'custom') { ?>checked<?php } ?> /> Use a custom avatar</label></div>
-					
-					<p>Here's how your avatar will look like:</p>
-					<img id="preview" class="avatar mt-1" src="<?=$_AM->getLoggedAvatar()?>" alt="Preview of your new avatar" />
-					
-					<div class="custom-info custom" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
-						<p>You can upload a new custom avatar if you feel like changing it! <br />
-						<b>Max Size</b>: 1 MB, 400x400 pixels.</p>
-						<input type="file" name="custom" class="mt-1" />
-					</div>
-					
-					<div class="custom-info not-custom" <?php if($currentMethod == 'custom') { ?>style="display: none"<?php } ?>>
-						<div class="checkbox"><label><input type="checkbox" name="delete-custom" /> <i class="fas fa-exclamation-triangle fa-fw"></i> Delete your custom avatar (if you have uploaded one)</label></div>
-					</div>
-					
-						<hr />
-					<button type="submit">Update Avatar</button>
-				</form>
-			</div>
-		
-		<?php } else if($scriptState === $STATE[STATE_CONFIG_2FA]) { ?>
-			<div class="form" data-icon="fa-key" data-text="2FA Config" style="display: <?php if($scriptState === $STATE[STATE_CONFIG_2FA]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Configure 2FA</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" method="post">
-					<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="none" <?php if(true) { ?>checked<?php } ?> /> Disable 2FA</label></div>
-					<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with your email</label></div>
-					<?php if(!empty($_OliConfig['telegram_bot_token'])) { ?>
-						<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with Telegram!</label></div>
-						<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
-					<?php } ?>
-					
-					<button type="submit">Configure 2FA</button>
-				</form>
-			</div>
-		
-		<?php } else if($scriptState === $STATE[STATE_DELETE_ACCOUNT]) { ?>
-			<div class="form" data-icon="fa-trash" data-text="Delete your Account" style="display: <?php if($scriptState === $STATE[STATE_DELETE_ACCOUNT]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Delete your Account</h2>
-				<p><b>Are you sure about this, <?=$_AM->getLoggedName()?>? There is not no going back after this.</b></p>
-				<p class="mt-1">Personal data associated with your account will be <b>permanently deleted</b>.</p>
-				<p class="mt-1">Once this account is deleted, you may register again using your email, and people may use your username (if you had set one).</p>
-				<hr />
-				
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" method="post">
-					<input type="hidden" name="confirm" value="true" />
-					<p><b>Are you sure</b> you want to continue?</p>
-					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>" class="btn btn-warning mt-1">No, don't delete anything!</a>
-					<button class="btn-danger btn-sm mt-1" type="submit">Yes, delete my account</button>
-				</form>
-			</div>
-		
-		<?php } else { ?>
-			<?php $showLoggedLinksCTA = false; ?>
-			<div class="form" data-icon="fa-sign-out-alt" data-text="Logout & Links" style="display:<?php if($scriptState === $STATE[STATE_LOGGED]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>You are logged in</h2>
-				<p>You can tap on the top-right icon to change your password. You can also click on one of those links to navigate on the website.</p>
-				
-				<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?>
-					<a href="<?=$_SERVER['HTTP_REFERER']?>" class="btn">&laquo; Go back</a>
-					<p class="mt-1">&rsaquo; Go back to <?=$_SERVER['HTTP_REFERER']?></p>
-				<?php } ?>
-				<a href="<?=$_Oli->getUrlParam(0)?>" class="btn">Website home page</a>
-				<?php if($_AM->getUserRightLevel() >= $_AM->translateUserRight('ROOT')) { ?>
-					<a href="<?=$_Oli->getOliAdminUrl()?>" class="btn mt-1">Oli Admin panel</a>
-				<?php } ?> <hr />
-				
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" class="btn">Log out</a>
-				
-				<p>By using this website, you agree that we're using a cookie to keep you logged in. Otherwise, please log out.</p>
-			</div>
-		<?php } ?>
-		
-		<?php if($scriptState !== $STATE[STATE_RECOVER]) { ?>
-			<div class="form" data-icon="fa-cog" data-text="Account Settings" style="display: <?php if($scriptState === $STATE[STATE_ACCOUNT_SETTINGS]) { ?>block<?php } else { ?>none<?php } ?>">
-				<div class="profile">
-					<img class="avatar" src="<?=$_AM->getLoggedAvatar()?>" />
-					<div class="infos">
-						<span>Welcome,</span>
-						<p><b><?=$_AM->getLoggedName()?></b>!</p>
-					</div>
-				</div>
-				
-				<h2>Account Settings</h2>
-				<p>Manage your basic account settings.</p>
-				
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn mt-1">Edit Password</a>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" class="btn mt-1">Update Avatar</a>
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" class="btn disabled mt-1">Configure 2FA</a>
-				
-				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" class="btn btn-danger">Delete your Account</a>
-			</div>
-		<?php } ?>
-		
-		<?php if(!$isLoggedIn) { ?>
-			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a></div>
-		<?php } else if($showLoggedLinksCTA) { ?>
-			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Logout & Links</a></div>
-		<?php } ?>
-	
-	<?php } else if(in_array($scriptState, [$STATE[STATE_UNLOCK], $STATE[STATE_UNLOCK_SUBMIT]], true)) { ?>
-		<div class="form" data-icon="fa-key" data-text="Generate Unlock Key" style="display: <?php if($scriptState === $STATE[STATE_UNLOCK]) { ?>block<?php } else { ?>none<?php } ?>">
-			<h2>Generate an unlock key</h2>
-			<p>In order to unlock your account, an unlock key will be generated and sent to you by email.</p>
-			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
-				<input type="text" name="username" value="<?=@$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" autocomplete="username" aria-label="Username" />
-				<button type="submit">Generate</button>
-				
-				<p>An email will be sent to you with instructions to continue.</p>
-			</form>
+	<div id="module">
+		<div class="toggle" style="display: none">
+			<i class="fas"></i>
+			<div class="tooltip"></div>
 		</div>
 		
-		<div class="form" data-icon="fa-unlock" data-text="Submit Unlock Key" style="display:<?php if($scriptState === $STATE[STATE_UNLOCK_SUBMIT]) { ?>block<?php } else { ?>none<?php } ?>">
-			<h2>Unlock your account</h2>
-			<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
-				<input type="text" name="unlockKey" value="<?=@$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" autocomplete="off" aria-label="Unlock Key" />
-				<button type="submit">Unlock your account</button>
-				
-				<p>This will reset the Anti-BruteForce stats.</p>
-			</form>
-		</div>
-		
-		<div class="cta">
-			<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a>
-		</div>
-	
-	<?php } else if(in_array($scriptState, [$STATE[STATE_LOGIN], $STATE[STATE_REGISTER], $STATE[STATE_ACTIVATE], $STATE[STATE_ROOT_REGISTER]], true)) { ?>
-		<?php if($isLoginAllowed) { ?>
-			<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if($scriptState === $STATE[STATE_LOGIN]) { ?>block<?php } else { ?>none<?php } ?>">
-				<h2>Log into your account</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
-					<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
-						<input type="hidden" name="referer" value="<?=@$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
-					<?php } ?>
-					
+		<?php if(in_array($scriptState, [$STATE[STATE_LOGGED],
+		                                 $STATE[STATE_RECOVER],
+		                                 $STATE[STATE_SET_USERNAME],
+		                                 $STATE[STATE_EDIT_PASSWORD],
+		                                 $STATE[STATE_RECOVER_PASSWORD],
+		                                 $STATE[STATE_UPDATE_AVATAR],
+		                                 $STATE[STATE_CONFIG_2FA],
+		                                 $STATE[STATE_DELETE_ACCOUNT],
+		                                 $STATE[STATE_ACCOUNT_SETTINGS],
+		                                ], true)) { ?>
+			<?php $showLoggedLinksCTA = true; ?>
+			<?php if($scriptState === $STATE[STATE_RECOVER]) { ?>
+				<div class="form" data-icon="fa-sync-alt" data-text="Recover" style="display: <?php if($scriptState === $STATE[STATE_RECOVER]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Recover your account</h2>
 					<?php if(!$isLocalLogin) { ?>
-						<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
-						<input type="text" name="logid" value="<?=@$_['logid']?>" placeholder="Login ID" autocomplete="username" aria-label="Login ID" />
+						<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/recover'?>" method="post">
+							<input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
+							<button type="submit">Recover</button>
+							
+							<p>An email will be sent to you with instructions to continue.</p>
+						</form>
 					<?php } else { ?>
-						<p>Log in using <b>the root password</b> (if set).</p>
-						<input type="text" name="logid" value="root" placeholder="Login ID" autocomplete="username" aria-label="Login ID" disabled />
+						<p>Sorry, but you <span class="text-error">can't</span> recover a local account.</p>
+						<p>If you are the owner of the website, delete the <code>/content/.oliauth</code> file and <span class="text-info">create a new local root account</span>.</p>
 					<?php } ?>
-					<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="current-password" aria-label="Password" />
-					<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run you clever boy, and remember me »</label></div>
-					<button type="submit">Login</button>
+				</div>
+			<?php } ?>
+			
+			<?php if($scriptState === $STATE[STATE_SET_USERNAME]) { ?>
+				<div class="form" data-icon="fa-address-card" data-text="Set Username" style="display: <?php if($scriptState === $STATE[STATE_SET_USERNAME]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Set your username</h2>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" method="post">
+						<?php if(empty($username = $_AM->getLoggedUsername() ?: '')) { ?>
+							<p>Make your account publicly visible by setting a username.
+							Of course, you can remove or change your username at any time.</p>
+						<?php } else { ?>
+							<p>Be careful, changing or removing your username will allow others to use it, and will make links using it outdated.</p>
+						<?php } ?>
+						
+						<input type="text" name="username" value="<?=$username?>" placeholder="Username" autocomplete="new-username" aria-label="Username" />
+						<?php if(empty($username)) { ?>
+							<button type="submit">Set Username</button>
+						<?php } else { ?>
+							<button type="submit">Update Username</button>
+						<?php } ?>
+						
+						<p>Your username represents your public identity on the platform.</p>
+					</form>
+				</div>
+			
+			<?php } else if(in_array($scriptState, [$STATE[STATE_RECOVER],
+			                                        $STATE[STATE_EDIT_PASSWORD],
+			                                        $STATE[STATE_RECOVER_PASSWORD],
+			                                       ], true)) { ?>
+				<div class="form" data-icon="fa-edit" data-text="Password Edit" style="display: <?php if(in_array($scriptState, [$STATE[STATE_EDIT_PASSWORD], $STATE[STATE_RECOVER_PASSWORD]], true)) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Edit your password</h2>
 					
-					<p>A cookie will be created to keep you logged in to your account.</p>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/change-password'?><?php if(!empty($requestInfos)) { ?>?activateKey=<?=urlencode($_Oli->getUrlParam(3) ?: @$_['activateKey'])?><?php } ?>" method="post">
+						<?php if($isLoggedIn) { ?>
+							<p>You are logged in as <b><?=$_AM->getLoggedName() ?: 'unknown user'?></b>.</p>
+							<input type="password" name="password" placeholder="Current password" autocomplete="current-password" aria-label="Current password" />
+						
+						<?php } else if(!$isLocalLogin) { ?>
+							<?php if(!empty($requestInfos)) { ?>
+								<p>Request for <b><?=$_AM->getName($requestInfos['uid'])?></b>.</p>
+							<?php } ?>
+							<input type="text" name="activateKey" value="<?=$_Oli->getUrlParam(3) ?: @$_['activateKey']?>" placeholder="Activation Key" <?php if(!empty($requestInfos)) { ?>disabled<?php } ?> autocomplete="off" />
+						
+						<?php } else { ?>
+							<p>Something went wrong..</p>
+						<?php } ?>
+
+						<input type="password" name="newPassword" placeholder="New password" autocomplete="new-password" aria-label="New password" />
+						<button type="submit">Update Password</button>
+						
+						<p>You'll be disconnected from all your devices.</p>
+					</form>
+				</div>
+			
+			<?php } else if($scriptState === $STATE[STATE_UPDATE_AVATAR]) { // https://www.gravatar.com/avatar/ ?>
+				<div class="form" data-icon="fa-user-circle" data-text="Avatar Updated" style="display: <?php if($scriptState === $STATE[STATE_UPDATE_AVATAR]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Update your avatar</h2>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" method="post" enctype="multipart/form-data">
+						<p>Choose the avatar you want to use between the default avatar, your avatar from <a href="https://gravatar.com/" target="__blank">Gravatar</a>, or a custom one you uploaded or will do.</p>
+						
+						<?php $currentMethod = $_AM->getLoggedAvatarMethod(); ?>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="default" src="<?=$_AM->getLoggedAvatar('default')?>" <?php if($currentMethod == 'default') { ?>checked<?php } ?> /> Use the default avatar</label></div>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="gravatar" src="<?=$_AM->getLoggedAvatar('gravatar', 200)?>" <?php if($currentMethod == 'gravatar') { ?>checked<?php } ?> /> Use your Gravatar</label></div>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="custom" src="<?=$_AM->getLoggedAvatar('custom')?>" <?php if($currentMethod == 'custom') { ?>checked<?php } ?> /> Use a custom avatar</label></div>
+						
+						<p>Here's how your avatar will look like:</p>
+						<img id="preview" class="avatar mt-1" src="<?=$_AM->getLoggedAvatar()?>" alt="Preview of your new avatar" />
+						
+						<div class="custom-info custom" <?php if($currentMethod != 'custom') { ?>style="display: none"<?php } ?>>
+							<p>You can upload a new custom avatar if you feel like changing it! <br />
+							<b>Max Size</b>: 1 MB, 400x400 pixels.</p>
+							<input type="file" name="custom" class="mt-1" />
+						</div>
+						
+						<div class="custom-info not-custom" <?php if($currentMethod == 'custom') { ?>style="display: none"<?php } ?>>
+							<div class="checkbox"><label><input type="checkbox" name="delete-custom" /> <i class="fas fa-exclamation-triangle fa-fw"></i> Delete your custom avatar (if you have uploaded one)</label></div>
+						</div>
+						
+							<hr />
+						<button type="submit">Update Avatar</button>
+					</form>
+				</div>
+			
+			<?php } else if($scriptState === $STATE[STATE_CONFIG_2FA]) { ?>
+				<div class="form" data-icon="fa-key" data-text="2FA Config" style="display: <?php if($scriptState === $STATE[STATE_CONFIG_2FA]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Configure 2FA</h2>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" method="post">
+						<p>Configure 2FA to secure your account! You can choose to receive the 2FA code either via email, or via Telegram for more ease.</p>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="none" <?php if(true) { ?>checked<?php } ?> /> Disable 2FA</label></div>
+						<div class="radio mt-1"><label><input type="radio" name="method" value="email" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with your email</label></div>
+						<?php if(!empty($_OliConfig['telegram_bot_token'])) { ?>
+							<div class="radio mt-1"><label><input type="radio" name="method" value="telegram" <?php if(false) { ?>checked<?php } ?> /> Use 2FA with Telegram!</label></div>
+							<p class="mt-1">If Telegram is down for any reason, you'll be notified and the code will be sent via email.</p>
+						<?php } ?>
+						
+						<button type="submit">Configure 2FA</button>
+					</form>
+				</div>
+			
+			<?php } else if($scriptState === $STATE[STATE_DELETE_ACCOUNT]) { ?>
+				<div class="form" data-icon="fa-trash" data-text="Delete your Account" style="display: <?php if($scriptState === $STATE[STATE_DELETE_ACCOUNT]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Delete your Account</h2>
+					<p><b>Are you sure about this, <?=$_AM->getLoggedName()?>? There is not no going back after this.</b></p>
+					<p class="mt-1">Personal data associated with your account will be <b>permanently deleted</b>.</p>
+					<p class="mt-1">Once this account is deleted, you may register again using your email, and people may use your username (if you had set one).</p>
+					<hr />
+					
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" method="post">
+						<input type="hidden" name="confirm" value="true" />
+						<p><b>Are you sure</b> you want to continue?</p>
+						<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>" class="btn btn-warning mt-1">No, don't delete anything!</a>
+						<button class="btn-danger btn-sm mt-1" type="submit">Yes, delete my account</button>
+					</form>
+				</div>
+			
+			<?php } else { ?>
+				<?php $showLoggedLinksCTA = false; ?>
+				<div class="form" data-icon="fa-sign-out-alt" data-text="Logout & Links" style="display:<?php if($scriptState === $STATE[STATE_LOGGED]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>You are logged in</h2>
+					<p>You can tap on the top-right icon to change your password. You can also click on one of those links to navigate on the website.</p>
+					
+					<?php if(!empty($_SERVER['HTTP_REFERER']) AND !strstr($_SERVER['HTTP_REFERER'], '/' . $_Oli->getUrlParam(1))) { ?>
+						<a href="<?=$_SERVER['HTTP_REFERER']?>" class="btn">&laquo; Go back</a>
+						<p class="mt-1">&rsaquo; Go back to <?=$_SERVER['HTTP_REFERER']?></p>
+					<?php } ?>
+					<a href="<?=$_Oli->getUrlParam(0)?>" class="btn">Website home page</a>
+					<?php if($_AM->getUserRightLevel() >= $_AM->translateUserRight('ROOT')) { ?>
+						<a href="<?=$_Oli->getOliAdminUrl()?>" class="btn mt-1">Oli Admin panel</a>
+					<?php } ?> <hr />
+					
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/logout'?>" class="btn">Log out</a>
+					
+					<p>By using this website, you agree that we're using a cookie to keep you logged in. Otherwise, please log out.</p>
+				</div>
+			<?php } ?>
+			
+			<?php if($scriptState !== $STATE[STATE_RECOVER]) { ?>
+				<div class="form" data-icon="fa-cog" data-text="Account Settings" style="display: <?php if($scriptState === $STATE[STATE_ACCOUNT_SETTINGS]) { ?>block<?php } else { ?>none<?php } ?>">
+					<div class="profile">
+						<img class="avatar" src="<?=$_AM->getLoggedAvatar()?>" />
+						<div class="infos">
+							<span>Welcome,</span>
+							<p><b><?=$_AM->getLoggedName()?></b>!</p>
+						</div>
+					</div>
+					
+					<h2>Account Settings</h2>
+					<p>Manage your basic account settings.</p>
+					
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/set-username'?>" class="btn">Set Username</a>
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/edit-password'?>" class="btn mt-1">Edit Password</a>
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/update-avatar'?>" class="btn mt-1">Update Avatar</a>
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config-2fa'?>" class="btn disabled mt-1">Configure 2FA</a>
+					
+					<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/delete-account'?>" class="btn btn-danger">Delete your Account</a>
+				</div>
+			<?php } ?>
+			
+			<?php if(!$isLoggedIn) { ?>
+				<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a></div>
+			<?php } else if($showLoggedLinksCTA) { ?>
+				<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Logout & Links</a></div>
+			<?php } ?>
+		
+		<?php } else if(in_array($scriptState, [$STATE[STATE_UNLOCK], $STATE[STATE_UNLOCK_SUBMIT]], true)) { ?>
+			<div class="form" data-icon="fa-key" data-text="Generate Unlock Key" style="display: <?php if($scriptState === $STATE[STATE_UNLOCK]) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Generate an unlock key</h2>
+				<p>In order to unlock your account, an unlock key will be generated and sent to you by email.</p>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
+					<input type="text" name="username" value="<?=@$_['username'] ?: $_Oli->getUrlParam(3)?>" placeholder="Username" autocomplete="username" aria-label="Username" />
+					<button type="submit">Generate</button>
+					
+					<p>An email will be sent to you with instructions to continue.</p>
 				</form>
 			</div>
-		<?php } ?>
+			
+			<div class="form" data-icon="fa-unlock" data-text="Submit Unlock Key" style="display:<?php if($scriptState === $STATE[STATE_UNLOCK_SUBMIT]) { ?>block<?php } else { ?>none<?php } ?>">
+				<h2>Unlock your account</h2>
+				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/unlock'?>" method="post">
+					<input type="text" name="unlockKey" value="<?=@$_['unlockKey'] ?: $_Oli->getUrlParam(3)?>" placeholder="Unlock Key" autocomplete="off" aria-label="Unlock Key" />
+					<button type="submit">Unlock your account</button>
+					
+					<p>This will reset the Anti-BruteForce stats.</p>
+				</form>
+			</div>
+			
+			<div class="cta">
+				<a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/">Log into your account</a>
+			</div>
 		
-		<?php if($isRegisterAllowed) { ?>
-			<div class="form" data-icon="fa-user-plus" data-text="Register" style="display: <?php if($scriptState === $STATE[STATE_REGISTER]) { ?>block<?php } else { ?>none<?php } ?>;">
-				<h2>Create a new account</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
-					<input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
-					<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
+		<?php } else if(in_array($scriptState, [$STATE[STATE_LOGIN], $STATE[STATE_REGISTER], $STATE[STATE_ACTIVATE], $STATE[STATE_ROOT_REGISTER]], true)) { ?>
+			<?php if($isLoginAllowed) { ?>
+				<div class="form" data-icon="fa-sign-in-alt" data-text="Login" style="display:<?php if($scriptState === $STATE[STATE_LOGIN]) { ?>block<?php } else { ?>none<?php } ?>">
+					<h2>Log into your account</h2>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/'?>" method="post">
+						<?php if(!empty($_['referer']) OR !empty($_SERVER['HTTP_REFERER'])) { ?>
+							<input type="hidden" name="referer" value="<?=@$_['referer'] ?: $_SERVER['HTTP_REFERER']?>" />
+						<?php } ?>
+						
+						<?php if(!$isLocalLogin) { ?>
+							<p>Log in using <b>your email</b>, your user ID, or your username (if set).</p>
+							<input type="text" name="logid" value="<?=@$_['logid']?>" placeholder="Login ID" autocomplete="username" aria-label="Login ID" />
+						<?php } else { ?>
+							<p>Log in using <b>the root password</b> (if set).</p>
+							<input type="text" name="logid" value="root" placeholder="Login ID" autocomplete="username" aria-label="Login ID" disabled />
+						<?php } ?>
+						<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="current-password" aria-label="Password" />
+						<div class="checkbox"><label><input type="checkbox" name="rememberMe" <?php if(!isset($_['rememberMe']) OR $_['rememberMe']) { ?>checked<?php } ?> /> « Run you clever boy, and remember me »</label></div>
+						<button type="submit">Login</button>
+						
+						<p>A cookie will be created to keep you logged in to your account.</p>
+					</form>
+				</div>
+			<?php } ?>
+			
+			<?php if($isRegisterAllowed) { ?>
+				<div class="form" data-icon="fa-user-plus" data-text="Register" style="display: <?php if($scriptState === $STATE[STATE_REGISTER]) { ?>block<?php } else { ?>none<?php } ?>;">
+					<h2>Create a new account</h2>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/register'?>" method="post">
+						<input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" />
+						<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
 					
 <?php /*<?php function captcha($captcha) {
 	$width = strlen($captcha) * 10 + 200;
@@ -806,57 +811,69 @@ captcha($keygen = $_Oli->keygen(4, true, false, true));
 $captchaImage = ob_get_contents();
 ob_end_clean(); ?>
 <img src="data:image/png;base64,<?=base64_encode($captchaImage)?>" alt="Captcha" />
-					<input type="text" name="captcha" placeholder="Captcha (wip)" disabled />*/ ?>
-					
-					<button type="submit">Register</button>
-				</form>
-			</div>
-		<?php } ?>
+						<input type="text" name="captcha" placeholder="Captcha (wip)" disabled />*/ ?>
+						
+						<button type="submit">Register</button>
+					</form>
+				</div>
+			<?php } ?>
+			
+			<?php if($isActivateAllowed) { ?>
+				<div class="form" data-icon="fa-unlock" data-text="Activate" style="display: <?php if($scriptState === $STATE[STATE_ACTIVATE]) { ?>block<?php } else { ?>none<?php } ?>;">
+					<h2>Activate your account</h2>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/activate'?>" method="post">
+						<input type="text" name="activateKey" value="<?=@$_['activateKey']?>" placeholder="Activate Key" autocomplete="off" aria-label="Activate Key" />
+						<button type="submit">Activate</button>
+					</form>
+				</div>
+			<?php } ?>
+			
+			<?php if($isRootRegisterAllowed) { ?>
+				<div class="form" data-icon="fa-star" data-text="Root Register" style="display: <?php if($scriptState === $STATE[STATE_ROOT_REGISTER]) { ?>block<?php } else { ?>none<?php } ?>;">
+					<h2>Create a root account</h2>
+					<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
+					<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
+					<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
+						<?php /*<input type="text" name="username" value="<?=@$_['username']?>" placeholder="Username" autocomplete="username" aria-label="Username" /> */ ?>
+						<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" /><?php } ?>
+						<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
+						<input type="text" name="olisc" value="<?=@$_['olisc']?>" placeholder="Oli Security Code" autocomplete="off" aria-label="Oli Security Code" />
+						<button type="submit">Register as Root</button>
+					</form>
+				</div>
+			<?php } ?>
+			
+			<?php if(!$isLocalLogin) { ?>
+				<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/recover">Forgot your password?</a></div>
+			<?php } ?>
+			<?php if($userIdAttempts >= $config['maxUserIdAttempts'] OR $userIPAttempts >= $config['maxUserIPAttempts'] OR $uidAttempts >= $config['maxUidAttempts']) { ?>
+				<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/unlock<?php if(!empty($_['username'])) { ?>/<?=$_['username']?><?php } ?>">Unlock your account <?php if(!empty($_['username'])) { ?>(<?=$_['username']?>)<?php } ?></a></div>
+			<?php } ?>
 		
-		<?php if($isActivateAllowed) { ?>
-			<div class="form" data-icon="fa-unlock" data-text="Activate" style="display: <?php if($scriptState === $STATE[STATE_ACTIVATE]) { ?>block<?php } else { ?>none<?php } ?>;">
-				<h2>Activate your account</h2>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/activate'?>" method="post">
-					<input type="text" name="activateKey" value="<?=@$_['activateKey']?>" placeholder="Activate Key" autocomplete="off" aria-label="Activate Key" />
-					<button type="submit">Activate</button>
-				</form>
+		<?php } else { ?>
+			<div class="form" data-icon="fa-exclamation-triangle" data-text="Error">
+				<h2>An error occurred</h2>
+				<p>Either you're not allowed to do anything on this page or an error occurred. Please report it to the admin.</p>
+				<p>For debug purposes, here's the script state value: <b><?=!empty($scriptState) ? $scriptState : var_dump($scriptState)?></b>.</p>
 			</div>
+			<?php /*<div class="form" data-icon="fa-phone" data-text="Contact" >
+				<h2>Contact an admin</h2>
+				<p>Later maybe.</p>
+			</div>*/ ?>
 		<?php } ?>
-		
-		<?php if($isRootRegisterAllowed) { ?>
-			<div class="form" data-icon="fa-star" data-text="Root Register" style="display: <?php if($scriptState === $STATE[STATE_ROOT_REGISTER]) { ?>block<?php } else { ?>none<?php } ?>;">
-				<h2>Create a root account</h2>
-				<p>Be <span class="text-error">careful</span>. Only the owner of the website should use this form. <br />
-				<span class="text-info">Verify your identity</span> by typing the <?php if($_Oli->refreshSecurityCode()) { ?>new<?php } ?> security code generated in the <code>/.olisc</code> file.</p>
-				<form action="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/root'?>" method="post">
-					<?php /*<input type="text" name="username" value="<?=@$_['username']?>" placeholder="Username" autocomplete="username" aria-label="Username" /> */ ?>
-					<?php if(!$isLocalLogin) { ?><input type="email" name="email" value="<?=@$_['email']?>" placeholder="Email address" autocomplete="email" aria-label="Email address" /><?php } ?>
-					<input type="password" name="password" value="<?=@$_['password']?>" placeholder="Password" autocomplete="new-password" aria-label="Password" />
-					<input type="text" name="olisc" value="<?=@$_['olisc']?>" placeholder="Oli Security Code" autocomplete="off" aria-label="Oli Security Code" />
-					<button type="submit">Register as Root</button>
-				</form>
-			</div>
-		<?php } ?>
-		
-		<?php if(!$isLocalLogin) { ?>
-			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/recover">Forgot your password?</a></div>
-		<?php } ?>
-		<?php if($userIdAttempts >= $config['maxUserIdAttempts'] OR $userIPAttempts >= $config['maxUserIPAttempts'] OR $uidAttempts >= $config['maxUidAttempts']) { ?>
-			<div class="cta"><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1)?>/unlock<?php if(!empty($_['username'])) { ?>/<?=$_['username']?><?php } ?>">Unlock your account <?php if(!empty($_['username'])) { ?>(<?=$_['username']?>)<?php } ?></a></div>
-		<?php } ?>
-	
-	<?php } else { ?>
+	</div>
+
+<?php } else { ?>
+
+	<div id="module">
 		<div class="form" data-icon="fa-exclamation-triangle" data-text="Error">
-			<h2>An error occurred</h2>
-			<p>Either you're not allowed to do anything on this page or an error occurred. Please report it to the admin.</p>
-			<p>For debug purposes, here's the script state value: <b><?=!empty($scriptState) ? $scriptState : var_dump($scriptState)?></b>.</p>
+			<h2>Accounts management disabled</h2>
+			<p>Sorry about that, but accounts management is disabled on this website.</p>
 		</div>
-		<?php /*<div class="form" data-icon="fa-phone" data-text="Contact" >
-			<h2>Contact an admin</h2>
-			<p>Later maybe.</p>
-		</div>*/ ?>
-	<?php } ?>
-</div>
+		<div class="cta"><a href="<?=$_Oli->getUrlParam(0)?>">Website home page</a></div>
+	</div>
+
+<?php } ?>
 
 <div id="footer">
 	<p><?=$_Oli?></p>
