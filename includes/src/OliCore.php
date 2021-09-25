@@ -361,7 +361,7 @@ abstract class OliCore
 
 		$this->dbs[$dbname] = $db;
 
-		if (!$this->accountsManager->issetDB())
+		if ($this->accountsManager && !$this->accountsManager->issetDB())
 			$this->accountsManager->setDB($db);
 	}
 
@@ -877,13 +877,13 @@ abstract class OliCore
 						$rules['access'][$file][$access] = [];
 
 					$rules['access'][$file][$access]['from'] =
-						$this->accountsManager->translateUserRight($rights[1]);
+						$this->accountsManager?->translateUserRight($rights[1]);
 					$rules['access'][$file][$access]['to'] =
-						$this->accountsManager->translateUserRight($rights[2]);
+						$this->accountsManager?->translateUserRight($rights[2]);
 				}
 
 				// Simple rule
-				else $rules['access'][$file][$access] = $this->accountsManager->translateUserRight($scope);
+				else $rules['access'][$file][$access] = $this->accountsManager?->translateUserRight($scope);
 			}
 
 			// Index & Custom rules
@@ -942,7 +942,7 @@ abstract class OliCore
 
 		if (@$accessRules[$identifier]['deny'] === '*') return false;
 		if (@$accessRules[$identifier]['allow'] === '*') return true;
-		if ($this->accountsManager->isReady() and ($userRightLevel = $this->accountsManager->getUserRightLevel()))
+		if ($this->accountsManager?->isReady() && ($userRightLevel = $this->accountsManager->getUserRightLevel()))
 		{
 			// Deny checks
 			if (($denyfrom = @$accessRules[$identifier]['deny']['from']) !== null and $denyfrom <= $userRightLevel) return false;
@@ -1698,7 +1698,7 @@ abstract class OliCore
 	 */
 	public function getLoginUrl()
 	{
-		return $this->accountsManager->isExternalLogin()
+		return $this->accountsManager?->isExternalLogin()
 			? Config::$config['external_login_url']
 			: $this->getUrlParam(0) . (Config::$config['login_alias'] ?: 'oli-login') . '/';
 	}
