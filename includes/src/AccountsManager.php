@@ -72,7 +72,7 @@ class AccountsManager
 
 	/** Data Cache */
 	private array $cache = [];
-	
+
 	#endregion
 
 	#region II. Magic Methods
