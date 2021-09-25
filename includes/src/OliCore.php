@@ -94,6 +94,8 @@
 
 namespace Oli;
 
+use Oli\Config;
+
 abstract class OliCore
 {
 	#region I. Variables
@@ -170,9 +172,9 @@ abstract class OliCore
 		// Debug configuration
 		if (@Config::$config['debug'] === true) error_reporting(E_ALL);
 
-		// Accounts Manager
-		// TODO: If accounts management is enabled (add config)
-		$this->accountsManager = new AccountsManager($this);
+		// Initialize the accounts manager if enabled
+		if (@Config::$config['accounts_management'])
+			$this->accountsManager = new AccountsManager($this);
 	}
 
 	/**
