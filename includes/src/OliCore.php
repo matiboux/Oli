@@ -654,7 +654,7 @@ abstract class OliCore
 						break; // Sub-level pages not allowed.
 					}
 
-					// Custom Pages
+					// Pages
 					else if ($countFileName > 1 && is_file(OLIADMINPATH . $slicedFileNameParam . '.php'))
 					{
 						$found = OLIADMINPATH . $slicedFileNameParam . '.php';
@@ -672,7 +672,7 @@ abstract class OliCore
 				}
 
 				// Scripts
-				else if ($fileName[0] == Config::$config['scripts_alias'])
+				else if ($countFileName > 1 && $fileName[0] == Config::$config['scripts_alias'])
 				{
 					$pagesPathOptions = [
 						SCRIPTSPATH, // User Scripts
@@ -680,9 +680,9 @@ abstract class OliCore
 					];
 					foreach ($pagesPathOptions as $pagesPath)
 					{
-						if (is_file($pagesPath . $slicedFileNameParam))
+						if (is_file($pagesPath . $slicedFileNameParam . '.php'))
 						{
-							$found = $pagesPath . $slicedFileNameParam;
+							$found = $pagesPath . $slicedFileNameParam . '.php';
 							$this->fileNameParam = $fileNameParam;
 							$this->setContentType('JSON');
 							break 2; // Break the outer foreach loop
@@ -691,7 +691,7 @@ abstract class OliCore
 				}
 
 				// User Assets
-				else if ($fileName[0] == Config::$config['assets_alias'])
+				else if ($countFileName > 1 && $fileName[0] == Config::$config['assets_alias'])
 				{
 					if (is_file(ASSETSPATH . $slicedFileNameParam))
 					{
@@ -703,7 +703,7 @@ abstract class OliCore
 				}
 
 				// User Media
-				else if ($fileName[0] == Config::$config['media_alias'])
+				else if ($countFileName > 1 && $fileName[0] == Config::$config['media_alias'])
 				{
 					if (is_file(MEDIAPATH . $slicedFileNameParam))
 					{
