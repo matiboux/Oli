@@ -7,33 +7,13 @@
 |*|
 |*|  Oli is an open source PHP framework designed to help you create your website.
 |*|
-|*|  Github repository: https://github.com/matiboux/Oli/
-|*|
-|*|  Creator & Developer: Matiboux (Mathieu Guérin)
-|*|   → Github: @matiboux – https://github.com/matiboux/
-|*|
-|*|  For more info, please read the README.md file.
-|*|  You can find it in the project repository (see the Github link above).
-|*|
 |*|  --- --- ---
 |*|
-|*|  Copyright (C) 2015-2021 Matiboux (Mathieu Guérin)
+|*|  Copyright (c) 2015-2021 Matiboux
+|*|  https://matiboux.me
 |*|
-|*|    This program is free software: you can redistribute it and/or modify
-|*|    it under the terms of the GNU Affero General Public License as published
-|*|    by the Free Software Foundation, either version 3 of the License, or
-|*|    (at your option) any later version.
-|*|
-|*|    This program is distributed in the hope that it will be useful,
-|*|    but WITHOUT ANY WARRANTY; without even the implied warranty of
-|*|    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-|*|    See the GNU Affero General Public License for more details.
-|*|
-|*|    You should have received a copy of the GNU Affero General Public License
-|*|    along with this program.
-|*|    If not, see <http://www.gnu.org/licenses/>.
-|*|
-|*|  You'll find a copy of the GNU AGPL v3 license in the LICENSE file.
+|*|  More information about Oli in the README.md file.
+|*|  You can find it in the project repository: https://github.com/matiboux/Oli
 \*/
 
 /*\
