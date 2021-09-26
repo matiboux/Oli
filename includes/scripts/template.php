@@ -22,6 +22,6 @@ else
 	}
 }
 
-$script->reorder(['error', 'error_message', 'template']);
+$script->reorder(['template'], true);
 echo $script->toJSON();
 exit;

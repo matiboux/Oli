@@ -37,6 +37,10 @@ class Script
 	/** @var array Output fields */
 	private array $output = [];
 
+	const ERROR_KEY = 'error';
+	const ERROR_CODE_KEY = 'error_code';
+	const ERROR_MESSAGE_KEY = 'error_message';
+
 	#endregion
 
 	#region II. Constructor
@@ -45,7 +49,7 @@ class Script
 	{
 		if ($defaultFields)
 		{
-			$this->output['error'] = false;
+			$this->output[self::ERROR_KEY] = false;
 		}
 	}
 
@@ -90,8 +94,8 @@ class Script
 	 */
 	public function setErrorCode(string|int $code): void
 	{
-		$this->output['error'] = true;
-		$this->output['error_code'] = $code;
+		$this->output[self::ERROR_KEY] = true;
+		$this->output[self::ERROR_CODE_KEY] = $code;
 	}
 
 	/**
@@ -102,8 +106,8 @@ class Script
 	 */
 	public function setErrorMessage(string $message): void
 	{
-		$this->output['error'] = true;
-		$this->output['error_message'] = $message;
+		$this->output[self::ERROR_KEY] = true;
+		$this->output[self::ERROR_MESSAGE_KEY] = $message;
 	}
 
 	/**
@@ -115,9 +119,9 @@ class Script
 	 */
 	public function setError(string|int $code, string $message): void
 	{
-		$this->output['error'] = true;
-		$this->output['error_code'] = $code;
-		$this->output['error_message'] = $message;
+		$this->output[self::ERROR_KEY] = true;
+		$this->output[self::ERROR_CODE_KEY] = $code;
+		$this->output[self::ERROR_MESSAGE_KEY] = $message;
 	}
 
 	#endregion
@@ -131,12 +135,15 @@ class Script
 	/**
 	 * Reorder output with the specified keys first
 	 *
-	 * @param array $keys
+	 * @param array $keys Keys for orde
+	 * @param bool $afterErrorField If true, place the error fields first
 	 * @return void
 	 */
-	public function reorder(array $keys): void
+	public function reorder(array $keys, bool $afterErrorField = false): void
 	{
 		$output = [];
+		if ($afterErrorField)
+			array_unshift($keys, self::ERROR_KEY, self::ERROR_CODE_KEY, self::ERROR_MESSAGE_KEY);
 		foreach ($keys as $key)
 			if (array_key_exists($key, $this->output))
 			{
