@@ -1,20 +1,27 @@
 <?php
-$params = array_merge($_GET, $_POST);
-$result = [];
+use Oli\Script;
 
-if (empty($params['template']))
-	$result['error'] = 'Missing "template" parameter.';
-else if (!$template = $_Oli->getTemplate($params['template']))
-	$result['error'] = 'Unknown or Invalid Template.';
-else if ($params['htmlpreview'])
-{
-	$_Oli->setContentType('HTML');
-	die($template);
-}
+$script = new Script();
+$script->set('template', null);
+
+if (empty($_['template']))
+	$script->setErrorMessage('Missing "template" parameter.');
 else
 {
-	$result['error'] = false;
-	$result['template'] = $template;
+	$template = $_Oli->getTemplate($_['template']);
+	$script->set('template', $template);
+
+	if (empty($template))
+		$script->setErrorMessage('Unknown or Invalid Template.');
+
+	else if (@$_['htmlpreview'])
+	{
+		$_Oli->setContentType('HTML');
+		echo $template;
+		exit;
+	}
 }
 
-die(!empty($result) ? json_encode($result, JSON_FORCE_OBJECT) : ['error' => 'An unknown error occurred.']);
+$script->reorder(['error', 'error_message', 'template']);
+echo $script->toJSON();
+exit;
