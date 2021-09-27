@@ -140,8 +140,8 @@ class Script
 	/**
 	 * Reorder output with the specified keys first
 	 *
-	 * @param array $keys Keys for orde
-	 * @param bool $afterErrorField If true, place the error fields first
+	 * @param array $keys Keys for ordering
+	 * @param bool $afterErrorField If true, place the error fields first for ordering
 	 * @return self
 	 */
 	public function reorder(array $keys, bool $afterErrorField = false): self
@@ -186,21 +186,31 @@ class Script
 	/**
 	 * Return the script output in a serialized format
 	 *
+	 * @param array|null $orderKeys Keys for ordering
+	 * @param bool $afterErrorField If true, place the error fields first for ordering
 	 * @see serialize
 	 * @return string
 	 */
-	public function serialize(): string
+	public function serialize(?array $orderKeys = null, bool $afterErrorField = false): string
 	{
+		if ($orderKeys !== null)
+			$this->reorder($orderKeys, $afterErrorField);
+
 		return serialize($this->output);
 	}
 
 	/**
 	 * Return the script output in a JSON format
 	 *
+	 * @param array|null $orderKeys Keys for ordering
+	 * @param bool $afterErrorField If true, place the error fields first for ordering
 	 * @return string
 	 */
-	public function toJSON(): string
+	public function toJSON(?array $orderKeys = null, bool $afterErrorField = false): string
 	{
+		if ($orderKeys !== null)
+			$this->reorder($orderKeys, $afterErrorField);
+
 		return json_encode($this->output);
 	}
 
@@ -211,22 +221,26 @@ class Script
 	/**
 	 * Print the script output in a serialized format
 	 *
+	 * @param array|null $orderKeys Keys for ordering
+	 * @param bool $afterErrorField If true, place the error fields first for ordering
 	 * @return self
 	 */
-	public function printSerialize(): self
+	public function printSerialize(?array $orderKeys = null, bool $afterErrorField = false): self
 	{
-		echo $this->serialize();
+		echo $this->serialize($orderKeys, $afterErrorField);
 		return $this;
 	}
 
 	/**
 	 * Print the script output in a JSON format
 	 *
+	 * @param array|null $orderKeys Keys for ordering
+	 * @param bool $afterErrorField If true, place the error fields first for ordering
 	 * @return self
 	 */
-	public function printJSON(): self
+	public function printJSON(?array $orderKeys = null, bool $afterErrorField = false): self
 	{
-		echo $this->toJSON();
+		echo $this->toJSON($orderKeys, $afterErrorField);
 		return $this;
 	}
 
