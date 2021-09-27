@@ -22,6 +22,6 @@ else
 	}
 }
 
-$script->reorder(['template'], true);
-echo $script->toJSON();
+$script->reorder(['template'], true)
+       ->printJSON();
 exit;

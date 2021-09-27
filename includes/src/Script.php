@@ -22,7 +22,8 @@
 |*|  │ └ 2. Error fields
 |*|  └ IV. Output
 |*|    ├ 1. Prepare output
-|*|    └ 2. Return output
+|*|    ├ 2. Return output
+|*|    └ 3. Print output
 \*/
 
 namespace Oli;
@@ -75,11 +76,12 @@ class Script
 	 *
 	 * @param string $key The field's key
 	 * @param mixed $value The field's value
-	 * @return void
+	 * @return self
 	 */
-	public function set(string $key, mixed $value): void
+	public function set(string $key, mixed $value): self
 	{
 		$this->output[$key] = $value;
+		return $this;
 	}
 
 	#endregion
@@ -90,24 +92,26 @@ class Script
 	 * Set the error code's value
 	 *
 	 * @param string|int $code The error code's value
-	 * @return void
+	 * @return self
 	 */
-	public function setErrorCode(string|int $code): void
+	public function setErrorCode(string|int $code): self
 	{
 		$this->output[self::ERROR_KEY] = true;
 		$this->output[self::ERROR_CODE_KEY] = $code;
+		return $this;
 	}
 
 	/**
 	 * Set the error message's value
 	 *
 	 * @param string $message The error message's value
-	 * @return void
+	 * @return self
 	 */
-	public function setErrorMessage(string $message): void
+	public function setErrorMessage(string $message): self
 	{
 		$this->output[self::ERROR_KEY] = true;
 		$this->output[self::ERROR_MESSAGE_KEY] = $message;
+		return $this;
 	}
 
 	/**
@@ -115,13 +119,14 @@ class Script
 	 *
 	 * @param string|int $code The error code's value
 	 * @param string $message The error message's value
-	 * @return void
+	 * @return self
 	 */
-	public function setError(string|int $code, string $message): void
+	public function setError(string|int $code, string $message): self
 	{
 		$this->output[self::ERROR_KEY] = true;
 		$this->output[self::ERROR_CODE_KEY] = $code;
 		$this->output[self::ERROR_MESSAGE_KEY] = $message;
+		return $this;
 	}
 
 	#endregion
@@ -137,9 +142,9 @@ class Script
 	 *
 	 * @param array $keys Keys for orde
 	 * @param bool $afterErrorField If true, place the error fields first
-	 * @return void
+	 * @return self
 	 */
-	public function reorder(array $keys, bool $afterErrorField = false): void
+	public function reorder(array $keys, bool $afterErrorField = false): self
 	{
 		$output = [];
 		if ($afterErrorField)
@@ -153,6 +158,7 @@ class Script
 		foreach ($this->output as $key => $value)
 			$output[$key] = $value;
 		$this->output = $output;
+		return $this;
 	}
 
 	#endregion
@@ -196,6 +202,42 @@ class Script
 	public function toJSON(): string
 	{
 		return json_encode($this->output);
+	}
+
+	#endregion
+
+	#region IV. 3. Print output
+
+	/**
+	 * Print the script output in a serialized format
+	 *
+	 * @return self
+	 */
+	public function printSerialize(): self
+	{
+		echo $this->serialize();
+		return $this;
+	}
+
+	/**
+	 * Print the script output in a JSON format
+	 *
+	 * @return self
+	 */
+	public function printJSON(): self
+	{
+		echo $this->toJSON();
+		return $this;
+	}
+
+	/**
+	 * Exit the program
+	 *
+	 * @return void
+	 */
+	public function exit(): void
+	{
+		exit;
 	}
 
 	#endregion
