@@ -191,7 +191,6 @@ class AccountsManager
 	 * Get DB Wrapper object
 	 *
 	 * @return DBWrapper|null Returns used DB Wrapper object
-	 * @deprecated AccountsManager::$db can be accessed directly
 	 * @version GAMMA-1.0.0
 	 * @updated GAMMA-1.0.0
 	 */
@@ -379,7 +378,7 @@ class AccountsManager
 			if ($this->isLoggedIn()) $where = ['uid' => $this->getLoggedUser()];
 			else return null;
 		}
-		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
+		else if (!is_array($where) && $where != 'all') $where = ['uid' => $where];
 
 		return $this->db->getInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode,
 		                              $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
@@ -409,7 +408,7 @@ class AccountsManager
 			if ($this->isLoggedIn()) $where = ['uid' => $this->getLoggedUser()];
 			else return false;
 		}
-		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
+		else if (!is_array($where) && $where != 'all') $where = ['uid' => $where];
 		return $this->db->getSummedInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode,
 		                                    $whatVar, $where, $caseSensitive);
 	}
@@ -437,7 +436,7 @@ class AccountsManager
 			if ($this->isLoggedIn()) $where = ['uid' => $this->getLoggedUser()];
 			else return false;
 		}
-		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
+		else if (!is_array($where) && $where != 'all') $where = ['uid' => $where];
 
 		return $this->db->isEmptyInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode,
 		                                  $whatVar, $where, $settings, $caseSensitive);
@@ -464,7 +463,7 @@ class AccountsManager
 			if ($this->isLoggedIn()) $where = ['uid' => $this->getLoggedUser()];
 			else return false;
 		}
-		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
+		else if (!is_array($where) && $where != 'all') $where = ['uid' => $where];
 
 		return $this->db->isExistInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode,
 		                                  $where, $caseSensitive);
@@ -511,7 +510,7 @@ class AccountsManager
 			if ($this->isLoggedIn()) $where = ['uid' => $this->getLoggedUser()];
 			else return false;
 		}
-		else if (!is_array($where) and $where != 'all') $where = ['uid' => $where];
+		else if (!is_array($where) && $where != 'all') $where = ['uid' => $where];
 
 		return $this->db->updateInfosSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode,
 		                                 $what, $where, $errorInfo);
@@ -543,7 +542,7 @@ class AccountsManager
 	 */
 	public function deleteAccountLines($tableCode, $where, &$errorInfo = null)
 	{
-		if (!is_array($where) and $where !== 'all' and strpos($where, ' ') === false) $where = ['uid' => $where];
+		if (!is_array($where) && $where !== 'all' && strpos($where, ' ') === false) $where = ['uid' => $where];
 		return $this->db->deleteLinesSQL($this->translateAccountsTableCode($tableCode) ?: $tableCode,
 		                                 $where, $errorInfo);
 	}
@@ -700,7 +699,7 @@ class AccountsManager
 	 */
 	public function getUserRight($where = null, $caseSensitive = true)
 	{
-		if ($this->isLocalLogin() and !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
+		if ($this->isLocalLogin() && !empty($this->getLocalRootInfos())) return $this->isLoggedIn() ? 'ROOT' : 'VISITOR';
 
 		if (empty($where))
 		{
@@ -901,7 +900,7 @@ class AccountsManager
 
 		if (empty($authKey)) return false;
 
-		$sessionInfos = ($this->isLocalLogin() and !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', ['auth_key' => hash('sha512', $authKey)]);
+		$sessionInfos = ($this->isLocalLogin() && !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', ['auth_key' => hash('sha512', $authKey)]);
 		return strtotime($sessionInfos['expire_date']) >= time();
 	}
 
@@ -923,7 +922,7 @@ class AccountsManager
 		if (empty($authKey)) $authKey = $this->getAuthKey();
 
 		if (!$this->isLoggedIn($authKey)) return null;
-		if ($this->isLocalLogin() and !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
+		if ($this->isLocalLogin() && !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
 		return $this->getAccountInfos('SESSIONS', 'uid', ['auth_key' => hash('sha512', $authKey)]);
 	}
 
@@ -1002,7 +1001,7 @@ class AccountsManager
 		{
 			if ($this->isLocalLogin()) return 'root';
 			if ($uid = $this->getLoggedUser($authKey)
-			    and $name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
+			    && $name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
 		}
 		return null;
 	}
@@ -1160,17 +1159,17 @@ class AccountsManager
 	public function registerAccount($email, $password, $oliSC = null, $mailInfos = [])
 	{
 		// if(!empty($password)) {
-		if (is_array($oliSC) or is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
+		if (is_array($oliSC) || is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 
-		if (!empty($oliSC) and $oliSC == $this->Oli->getSecurityCode()) $isRootRegister = true;
-		else if ($this->isReady() and Config::$config['allow_register']) $isRootRegister = false;
+		if (!empty($oliSC) && $oliSC == $this->Oli->getSecurityCode()) $isRootRegister = true;
+		else if ($this->isReady() && Config::$config['allow_register']) $isRootRegister = false;
 		else $isRootRegister = null;
 
 		if ($isRootRegister !== null)
 		{
 			if ($this->isLocalLogin())
 			{
-				if ($isRootRegister and !empty($hashedPassword = $this->hashPassword($password)))
+				if ($isRootRegister && !empty($hashedPassword = $this->hashPassword($password)))
 				{
 					$handle = fopen(OLIPATH . '.oliauth', 'w');
 					$result = fwrite($handle, json_encode(['password' => $hashedPassword], JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
@@ -1179,13 +1178,13 @@ class AccountsManager
 				}
 				else return false;
 			}
-			else if (!empty($email) and $this->isReady() and (Config::$config['allow_register'] or $isRootRegister))
+			else if (!empty($email) && $this->isReady() && (Config::$config['allow_register'] || $isRootRegister))
 			{
 				/** Account Clean-up Process */
-				if ($uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['email' => $email], false) and $this->getUserRightLevel(['email' => $email]) == $this->translateUserRight('NEW-USER') and (!$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', ['uid' => $uid, 'action' => 'activate'], false) or strtotime($expireDate) < time())) $this->deleteFullAccount($uid);
+				if ($uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['email' => $email], false) && $this->getUserRightLevel(['email' => $email]) == $this->translateUserRight('NEW-USER') && (!$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', ['uid' => $uid, 'action' => 'activate'], false) || strtotime($expireDate) < time())) $this->deleteFullAccount($uid);
 				unset($uid);
 
-				if (!$this->isExistAccountInfos('ACCOUNTS', ['email' => $email], false) and (!$isRootRegister or !$this->isExistAccountInfos('ACCOUNTS', ['user_right' => 'ROOT'], false)))
+				if (!$this->isExistAccountInfos('ACCOUNTS', ['email' => $email], false) && (!$isRootRegister || !$this->isExistAccountInfos('ACCOUNTS', ['user_right' => 'ROOT'], false)))
 				{
 					/** Hash the password (may be empty) */
 					$hashedPassword = $this->hashPassword($password);
@@ -1210,8 +1209,8 @@ class AccountsManager
 						/** Generate Activate Key (if activation needed) */
 						if (Config::$config['account_activation']) $activateKey = $this->createRequest($uid, 'activate');
 
-						$subject = (!empty($mailInfos) and is_assoc($mailInfos)) ? $mailInfos['subject'] : 'Your account has been created!';
-						$message = (!empty($mailInfos) and is_assoc($mailInfos)) ? $mailInfos['message'] : null;
+						$subject = (!empty($mailInfos) && is_assoc($mailInfos)) ? $mailInfos['subject'] : 'Your account has been created!';
+						$message = (!empty($mailInfos) && is_assoc($mailInfos)) ? $mailInfos['message'] : null;
 						if (!isset($message))
 						{
 							$message .= '<p><b>Welcome</b>, your account has been successfully created! ♫</p>';
@@ -1233,13 +1232,13 @@ class AccountsManager
 							$message .= 'Login – <a href="' . $this->Oli->getUrlParam(0) . 'login/">' . $this->Oli->getUrlParam(0) . 'login/</a> <br />';
 							if (!empty(Config::$config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->Oli->getUrlParam(0) . 'login/recover">' . $this->Oli->getUrlParam(0) . 'login/recover</a></p>';
 						}
-						$headers = (!empty($mailInfos) and is_assoc($mailInfos)) ? $mailInfos['headers'] : $this->Oli->getDefaultMailHeaders();
+						$headers = (!empty($mailInfos) && is_assoc($mailInfos)) ? $mailInfos['headers'] : $this->Oli->getDefaultMailHeaders();
 						if (is_array($headers)) $headers = implode("\r\n", $headers);
 
 						$mailResult = mail($email, $subject, $this->Oli->getTemplate('mail', ['__URL__' => $this->Oli->getUrlParam(0), '__NAME__' => $this->Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message]), $headers);
 					}
 
-					if (!$activateKey or $mailResult) return $uid;
+					if (!$activateKey || $mailResult) return $uid;
 					else
 					{
 						$this->deleteFullAccount($uid);
@@ -1267,7 +1266,7 @@ class AccountsManager
 	 */
 	public function isLocalLogin()
 	{
-		return !$this->isReady() or !Config::$config['allow_login'];
+		return !$this->isReady() || !Config::$config['allow_login'];
 	}
 
 	/**
@@ -1311,7 +1310,7 @@ class AccountsManager
 		if (empty($password)) $password = [$logid, $logid = null][0];
 
 		if (empty($password)) return false;
-		else if ($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) and password_verify($password, $rootUserInfos['password']);
+		else if ($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) && password_verify($password, $rootUserInfos['password']);
 		else if (!empty($logid))
 		{
 			$uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
@@ -1340,10 +1339,10 @@ class AccountsManager
 				if ($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', ['password' => $this->hashPassword($password)], $uid);
 			}
 
-			if ($this->isLocalLogin() or $this->getUserRightLevel($uid) >= $this->translateUserRight('USER'))
+			if ($this->isLocalLogin() || $this->getUserRightLevel($uid) >= $this->translateUserRight('USER'))
 			{
 				$now = time();
-				if (empty($expireDelay) or $expireDelay <= 0) $expireDelay = Config::$config['default_session_duration'] ?: 2 * 3600;
+				if (empty($expireDelay) || $expireDelay <= 0) $expireDelay = Config::$config['default_session_duration'] ?: 2 * 3600;
 
 				$authKey = $this->Oli->keygen(Config::$config['auth_key_length'] ?: 32);
 				if (!empty($authKey))
@@ -1351,8 +1350,8 @@ class AccountsManager
 					$result = null;
 					if (!$this->isLocalLogin())
 					{ //!?
-						// if(!$this->isLocalLogin() OR $this->isExternalLogin()) { //!?
-						// if(!$this->isLocalLogin() AND !$this->isExternalLogin()) { //!?
+						// if(!$this->isLocalLogin() || $this->isExternalLogin()) { //!?
+						// if(!$this->isLocalLogin() && !$this->isExternalLogin()) { //!?
 						/** Cleanup Process */
 						// $this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
 						$this->deleteAccountLines('SESSIONS', '"update_date" < NOW() - INTERVAL \'2 DAY\'');
@@ -1526,7 +1525,7 @@ class AccountsManager
 		if (empty($selector)) $selector = $this->getUserAvatarMethod($uid);
 
 		if ($selector == 'gravatar') return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->getAccountInfos('ACCOUNTS', 'email', $uid)))) . (!empty($size) ? '?s=' . $size : null); // File Extension not necessary here.
-		else if ($selector == 'custom' and !empty($filetype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid)) and file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)) return $this->Oli->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
+		else if ($selector == 'custom' && !empty($filetype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid)) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)) return $this->Oli->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
 		else return $this->Oli->getMediaUrl() . 'default-avatar.png';
 	}
 
@@ -1559,7 +1558,7 @@ class AccountsManager
 			else $this->deleteUserAvatar($uid); // Delete the current custom user avatar (if it exists)
 
 			// Save the new custom user avatar
-			return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype) and $this->updateAccountInfos('ACCOUNTS', ['avatar_filetype' => $filetype], $uid);
+			return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype) && $this->updateAccountInfos('ACCOUNTS', ['avatar_filetype' => $filetype], $uid);
 		}
 		else return false;
 	}
@@ -1581,7 +1580,7 @@ class AccountsManager
 		if (file_exists(MEDIAPATH . 'avatars/'))
 		{
 			$currentFiletype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid);
-			if (!empty($currentFiletype) and file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) return unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
+			if (!empty($currentFiletype) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) return unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
 			else return null;
 		}
 		else return null;
