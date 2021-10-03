@@ -1139,6 +1139,45 @@ class AccountsManager
 
 	#region V. 6. B. Register
 
+	/**
+	 * Is register enabled?
+	 *
+	 * @return boolean Returns true if login is enabled
+	 * @todo This should also be conditonal on the allow_login config.
+	 */
+	public function isRegisterEnabled(): bool
+	{
+		// return Config::$config['allow_login'] &&
+		return Config::$config['allow_register'] && !$this->isLocalLogin();
+	}
+
+	/**
+	 * Is root registed?
+	 *
+	 * @return boolean Returns true if root is registed
+	 */
+	public function isRootRegistered(): bool
+	{
+		if ($this->isLocalLogin())
+		{
+			$localRootInfos = $this->getLocalRootInfos();
+			return !empty($localRootInfos['password']);
+		}
+
+		return $this->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false);
+	}
+
+	/**
+	 * Is root register enabled?
+	 *
+	 * @return boolean Returns true if root register is enabled
+	 * @todo Verify the function and eventually use it in the login page.
+	 */
+	public function isRootRegisterEnabled(): bool
+	{
+		return Config::$config['allow_login'] && !$this->isRootRegistered();
+	}
+
 	/** Is register verification enabled */
 	// -- Deprecated --
 	public function isRegisterVerificationEnabled()
@@ -1269,14 +1308,28 @@ class AccountsManager
 	#region V. 6. C. Login
 
 	/**
+	 * Is login enabled?
+	 *
+	 * @return boolean Returns true if login is enabled
+	 * @todo This should only be conditonal on the config.
+	 */
+	public function isLoginEnabled(): bool
+	{
+		// return Config::$config['allow_login'];
+		return Config::$config['allow_login'] || $this->isLocalLogin();
+	}
+
+	/**
 	 * Check if the login process is considered to be local
 	 *
 	 * @return boolean Returns true if local.
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
+	 * @todo This should only be conditonal on the isReady state.
 	 */
 	public function isLocalLogin()
 	{
+		// return !$this->isReady();
 		return !$this->isReady() || !Config::$config['allow_login'];
 	}
 
@@ -1312,23 +1365,32 @@ class AccountsManager
 	/**
 	 * Verify login informations
 	 *
-	 * @return boolean Returns true if valid login infos.
+	 * @return bool Returns true if valid login infos.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function verifyLogin($logid, $password = null)
+	public function verifyLogin($logid, $password = null): bool
 	{
-		if (empty($password)) $password = [$logid, $logid = null][0];
+		if (empty($password))
+			$password = [$logid, $logid = null][0];
 
-		if (empty($password)) return false;
-		else if ($this->isLocalLogin()) return !empty($rootUserInfos = $this->getLocalRootInfos()) && password_verify($password, $rootUserInfos['password']);
-		else if (!empty($logid))
+		if (empty($password))
+			return false;
+
+		if ($this->isLocalLogin())
+		{
+			$rootUserInfos = $this->getLocalRootInfos();
+			return !empty($rootUserInfos) && password_verify($password, $rootUserInfos['password']);
+		}
+
+		if (!empty($logid))
 		{
 			$uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
-			if ($userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false)) return password_verify($password, $userPassword);
-			else return false;
+			$userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false);
+			return $userPassword ? password_verify($password, $userPassword) : false;
 		}
-		else return false;
+
+		return false;
 	}
 
 	/**
