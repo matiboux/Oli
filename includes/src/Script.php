@@ -223,9 +223,9 @@ class Script
 	 *
 	 * @param array|null $orderKeys Keys for ordering
 	 * @param bool $afterErrorField If true, place the error fields first for ordering
-	 * @return self
+	 * @return static
 	 */
-	public function printSerialize(?array $orderKeys = null, bool $afterErrorField = false): self
+	public function printSerialize(?array $orderKeys = null, bool $afterErrorField = false): static
 	{
 		echo $this->serialize($orderKeys, $afterErrorField);
 		return $this;
@@ -236,9 +236,9 @@ class Script
 	 *
 	 * @param array|null $orderKeys Keys for ordering
 	 * @param bool $afterErrorField If true, place the error fields first for ordering
-	 * @return self
+	 * @return static
 	 */
-	public function printJSON(?array $orderKeys = null, bool $afterErrorField = false): self
+	public function printJSON(?array $orderKeys = null, bool $afterErrorField = false): static
 	{
 		echo $this->toJSON($orderKeys, $afterErrorField);
 		return $this;
