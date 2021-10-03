@@ -999,10 +999,14 @@ class AccountsManager
 	{
 		if ($this->isLoggedIn($authKey))
 		{
-			if ($this->isLocalLogin()) return 'root';
-			if ($uid = $this->getLoggedUser($authKey)
-			    && $name = $this->getAccountInfos('ACCOUNTS', 'username', $uid)) return $name;
+			if ($this->isLocalLogin())
+				return 'root';
+
+			$uid = $this->getLoggedUser($authKey);
+			if ($uid && $name = $this->getAccountInfos('ACCOUNTS', 'username', $uid))
+				return $name;
 		}
+
 		return null;
 	}
 
@@ -1181,7 +1185,14 @@ class AccountsManager
 			else if (!empty($email) && $this->isReady() && (Config::$config['allow_register'] || $isRootRegister))
 			{
 				/** Account Clean-up Process */
-				if ($uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['email' => $email], false) && $this->getUserRightLevel(['email' => $email]) == $this->translateUserRight('NEW-USER') && (!$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', ['uid' => $uid, 'action' => 'activate'], false) || strtotime($expireDate) < time())) $this->deleteFullAccount($uid);
+				$uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['email' => $email], false);
+				if ($uid && $this->getUserRightLevel(['email' => $email]) == $this->translateUserRight('NEW-USER'))
+				{
+					$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', ['uid' => $uid, 'action' => 'activate'], false);
+					if (!$expireDate || strtotime($expireDate) < time())
+						$this->deleteFullAccount($uid);
+				}
+
 				unset($uid);
 
 				if (!$this->isExistAccountInfos('ACCOUNTS', ['email' => $email], false) && (!$isRootRegister || !$this->isExistAccountInfos('ACCOUNTS', ['user_right' => 'ROOT'], false)))
