@@ -213,11 +213,13 @@ class AccountsManager
 	 */
 	public function isReady(): bool
 	{
-		if (!$this->isSetupDB()) return false;
+		if (!$this->isSetupDB())
+			return false;
 
 		$status = [];
 		foreach (Config::$config['accounts_tables'] as $eachTable)
-			if (!$status[] = $this->db->isExistTableSQL($eachTable)) break;
+			if (!$status[] = $this->db->isExistTableSQL($eachTable))
+				break;
 
 		return !in_array(false, $status, true);
 	}
@@ -1300,7 +1302,6 @@ class AccountsManager
 			else return false;
 		}
 		else return false;
-		// } else return false;
 	}
 
 	#endregion
