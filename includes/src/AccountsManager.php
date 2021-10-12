@@ -1548,29 +1548,33 @@ class AccountsManager
 	#region V. 6. E. Accounts Restrictions
 
 	/** Get prohibited usernames */
-	public function getProhibitedUsernames()
+	public function getProhibitedUsernames(): mixed
 	{
-		return Config::$config['prohibited_usernames'];
+		return @Config::$config['prohibited_usernames'];
+	}
+
+	/** Get prohibited username words */
+	public function getProhibitedUsernameWords(): mixed
+	{
+		return @Config::$config['prohibited_username_words'];
 	}
 
 	/** Is prohibited username? */
-	public function isProhibitedUsername($username)
+	public function isProhibitedUsername($username): bool
 	{
-		if (empty($usernae)) return null;
-		else if (in_array($username, Config::$config['prohibited_usernames'])) return true;
-		else
-		{
-			$found = false;
-			foreach (Config::$config['prohibited_usernames'] as $eachProhibitedUsername)
-			{
-				if (stristr($username, $eachProhibitedUsername))
-				{
-					$found = true;
-					break;
-				}
-			}
-			return $found ? true : false;
-		}
+		if (empty($username)) return false;
+
+		if (is_array(@Config::$config['prohibited_usernames']))
+			foreach (Config::$config['prohibited_usernames'] as $prohibitedUsername)
+				if (stripos($username, $prohibitedUsername) === 0)
+					return true;
+
+		if (is_array(@Config::$config['prohibited_username_words']))
+			foreach (Config::$config['prohibited_username_words'] as $prohibitedWord)
+				if (stripos($username, $prohibitedWord) !== false)
+					return true;
+
+		return false;
 	}
 
 	#endregion
