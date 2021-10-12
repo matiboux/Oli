@@ -1682,22 +1682,27 @@ class AccountsManager
 
 	#region V. 8. Hash Password
 
-	/** Hash Password */
-	public function hashPassword($password)
+	private function getHashOptions(): array
 	{
-		if (!empty($password))
-		{
-			if (!empty(Config::$config['password_hash']['salt'])) $hashOptions['salt'] = Config::$config['password_hash']['salt'];
-			if (!empty(Config::$config['password_hash']['cost'])) $hashOptions['cost'] = Config::$config['password_hash']['cost'];
-			return password_hash($password, Config::$config['password_hash']['algorithm'], $hashOptions ?: []);
-		}
-		else return null;
+		$hashOptions = [];
+		if (!empty(Config::$config['password_hash']['salt']))
+			$hashOptions['salt'] = Config::$config['password_hash']['salt'];
+		if (!empty(Config::$config['password_hash']['cost']))
+			$hashOptions['cost'] = Config::$config['password_hash']['cost'];
+
+		return $hashOptions;
 	}
 
-	public function needsRehashPassword($password)
+	/** Hash Password */
+	public function hashPassword($password): string|false|null
 	{
-		if (!empty(Config::$config['password_hash']['salt'])) $hashOptions['salt'] = Config::$config['password_hash']['salt'];
-		if (!empty(Config::$config['password_hash']['cost'])) $hashOptions['cost'] = Config::$config['password_hash']['cost'];
+		$hashOptions = $this->getHashOptions();
+		return password_hash($password, Config::$config['password_hash']['algorithm'], $hashOptions);
+	}
+
+	public function needsRehashPassword($password): bool
+	{
+		$hashOptions = $this->getHashOptions();
 		return password_needs_rehash($password, Config::$config['password_hash']['algorithm'], $hashOptions);
 	}
 
