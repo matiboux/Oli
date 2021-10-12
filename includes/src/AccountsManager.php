@@ -15,7 +15,9 @@
 |*|  │ :: TABLE OF CONTENT :: │
 |*|  ╞════════════════════════╛
 |*|  │
-|*|  ├ I. Variables
+|*|  ├ I. Properties
+|*|  │ ├ 1. Constants
+|*|  │ └ 2. Variables
 |*|  ├ II. Magic Methods
 |*|  │
 |*|  ├ III. Configuration
@@ -56,7 +58,21 @@ namespace Oli;
 
 class AccountsManager
 {
-	#region I. Variables
+	#region I. Properties
+
+	#region I. 1. Constants
+
+	const TABLE_ACCOUNTS = 'ACCOUNTS'; // Accounts main informations (email, password...)
+	const TABLE_INFOS = 'INFOS'; // Accounts additional informations
+	const TABLE_SESSIONS = 'SESSIONS'; // Accounts login sessions
+	const TABLE_REQUESTS = 'REQUESTS'; // Accounts requests
+	const TABLE_LOGS = 'LOG_LIMITS';
+	const TABLE_RIGHTS = 'RIGHTS'; // Accounts rights list (permissions groups)
+	const TABLE_PERMISSIONS = 'PERMISSIONS'; // Accounts personnal permissions
+
+	#endregion
+
+	#region I. 2. Variables
 
 	/** List of public variables accessible publicly in read-only */
 	private static array $readOnlyVars = [
@@ -72,6 +88,8 @@ class AccountsManager
 
 	/** Data Cache */
 	private array $cache = [];
+
+	#endregion
 
 	#endregion
 
@@ -232,14 +250,6 @@ class AccountsManager
 
 	/**
 	 * Translate Accounts Table Codes
-	 *
-	 * - ACCOUNTS - Accounts list and main informations (password, email...)
-	 * - INFOS - Accounts other informations
-	 * - SESSIONS - Accounts login sessions
-	 * - REQUESTS - Accounts requests
-	 * - LOG_LIMITS - ///
-	 * - RIGHTS - Accounts rights list (permissions groups)
-	 * - PERMISSIONS - Accounts personnal permissions
 	 *
 	 * @param string $tableCode Table code to translate
 	 *
@@ -529,10 +539,10 @@ class AccountsManager
 	 */
 	public function updateAccountUsername($newUsername, $oldUsername)
 	{
-		return ($this->updateAccountInfos('ACCOUNTS', ['username' => $newUsername], $oldUsername)
-		        && $this->updateAccountInfos('INFOS', ['username' => $newUsername], $oldUsername)
-		        && $this->updateAccountInfos('SESSIONS', ['username' => $newUsername], $oldUsername)
-		        && $this->updateAccountInfos('REQUESTS', ['username' => $newUsername], $oldUsername));
+		return ($this->updateAccountInfos(self::TABLE_ACCOUNTS, ['username' => $newUsername], $oldUsername)
+		        && $this->updateAccountInfos(self::TABLE_INFOS, ['username' => $newUsername], $oldUsername)
+		        && $this->updateAccountInfos(self::TABLE_SESSIONS, ['username' => $newUsername], $oldUsername)
+		        && $this->updateAccountInfos(self::TABLE_REQUESTS, ['username' => $newUsername], $oldUsername));
 	}
 
 	/**
@@ -563,11 +573,11 @@ class AccountsManager
 	 */
 	public function deleteFullAccount($where)
 	{
-		return ($this->deleteAccountLines('ACCOUNTS', $where)
-		        && $this->deleteAccountLines('INFOS', $where)
-		        && $this->deleteAccountLines('SESSIONS', $where)
-		        && $this->deleteAccountLines('REQUESTS', $where)
-		        && $this->deleteAccountLines('PERMISSIONS', $where));
+		return ($this->deleteAccountLines(self::TABLE_ACCOUNTS, $where)
+		        && $this->deleteAccountLines(self::TABLE_INFOS, $where)
+		        && $this->deleteAccountLines(self::TABLE_SESSIONS, $where)
+		        && $this->deleteAccountLines(self::TABLE_REQUESTS, $where)
+		        && $this->deleteAccountLines(self::TABLE_PERMISSIONS, $where));
 	}
 
 	#endregion
@@ -590,7 +600,7 @@ class AccountsManager
 	public function verifyUserRight($userRight, $caseSensitive = true)
 	{
 		return !empty($userRight)
-		       && $this->isExistAccountInfos('RIGHTS', ['user_right' => $userRight], $caseSensitive);
+		       && $this->isExistAccountInfos(self::TABLE_RIGHTS, ['user_right' => $userRight], $caseSensitive);
 	}
 
 	/**
@@ -628,12 +638,12 @@ class AccountsManager
 		else if ($this->isReady() && !empty($userRight))
 		{
 			// Check for Level -> User Right translation
-			$returnValue = $this->getAccountInfos('RIGHTS', 'user_right', ['level' => $userRight], $caseSensitive);
+			$returnValue = $this->getAccountInfos(self::TABLE_RIGHTS, 'user_right', ['level' => $userRight], $caseSensitive);
 			if ($returnValue !== null)
 				return $returnValue;
 
 			// Check for User Right -> Level translation
-			$returnValue = $this->getAccountInfos('RIGHTS', 'level', ['user_right' => $userRight], $caseSensitive);
+			$returnValue = $this->getAccountInfos(self::TABLE_RIGHTS, 'level', ['user_right' => $userRight], $caseSensitive);
 			if ($returnValue !== null)
 				return (int)$returnValue;
 		}
@@ -652,7 +662,7 @@ class AccountsManager
 	 */
 	public function getRightPermissions($userRight, $caseSensitive = true)
 	{
-		return $this->getAccountInfos('RIGHTS', 'permissions', ['user_right' => $userRight], $caseSensitive) ?: null;
+		return $this->getAccountInfos(self::TABLE_RIGHTS, 'permissions', ['user_right' => $userRight], $caseSensitive) ?: null;
 	}
 
 	/**
@@ -670,7 +680,7 @@ class AccountsManager
 	public function getRightsLines($where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null)
 	{
 		if (!is_array($where)) $where = ['uid' => $where];
-		return $this->getAccountLines('RIGHTS', $where, $settings, $caseSensitive, $forceArray, $rawResult);
+		return $this->getAccountLines(self::TABLE_RIGHTS, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 	}
 
 	/**
@@ -689,7 +699,7 @@ class AccountsManager
 	public function getRightsInfos($whatVar = null, $where = [], $settings = null, $caseSensitive = null, $forceArray = null, $rawResult = null)
 	{
 		if (empty($whatVar)) $whatVar = 'user_right';
-		return $this->getAccountInfos('RIGHTS', $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
+		return $this->getAccountInfos(self::TABLE_RIGHTS, $whatVar, $where, $settings, $caseSensitive, $forceArray, $rawResult);
 	}
 
 	/**
@@ -709,7 +719,7 @@ class AccountsManager
 			else return $this->translateUserRight(0); // Default user right (visitor)
 		}
 
-		return $this->getAccountInfos('ACCOUNTS', 'user_right', $where, $caseSensitive);
+		return $this->getAccountInfos(self::TABLE_ACCOUNTS, 'user_right', $where, $caseSensitive);
 	}
 
 	/**
@@ -757,8 +767,10 @@ class AccountsManager
 	{
 		$userRight = strtoupper($userRight);
 
-		if ($this->verifyUserRight($userRight)) return $this->updateAccountInfos('ACCOUNTS', ['user_right' => $userRight], $where);
-		else return false;
+		if ($this->verifyUserRight($userRight))
+			return $this->updateAccountInfos(self::TABLE_ACCOUNTS, ['user_right' => $userRight], $where);
+
+		return false;
 	}
 
 	#endregion
@@ -902,7 +914,9 @@ class AccountsManager
 
 		if (empty($authKey)) return false;
 
-		$sessionInfos = ($this->isLocalLogin() && !$this->isExternalLogin()) ? $this->getLocalRootInfos() : $this->getAccountLines('SESSIONS', ['auth_key' => hash('sha512', $authKey)]);
+		$sessionInfos = ($this->isLocalLogin() && !$this->isExternalLogin())
+		                ? $this->getLocalRootInfos()
+		                : $this->getAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
 		return strtotime($sessionInfos['expire_date']) >= time();
 	}
 
@@ -925,7 +939,7 @@ class AccountsManager
 
 		if (!$this->isLoggedIn($authKey)) return null;
 		if ($this->isLocalLogin() && !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
-		return $this->getAccountInfos('SESSIONS', 'uid', ['auth_key' => hash('sha512', $authKey)]);
+		return $this->getAccountInfos(self::TABLE_SESSIONS, 'uid', ['auth_key' => hash('sha512', $authKey)]);
 	}
 
 	/**
@@ -937,14 +951,14 @@ class AccountsManager
 	 */
 	public function getName($uid, &$type = null)
 	{
-		if ($this->isExistAccountInfos('ACCOUNTS', ['uid' => $uid]))
+		if ($this->isExistAccountInfos(self::TABLE_ACCOUNTS, ['uid' => $uid]))
 		{
-			if ($name = $this->getAccountInfos('ACCOUNTS', 'username', $uid))
+			if ($name = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'username', $uid))
 			{
 				$type = 'username';
 				return $name;
 			}
-			if ($name = $this->getAccountInfos('ACCOUNTS', 'email', $uid))
+			if ($name = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'email', $uid))
 			{
 				$type = 'email';
 				return substr($name, 0, strpos($name, '@'));
@@ -987,7 +1001,7 @@ class AccountsManager
 	 */
 	public function getUsername($uid)
 	{
-		return $this->getAccountInfos('ACCOUNTS', 'username', ['uid' => $uid]) ?: false;
+		return $this->getAccountInfos(self::TABLE_ACCOUNTS, 'username', ['uid' => $uid]) ?: false;
 	}
 
 	/**
@@ -1005,7 +1019,7 @@ class AccountsManager
 				return 'root';
 
 			$uid = $this->getLoggedUser($authKey);
-			if ($uid && $name = $this->getAccountInfos('ACCOUNTS', 'username', $uid))
+			if ($uid && $name = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'username', $uid))
 				return $name;
 		}
 
@@ -1132,8 +1146,10 @@ class AccountsManager
 			$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
 			$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + Config::$config['request_expire_delay']);
 
-			if ($this->insertAccountLine('REQUESTS', $requestsMatches)) return $activateKey;
-			else return false;
+			if ($this->insertAccountLine(self::TABLE_REQUESTS, $requestsMatches))
+				return $activateKey;
+
+			return false;
 		}
 	}
 
@@ -1166,7 +1182,7 @@ class AccountsManager
 			return !empty($localRootInfos['password']);
 		}
 
-		return $this->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false);
+		return $this->isExistAccountInfos(self::TABLE_ACCOUNTS, array('user_right' => 'ROOT'), false);
 	}
 
 	/**
@@ -1226,17 +1242,18 @@ class AccountsManager
 			else if (!empty($email) && $this->isReady() && (Config::$config['allow_register'] || $isRootRegister))
 			{
 				/** Account Clean-up Process */
-				$uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['email' => $email], false);
+				$uid = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'uid', ['email' => $email], false);
 				if ($uid && $this->getUserRightLevel(['email' => $email]) == $this->translateUserRight('NEW-USER'))
 				{
-					$expireDate = $this->getAccountInfos('REQUESTS', 'expire_date', ['uid' => $uid, 'action' => 'activate'], false);
+					$expireDate = $this->getAccountInfos(self::TABLE_REQUESTS, 'expire_date', ['uid' => $uid, 'action' => 'activate'], false);
 					if (!$expireDate || strtotime($expireDate) < time())
 						$this->deleteFullAccount($uid);
 				}
 
 				unset($uid);
 
-				if (!$this->isExistAccountInfos('ACCOUNTS', ['email' => $email], false) && (!$isRootRegister || !$this->isExistAccountInfos('ACCOUNTS', ['user_right' => 'ROOT'], false)))
+				if (!$this->isExistAccountInfos(self::TABLE_ACCOUNTS, ['email' => $email], false)
+				    && (!$isRootRegister || !$this->isExistAccountInfos(self::TABLE_ACCOUNTS, ['user_right' => 'ROOT'], false)))
 				{
 					/** Hash the password (may be empty) */
 					$hashedPassword = $this->hashPassword($password);
@@ -1245,15 +1262,15 @@ class AccountsManager
 					do
 					{
 						$uid = $this->Oli->uuidAlt();
-					} while ($this->isExistAccountInfos('ACCOUNTS', $uid, false));
+					} while ($this->isExistAccountInfos(self::TABLE_ACCOUNTS, $uid, false));
 
 					/** Set other account parameters */
 					$userRight = $isRootRegister ? 'ROOT' : (!Config::$config['account_activation'] ? 'USER' : 'NEW-USER');
 
 					/** Register Account */
-					$this->insertAccountLine('ACCOUNTS', ['uid' => $uid, 'password' => $hashedPassword, 'email' => $email, 'register_date' => date('Y-m-d H:i:s'), 'user_right' => $userRight]);
-					$this->insertAccountLine('INFOS', ['uid' => $uid]);
-					$this->insertAccountLine('PERMISSIONS', ['uid' => $uid]);
+					$this->insertAccountLine(self::TABLE_ACCOUNTS, ['uid' => $uid, 'password' => $hashedPassword, 'email' => $email, 'register_date' => date('Y-m-d H:i:s'), 'user_right' => $userRight]);
+					$this->insertAccountLine(self::TABLE_INFOS, ['uid' => $uid]);
+					$this->insertAccountLine(self::TABLE_PERMISSIONS, ['uid' => $uid]);
 
 					/** Allow to force-disabled account mail activation */
 					if ($mailInfos !== false)
@@ -1386,8 +1403,8 @@ class AccountsManager
 
 		if (!empty($logid))
 		{
-			$uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
-			$userPassword = $this->getAccountInfos('ACCOUNTS', 'password', $uid, false);
+			$uid = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
+			$userPassword = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'password', $uid, false);
 			return $userPassword ? password_verify($password, $userPassword) : false;
 		}
 
@@ -1409,8 +1426,8 @@ class AccountsManager
 			if ($this->isLocalLogin()) $uid = $logid;
 			else
 			{
-				$uid = $this->getAccountInfos('ACCOUNTS', 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
-				if ($this->needsRehashPassword($this->getAccountInfos('ACCOUNTS', 'password', $uid))) $this->updateAccountInfos('ACCOUNTS', ['password' => $this->hashPassword($password)], $uid);
+				$uid = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
+				if ($this->needsRehashPassword($this->getAccountInfos(self::TABLE_ACCOUNTS, 'password', $uid))) $this->updateAccountInfos(self::TABLE_ACCOUNTS, ['password' => $this->hashPassword($password)], $uid);
 			}
 
 			if ($this->isLocalLogin() || $this->getUserRightLevel($uid) >= $this->translateUserRight('USER'))
@@ -1427,13 +1444,13 @@ class AccountsManager
 						// if(!$this->isLocalLogin() || $this->isExternalLogin()) { //!?
 						// if(!$this->isLocalLogin() && !$this->isExternalLogin()) { //!?
 						/** Cleanup Process */
-						// $this->deleteAccountLines('SESSIONS', '`update_date` < NOW() - INTERVAL 2 DAY');
-						$this->deleteAccountLines('SESSIONS', '"update_date" < NOW() - INTERVAL \'2 DAY\'');
+						// $this->deleteAccountLines(self::TABLE_SESSIONS, '`update_date` < NOW() - INTERVAL 2 DAY');
+						$this->deleteAccountLines(self::TABLE_SESSIONS, '"update_date" < NOW() - INTERVAL \'2 DAY\'');
 
-						if ($this->isExistAccountInfos('SESSIONS', ['auth_key' => hash('sha512', $authKey)])) $this->deleteAccountLines('SESSIONS', ['auth_key' => hash('sha512', $authKey)]);
+						if ($this->isExistAccountInfos(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)])) $this->deleteAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
 
 						$now = time();
-						$result = $this->insertAccountLine('SESSIONS', [
+						$result = $this->insertAccountLine(self::TABLE_SESSIONS, [
 							'uid' => $uid,
 							'auth_key' => hash('sha512', $authKey),
 							'creation_date' => date('Y-m-d H:i:s', $now),
@@ -1492,7 +1509,7 @@ class AccountsManager
 				$result = fwrite($handle, json_encode(array_merge($rootUserInfos, ['login_date' => null, 'expire_date' => null]), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 				fclose($handle);
 			}
-			else $result = $this->deleteAccountLines('SESSIONS', ['auth_key' => hash('sha512', $authKey ?: $this->getAuthKey())]);
+			else $result = $this->deleteAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey ?: $this->getAuthKey())]);
 
 			if ($deleteCookie) $this->deleteAuthCookie();
 			return $result ? true : false;
@@ -1519,7 +1536,7 @@ class AccountsManager
 		else
 		{
 			if (empty($uid)) $uid = $this->getLoggedUser();
-			$result = !empty($uid) ? $this->deleteAccountLines('SESSIONS', ['uid' => $uid]) : false;
+			$result = !empty($uid) ? $this->deleteAccountLines(self::TABLE_SESSIONS, ['uid' => $uid]) : false;
 		}
 
 		if ($deleteCookie) $this->deleteAuthCookie();
@@ -1571,7 +1588,7 @@ class AccountsManager
 	 */
 	public function getUserAvatarMethod($uid = null)
 	{
-		return $this->getAccountInfos('ACCOUNTS', 'avatar_method', $uid) ?: 'default';
+		return $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_method', $uid) ?: 'default';
 	}
 
 	/**
@@ -1598,8 +1615,8 @@ class AccountsManager
 		if (empty($uid)) $uid = $this->getLoggedUser();
 		if (empty($selector)) $selector = $this->getUserAvatarMethod($uid);
 
-		if ($selector == 'gravatar') return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->getAccountInfos('ACCOUNTS', 'email', $uid)))) . (!empty($size) ? '?s=' . $size : null); // File Extension not necessary here.
-		else if ($selector == 'custom' && !empty($filetype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid)) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)) return $this->Oli->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
+		if ($selector == 'gravatar') return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->getAccountInfos(self::TABLE_ACCOUNTS, 'email', $uid)))) . (!empty($size) ? '?s=' . $size : null); // File Extension not necessary here.
+		else if ($selector == 'custom' && !empty($filetype = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_filetype', $uid)) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)) return $this->Oli->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
 		else return $this->Oli->getMediaUrl() . 'default-avatar.png';
 	}
 
@@ -1632,7 +1649,8 @@ class AccountsManager
 			else $this->deleteUserAvatar($uid); // Delete the current custom user avatar (if it exists)
 
 			// Save the new custom user avatar
-			return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype) && $this->updateAccountInfos('ACCOUNTS', ['avatar_filetype' => $filetype], $uid);
+			return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)
+			       && $this->updateAccountInfos(self::TABLE_ACCOUNTS, ['avatar_filetype' => $filetype], $uid);
 		}
 		else return false;
 	}
@@ -1653,7 +1671,7 @@ class AccountsManager
 	{
 		if (file_exists(MEDIAPATH . 'avatars/'))
 		{
-			$currentFiletype = $this->getAccountInfos('ACCOUNTS', 'avatar_filetype', $uid);
+			$currentFiletype = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_filetype', $uid);
 			if (!empty($currentFiletype) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) return unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
 			else return null;
 		}
