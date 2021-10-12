@@ -1586,7 +1586,7 @@ class AccountsManager
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function getUserAvatarMethod($uid = null)
+	public function getUserAvatarMethod($uid = null): string
 	{
 		return $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_method', $uid) ?: 'default';
 	}
@@ -1598,7 +1598,7 @@ class AccountsManager
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function getLoggedAvatarMethod()
+	public function getLoggedAvatarMethod(): string
 	{
 		return $this->getUserAvatarMethod();
 	}
@@ -1606,28 +1606,35 @@ class AccountsManager
 	/**
 	 * Get User Avatar
 	 *
-	 * @return string Returns url.
+	 * @return string Returns user avatar url
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function getUserAvatar($uid = null, $selector = null, $size = null)
+	public function getUserAvatar($uid = null, $selector = null, $size = null): string
 	{
 		if (empty($uid)) $uid = $this->getLoggedUser();
 		if (empty($selector)) $selector = $this->getUserAvatarMethod($uid);
 
-		if ($selector == 'gravatar') return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->getAccountInfos(self::TABLE_ACCOUNTS, 'email', $uid)))) . (!empty($size) ? '?s=' . $size : null); // File Extension not necessary here.
-		else if ($selector == 'custom' && !empty($filetype = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_filetype', $uid)) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)) return $this->Oli->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
-		else return $this->Oli->getMediaUrl() . 'default-avatar.png';
+		if ($selector == 'gravatar')
+		{
+			$email = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'email', $uid);
+			return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) . (!empty($size) ? '?s=' . $size : null); // File Extension not necessary here
+		}
+
+		if ($selector == 'custom' && !empty($filetype = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_filetype', $uid)) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $filetype))
+			return $this->Oli->getMediaUrl() . 'avatars/' . $uid . '.' . $filetype;
+
+		return $this->Oli->getMediaUrl() . 'default-avatar.png';
 	}
 
 	/**
 	 * Get Logged User Avatar
 	 *
-	 * @return string Returns url.
+	 * @return string Returns logged user avatar url
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function getLoggedAvatar($selector = null, $size = null)
+	public function getLoggedAvatar($selector = null, $size = null): string
 	{
 		return $this->getUserAvatar(null, $selector, $size);
 	}
@@ -1635,24 +1642,29 @@ class AccountsManager
 	/**
 	 * Save User Avatar
 	 *
-	 * @return string Returns url.
+	 * @return boolean
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function saveUserAvatar($filename, $filetype, $uid = null)
+	public function saveUserAvatar($filename, $filetype, $uid = null): bool
 	{
 		if (empty($uid)) $uid = $this->getLoggedUser();
+
 		if (is_uploaded_file($filename))
 		{
-			// Check if the avatars/ folder exists
-			if (!file_exists(MEDIAPATH . 'avatars/')) mkdir(MEDIAPATH . 'avatars/');
-			else $this->deleteUserAvatar($uid); // Delete the current custom user avatar (if it exists)
+			// Check if the 'avatars/' folder exists
+			if (!file_exists(MEDIAPATH . 'avatars/'))
+				mkdir(MEDIAPATH . 'avatars/');
+			else
+				// Delete the current custom user avatar (if it exists)
+				$this->deleteUserAvatar($uid);
 
 			// Save the new custom user avatar
 			return move_uploaded_file($filename, MEDIAPATH . 'avatars/' . $uid . '.' . $filetype)
 			       && $this->updateAccountInfos(self::TABLE_ACCOUNTS, ['avatar_filetype' => $filetype], $uid);
 		}
-		else return false;
+
+		return false;
 	}
 
 	/**
@@ -1667,15 +1679,16 @@ class AccountsManager
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
 	 */
-	public function deleteUserAvatar($uid = null)
+	public function deleteUserAvatar($uid = null): bool
 	{
 		if (file_exists(MEDIAPATH . 'avatars/'))
 		{
 			$currentFiletype = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'avatar_filetype', $uid);
-			if (!empty($currentFiletype) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype)) return unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
-			else return null;
+			if (!empty($currentFiletype) && file_exists(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype))
+				return unlink(MEDIAPATH . 'avatars/' . $uid . '.' . $currentFiletype);
 		}
-		else return null;
+
+		return false;
 	}
 
 	#endregion
