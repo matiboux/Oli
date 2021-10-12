@@ -1699,28 +1699,17 @@ class AccountsManager
 
 	#region V. 8. Hash Password
 
-	private function getHashOptions(): array
-	{
-		$hashOptions = [];
-		if (!empty(Config::$config['password_hash']['salt']))
-			$hashOptions['salt'] = Config::$config['password_hash']['salt'];
-		if (!empty(Config::$config['password_hash']['cost']))
-			$hashOptions['cost'] = Config::$config['password_hash']['cost'];
-
-		return $hashOptions;
-	}
-
 	/** Hash Password */
 	public function hashPassword($password): string|false|null
 	{
-		$hashOptions = $this->getHashOptions();
-		return password_hash($password, Config::$config['password_hash']['algorithm'], $hashOptions);
+		return password_hash($password, Config::$config['password_hash']['algorithm'],
+		                     @Config::$config['password_hash'] ?? []);
 	}
 
 	public function needsRehashPassword($password): bool
 	{
-		$hashOptions = $this->getHashOptions();
-		return password_needs_rehash($password, Config::$config['password_hash']['algorithm'], $hashOptions);
+		return password_needs_rehash($password, Config::$config['password_hash']['algorithm'],
+		                             @Config::$config['password_hash'] ?? []);
 	}
 
 	#endregion
