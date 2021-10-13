@@ -56,6 +56,7 @@ if (!defined('TEMPLATESPATH'))
 require OLISRCPATH . 'PHP-Addons.php';
 require OLISRCPATH . 'ErrorManager.php';
 
+require OLISRCPATH . 'accounts/AccountPermissionsTrait.php';
 require OLISRCPATH . 'accounts/AccountsManager.php';
 
 require OLISRCPATH . 'db/DBMS.php';
