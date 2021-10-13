@@ -1055,7 +1055,7 @@ class AccountsManager
 			$requestsMatches['uid'] = $uid;
 			$requestsMatches['action'] = $action;
 			$requestsMatches['request_date'] = date('Y-m-d H:i:s', $requestTime = time());
-			$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + Config::$config['request_expire_delay']);
+			$requestsMatches['expire_date'] = date('Y-m-d H:i:s', $requestTime + @Config::$config['request_expire_delay']);
 
 			if ($this->insertAccountLine(self::TABLE_REQUESTS, $requestsMatches))
 				return $activateKey;
@@ -1130,7 +1130,7 @@ class AccountsManager
 		if (is_array($oliSC) || is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 
 		if (!empty($oliSC) && $oliSC == $this->Oli->getSecurityCode()) $isRootRegister = true;
-		else if ($this->isReady() && Config::$config['allow_register']) $isRootRegister = false;
+		else if ($this->isReady() && @Config::$config['allow_register']) $isRootRegister = false;
 		else $isRootRegister = null;
 
 		if ($isRootRegister !== null)
@@ -1146,7 +1146,7 @@ class AccountsManager
 				}
 				else return false;
 			}
-			else if (!empty($email) && $this->isReady() && (Config::$config['allow_register'] || $isRootRegister))
+			else if (!empty($email) && $this->isReady() && (@Config::$config['allow_register'] || $isRootRegister))
 			{
 				/** Account Clean-up Process */
 				$uid = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'uid', ['email' => $email], false);
@@ -1241,7 +1241,7 @@ class AccountsManager
 	 */
 	public function isLoginEnabled(): bool
 	{
-		// return Config::$config['allow_login'] || $this->isLocalLogin();
+		// return @Config::$config['allow_login'] || $this->isLocalLogin();
 		return @Config::$config['allow_login'];
 	}
 
@@ -1254,7 +1254,7 @@ class AccountsManager
 	 */
 	public function isLocalLogin()
 	{
-		// return !$this->isReady() || !Config::$config['allow_login'];
+		// return !$this->isReady() || !@Config::$config['allow_login'];
 		return !$this->isReady();
 	}
 
@@ -1347,9 +1347,9 @@ class AccountsManager
 			{
 				$now = time();
 				if (empty($expireDelay) || $expireDelay <= 0)
-					$expireDelay = Config::$config['default_session_duration'] ?: 2 * 3600;
+					$expireDelay = @Config::$config['default_session_duration'] ?: 2 * 3600;
 
-				$authKey = $this->Oli->keygen(Config::$config['auth_key_length'] ?: 32);
+				$authKey = $this->Oli->keygen(@Config::$config['auth_key_length'] ?: 32);
 				if (!empty($authKey))
 				{
 					$result = null;
@@ -1394,7 +1394,7 @@ class AccountsManager
 					}
 
 					if ($setCookie)
-						$this->setAuthCookie($authKey, Config::$config['auth_key_cookie']['expire_delay'] ?: 3600 * 24 * 7);
+						$this->setAuthCookie($authKey, @Config::$config['auth_key_cookie']['expire_delay'] ?: 3600 * 24 * 7);
 
 					$this->cache['authKey'] = $authKey;
 
@@ -1631,13 +1631,15 @@ class AccountsManager
 	/** Hash Password */
 	public function hashPassword($password): string|false|null
 	{
-		return password_hash($password, Config::$config['password_hash']['algorithm'],
+		return password_hash($password,
+		                     @Config::$config['password_hash']['algorithm'],
 		                     @Config::$config['password_hash'] ?? []);
 	}
 
 	public function needsRehashPassword($password): bool
 	{
-		return password_needs_rehash($password, Config::$config['password_hash']['algorithm'],
+		return password_needs_rehash($password,
+		                             @Config::$config['password_hash']['algorithm'],
 		                             @Config::$config['password_hash'] ?? []);
 	}
 
