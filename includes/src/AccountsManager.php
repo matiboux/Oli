@@ -1165,8 +1165,8 @@ class AccountsManager
 	 */
 	public function isRegisterEnabled(): bool
 	{
-		// return Config::$config['allow_login'] &&
-		return Config::$config['allow_register'] && !$this->isLocalLogin();
+		// return @Config::$config['allow_login'] &&
+		return @Config::$config['allow_register'] && !$this->isLocalLogin();
 	}
 
 	/**
@@ -1193,19 +1193,18 @@ class AccountsManager
 	 */
 	public function isRootRegisterEnabled(): bool
 	{
-		return Config::$config['allow_login'] && !$this->isRootRegistered();
+		return @Config::$config['allow_login'] && !$this->isRootRegistered();
 	}
 
 	/** Is register verification enabled */
-	// -- Deprecated --
-	public function isRegisterVerificationEnabled()
+	public function isRegisterVerificationEnabled(): bool
 	{
-		return Config::$config['account_activation'];
+		return @Config::$config['account_activation'];
 	}
 
-	public function getRegisterVerificationStatus()
+	public function getRegisterVerificationStatus(): bool
 	{
-		return Config::$config['account_activation'];
+		return @Config::$config['account_activation'];
 	}
 
 	/**
@@ -1219,7 +1218,6 @@ class AccountsManager
 	 */
 	public function registerAccount($email, $password, $oliSC = null, $mailInfos = [])
 	{
-		// if(!empty($password)) {
 		if (is_array($oliSC) || is_bool($oliSC)) $mailInfos = [$oliSC, $oliSC = null][0];
 
 		if (!empty($oliSC) && $oliSC == $this->Oli->getSecurityCode()) $isRootRegister = true;
@@ -1265,7 +1263,7 @@ class AccountsManager
 					} while ($this->isExistAccountInfos(self::TABLE_ACCOUNTS, $uid, false));
 
 					/** Set other account parameters */
-					$userRight = $isRootRegister ? 'ROOT' : (!Config::$config['account_activation'] ? 'USER' : 'NEW-USER');
+					$userRight = $isRootRegister ? 'ROOT' : (!@Config::$config['account_activation'] ? 'USER' : 'NEW-USER');
 
 					/** Register Account */
 					$this->insertAccountLine(self::TABLE_ACCOUNTS, ['uid' => $uid, 'password' => $hashedPassword, 'email' => $email, 'register_date' => date('Y-m-d H:i:s'), 'user_right' => $userRight]);
@@ -1276,7 +1274,8 @@ class AccountsManager
 					if ($mailInfos !== false)
 					{
 						/** Generate Activate Key (if activation needed) */
-						if (Config::$config['account_activation']) $activateKey = $this->createRequest($uid, 'activate');
+						if (@Config::$config['account_activation'])
+							$activateKey = $this->createRequest($uid, 'activate');
 
 						$subject = (!empty($mailInfos) && is_assoc($mailInfos)) ? $mailInfos['subject'] : 'Your account has been created!';
 						$message = (!empty($mailInfos) && is_assoc($mailInfos)) ? $mailInfos['message'] : null;
@@ -1288,8 +1287,11 @@ class AccountsManager
 								$message .= '<p>One last step! Before you can log into your account, you need to <a href="' . $this->Oli->getUrlParam(0) . 'login/activate/' . $activateKey . '">activate your account</a> by clicking on this previous link, or by copying this url into your browser: ' . $this->Oli->getUrlParam(0) . 'login/activate/' . $activateKey . '.</p>';
 								$message .= '<p>Once your account is activated, this activation link will be deleted. If you choose not to use it, it will automaticaly expire in ' . ($days = floor(Config::$config['request_expire_delay'] / 3600 / 24)) . ($days > 1 ? ' days' : ' day') . ', then you won\'t be able to use it anymore and anyone will be able to register using the same email you used.</p>';
 							}
-							else $message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->Oli->getUrlParam(0) . 'login/">our login page</a>, using your email, and – of course – your password.</p>';
-							if (!empty(Config::$config['allow_recover'])) $message .= '<p>If you ever lose your password, you can <a href="' . $this->Oli->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
+							else
+								$message .= '<p>No further action is needed: your account is already activated. You can easily log into your account from <a href="' . $this->Oli->getUrlParam(0) . 'login/">our login page</a>, using your email, and – of course – your password.</p>';
+
+							if (!empty(Config::$config['allow_recover']))
+								$message .= '<p>If you ever lose your password, you can <a href="' . $this->Oli->getUrlParam(0) . 'login/recover">recover your account</a> using your email: a confirmation mail will be sent to you on your demand.</p> <hr />';
 
 							$message .= '<p>Your user ID: <i>' . $uid . '</i> <br />';
 							$message .= 'Your hashed password (what we keep stored): <i>' . $hashedPassword . '</i> <br />';
@@ -1299,7 +1301,8 @@ class AccountsManager
 
 							$message .= '<p>Go on our website – <a href="' . $this->Oli->getUrlParam(0) . '">' . $this->Oli->getUrlParam(0) . '</a> <br />';
 							$message .= 'Login – <a href="' . $this->Oli->getUrlParam(0) . 'login/">' . $this->Oli->getUrlParam(0) . 'login/</a> <br />';
-							if (!empty(Config::$config['allow_recover'])) $message .= 'Recover your account – <a href="' . $this->Oli->getUrlParam(0) . 'login/recover">' . $this->Oli->getUrlParam(0) . 'login/recover</a></p>';
+							if (!empty(Config::$config['allow_recover']))
+								$message .= 'Recover your account – <a href="' . $this->Oli->getUrlParam(0) . 'login/recover">' . $this->Oli->getUrlParam(0) . 'login/recover</a></p>';
 						}
 						$headers = (!empty($mailInfos) && is_assoc($mailInfos)) ? $mailInfos['headers'] : $this->Oli->getDefaultMailHeaders();
 						if (is_array($headers)) $headers = implode("\r\n", $headers);
@@ -1307,18 +1310,15 @@ class AccountsManager
 						$mailResult = mail($email, $subject, $this->Oli->getTemplate('mail', ['__URL__' => $this->Oli->getUrlParam(0), '__NAME__' => $this->Oli->getSetting('name') ?: 'Oli Mailling Service', '__SUBJECT__' => $subject, '__CONTENT__' => $message]), $headers);
 					}
 
-					if (!$activateKey || $mailResult) return $uid;
-					else
-					{
-						$this->deleteFullAccount($uid);
-						return false;
-					}
+					if (!$activateKey || $mailResult)
+						return $uid;
+
+					$this->deleteFullAccount($uid);
 				}
-				else return false;
 			}
-			else return false;
 		}
-		else return false;
+
+		return false;
 	}
 
 	#endregion
