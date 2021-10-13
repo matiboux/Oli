@@ -1,4 +1,4 @@
-# Oli BETA 2.0.0 – development branch
+# Oli OMEGA 1.0.0 – development branch
 
 **Oli** is an *open source PHP framework* designed to help you create your website.  
 The framework brings up various development tools such as database and user management, and more.
