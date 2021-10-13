@@ -3,9 +3,9 @@
 |*|  -----------------------
 |*|  --- [  Oli MySQL  ] ---
 |*|  -----------------------
-|*|  
+|*|
 |*|  This is the static SQL wrapper for Oli.
-|*|  
+|*|
 |*|  More information about Oli in the README.md file.
 |*|  You can find it in the project repository: https://github.com/matiboux/Oli/
 \*/
@@ -24,7 +24,7 @@
 |*|  └ V. Formatting
 \*/
 
-namespace Oli;
+namespace Oli\DB;
 
 use PDO;
 

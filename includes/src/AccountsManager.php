@@ -56,6 +56,8 @@
 
 namespace Oli;
 
+use Oli\DB\DBWrapper;
+
 class AccountsManager
 {
 	#region I. Properties

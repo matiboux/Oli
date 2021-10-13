@@ -75,6 +75,7 @@
 namespace Oli;
 
 use Oli\Config;
+use Oli\DB\DBWrapper;
 
 abstract class OliCore
 {
