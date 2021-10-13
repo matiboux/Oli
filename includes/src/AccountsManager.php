@@ -860,7 +860,9 @@ class AccountsManager
 
 	#endregion
 
-	#region V. 4. Auth Key Cookie
+	#region V. 5. User Sessions
+
+	#region V. 5. A. Status
 
 	/**
 	 * Is User Logged In?
@@ -871,9 +873,11 @@ class AccountsManager
 	 */
 	public function isLoggedIn($authKey = null)
 	{
-		if (!isset($authKey)) $authKey = $this->getAuthKey();
+		if (!isset($authKey))
+			$authKey = $this->getAuthKey();
 
-		if (empty($authKey)) return false;
+		if (empty($authKey))
+			return false;
 
 		$sessionInfos = ($this->isLocalLogin() && !$this->isExternalLogin())
 		                ? $this->getLocalRootInfos()
@@ -887,6 +891,25 @@ class AccountsManager
 		return $this->isLoggedIn($authKey);
 	}
 
+	#endregion
+
+	#region V. 5. B. Infos
+
+	/**
+	 * Get Auth Key
+	 *
+	 * @return string Returns the Auth Key.
+	 * @version BETA-1.8.0
+	 * @updated BETA-2.0.0
+	 */
+	public function getAuthKey(): string
+	{
+		if (@$this->cache['authKey'] === null)
+			$this->cache['authKey'] = $this->getAuthCookie();
+
+		return $this->cache['authKey'];
+	}
+
 	/**
 	 * Get Logged User
 	 *
@@ -896,10 +919,13 @@ class AccountsManager
 	 */
 	public function getLoggedUser($authKey = null)
 	{
-		if (empty($authKey)) $authKey = $this->getAuthKey();
+		if (empty($authKey))
+			$authKey = $this->getAuthKey();
 
-		if (!$this->isLoggedIn($authKey)) return null;
-		if ($this->isLocalLogin() && !$this->isExternalLogin()) return $this->getLocalRootInfos()['username'];
+		if (!$this->isLoggedIn($authKey))
+			return null;
+		if ($this->isLocalLogin() && !$this->isExternalLogin())
+			return $this->getLocalRootInfos()['username'];
 		return $this->getAccountInfos(self::TABLE_SESSIONS, 'uid', ['auth_key' => hash('sha512', $authKey)]);
 	}
 
@@ -909,6 +935,8 @@ class AccountsManager
 	 * @return string|boolean Returns the username of user, false otherwise.
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
+	 *
+	 * @todo Optimize number of SQL queries
 	 */
 	public function getName($uid, &$type = null)
 	{
@@ -928,6 +956,7 @@ class AccountsManager
 			$type = 'uid';
 			return $uid;
 		}
+
 		return null;
 	}
 
@@ -1001,15 +1030,9 @@ class AccountsManager
 
 	#endregion
 
-	#region V. 5. User Sessions
+	#region V. 5. C. Auth Cookie
 
-	#region V. 5. A. General
-
-	#endregion
-
-	#region V. 5. B. Auth Cookie
-
-	#region V. 5. B. a. Management
+	#region V. 5. C. a. Management
 
 	/**
 	 * Set Auth Cookie
@@ -1043,7 +1066,7 @@ class AccountsManager
 
 	#endregion
 
-	#region V. 5. B. b. Infos
+	#region V. 5. C. b. Infos
 
 	/** Get Auth Cookie name */
 	public function getAuthCookieName(): string
@@ -1067,21 +1090,6 @@ class AccountsManager
 	public function isEmptyAuthCookie(): bool
 	{
 		return $this->Oli->isEmptyCookie(@Config::$config['auth_key_cookie']['name']);
-	}
-
-	/**
-	 * Get Auth Key
-	 *
-	 * @return string Returns the Auth Key.
-	 * @version BETA-1.8.0
-	 * @updated BETA-2.0.0
-	 */
-	public function getAuthKey(): string
-	{
-		if (empty($this->cache['authKey']))
-			$this->cache['authKey'] = $this->Oli->getCookie(@Config::$config['auth_key_cookie']['name']);
-
-		return $this->cache['authKey'];
 	}
 
 	#endregion
