@@ -54,9 +54,11 @@
 |*|    └ 8. Hash Password
 \*/
 
-namespace Oli;
+namespace Oli\Accounts;
 
+use Oli\Config;
 use Oli\DB\DBWrapper;
+use Oli\OliCore;
 
 class AccountsManager
 {

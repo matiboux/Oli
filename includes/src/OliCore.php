@@ -74,6 +74,7 @@
 
 namespace Oli;
 
+use Oli\Accounts\AccountsManager;
 use Oli\Config;
 use Oli\DB\DBWrapper;
 

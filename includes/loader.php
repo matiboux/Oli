@@ -56,13 +56,13 @@ if (!defined('TEMPLATESPATH'))
 require OLISRCPATH . 'PHP-Addons.php';
 require OLISRCPATH . 'ErrorManager.php';
 
+require OLISRCPATH . 'accounts/AccountsManager.php';
+
 require OLISRCPATH . 'db/DBMS.php';
 require OLISRCPATH . 'db/DBWrapper.php';
 require OLISRCPATH . 'db/MySQL.php';
 require OLISRCPATH . 'db/PostgreSQL.php';
 require OLISRCPATH . 'db/SQLServer.php';
-
-require OLISRCPATH . 'AccountsManager.php';
 
 // *** Final step is initializing Oli
 
