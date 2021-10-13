@@ -1161,12 +1161,11 @@ class AccountsManager
 	 * Is register enabled?
 	 *
 	 * @return boolean Returns true if login is enabled
-	 * @todo This should also be conditonal on the allow_login config.
 	 */
 	public function isRegisterEnabled(): bool
 	{
-		// return @Config::$config['allow_login'] &&
-		return @Config::$config['allow_register'] && !$this->isLocalLogin();
+		// return @Config::$config['allow_register'] && !$this->isLocalLogin();
+		return @Config::$config['allow_login'] && @Config::$config['allow_register'] && !$this->isLocalLogin();
 	}
 
 	/**
@@ -1189,7 +1188,6 @@ class AccountsManager
 	 * Is root register enabled?
 	 *
 	 * @return boolean Returns true if root register is enabled
-	 * @todo Verify the function and eventually use it in the login page.
 	 */
 	public function isRootRegisterEnabled(): bool
 	{
@@ -1329,12 +1327,11 @@ class AccountsManager
 	 * Is login enabled?
 	 *
 	 * @return boolean Returns true if login is enabled
-	 * @todo This should only be conditonal on the config.
 	 */
 	public function isLoginEnabled(): bool
 	{
-		// return Config::$config['allow_login'];
-		return Config::$config['allow_login'] || $this->isLocalLogin();
+		// return Config::$config['allow_login'] || $this->isLocalLogin();
+		return Config::$config['allow_login'];
 	}
 
 	/**
@@ -1343,12 +1340,11 @@ class AccountsManager
 	 * @return boolean Returns true if local.
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
-	 * @todo This should only be conditonal on the isReady state.
 	 */
 	public function isLocalLogin()
 	{
-		// return !$this->isReady();
-		return !$this->isReady() || !Config::$config['allow_login'];
+		// return !$this->isReady() || !Config::$config['allow_login'];
+		return !$this->isReady();
 	}
 
 	/**

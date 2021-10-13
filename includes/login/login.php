@@ -100,8 +100,8 @@ $showAntiBruteForce = false; // Display the Anti Brute Force stats.
 // - 'ROOT-REGISTER' Create a root account.
 	// if ($isLocalLogin) $isRootRegisterAllowed = empty($_AM->getLocalRootInfos());
 	// else $isRootRegisterAllowed = !$_AM->isExistAccountInfos('ACCOUNTS', array('user_right' => 'ROOT'), false);
-	$isRootRegisterAllowed = !$_AM->isRegisterEnabled();
-	// $isRootRegisterAllowed = $_AM->isRootRegisterEnabled();
+	// $isRootRegisterAllowed = !$_AM->isRegisterEnabled();
+	$isRootRegisterAllowed = $_AM->isRootRegisterEnabled();
 // .. 'root-registered' >> 'login' Root account created.
 // - 'ACTIVATE' Activate your account.
 	$isActivateAllowed = (!$isLocalLogin AND $_OliConfig['account_activation'] AND $_OliConfig['allow_register']);
