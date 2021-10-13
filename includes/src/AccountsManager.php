@@ -862,45 +862,6 @@ class AccountsManager
 
 	#region V. 4. Auth Key Cookie
 
-	#region V. 4. A. Create & Delete
-
-	/** Set Auth Key cookie */
-	public function setAuthKeyCookie($authKey, $expireDelay)
-	{
-		return $this->Oli->setCookie(Config::$config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', Config::$config['auth_key_cookie']['domain'], Config::$config['auth_key_cookie']['secure'], Config::$config['auth_key_cookie']['http_only']);
-	}
-
-	/** Delete Auth Key cookie */
-	public function deleteAuthKeyCookie()
-	{
-		return $this->Oli->deleteCookie(Config::$config['auth_key_cookie']['name'], '/', Config::$config['auth_key_cookie']['domain'], Config::$config['auth_key_cookie']['secure'], Config::$config['auth_key_cookie']['http_only']);
-	}
-
-	#endregion
-
-	#region V. 4. B. Get Auth Key Infos
-
-	/** Get Auth Key cookie name */
-	public function getAuthKeyCookieName()
-	{
-		return Config::$config['auth_key_cookie']['name'];
-	}
-
-	/** Auth Key cookie content */
-	// public function getAuthKey() { return $this->cache['authKey'] ?: $this->cache['authKey'] = $this->getCookie(Config::$config['auth_key_cookie']['name']); }
-	public function isExistAuthKey()
-	{
-		return $this->Oli->isExistCookie(Config::$config['auth_key_cookie']['name']);
-	}
-
-	public function isEmptyAuthKey()
-	{
-		return $this->Oli->isEmptyCookie(Config::$config['auth_key_cookie']['name']);
-	}
-
-	// Get Auth Key
-	// MOVED
-
 	/**
 	 * Is User Logged In?
 	 *
@@ -1040,8 +1001,6 @@ class AccountsManager
 
 	#endregion
 
-	#endregion
-
 	#region V. 5. User Sessions
 
 	#region V. 5. A. General
@@ -1059,7 +1018,7 @@ class AccountsManager
 	 * @version BETA-1.8.0
 	 * @updated BETA-2.0.0
 	 */
-	public function setAuthCookie($authKey, $expireDelay = null)
+	public function setAuthCookie($authKey, $expireDelay)
 	{
 		return $this->Oli->setCookie(@Config::$config['auth_key_cookie']['name'], $authKey, $expireDelay, '/',
 									 @Config::$config['auth_key_cookie']['domain'],
@@ -1087,19 +1046,25 @@ class AccountsManager
 	#region V. 5. B. b. Infos
 
 	/** Get Auth Cookie name */
-	public function getAuthIDCookieName(): string
+	public function getAuthCookieName(): string
 	{
 		return @Config::$config['auth_key_cookie']['name'];
 	}
 
-	/** Is exist Auth Cookie */
-	public function isExistAuthID(): bool
+	/** Get Auth Cookie value */
+	public function getAuthCookie(): string
+	{
+		return $this->Oli->getCookie(@Config::$config['auth_key_cookie']['name']);
+	}
+
+	/** Is exist Auth Key Cookie */
+	public function isExistAuthCookie(): bool
 	{
 		return $this->Oli->isExistCookie(@Config::$config['auth_key_cookie']['name']);
 	}
 
 	/** Is empty Auth Cookie */
-	public function isEmptyAuthID(): bool
+	public function isEmptyAuthCookie(): bool
 	{
 		return $this->Oli->isEmptyCookie(@Config::$config['auth_key_cookie']['name']);
 	}

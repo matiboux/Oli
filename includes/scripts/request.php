@@ -31,7 +31,7 @@ if ($_['action'] === 'setUserID' || $_['action'] === 'setLoginInfos')
 		       ->printJSON(...$scriptOrderArgs)->exit();
 
 	$expireDelay = $_OliConfig['auth_key_cookie']['expire_delay'] ?: 3600 * 24 * 7;
-	$_AM->setAuthKeyCookie($_['authKey'], $expireDelay);
+	$_AM->setAuthCookie($_['authKey'], $expireDelay);
 	$script->set('authKey', $_['authKey']);
 	$script->set('expireDelay', $expireDelay);
 }
