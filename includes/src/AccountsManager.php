@@ -924,7 +924,7 @@ class AccountsManager
 
 		if (!$this->isLoggedIn($authKey))
 			return null;
-		if ($this->isLocalLogin() && !$this->isExternalLogin())
+		if ($this->isLocalLogin()) // && !$this->isExternalLogin())
 			return $this->getLocalRootInfos()['username'];
 		return $this->getAccountInfos(self::TABLE_SESSIONS, 'uid', ['auth_key' => hash('sha512', $authKey)]);
 	}
@@ -935,19 +935,20 @@ class AccountsManager
 	 * @return string|boolean Returns the username of user, false otherwise.
 	 * @version BETA-2.0.0
 	 * @updated BETA-2.0.0
-	 *
-	 * @todo Optimize number of SQL queries
 	 */
 	public function getName($uid, &$type = null)
 	{
-		if ($this->isExistAccountInfos(self::TABLE_ACCOUNTS, ['uid' => $uid]))
+		$infos = $this->getAccountLines(self::TABLE_ACCOUNTS, ['uid' => $uid]);
+
+		if (!empty($infos)) // $this->isExistAccountInfos(self::TABLE_ACCOUNTS, ['uid' => $uid]))
 		{
-			if ($name = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'username', $uid))
+			if ($name = $infos['username']) //$this->getAccountInfos(self::TABLE_ACCOUNTS, 'username', $uid))
 			{
 				$type = 'username';
 				return $name;
 			}
-			if ($name = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'email', $uid))
+
+			if ($name = $infos['email']) //$this->getAccountInfos(self::TABLE_ACCOUNTS, 'email', $uid))
 			{
 				$type = 'email';
 				return substr($name, 0, strpos($name, '@'));
