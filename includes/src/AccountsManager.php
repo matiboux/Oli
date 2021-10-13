@@ -1061,7 +1061,10 @@ class AccountsManager
 	 */
 	public function setAuthCookie($authKey, $expireDelay = null)
 	{
-		return $this->Oli->setCookie(Config::$config['auth_key_cookie']['name'], $authKey, $expireDelay, '/', Config::$config['auth_key_cookie']['domain'], Config::$config['auth_key_cookie']['secure'], Config::$config['auth_key_cookie']['http_only']);
+		return $this->Oli->setCookie(@Config::$config['auth_key_cookie']['name'], $authKey, $expireDelay, '/',
+									 @Config::$config['auth_key_cookie']['domain'],
+									 @Config::$config['auth_key_cookie']['secure'],
+									 @Config::$config['auth_key_cookie']['http_only']);
 	}
 
 	/**
@@ -1073,7 +1076,10 @@ class AccountsManager
 	 */
 	public function deleteAuthCookie()
 	{
-		return $this->Oli->deleteCookie(Config::$config['auth_key_cookie']['name'], '/', Config::$config['auth_key_cookie']['domain'], Config::$config['auth_key_cookie']['secure'], Config::$config['auth_key_cookie']['http_only']);
+		return $this->Oli->deleteCookie(@Config::$config['auth_key_cookie']['name'], '/',
+		                                @Config::$config['auth_key_cookie']['domain'],
+										@Config::$config['auth_key_cookie']['secure'],
+										@Config::$config['auth_key_cookie']['http_only']);
 	}
 
 	#endregion
@@ -1081,21 +1087,21 @@ class AccountsManager
 	#region V. 5. B. b. Infos
 
 	/** Get Auth Cookie name */
-	public function getAuthIDCookieName()
+	public function getAuthIDCookieName(): string
 	{
-		return Config::$config['auth_key_cookie']['name'];
+		return @Config::$config['auth_key_cookie']['name'];
 	}
 
 	/** Is exist Auth Cookie */
-	public function isExistAuthID()
+	public function isExistAuthID(): bool
 	{
-		return $this->Oli->isExistCookie(Config::$config['auth_key_cookie']['name']);
+		return $this->Oli->isExistCookie(@Config::$config['auth_key_cookie']['name']);
 	}
 
 	/** Is empty Auth Cookie */
-	public function isEmptyAuthID()
+	public function isEmptyAuthID(): bool
 	{
-		return $this->Oli->isEmptyCookie(Config::$config['auth_key_cookie']['name']);
+		return $this->Oli->isEmptyCookie(@Config::$config['auth_key_cookie']['name']);
 	}
 
 	/**
@@ -1105,9 +1111,11 @@ class AccountsManager
 	 * @version BETA-1.8.0
 	 * @updated BETA-2.0.0
 	 */
-	public function getAuthKey()
+	public function getAuthKey(): string
 	{
-		if (empty($this->cache['authKey'])) $this->cache['authKey'] = $this->Oli->getCookie(Config::$config['auth_key_cookie']['name']);
+		if (empty($this->cache['authKey']))
+			$this->cache['authKey'] = $this->Oli->getCookie(@Config::$config['auth_key_cookie']['name']);
+
 		return $this->cache['authKey'];
 	}
 
