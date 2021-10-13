@@ -1122,10 +1122,9 @@ class AccountsManager
 	#region V. 6. A. Requests
 
 	/** Get the requests expire delay */
-	// -- Deprecated --
 	public function getRequestsExpireDelay()
 	{
-		return Config::$config['request_expire_delay'];
+		return @Config::$config['request_expire_delay'];
 	}
 
 	/**
@@ -1137,7 +1136,8 @@ class AccountsManager
 	 */
 	public function createRequest($uid, $action, &$requestTime = null)
 	{
-		if (!$this->isReady()) trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
+		if (!$this->isReady())
+			trigger_error('Sorry, the user management has been disabled.', E_USER_ERROR);
 		else
 		{
 			$requestsMatches['activate_key'] = hash('sha512', $activateKey = $this->Oli->keygen(6, true, false, true));
@@ -1148,9 +1148,9 @@ class AccountsManager
 
 			if ($this->insertAccountLine(self::TABLE_REQUESTS, $requestsMatches))
 				return $activateKey;
-
-			return false;
 		}
+
+		return false;
 	}
 
 	#endregion
