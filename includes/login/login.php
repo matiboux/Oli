@@ -145,14 +145,14 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			else if($isLocalLogin) {
 				$handle = fopen(CONTENTPATH . '.oliauth', 'w');
 				if(fwrite($handle, json_encode(array_merge($_AM->getLocalRootInfos(), array('password' => $hashedPassword)), JSON_FORCE_OBJECT))) {
-					$_AM->logoutAllAccount(); // Log out all sessions
+					$_AM->logoutAccount(); // Log out all sessions
 					$scriptState = $STATE[STATE_LOGIN];
 					$ignoreFormData = true;
 					$resultCode = 'S:Your password has been successfully updated.';
 				} else $resultCode = 'E:An error occurred when updating your password.';
 				fclose($handle);
 			} else if($_AM->updateAccountInfos('ACCOUNTS', array('password' => $hashedPassword), $_AM->getLoggedUser())) {
-				$_AM->logoutAllAccount(); // Log out all sessions
+				$_AM->logoutAccount(); // Log out all sessions
 				$resultCode = 'S:Your password has been successfully updated.';
 			} else $resultCode = 'E:An error occurred when updating your password.';
 		}
@@ -173,7 +173,7 @@ else if(in_array($_Oli->getUrlParam(2), ['edit-password', 'change-password']) AN
 			else if(time() > strtotime($requestInfos['expire_date'])) $resultCode = 'E:Sorry, the request you triggered has expired.';
 			else {
 				/** Deletes all the user sessions, change the user password and delete the request */
-				if(!$_AM->logoutAllAccount($requestInfos['uid'])) $resultCode = 'E:An error occurred while changing your password (#1).';
+				if(!$_AM->logoutAccount($requestInfos['uid'])) $resultCode = 'E:An error occurred while changing your password (#1).';
 				else if(!$_AM->updateAccountInfos('ACCOUNTS', array('password' => $_AM->hashPassword($_['newPassword'])), $requestInfos['uid'])) $resultCode = 'E:An error occurred while changing your password (#2).';
 				else if(!$_AM->deleteAccountLines('REQUESTS', array('activate_key' => hash('sha512', $_['activateKey'])))) $resultCode = 'E:An error occurred while changing your password (#3).';
 				else {
@@ -194,7 +194,7 @@ else if($isLoggedIn) {
 
 	/** Disconnect the user */
 	if($_Oli->getUrlParam(2) == 'logout') {
-		if($_AM->logoutAccount()) {
+		if($_AM->logoutSession()) {
 			// if(!empty($_OliConfig['associated_websites']) AND preg_match('/^(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)$/', $_OliConfig['associated_websites'][0], $matches)) {
 				// $url = ($matches[1] ?: 'http://') . $matches[2] . (substr($matches[3], -1) == '/' ? $matches[3] : '/') . 'request.php';
 				// header('Location: ' . $url . '?' . http_build_query(array('action' => 'removeLoginInfos', 'next' => array_slice($_OliConfig['associated_websites'], 1), 'callback' => $_Oli->getFullUrl())));

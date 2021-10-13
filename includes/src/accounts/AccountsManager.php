@@ -1399,39 +1399,46 @@ class AccountsManager
 	#region V. 6. D. Logout
 
 	/**
-	 * Log out from a session
+	 * Log out the current session
 	 *
 	 * @return boolean Returns true if logged out successfully, false otherwise.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function logoutAccount($authKey = null, $deleteCookie = true)
+	public function logoutSession($authKey = null, $deleteCookie = true)
 	{
-		if ($this->isLoggedIn($authKey))
-		{
-			if ($this->isLocalLogin())
-			{
-				$rootUserInfos = $this->getLocalRootInfos();
-				$handle = fopen(OLIPATH . '.oliauth', 'w');
-				$result = fwrite($handle, json_encode(array_merge($rootUserInfos, ['login_date' => null, 'expire_date' => null]), JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-				fclose($handle);
-			}
-			else $result = $this->deleteAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey ?: $this->getAuthKey())]);
+		if (!$this->isLoggedIn($authKey))
+			return false;
 
-			if ($deleteCookie) $this->deleteAuthCookie();
-			return $result ? true : false;
+		if ($this->isLocalLogin())
+		{
+			$rootUserInfos = $this->getLocalRootInfos();
+			$rootUserInfos = array_merge($rootUserInfos, ['login_date' => null, 'expire_date' => null]);
+
+			$handle = fopen(OLIPATH . '.oliauth', 'w');
+			$result = fwrite($handle, json_encode($rootUserInfos, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+			fclose($handle);
 		}
-		else return false;
+		else
+		{
+			$authKey = hash('sha512', $authKey ?: $this->getAuthKey());
+			$result = $this->deleteAccountLines(self::TABLE_SESSIONS, ['auth_key' => $authKey]);
+		}
+
+		if ($deleteCookie)
+			$this->deleteAuthCookie();
+
+		return $result ? true : false;
 	}
 
 	/**
-	 * Log out an account on all sessions
+	 * Log out all sessions
 	 *
 	 * @return boolean Returns true if logged out successfully, false otherwise.
 	 * @version BETA
 	 * @updated BETA-2.0.0
 	 */
-	public function logoutAllAccount($uid = null, $deleteCookie = false)
+	public function logoutAccount($uid = null, $deleteCookie = false)
 	{
 		if ($this->isLocalLogin())
 		{
@@ -1446,7 +1453,9 @@ class AccountsManager
 			$result = !empty($uid) ? $this->deleteAccountLines(self::TABLE_SESSIONS, ['uid' => $uid]) : false;
 		}
 
-		if ($deleteCookie) $this->deleteAuthCookie();
+		if ($deleteCookie)
+			$this->deleteAuthCookie();
+
 		return $result ? true : false;
 	}
 
