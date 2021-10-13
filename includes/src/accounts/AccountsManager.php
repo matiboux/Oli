@@ -1242,7 +1242,7 @@ class AccountsManager
 	public function isLoginEnabled(): bool
 	{
 		// return Config::$config['allow_login'] || $this->isLocalLogin();
-		return Config::$config['allow_login'];
+		return @Config::$config['allow_login'];
 	}
 
 	/**
@@ -1267,7 +1267,8 @@ class AccountsManager
 	 */
 	public function isExternalLogin()
 	{
-		return preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?(\S+)$/i', Config::$config['external_login_url']);
+		return preg_match('/^https?:\/\/(?:[w]{3}\.)?((?:([\da-z\.-]+)\.)*([\da-z-]+\.(?:[a-z\.]{2,6})))\/?(\S+)$/i',
+		                  @Config::$config['external_login_url']);
 	}
 
 	/**
@@ -1284,7 +1285,8 @@ class AccountsManager
 			$localRootInfos = json_decode(file_get_contents(OLIPATH . '.oliauth'), true);
 			return !empty($whatVar) ? $localRootInfos[$whatVar] : $localRootInfos;
 		}
-		else return false;
+
+		return false;
 	}
 
 	/**
@@ -1327,20 +1329,25 @@ class AccountsManager
 	 */
 	public function loginAccount($logid, $password, $expireDelay = null, $setCookie = true)
 	{
-		if ($this->isExternalLogin()) return null;
-		else if ($this->verifyLogin($logid, $password))
+		if ($this->isExternalLogin())
+			return null;
+
+		if ($this->verifyLogin($logid, $password))
 		{
-			if ($this->isLocalLogin()) $uid = $logid;
+			if ($this->isLocalLogin())
+				$uid = $logid;
 			else
 			{
 				$uid = $this->getAccountInfos(self::TABLE_ACCOUNTS, 'uid', ['uid' => $logid, 'username' => $logid, 'email' => $logid], ['where_or' => true], false);
-				if ($this->needsRehashPassword($this->getAccountInfos(self::TABLE_ACCOUNTS, 'password', $uid))) $this->updateAccountInfos(self::TABLE_ACCOUNTS, ['password' => $this->hashPassword($password)], $uid);
+				if ($this->needsRehashPassword($this->getAccountInfos(self::TABLE_ACCOUNTS, 'password', $uid)))
+					$this->updateAccountInfos(self::TABLE_ACCOUNTS, ['password' => $this->hashPassword($password)], $uid);
 			}
 
 			if ($this->isLocalLogin() || $this->getUserRightLevel($uid) >= $this->translateUserRight('USER'))
 			{
 				$now = time();
-				if (empty($expireDelay) || $expireDelay <= 0) $expireDelay = Config::$config['default_session_duration'] ?: 2 * 3600;
+				if (empty($expireDelay) || $expireDelay <= 0)
+					$expireDelay = Config::$config['default_session_duration'] ?: 2 * 3600;
 
 				$authKey = $this->Oli->keygen(Config::$config['auth_key_length'] ?: 32);
 				if (!empty($authKey))
@@ -1357,41 +1364,47 @@ class AccountsManager
 						if ($this->isExistAccountInfos(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)])) $this->deleteAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
 
 						$now = time();
-						$result = $this->insertAccountLine(self::TABLE_SESSIONS, [
-							'uid' => $uid,
-							'auth_key' => hash('sha512', $authKey),
-							'creation_date' => date('Y-m-d H:i:s', $now),
-							'ip_address' => $this->Oli->getUserIP(),
-							'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-							'login_date' => date('Y-m-d H:i:s', $now),
-							'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay),
-							'update_date' => date('Y-m-d H:i:s', $now),
-							'last_seen_page' => $this->Oli->getUrlParam(0) . implode('/', $this->Oli->getUrlParam('params')),
-						]);
+						$result = $this->insertAccountLine(self::TABLE_SESSIONS,
+							[
+								'uid' => $uid,
+								'auth_key' => hash('sha512', $authKey),
+								'creation_date' => date('Y-m-d H:i:s', $now),
+								'ip_address' => $this->Oli->getUserIP(),
+								'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+								'login_date' => date('Y-m-d H:i:s', $now),
+								'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay),
+								'update_date' => date('Y-m-d H:i:s', $now),
+								'last_seen_page' => $this->Oli->getUrlParam(0) . implode('/', $this->Oli->getUrlParam('params')),
+							]);
 					}
 					else
 					{
 						$rootUserInfos = $this->getLocalRootInfos();
+						$rootUserInfos = array_merge($rootUserInfos,
+							[
+								'auth_key' => hash('sha512', $authKey),
+								'ip_address' => $this->Oli->getUserIP(),
+								'login_date' => date('Y-m-d H:i:s', $now),
+								'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay),
+							]);
+
 						$handle = fopen(OLIPATH . '.oliauth', 'w');
-						$result = fwrite($handle, json_encode(array_merge($rootUserInfos, [
-							'auth_key' => hash('sha512', $authKey),
-							'ip_address' => $this->Oli->getUserIP(),
-							'login_date' => date('Y-m-d H:i:s', $now),
-							'expire_date' => date('Y-m-d H:i:s', $now + $expireDelay),
-						]),                                   JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+						$result = fwrite($handle, json_encode($rootUserInfos, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 						fclose($handle);
 					}
 
-					if ($setCookie) $this->setAuthCookie($authKey, Config::$config['auth_key_cookie']['expire_delay'] ?: 3600 * 24 * 7);
+					if ($setCookie)
+						$this->setAuthCookie($authKey, Config::$config['auth_key_cookie']['expire_delay'] ?: 3600 * 24 * 7);
+
 					$this->cache['authKey'] = $authKey;
 
-					return $result ? $authKey : false;
+					if ($result)
+						return $authKey;
 				}
-				else return false;
 			}
-			else return false;
 		}
-		else return false;
+
+		return false;
 	}
 
 	#endregion
