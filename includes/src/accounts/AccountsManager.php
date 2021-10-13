@@ -1108,7 +1108,7 @@ class AccountsManager
 	/** Is register verification enabled */
 	public function isRegisterVerificationEnabled(): bool
 	{
-		return @Config::$config['account_activation'];
+		return @Config::$config['account_activation'] && $this->isRegisterEnabled();
 	}
 
 	public function getRegisterVerificationStatus(): bool

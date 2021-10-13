@@ -104,7 +104,8 @@ $showAntiBruteForce = false; // Display the Anti Brute Force stats.
 	$isRootRegisterAllowed = $_AM->isRootRegisterEnabled();
 // .. 'root-registered' >> 'login' Root account created.
 // - 'ACTIVATE' Activate your account.
-	$isActivateAllowed = (!$isLocalLogin AND $_OliConfig['account_activation'] AND $_OliConfig['allow_register']);
+	// $isActivateAllowed = (!$isLocalLogin AND $_OliConfig['account_activation'] AND $_OliConfig['allow_register']);
+	$isActivateAllowed = $_AM->isRegisterVerificationEnabled();
 // - 'RECOVER' Recover your account.
 	// $isRecoverAllowed = !$isLocalLogin;
 // - 'RECOVER-PASSWORD' Change your password. (through RECOVER request)
