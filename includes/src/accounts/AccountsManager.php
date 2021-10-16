@@ -808,10 +808,17 @@ class AccountsManager
 		if (empty($authKey))
 			return false;
 
-		$sessionInfos = ($this->isLocalLogin() && !$this->isExternalLogin())
-		                ? $this->getLocalRootInfos()
-		                : $this->getAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
-		return strtotime($sessionInfos['expire_date']) >= time();
+		if ($this->isLocalLogin() && !$this->isExternalLogin())
+		{
+			$sessionInfos = $this->getLocalRootInfos();
+			if (@$sessionInfos['auth_key'] !== $authKey)
+				return false;
+		}
+		else
+		{
+			$sessionInfos = $this->getAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
+		}
+		return !empty($sessionInfos) && strtotime($sessionInfos['expire_date']) >= time();
 	}
 
 	/** @alias OliCore::isLoggedIn() */
