@@ -93,6 +93,8 @@ class AccountsManager
 	/** Data Cache */
 	private array $cache = [];
 
+	private ?array $isReady = null;
+
 	#endregion
 
 	#endregion
@@ -167,6 +169,9 @@ class AccountsManager
 	public function setDB(DBWrapper $db): void
 	{
 		$this->db = $db;
+
+		// Reset cache
+		$this->isReady = null;
 	}
 
 	/**
@@ -179,6 +184,9 @@ class AccountsManager
 	public function removeDB(): void
 	{
 		$this->db = null;
+
+		// Reset cache
+		$this->isReady = null;
 	}
 
 	#endregion
@@ -235,6 +243,10 @@ class AccountsManager
 	 */
 	public function isReady(): bool
 	{
+		// Check for cached result
+		if ($this->isReady !== null)
+			return $this->isReady;
+
 		if (!$this->isSetupDB())
 			return false;
 
@@ -243,7 +255,8 @@ class AccountsManager
 			if (!$status[] = $this->db->isExistTableSQL($eachTable))
 				break;
 
-		return !in_array(false, $status, true);
+		$this->isReady = !in_array(false, $status, true);
+		return $this->isReady;
 	}
 
 	#endregion
