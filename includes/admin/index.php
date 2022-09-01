@@ -36,6 +36,7 @@ if(!$_Oli->isLoggedIn()) header('Location: ' . $_Oli->getLoginUrl());
 		
 		<h2>Website Management</h2>
 		<ul>
+			<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/setup'?>">Run the setup wizard</a></li>
 			<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/config'?>">Edit your website config</a></li>
 			<li><a href="<?=$_Oli->getUrlParam(0) . $_Oli->getUrlParam(1) . '/mysql'?>">Edit your mysql config</a></li>
 		</ul>
