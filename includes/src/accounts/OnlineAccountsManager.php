@@ -56,12 +56,11 @@
 
 namespace Oli\Accounts;
 
-use Locale;
 use Oli\Config;
 use Oli\DB\DBWrapper;
 use Oli\OliCore;
 
-class AccountsManager
+class OnlineAccountsManager
 {
 	#region I. Properties
 
@@ -94,10 +93,6 @@ class AccountsManager
 	/** Data Cache */
 	private array $cache = [];
 
-	private $manager;
-
-	private ?array $isReady = null;
-
 	#endregion
 
 	#endregion
@@ -115,8 +110,6 @@ class AccountsManager
 	public function __construct(OliCore $Oli)
 	{
 		$this->Oli = $Oli;
-
-		$this->updateManager();
 	}
 
 	/**
@@ -174,11 +167,6 @@ class AccountsManager
 	public function setDB(DBWrapper $db): void
 	{
 		$this->db = $db;
-
-		// Reset cache
-		$this->isReady = null;
-
-		$this->updateManager();
 	}
 
 	/**
@@ -191,11 +179,6 @@ class AccountsManager
 	public function removeDB(): void
 	{
 		$this->db = null;
-
-		// Reset cache
-		$this->isReady = null;
-
-		$this->updateManager();
 	}
 
 	#endregion
@@ -252,10 +235,6 @@ class AccountsManager
 	 */
 	public function isReady(): bool
 	{
-		// Check for cached result
-		if ($this->isReady !== null)
-			return $this->isReady;
-
 		if (!$this->isSetupDB())
 			return false;
 
@@ -264,31 +243,7 @@ class AccountsManager
 			if (!$status[] = $this->db->isExistTableSQL($eachTable))
 				break;
 
-		$this->isReady = !in_array(false, $status, true);
-		return $this->isReady;
-	}
-
-	/**
-	 * Get the actual accounts manager
-	 *
-	 * @version GAMMA-1.0.0
-	 */
-	public function getManager()
-	{
-		return $this->manager;
-	}
-
-	/**
-	 * Update the accounts manager
-	 *
-	 * @version GAMMA-1.0.0
-	 */
-	private function updateManager()
-	{
-		if ($this->isReady())
-			$this->manager = new OnlineAccountsManager($this->Oli);
-		else
-			$this->manager = new LocalAccountsManager($this->Oli);
+		return !in_array(false, $status, true);
 	}
 
 	#endregion
@@ -853,17 +808,10 @@ class AccountsManager
 		if (empty($authKey))
 			return false;
 
-		if ($this->isLocalLogin() && !$this->isExternalLogin())
-		{
-			$sessionInfos = $this->getLocalRootInfos();
-			if (@$sessionInfos['auth_key'] !== $authKey)
-				return false;
-		}
-		else
-		{
-			$sessionInfos = $this->getAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
-		}
-		return !empty($sessionInfos) && strtotime($sessionInfos['expire_date']) >= time();
+		$sessionInfos = ($this->isLocalLogin() && !$this->isExternalLogin())
+		                ? $this->getLocalRootInfos()
+		                : $this->getAccountLines(self::TABLE_SESSIONS, ['auth_key' => hash('sha512', $authKey)]);
+		return strtotime($sessionInfos['expire_date']) >= time();
 	}
 
 	/** @alias OliCore::isLoggedIn() */
